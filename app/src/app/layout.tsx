@@ -9,7 +9,7 @@ import { ContextProvider } from '@/context'
 
 export const metadata: Metadata = {
   title: 'App | Mufi',
-  description: 'Universal Music Distribution Protocol'
+  description: 'Mufi | Universal Music Distribution Protocol'
 }
 
 export default function RootLayout({
