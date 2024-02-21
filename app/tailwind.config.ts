@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import designSystemConfig from '../ui-components/tailwind.config.js';
+// import designSystemConfig from '../ui-components/tailwind.config.js';
 
 const config: Config = {
   // ...designSystemConfig,
@@ -16,7 +16,7 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
-      ...designSystemConfig.theme
+      // ...designSystemConfig.theme
     },
   },
   plugins: [

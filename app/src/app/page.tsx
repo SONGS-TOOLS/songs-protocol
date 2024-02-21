@@ -1,16 +1,40 @@
+"use client";
+
 import ConnectButton from "@/components/ConnectButton";
 import Grid from "@/components/Grid";
+import Step1 from "@/components/Steps/Step1";
+import Step2 from "@/components/Steps/Step2";
+import Step3 from "@/components/Steps/Step3";
+import { useStep } from "@/context/PageContext";
 import Image from "next/image";
+import { useReadContract, useWriteContract } from "wagmi";
+
+import cx from 'classnames';
+import { Address } from "viem";
+import abi from "../contracts/UMDP.json";
+import contracts from "../contracts/contractAddresses.json";
+
 export default function Home() {
-  // const result = useReadContract({
-  //   abi: UMDPAbi,
-  //   address: contracts.UMDP as Address,
-  //   functionName: 'getISRCMetadataURI'
-  // })
-  // const { writeContract } = useWriteContract()
+  // TODO type
+  const stepColors: any = {
+    active: "text-rose-600 border-rose-600 dark:text-rose-500 dark:border-rose-500",
+    ahead: "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400",
+  };
+
+  const result = useReadContract({
+    abi: abi,
+    address: contracts.UMDP as Address,
+    functionName: 'getISRCMetadataURI'
+  })
+  const { writeContract } = useWriteContract()
+
+  const { currentStep } = useStep();
+  const colorClass: string =
+    stepColors[currentStep] ||
+    "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400";
 
   return (
-    <main className="flex justify-center">
+    <main className="flex w-screen justify-center">
       <Grid>
         <div className="mt-3 col-start-1 col-end-13 w-full flex justify-between items-center border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-full p-2">
           <div className="flex items-center gap-2">
@@ -25,10 +49,10 @@ export default function Home() {
           </div>
           <ConnectButton />
         </div>
-
-        <ol className="col-start-1 col-end-13 p-2 items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
-          <li className="flex items-center text-rose-600 dark:text-rose-500 space-x-2.5 rtl:space-x-reverse">
-            <span className="flex items-center justify-center w-8 h-8 border border-rose-600 rounded-full shrink-0 dark:border-rose-500">
+        <ol
+          className={`col-start-1 col-end-13 p-2 items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse ${colorClass}`}>
+          <li className={cx("flex items-center space-x-2.5 rtl:space-x-reverse", currentStep >= 0 ? stepColors["active"] : stepColors["ahead"])}>
+            <span className={cx("flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ", currentStep >= 0 ? "border-rose-600 dark:border-rose-500" : "border-gray-500 dark:border-gray-400")}>
               1
             </span>
             <span>
@@ -38,9 +62,8 @@ export default function Home() {
               <p className="text-sm">Step details here</p>
             </span>
           </li>
-          <li className="flex items-center text-gray-500 dark:text-gray-400 space-x-2.5 rtl:space-x-reverse">
-            <span className="flex items-center justify-center w-8 h-8 border border-gray-500 rounded-full shrink-0 dark:border-gray-400">
-              2
+          <li className={cx("flex items-center space-x-2.5 rtl:space-x-reverse", currentStep >= 1 ? stepColors["active"] : stepColors["ahead"])}>
+          <span className={cx("flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ", currentStep >= 1 ? "border-rose-600 dark:border-rose-500" : "border-gray-500 dark:border-gray-400")}>              2
             </span>
             <span>
               <h3 className="font-medium leading-tight">
@@ -49,9 +72,8 @@ export default function Home() {
               <p className="text-sm">Step details here</p>
             </span>
           </li>
-          <li className="flex items-center text-gray-500 dark:text-gray-400 space-x-2.5 rtl:space-x-reverse">
-            <span className="flex items-center justify-center w-8 h-8 border border-gray-500 rounded-full shrink-0 dark:border-gray-400">
-              3
+          <li className={cx("flex items-center space-x-2.5 rtl:space-x-reverse", currentStep >= 2 ? stepColors["active"] : stepColors["ahead"])}>
+          <span className={cx("flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ", currentStep >= 2 ? "border-rose-600 dark:border-rose-500" : "border-gray-500 dark:border-gray-400")}>              3
             </span>
             <span>
               <h3 className="font-medium leading-tight">Connect DPSs</h3>
@@ -59,71 +81,9 @@ export default function Home() {
             </span>
           </li>
         </ol>
-        {/* 
-STEP 1
- */}
-        <div className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2">
-          <h2 className="mb-6">Select a music NFT to distribute:</h2>
-
-          <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Token collection address
-            </label>
-            <input
-              type="text"
-              id="default-input"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
-            />
-          </div>
-          <div className="mb-0">
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Token ID
-            </label>
-            <input
-              type="text"
-              id="default-input"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="text-white mt-2 bg-rose-700 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-rose-600 dark:hover:bg-rose-700 dark:focus:ring-rose-800">
-            Select NFT
-          </button>
-        </div>
-
-        {/* 
-STEP 2
- */}
-        <div className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2">
-          <h2 className="mb-6">Stablish Royalties Distribution:</h2>
-
-          <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Recipient addreses:
-            </label>
-            <input
-              type="text"
-              id="default-input"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
-            />
-          </div>
-          <div className="mb-0">
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Token ID
-            </label>
-            <input
-              type="text"
-              id="default-input"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="text-white mt-2 bg-rose-700 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-rose-600 dark:hover:bg-rose-700 dark:focus:ring-rose-800">
-            Select NFT
-          </button>
-        </div>
+        {currentStep === 0 && <Step1 />}
+        {currentStep === 1 && <Step2 />}
+        {currentStep === 2 && <Step3 />}
       </Grid>
     </main>
   );
