@@ -1,49 +1,60 @@
-import { ethers, network, run } from "hardhat";
+import fs from 'fs';
+import { artifacts, ethers } from "hardhat";
+import path from 'path';
+
+const abisDirectory = path.join(__dirname, '..', '..', 'app', 'src', 'contracts'); // Adjust the path as needed
+const addressesFile = path.join(abisDirectory, 'contractAddresses.json'); // File to store all addresses
+
+// Object to hold contract addresses
+let contractAddresses: any = {};
 
 async function main() {
   const [deployer] = await ethers.getSigners();
   const balance = await ethers.provider.getBalance(deployer.address);
-    console.log("Account balance:", balance);
+  console.log("Account balance:", balance.toString());
 
-    // Deploy UMDP contract
-    console.log("Deploying UMDP...");
-    const UMDP = await ethers.getContractFactory("UMDP");
-    const umdp = await UMDP.deploy(deployer.address);
-    // Wait for the contract to be deployed
-    console.log("UMDP deployed to:", await umdp.getAddress());
+  // Ensure the ABIs directory exists
+  if (!fs.existsSync(abisDirectory)) {
+    fs.mkdirSync(abisDirectory, { recursive: true });
+  }
 
-    // Deploy MusicERC721 contract with the deployer as the initial owner
-    const MusicERC721 = await ethers.getContractFactory("MusicERC721");
-    const musicERC721 = await MusicERC721.deploy("MufiBase", "MUFI", deployer.address); // Updated to include deployer.address as initialOwner
-    console.log("MusicERC721 deployed to:", await musicERC721.getAddress());
+  // Deploy UMDP contract
+  console.log("Deploying UMDP...");
+  const UMDP = await ethers.getContractFactory("UMDP");
+  const umdp = await UMDP.deploy(deployer.address);
+  console.log("UMDP deployed to:", await umdp.getAddress());
+  await saveAbi("UMDP", await umdp.getAddress());
 
-    // Optional: Verify contracts after deployment
-    // await verifyContracts(umdp.address, [deployer.address]);
-    // await verifyContracts(musicERC721.address, ["MufiBase", "MUFI", deployer.address]);
+  // Deploy MusicERC721 contract
+  console.log("Deploying MusicERC721...");
+  const MusicERC721 = await ethers.getContractFactory("MusicERC721");
+  const musicERC721 = await MusicERC721.deploy("MufiBase", "MUFI", deployer.address);
+  console.log("MusicERC721 deployed to:", await musicERC721.getAddress());
+  await saveAbi("MusicERC721", await musicERC721.getAddress());
+
+  // After all deployments, save the contract addresses to a file
+  fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
+  console.log(`Contract addresses saved to ${addressesFile}`);
+
 }
 
-async function verifyContracts(contractAddress: string, constructorArguments: any[]) {
-    if (network.name !== "hardhat" && network.name !== "localhost") {
-        console.log(`Sleeping before verification for contract at ${contractAddress}...`);
-        await sleep(30000); // Wait for the network to acknowledge the deployment
-        try {
-            await run("verify:verify", {
-                address: contractAddress,
-                constructorArguments: constructorArguments,
-            });
-        } catch (error) {
-            console.error(`Verification failed for contract at ${contractAddress}`, error);
-        }
-    }
+async function saveAbi(contractName:string, contractAddress: any) {
+  const artifact = await artifacts.readArtifact(contractName);
+  fs.writeFileSync(
+    path.join(abisDirectory, `${contractName}.json`),
+    JSON.stringify(artifact.abi, null, 2) // Pretty print the JSON
+  );
+  console.log(`ABI for ${contractName} saved to ${abisDirectory}/${contractName}.json`);
+  
+  // Update the contract addresses object
+  contractAddresses[contractName] = contractAddress;
 }
 
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// Additional functions remain unchanged...
 
 main()
-    .then(() => process.exit(0))
-    .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

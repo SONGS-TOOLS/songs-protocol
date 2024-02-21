@@ -1,0 +1,21 @@
+{
+  "name": "@mufi/protocol",
+  "version": "0.1.0",
+  "description": "Mufi",
+  "repository": "https://github.com/mufi.git",
+  "author": "Mufi",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "ui-components",
+      "protocol",
+      "app"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+  }
+}

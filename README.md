@@ -1,3 +1,3 @@
 # Universal-Music-Royalties
 
-Universal NFT Music Royalties Distribution protocol
+Universal NFT Music Royalties Distribution Protocol
