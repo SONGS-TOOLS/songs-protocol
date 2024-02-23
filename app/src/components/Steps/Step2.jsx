@@ -1,18 +1,22 @@
 "use client";
 
 import { useStep } from "@/context/PageContext";
+import { useWriteContract } from 'wagmi';
+
 import React, { useState } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount } from 'wagmi';
 import UMDPAbi from "../../contracts/UMDP.json";
-import contracts from "../../contracts/contractAddresses.json";
+import contracts from "../../contracts/contractAddresses-sepolia.json";
 
 const Step2 = () => {
   const { address } = useAccount();
   const { selectedNft } = useStep();
-  const [royalties, setRoyalties] = useState<any>([
+  const [royalties, setRoyalties] = useState([
     { address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", percentage: "20" },
     { address: "0xf34Fd6e51aad88F6F4ce6aB8827279cffF884737", percentage: "30" },
+    { address: "0xf34Fd6e51aad88F6F4ce6aB8827279cffF884733", percentage: "50" },
   ]);
+
   const { writeContract } = useWriteContract();
 
   const handleAddRoyalty = () => {
@@ -25,27 +29,50 @@ const Step2 = () => {
     setRoyalties(newRoyalties);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const args = [
+      selectedNft.address,
+      selectedNft.tokenId,
+      royalties.map((royalty) => ({
+        recipient: royalty.address,
+        share: parseInt(royalty.percentage, 10) * 100, // Convert percentage to basis points
+      })),]
+      
+    console.log('submit => ',args);
 
     writeContract({
       abi: UMDPAbi,
       address: contracts.UMDP,
       functionName: "setRoyalties",
-      args: [
-        selectedNft.address,
-        selectedNft.tokenId,
-        royalties.map((royalty) => ({
-          recipient: royalty.address,
-          share: parseInt(royalty.percentage, 10) * 100, // Convert percentage to basis points
-        })),
-      ],
+      args: args
     });
+
+
   };
 
   return (
     <React.Fragment>
-      <form onSubmit={handleSubmit} className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2 space-y">
+      <form onSubmit={() => {
+    // const args = [
+    //   selectedNft.address,
+    //   selectedNft.tokenId,
+    //   royalties.map((royalty) => ({
+    //     recipient: royalty.address,
+    //     share: parseInt(royalty.percentage, 10) * 100, // Convert percentage to basis points
+    //   })),]
+      
+    // console.log('submit => ',args);
+
+    // writeContract({
+    //   abi: UMDPAbi,
+    //   address: contracts.UMDP,
+    //   functionName: "setRoyalties",
+    //   args: args
+    // });
+
+      }} className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2 space-y">
         <h2 className="mb-6">Establish Royalties Distribution:</h2>
         <section className="bg-rose-200 border border-gray-300 p-5 gap-2 flex flex-col rounded-lg">
           {royalties.map((royalty, index) => (
@@ -85,7 +112,7 @@ const Step2 = () => {
         <button
           type="submit"
           className=" text-white mt-2 bg-rose-700 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-rose-600 dark:hover:bg-rose-700 dark:focus:ring-rose-800">
-          Submit Royalties
+          Submit Royalties Distribution
         </button>
       </form>
     </React.Fragment>

@@ -4,10 +4,10 @@ import { useStep } from "@/context/PageContext";
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import contracts from "../../contracts/contractAddresses.json";
+import contracts from "../../contracts/contractAddresses-sepolia.json";
 import CustomModal from "../Modal";
 // Ensure environment variables are loaded properly (e.g., from .env.local)
-const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_MAINNET_API_KEY;
+const alchemyApiKey = process.env.NE;
 const web3 = createAlchemyWeb3(
   `https://eth-mainnet.alchemyapi.io/v2/${alchemyApiKey}`
 );
@@ -17,8 +17,8 @@ const Step1: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nfts, setNfts] = useState<any[]>([]);
   const [selectedNft, setSelectedNft] = useState({
-    contractAddress: "",
-    tokenId: "",
+    contractAddress: contracts.MusicERC721,
+    tokenId: "0",
   });
 
   const { selectNft, setStep }: any = useStep(); // Use the updated context to access the selectNft function
@@ -41,7 +41,7 @@ const Step1: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchNFTs();
+    // fetchNFTs();
   }, [address]); // Re-fetch NFTs whenever the address changes
 
   return (
@@ -55,7 +55,7 @@ const Step1: React.FC = () => {
             </label>
             <input
               type="text"
-              value={address}
+              value={selectedNft.contractAddress}
               onChange={(e) => setselectedAddress(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
               required
@@ -67,7 +67,7 @@ const Step1: React.FC = () => {
             </label>
             <input
               type="number"
-              value={tokenId}
+              value={selectedNft.tokenId}
               onChange={(e) => setTokenId(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
               required

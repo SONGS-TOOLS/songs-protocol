@@ -1,8 +1,5 @@
 import "@nomicfoundation/hardhat-ethers";
 
-// import '@nomiclabs/hardhat-etherscan';
-// import '@nomiclabs/hardhat-waffle';
-
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
 import './tasks/faucet';
@@ -67,12 +64,16 @@ export default {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    sepolia: {
+      url: process.env.SEPOLIA || '',
+      accounts:
+        process.env.SEPOLIA_PRIVATE_KEY !== undefined ? [process.env.SEPOLIA_PRIVATE_KEY] : [],
+    },
     mumbai: {
       url: process.env.MUMBAI || '',
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    
   },
   gasReporter: {
     gasPrice: 21,
@@ -96,3 +97,4 @@ export default {
     },
   },
 };
+

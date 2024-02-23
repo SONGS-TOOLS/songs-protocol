@@ -1,16 +1,23 @@
 import fs from 'fs';
-import { artifacts, ethers } from "hardhat";
+import { artifacts, ethers, network } from "hardhat";
 import path from 'path';
 
-const abisDirectory = path.join(__dirname, '..', '..', 'app', 'src', 'contracts'); // Adjust the path as needed
-const addressesFile = path.join(abisDirectory, 'contractAddresses.json'); // File to store all addresses
+const abisDirectory = path.join(__dirname, '..', '..', 'app', 'src', 'contracts');
+const networkName = network.name;
+
+// Adjust the path to save each network's contract addresses with the network name
+const addressesFile = path.join(abisDirectory, `contractAddresses-${networkName}.json`);
 
 // Object to hold contract addresses
 let contractAddresses: any = {};
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
+
+
+  const [deployer, deployer2, deployer3, deployer4] = await ethers.getSigners();
   const balance = await ethers.provider.getBalance(deployer.address);
+  console.log("Account address:", deployer.address);
+  console.log("Account address:", deployer2.address, deployer3.address, deployer4.address);
   console.log("Account balance:", balance.toString());
 
   // Ensure the ABIs directory exists
@@ -54,7 +61,7 @@ async function saveAbi(contractName:string, contractAddress: any) {
     path.join(abisDirectory, `${contractName}.json`),
     JSON.stringify(artifact.abi, null, 2) // Pretty print the JSON
   );
-  console.log(`ABI for ${contractName} saved to ${abisDirectory}/${contractName}.json`);
+  console.log(`ABI for ${contractName} saved to ${abisDirectory}/${contractName}-${networkName}.json`);
   
   // Update the contract addresses object
   contractAddresses[contractName] = contractAddress;

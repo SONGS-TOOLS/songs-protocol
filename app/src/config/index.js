@@ -28,7 +28,7 @@ const metadata = {
 };
 
 export const config = defaultWagmiConfig({
-  chains: [mainnet, sepolia, optimism, hardhat], // Including Sepolia, Optimism, and Hardhat
+  chains: [sepolia, mainnet, optimism, hardhat],
   projectId, // Required
   metadata, // Required
   ssr: true,

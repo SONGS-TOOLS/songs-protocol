@@ -9,26 +9,28 @@ import { useStep } from "@/context/PageContext";
 import Image from "next/image";
 import { useReadContract, useWriteContract } from "wagmi";
 
-import cx from 'classnames';
+import cx from "classnames";
 import abi from "../contracts/UMDP.json";
 import contracts from "../contracts/contractAddresses.json";
 
 export default function Home() {
   // TODO type
   const stepColors = {
-    active: "text-rose-600 border-rose-600 dark:text-rose-500 dark:border-rose-500",
-    ahead: "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400",
+    active:
+      "text-rose-600 border-rose-600 dark:text-rose-500 dark:border-rose-500",
+    ahead:
+      "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400",
   };
 
   const result = useReadContract({
     abi: abi,
     address: contracts.UMDP,
-    functionName: 'getISRCMetadataURI'
-  })
-  const { writeContract } = useWriteContract()
+    functionName: "getISRCMetadataURI",
+  });
+  const { writeContract } = useWriteContract();
 
   const { currentStep } = useStep();
-  
+
   const colorClass =
     stepColors[currentStep] ||
     "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400";
@@ -49,10 +51,24 @@ export default function Home() {
           </div>
           <ConnectButton />
         </div>
+        <div className="flex flex-col text-rose-400">
+          <h1 className="font-bold text-2xl">Universal Music Distribution Protocol</h1>
+          <p>{"v0.1 (Work in progress)"}</p>
+        </div>
         <ol
           className={`col-start-1 col-end-13 p-2 items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse ${colorClass}`}>
-          <li className={cx("flex items-center space-x-2.5 rtl:space-x-reverse", currentStep >= 0 ? stepColors["active"] : stepColors["ahead"])}>
-            <span className={cx("flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ", currentStep >= 0 ? "border-rose-600 dark:border-rose-500" : "border-gray-500 dark:border-gray-400")}>
+          <li
+            className={cx(
+              "flex items-center space-x-2.5 rtl:space-x-reverse",
+              currentStep >= 0 ? stepColors["active"] : stepColors["ahead"]
+            )}>
+            <span
+              className={cx(
+                "flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ",
+                currentStep >= 0
+                  ? "border-rose-600 dark:border-rose-500"
+                  : "border-gray-500 dark:border-gray-400"
+              )}>
               1
             </span>
             <span>
@@ -62,8 +78,20 @@ export default function Home() {
               <p className="text-sm">Step details here</p>
             </span>
           </li>
-          <li className={cx("flex items-center space-x-2.5 rtl:space-x-reverse", currentStep >= 1 ? stepColors["active"] : stepColors["ahead"])}>
-          <span className={cx("flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ", currentStep >= 1 ? "border-rose-600 dark:border-rose-500" : "border-gray-500 dark:border-gray-400")}>              2
+          <li
+            className={cx(
+              "flex items-center space-x-2.5 rtl:space-x-reverse",
+              currentStep >= 1 ? stepColors["active"] : stepColors["ahead"]
+            )}>
+            <span
+              className={cx(
+                "flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ",
+                currentStep >= 1
+                  ? "border-rose-600 dark:border-rose-500"
+                  : "border-gray-500 dark:border-gray-400"
+              )}>
+              {" "}
+              2
             </span>
             <span>
               <h3 className="font-medium leading-tight">
@@ -72,8 +100,20 @@ export default function Home() {
               <p className="text-sm">Step details here</p>
             </span>
           </li>
-          <li className={cx("flex items-center space-x-2.5 rtl:space-x-reverse", currentStep >= 2 ? stepColors["active"] : stepColors["ahead"])}>
-          <span className={cx("flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ", currentStep >= 2 ? "border-rose-600 dark:border-rose-500" : "border-gray-500 dark:border-gray-400")}>              3
+          <li
+            className={cx(
+              "flex items-center space-x-2.5 rtl:space-x-reverse",
+              currentStep >= 2 ? stepColors["active"] : stepColors["ahead"]
+            )}>
+            <span
+              className={cx(
+                "flex items-center justify-center w-8 h-8 border  rounded-full shrink-0 ",
+                currentStep >= 2
+                  ? "border-rose-600 dark:border-rose-500"
+                  : "border-gray-500 dark:border-gray-400"
+              )}>
+              {" "}
+              3
             </span>
             <span>
               <h3 className="font-medium leading-tight">Connect DPSs</h3>

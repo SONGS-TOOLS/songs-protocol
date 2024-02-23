@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol"; 
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol"; 
 import "@openzeppelin/contracts/access/Ownable.sol"; 
 import "@openzeppelin/contracts/access/AccessControl.sol"; 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -42,14 +42,15 @@ contract UMDP is Ownable, ReentrancyGuard, AccessControl {
     event NFTISRCSet(address indexed nftContract, uint256 indexed tokenId, string isrc);
 
     // Constructor to set up roles and ownership
-    constructor(address initialOwner) {
-        _setupRole(DEFAULT_ADMIN_ROLE, initialOwner);
-        _setupRole(ISRC_MANAGER_ROLE, initialOwner);
+    constructor(address initialOwner)  {
+        _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
+        _grantRole(ISRC_MANAGER_ROLE, initialOwner);
         transferOwnership(initialOwner);
     }
 
     // Function to set royalties for an NFT, accessible only by ISRC Manager
     function setRoyalties(address nftContract, uint256 tokenId, RoyaltyInfo[] calldata _royalties) external onlyRole(ISRC_MANAGER_ROLE) {
+        // TODO: check for the percentanges to not overflow.
         delete royalties[nftContract][tokenId];
         for (uint256 i = 0; i < _royalties.length; i++) {
             royalties[nftContract][tokenId].push(_royalties[i]);
