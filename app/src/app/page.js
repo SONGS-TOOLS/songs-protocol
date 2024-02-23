@@ -10,26 +10,26 @@ import Image from "next/image";
 import { useReadContract, useWriteContract } from "wagmi";
 
 import cx from 'classnames';
-import { Address } from "viem";
 import abi from "../contracts/UMDP.json";
 import contracts from "../contracts/contractAddresses.json";
 
 export default function Home() {
   // TODO type
-  const stepColors: any = {
+  const stepColors = {
     active: "text-rose-600 border-rose-600 dark:text-rose-500 dark:border-rose-500",
     ahead: "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400",
   };
 
   const result = useReadContract({
     abi: abi,
-    address: contracts.UMDP as Address,
+    address: contracts.UMDP,
     functionName: 'getISRCMetadataURI'
   })
   const { writeContract } = useWriteContract()
 
   const { currentStep } = useStep();
-  const colorClass: string =
+  
+  const colorClass =
     stepColors[currentStep] ||
     "text-gray-500 border-gray-500 dark:text-gray-400 dark:border-gray-400";
 

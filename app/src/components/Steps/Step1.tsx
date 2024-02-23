@@ -21,11 +21,11 @@ const Step1: React.FC = () => {
     tokenId: "",
   });
 
-  const { selectNft, setStep }:any = useStep(); // Use the updated context to access the selectNft function
+  const { selectNft, setStep }: any = useStep(); // Use the updated context to access the selectNft function
   const [selectedAddress, setselectedAddress] = useState(contracts.MusicERC721); //
-  const [tokenId, setTokenId] = useState<number>(0);
+  const [tokenId, setTokenId] = useState<string>("0");
 
-  const handleNftSelection = (e:any) => {
+  const handleNftSelection = (e: any) => {
     e.preventDefault(); // Prevent form submission from reloading the page
     selectNft(address, tokenId); // Use the selectNft function from the context
     setStep(1);
@@ -46,41 +46,40 @@ const Step1: React.FC = () => {
 
   return (
     <React.Fragment>
-<div className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2">
-      <h2 className="mb-6">Select a music NFT to distribute:</h2>
-      <form onSubmit={handleNftSelection}>
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Token collection address
-          </label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setselectedAddress(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
-            required
-          />
-        </div>
-        <div className="mb-0">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Token ID
-          </label>
-          <input
-            type="number"
-            value={tokenId}
-            onChange={(e) => setTokenId(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="text-white mt-2 bg-rose-700 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-rose-600 dark:hover:bg-rose-700 dark:focus:ring-rose-800"
-        >
-          Select NFT
-        </button>
-      </form>
-    </div>
+      <div className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2">
+        <h2 className="mb-6">Select a music NFT to distribute:</h2>
+        <form onSubmit={handleNftSelection}>
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Token collection address
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setselectedAddress(e.target.value)}
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
+              required
+            />
+          </div>
+          <div className="mb-0">
+            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Token ID
+            </label>
+            <input
+              type="number"
+              value={tokenId}
+              onChange={(e) => setTokenId(e.target.value)}
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-rose-500 dark:focus:border-rose-500"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="text-white mt-2 bg-rose-700 hover:bg-rose-800 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-rose-600 dark:hover:bg-rose-700 dark:focus:ring-rose-800">
+            Select NFT
+          </button>
+        </form>
+      </div>
 
       <div className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2">
         <h2 className="mb-6">Or select an existing music NFT to distribute:</h2>

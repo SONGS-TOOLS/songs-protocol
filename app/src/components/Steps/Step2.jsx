@@ -2,7 +2,6 @@
 
 import { useStep } from "@/context/PageContext";
 import React, { useState } from "react";
-import { Address } from "viem";
 import { useAccount, useWriteContract } from "wagmi";
 import UMDPAbi from "../../contracts/UMDP.json";
 import contracts from "../../contracts/contractAddresses.json";
@@ -20,23 +19,23 @@ const Step2 = () => {
     setRoyalties([...royalties, { address: "", percentage: "" }]);
   };
 
-  const handleRoyaltyChange = (index: number, key: string, value: string) => {
+  const handleRoyaltyChange = (index, key, value) => {
     const newRoyalties = [...royalties];
     newRoyalties[index][key] = value;
     setRoyalties(newRoyalties);
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     writeContract({
       abi: UMDPAbi,
-      address: contracts.UMDP as Address,
+      address: contracts.UMDP,
       functionName: "setRoyalties",
       args: [
         selectedNft.address,
         selectedNft.tokenId,
-        royalties.map((royalty: any) => ({
+        royalties.map((royalty) => ({
           recipient: royalty.address,
           share: parseInt(royalty.percentage, 10) * 100, // Convert percentage to basis points
         })),
@@ -49,7 +48,7 @@ const Step2 = () => {
       <form onSubmit={handleSubmit} className="col-start-1 col-end-13 w-full flex flex-col border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-2 space-y">
         <h2 className="mb-6">Establish Royalties Distribution:</h2>
         <section className="bg-rose-200 border border-gray-300 p-5 gap-2 flex flex-col rounded-lg">
-          {royalties.map((royalty:any, index:number) => (
+          {royalties.map((royalty, index) => (
             <div key={index} className="flex flex-1 gap-4">
               <input
                 type="text"

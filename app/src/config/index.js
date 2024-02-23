@@ -16,19 +16,17 @@ const hardhat = {
   testnet: true,
 };
 
-// Get projectId at https://cloud.walletconnect.com
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 if (!projectId) throw new Error('Project ID is not defined');
 
 const metadata = {
   name: 'Web3Modal',
-  description: 'Web3Modal Example',
-  url: 'https://web3modal.com', // Origin must match your domain & subdomain
+  description: 'Web3Modal',
+  url: 'https://web3modal.com',
   icons: ['https://avatars.githubusercontent.com/u/37784886'],
 };
 
-// Create wagmiConfig
 export const config = defaultWagmiConfig({
   chains: [mainnet, sepolia, optimism, hardhat], // Including Sepolia, Optimism, and Hardhat
   projectId, // Required
