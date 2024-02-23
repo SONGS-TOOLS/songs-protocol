@@ -1,0 +1,32 @@
+{
+    "name": "Atem | Half track",
+    "description": "Half",
+    "image": "ipfs://QmRJMezPosomxZLfvsHTsDzKmsKTLPRHdLZJnM6C1fSmSy",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Atem"
+        },
+        {
+            "trait_type": "Year",
+            "value": "2023"
+        },
+        {
+            "trait_type": "Genre",
+            "value": "Deep Techno"
+        },
+        {
+            "trait_type": "Genre",
+            "value": "House"
+        },
+        {
+            "trait_type": "Label",
+            "value": "Mufi"
+        },
+        {
+          "trait_type": "format",
+          "value": "wav"
+        }
+    ]
+  }
+  

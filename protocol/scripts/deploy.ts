@@ -32,6 +32,16 @@ async function main() {
   console.log("MusicERC721 deployed to:", await musicERC721.getAddress());
   await saveAbi("MusicERC721", await musicERC721.getAddress());
 
+
+// Assuming the metadata.json is in the same directory as this script
+const metadataPath = path.join(__dirname, "nft-metadata.json");
+const metadataURI = "ipfs://QmXZVM2kj9r2uF1599eyona4pyNRBz3pa3j1RfgoLRNUBT"; // Placeholder, replace with actual URI after uploading to IPFS
+
+// Mint the first NFT with the metadata URI
+await musicERC721.mint(deployer.address, metadataURI);
+
+console.log("First NFT minted with metadata:", metadataURI);
+
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
   console.log(`Contract addresses saved to ${addressesFile}`);
