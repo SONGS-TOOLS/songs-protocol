@@ -37,6 +37,7 @@ export default function Home() {
 
   return (
     <main className="flex w-screen justify-center">
+      <div className="max-w-5xl">
       <Grid>
         <div className="mt-3 col-start-1 col-end-13 w-full flex justify-between items-center border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-full p-2">
           <div className="flex items-center gap-2">
@@ -51,7 +52,7 @@ export default function Home() {
           </div>
           <ConnectButton />
         </div>
-        <div className="flex flex-col text-rose-400">
+        <div className="col-start-1 col-end-13 flex flex-col w-full text-rose-400">
           <h1 className="font-bold text-2xl">Universal Music Distribution Protocol</h1>
           <p>{"v0.1 (Work in progress)"}</p>
         </div>
@@ -125,6 +126,7 @@ export default function Home() {
         {currentStep === 1 && <Step2 />}
         {currentStep === 2 && <Step3 />}
       </Grid>
+      </div>
     </main>
   );
 }
