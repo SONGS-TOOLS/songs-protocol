@@ -17,6 +17,11 @@ if (!projectId) throw new Error('Project ID is not defined')
 // Create modal
 createWeb3Modal({
   wagmiConfig: config,
+  themeMode: 'light',
+  themeVariables: {
+    '--w3m-color-mix': '#ff011a',
+    '--w3m-color-mix-strength': 40
+  },
   projectId,
   enableAnalytics: true // Optional - defaults to your Cloud configuration
 })

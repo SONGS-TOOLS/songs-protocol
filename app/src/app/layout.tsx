@@ -10,7 +10,7 @@ import { PageProvider } from "@/context/PageContext";
 
 export const metadata: Metadata = {
   title: "App | Mufi",
-  description: "Mufi | Universal Music Distribution Protocol",
+  description: "Mufi | Open Music Distribution Protocol",
 };
 
 export default function RootLayout({
