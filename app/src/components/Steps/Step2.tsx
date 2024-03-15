@@ -3,9 +3,9 @@
 import { usePageContext } from "@/context/PageContext";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Address } from "viem";
-import { BaseError, useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { BaseError, useAccount, useChainId, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useContractAddressLoader } from '../../app/hooks/contractLoader';
 import UMDPAbi from "../../contracts/UMDP.json";
-import contracts from "../../contracts/contractAddresses-sepolia.json";
 
 export interface Royalty {
   recipient: string;
@@ -13,7 +13,10 @@ export interface Royalty {
 }
 
 const Step2: React.FC = () => {
+  const chainId = useChainId()
+  const contractsAddresses = useContractAddressLoader();
   const { address } = useAccount();
+  const {  } = useChainId();
   const { selectedNft, setStep } = usePageContext();
   const [royalties, setRoyalties] = useState<Royalty[]>([
     { recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", share: 20 },
@@ -64,7 +67,7 @@ const Step2: React.FC = () => {
 
     writeContract({
       abi: UMDPAbi,
-      address: contracts.UMDP as Address,
+      address: contractsAddresses.UMDP as Address,
       functionName: "setRoyalties",
       args: args,
     });

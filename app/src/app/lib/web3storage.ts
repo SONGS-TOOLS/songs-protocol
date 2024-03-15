@@ -1,7 +1,7 @@
 import { create } from '@web3-storage/w3up-client';
 
 // Helper function to convert IPFS URI to URL
-export const IPFSUriToUrl = (cid) => {
+export const IPFSUriToUrl = (cid:any) => {
   const ipfsGateway = "https://w3s.link/ipfs";
   return `${ipfsGateway}/${cid}`;
 };
@@ -20,7 +20,8 @@ async function setupCurrentSpace(client:any, spaceName:string, email:string) {
 }
 
 // Function to create and provision a space for uploads
-async function setupSpace(client:any, spaceName:string, email:string) {
+export async function setupSpace(client:any, spaceName:string, email:`${string}@${string}`) {
+  // const client = await initClient();
   // Create a space
   const space = await client.createSpace(spaceName);
 
@@ -62,7 +63,9 @@ export async function createUserSpace(client:any, spaceName:string, email:string
 // Adjusted to use an existing space for uploads
 export async function uploadToWeb3Storage(data:any, filename:string) {
     const client = await initClient();
-  
+    console.log(client);
+
+    await setupSpace(client, "Gordo", 'gordo@mufi.pro');
     // Retrieve space information from local storage
     let spaceInfo = {};
     if (typeof window !== "undefined") {

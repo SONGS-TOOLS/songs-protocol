@@ -17,7 +17,7 @@ async function main() {
   const [deployer, deployer2, deployer3, deployer4] = await ethers.getSigners();
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log("Account address:", deployer.address);
-  console.log("Account address:", deployer2.address, deployer3.address, deployer4.address);
+  // console.log("Account address:", deployer2.address, deployer3.address, deployer4.address);
   console.log("Account balance:", balance.toString());
 
   // Ensure the ABIs directory exists

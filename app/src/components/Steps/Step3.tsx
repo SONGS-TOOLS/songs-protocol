@@ -1,13 +1,16 @@
 import { UMDPConfig } from "@/config/contractsConfig";
 import { usePageContext } from "@/context/PageContext";
-import { formatUnits } from "ethers";
 import React, { useEffect } from "react";
+import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
-import { Royalty } from "./Step2";
 
 type IStep3Props = {};
 
-const IStep3DefaultProps = {};
+export interface RoyaltyData {
+  recipient: string;
+  share: bigint;
+}
+
 
 const Step3: React.FC<IStep3Props> = (props) => {
   const {} = props;
@@ -48,7 +51,7 @@ const Step3: React.FC<IStep3Props> = (props) => {
             <span className="text-gray-900 text-sm font-medium">Participant</span>
             <span className="text-gray-900 text-sm">Royalty Share</span>
           </div>
-          {Object.values(royaltyData).map((royalty: Royalty, index: number) => (
+          {Object.values(royaltyData).map((royalty: RoyaltyData, index: number) => (
             <div key={index} className="flex gap-2">
               <div className="flex w-full justify-between items-center gap-4 p-2 bg-gray-50 rounded-lg">
                 <span className="text-gray-900 text-sm font-medium">
@@ -117,6 +120,5 @@ const Step3: React.FC<IStep3Props> = (props) => {
   );
 };
 
-Step3.defaultProps = IStep3DefaultProps;
 
 export default Step3;
