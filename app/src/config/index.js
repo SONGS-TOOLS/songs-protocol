@@ -1,5 +1,5 @@
 import { createConfig, http } from '@wagmi/core';
-import { optimism, sepolia } from '@wagmi/core/chains';
+import { mainnet, optimism, sepolia } from '@wagmi/core/chains';
 import { defineChain } from 'viem';
 import { cookieStorage, createStorage } from 'wagmi';
 
@@ -44,15 +44,15 @@ const metadata = {
 
 export const config = createConfig({
   chains: [
+    hardhat,
     sepolia, 
-    // mainnet, 
-    optimism, 
-    // hardhat
+    optimism ,
+    mainnet 
   ],
   transports: {
-    // [mainnet.id]: http(process.env.URL_MAINNET),
+    [hardhat.id]: http("http://localhost:8545"),
+    [mainnet.id]: http(process.env.URL_MAINNET),
     [sepolia.id]: http(process.env.URL_SEPOLIA),
-    // [hardhat.id]: http("http://localhost:8545"),
     [optimism.id]: http(process.env.URL_OPTIMISM),
   },
   // projectId, // Required

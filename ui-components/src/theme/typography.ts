@@ -56,5 +56,5 @@ export const fontSize = {
   }
 
   export const fontFamily = {
-     bossa: "Bossa, sans-serif", inter: "Inter, sans-serif", 
+    headline: "Garet-Heavy, sans-serif", paragraph: "Inter, sans-serif", 
     }

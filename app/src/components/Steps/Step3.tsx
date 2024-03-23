@@ -44,7 +44,7 @@ const Step3: React.FC<IStep3Props> = (props) => {
     }
 
     return (
-      <div className="col-start-1 col-end-13 w-full flex flex-col bg-white/50backdrop-blur-sm rounded-xl space-y">
+      <div className="w-full flex flex-col bg-white/50backdrop-blur-sm rounded-xl space-y">
         {/* <h2 className="mb-6">Royalties Distribution:</h2> */}
         <section className="bg-rose-200 border border-gray-300 p-5 gap-2 flex flex-col rounded-lg">
           <div className="flex justify-between items-center gap-4  rounded-lg">

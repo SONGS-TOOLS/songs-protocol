@@ -14,9 +14,13 @@ interface PageContextType {
   prevStep: () => void;
   setStep: (step: number) => void;
   selectedNft: Nft;
-  selectNft: (address: string, tokenId: string) => void;
-  trackFile: string | undefined; // Indica que trackFile puede ser string o undefined
+  setSelectedNft: ({}:{address: string, tokenId: string}) => void;
+  trackFile: File | undefined; // Indica que trackFile puede ser string o undefined
   setTrackFile: (track: File) => void; // Corrección aquí
+  trackCover: File | undefined; // Indica que trackFile puede ser string o undefined
+  uploadingStatus: string,
+  setUploadingStatus: (status: string) => void; 
+  setTrackCover: (track: File) => void; // Corrección aquí
   musicMetadata: MusicMetadata;
   setMusicMetadata: (metadata: MusicMetadata) => void;
 }
@@ -28,24 +32,25 @@ interface PageProviderProps {
 }
 
 export const PageProvider = ({ children }: PageProviderProps): JSX.Element => {
-
   // STATE
+  
+
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedNft, setSelectedNft] = useState<Nft>({
     address: "",
     tokenId: "",
   });
-  const [trackFile, setTrackFile] = useState<string>();
-  const [musicMetadata, setMusicMetadata] = useState<MusicMetadata>(defaultMusicMetadata);
-
+  const [trackFile, setTrackFile] = useState<File>();
+  const [uploadingStatus, setUploadingStatus] = useState<string>();
+  const [trackCover, setTrackCover] = useState<File>();
+  const [musicMetadata, setMusicMetadata] =
+    useState<MusicMetadata>(defaultMusicMetadata);
 
   // SETTERS
   const nextStep = () => setCurrentStep((prevStep) => prevStep + 1);
   const prevStep = () =>
     setCurrentStep((prevStep) => Math.max(0, prevStep - 1)); // Changed to allow returning to step 0
   const setStep = (step: number) => setCurrentStep(step);
-  const selectNft = (address: string, tokenId: string) =>
-    setSelectedNft({ address, tokenId });
 
   const providerValues = {
     currentStep,
@@ -53,11 +58,15 @@ export const PageProvider = ({ children }: PageProviderProps): JSX.Element => {
     prevStep,
     setStep,
     selectedNft,
-    selectNft,
+    setSelectedNft,
     trackFile,
     setTrackFile,
+    trackCover,
+    setTrackCover,
+    uploadingStatus,
+    setUploadingStatus,
     musicMetadata,
-setMusicMetadata,
+    setMusicMetadata
   };
 
   return (

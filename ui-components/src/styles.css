@@ -5,23 +5,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap');
 
 @font-face {
-  font-family: 'Bossa';
-  src: url('./fonts/Bossa-Bold.woff2') format('woff2'),
-       url('./fonts/Bossa-Bold.woff') format('woff');
+  font-family: 'Garet';
+  src: url('./fonts/garet.book.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Garet-Heavy';
+  src: url('./fonts/garet.heavy.woff') format('woff');
+  font-weight: bold;
+  font-style: bold;
+  font-display: swap;
+}
+
 @layer base {
     h1,h2,h3,h4 {
-      @apply font-bossa;
+      @apply font-headline;
     }
     b, strong, i, em, u, strike, small, big, sub, sup, mark, button, p, span, h5 {
-      @apply font-inter;
+      @apply font-paragraph;
     }
     table, th, td, caption {
-      @apply font-inter;
+      @apply font-paragraph;
     }
   }
 

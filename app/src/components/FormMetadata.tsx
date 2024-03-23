@@ -1,6 +1,21 @@
+import { useContractAddressLoader } from "@/app/hooks/contractLoader";
+import useIpfsUpload from "@/app/hooks/useIpfsUpload";
 import { usePageContext } from "@/context/PageContext";
-import { TextInput } from "@gordo-d/mufi-ui-components";
+import MusicFactoryAbi from "@/contracts/MusicERC721Factory.json";
+import {
+  Body3,
+  Button,
+  DropInput,
+  TextInput,
+} from "@gordo-d/mufi-ui-components";
 import React, { useEffect, useState } from "react";
+import { Address } from "viem";
+import {
+  BaseError,
+  useWaitForTransactionReceipt,
+  useWatchContractEvent,
+  useWriteContract,
+} from "wagmi";
 import { TextAreaInput } from "../../../ui-components/src/components/molecules/inputs/TextAreaInput";
 interface Attribute {
   trait_type: string;
@@ -40,7 +55,31 @@ export const defaultMusicMetadata: MusicMetadata = {
 };
 
 const MusicMetadataForm: React.FC = () => {
-  const { setMusicMetadata } = usePageContext();
+  const {
+    selectNft,
+    trackFile,
+    trackCover,
+    setStep,
+    setTrackFile,
+    setMusicMetadata,
+    setTrackCover,
+    setUploadingStatus,
+    uploadingStatus,
+    musicMetadata,
+  }: any = usePageContext(); // Use the updated context to access the selectNft function
+  const { uploadIpfs, isUploading, uploadError } = useIpfsUpload();
+  const {
+    data: hash,
+    error,
+    isPending,
+    isError,
+    writeContract,
+  } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({ hash });
+
+  const contractsAddresses = useContractAddressLoader();
+
   const [formFields, setFormFields] =
     useState<MusicMetadata>(defaultMusicMetadata);
 
@@ -48,12 +87,60 @@ const MusicMetadataForm: React.FC = () => {
   useEffect(() => {
     setMusicMetadata(formFields);
   }, [formFields, setMusicMetadata]);
+
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
     setFormFields((prevState) => ({ ...prevState, [name]: value }));
   };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Simple validation for required fields
+    if (
+      !formFields.name ||
+      !formFields.image
+      // !formFields.main_artists ||
+      // !formFields.cover||
+      // !trackCover||
+      // !trackFile
+    ) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    setUploadingStatus("write Metadata File");
+
+    const args = [
+      "MySong",
+      "GORDO",
+      "https://ipfs.infura.io/ipfs/QmVtmLmgFurxLTwzVAU1bmnHbF8bREyaGNTfPiYsUzNzNZ",
+      // JsonMetaDataURI?.url
+    ];
+
+    writeContract({
+      abi: MusicFactoryAbi,
+      address: contractsAddresses.MusicERC721Factory as Address,
+      functionName: "deployMusicERC721",
+      args: args,
+    });
+    console.log(error, hash, isError);
+  };
+
+  console.log(contractsAddresses.MusicERC721Factory);
+  useWatchContractEvent({
+    abi: MusicFactoryAbi,
+    address: contractsAddresses.MusicERC721Factory as Address,
+    eventName: "MusicERC721Deployed",
+    onLogs(logs: any) {
+      console.log("New logs!", logs);
+    },
+    onError(error) { 
+      console.log('Log Error', error) 
+    }
+  });
 
   const handleAttributeChange = (
     index: number,
@@ -77,26 +164,123 @@ const MusicMetadataForm: React.FC = () => {
     }));
   };
 
-  const generateJSONFile = () => {
-    const filledFields = {
-      ...formFields,
-      attributes: formFields.attributes.filter(
-        (attr) => attr.trait_type && attr.value
-      ),
-    };
-    const jsonData = JSON.stringify(filledFields, null, 2);
-    console.log(jsonData);
-    // Here you can also implement a function to download this JSON data as a file
+  const generateErc721Metadata = async () => {
+    // let trackUri, coverUri;
+    // setUploadingStatus("uploading track file");
+    // if (trackFile) {
+    //   trackUri = await uploadIpfs(trackFile);
+    //   // Update context or local state with the URI
+    // }
+
+    // setUploadingStatus("uploading track cover");
+    // if (trackCover) {
+    //   coverUri = await uploadIpfs(trackCover);
+    //   // Update context or local state with the URI
+    // }
+    // console.log(trackUri, coverUri);
+
+    // const erc721Metadata = {
+    //   ...musicMetadata,
+    //   image: coverUri?.url + "/" + trackCover?.name || musicMetadata.cover, // Use uploaded cover URI
+    //   cover: coverUri?.url || musicMetadata.cover, // Use uploaded cover URI
+    //   animation_url: trackUri?.url || musicMetadata.animation_url, // Use uploaded track URI
+    //   attributes: musicMetadata.attributes.filter(
+    //     (attr: any) => attr.trait_type && attr.value
+    //   ),
+    // };
+
+    // const JSONFile = new Blob([JSON.stringify(erc721Metadata, null, 2)], {
+    //   type: "application/json",
+    // });
+
+    // // Convert the Blob to a File
+    // const metadataFile = new File([JSONFile], "erc721Metadata.json", {
+    //   type: "application/json",
+    // });
+    // setUploadingStatus("uploading Metadata File");
+    // const JsonMetaDataURI = await uploadIpfs(metadataFile); // Now uploadIpfs receives a File object
+
+    // console.log("ERC-721 Metadata URI:", JsonMetaDataURI);
+
+    setUploadingStatus("write Metadata File");
+
+    const args = [
+      "MySong",
+      "GORDO",
+      "https://ipfs.infura.io/ipfs/QmVtmLmgFurxLTwzVAU1bmnHbF8bREyaGNTfPiYsUzNzNZ",
+      // JsonMetaDataURI?.url
+    ];
+
+    writeContract({
+      abi: MusicFactoryAbi,
+      address: contractsAddresses.MusicERC721Factory as Address,
+      functionName: "deployMusicERC721",
+      args: args,
+    });
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <TextInput
         label="Song Title"
         name="name"
         placeholder="Enter the song title"
         value={formFields.name}
+        required
         onChange={handleInputChange}
+      />
+      {/* <DropInput/> */}
+      <DropInput
+        label="Track file"
+        name="trackfile"
+        // required
+        dropzoneConfig={{
+          accept: {
+            "audio/mpeg": [".mp3"],
+          },
+          maxFiles: 1,
+          onDrop: (acceptedFiles: File[]) => {
+            console.log(acceptedFiles[0]);
+            acceptedFiles[0].text().then((text: string) => {
+              console.log(text);
+              setTrackFile(acceptedFiles[0]);
+            });
+          },
+        }}
+        showFiles={true}
+      />
+      {/* <DropInput
+        label="Lossless Track file"
+        dropzoneConfig={{
+          accept: {
+            "audio/wav": [".wav"],
+            "audio/flac": [".flac"],
+            "audio/aiff": [".aiff"],
+          },
+          maxFiles: 1,
+          onDrop: (acceptedFiles: File[]) => {
+            acceptedFiles[0].text().then((text: string) => setTrackFile(text));
+          },
+        }}
+        showFiles={true}
+      /> */}
+      <DropInput
+        label="Cover"
+        // required
+        name="trackCover"
+        dropzoneConfig={{
+          accept: {
+            "image/png": [".png"],
+            "image/jpeg": [".jpg"],
+          },
+          maxFiles: 1,
+          onDrop: (acceptedFiles: File[]) => {
+            acceptedFiles[0]
+              .text()
+              .then((text: string) => setTrackCover(acceptedFiles[0]));
+          },
+        }}
+        showFiles={true}
       />
       <TextAreaInput
         label="Description"
@@ -106,13 +290,7 @@ const MusicMetadataForm: React.FC = () => {
         onChange={handleInputChange}
       />
       <TextInput
-        label="Image URL"
-        name="image"
-        placeholder="http://example.com/image.jpg"
-        value={formFields.image}
-        onChange={handleInputChange}
-      />
-      <TextInput
+        required
         label="Artist Names"
         name="main_artists"
         placeholder="Artist 1, Artist 2"
@@ -133,7 +311,7 @@ const MusicMetadataForm: React.FC = () => {
         value={formFields.lyrics}
         onChange={handleInputChange}
       />
-      <label>
+      {/* <label>
         Explicit Content:
         <input
           type="checkbox"
@@ -141,60 +319,57 @@ const MusicMetadataForm: React.FC = () => {
           checked={formFields.explicit_content}
           onChange={handleInputChange}
         />
-      </label>
-      <TextInput
-        label="Cover Image URL"
-        name="cover"
-        placeholder="http://example.com/cover.jpg"
-        value={formFields.cover}
-        onChange={handleInputChange}
-      />
-      <div className="flex">
-        <label>Cover</label>
-        {/* <FileUpload
-          immediateUpload={false}
-          formats="jpe,jpeg,png"
-          onFileSelected={(file) => handleAttributeChange(index, file.url)}
-          onUploadSuccess={(cid, url) =>
-            console.log(`Uploaded: ${cid}, URL: ${url}`)
-          }
-        /> */}
+      </label> */}
+      <div className="w-full">
+        {formFields.attributes.map((attribute, index) => (
+          <div key={index} className="flex gap-2 w-full">
+            <TextInput
+              label="genre"
+              name="trait_type"
+              placeholder="e.g., Genre"
+              value={attribute.trait_type}
+              onChange={(e: any) => handleAttributeChange(index, e)}
+            />
+            <TextInput
+              label="Type"
+              name="value"
+              placeholder="e.g., Rock"
+              value={attribute.value}
+              onChange={(e: any) => handleAttributeChange(index, e)}
+            />
+          </div>
+        ))}
       </div>
-      {formFields.attributes.map((attribute, index) => (
-        <div key={index} className="flex gap-2">
-          <TextInput
-            label="Trait Type"
-            name="trait_type"
-            placeholder="e.g., Genre"
-            value={attribute.trait_type}
-            onChange={(e:string) => handleAttributeChange(index, e)}
-          />
-          <TextInput
-            label="Value"
-            name="value"
-            placeholder="e.g., Rock"
-            value={attribute.value}
-            onChange={(e:string) => handleAttributeChange(index, e)}
-          />
-        </div>
-      ))}
-      <button onClick={addAttributeField}>Add Attribute</button>
-      <TextInput
+      <Button onClick={addAttributeField} size="small">
+        Add Attribute
+      </Button>
+
+      {/* <TextInput
         label="External URL"
         name="external_url"
         placeholder="http://example.com/info"
         value={formFields.external_url}
-        onChange={handleInputChange}
-      />
-      <TextInput
+        onChange={handleInputChange}º
+      /> */}
+      {/* <TextInput
         label="Animation URL"
         name="animation_url"
         placeholder="http://example.com/animation"
         value={formFields.animation_url}
         onChange={handleInputChange}
-      />
+      /> */}
       {/* <button onClick={generateJSONFile}>Generate JSON</button> */}
-    </div>
+      <Body3>You will be able to edit the Wrapped song metadata later.</Body3>
+      <div className="flex gap-3 mt-10 items-center">
+        <Button type="submit">Create Wrapped Song</Button>
+        <Body3>{uploadingStatus}</Body3>
+      </div>
+      {isConfirming && <div>Waiting for confirmation...</div>}
+      {isConfirmed && <div>Transaction confirmed.</div>}
+      {error && (
+        <div>Error: {(error as BaseError).shortMessage || error.message}</div>
+      )}
+    </form>
   );
 };
 

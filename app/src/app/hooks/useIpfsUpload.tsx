@@ -1,12 +1,13 @@
 // hooks/useIpfsUpload.ts
 import { create } from "ipfs-http-client";
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 const useIpfsUpload = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
   
-    const uploadIpfs = useCallback(async (file: File): Promise<{ cid?: string; url?: string } | undefined> => {
+    const uploadIpfs = async (file: File): 
+    Promise<{ cid?: string; url?: string } | undefined> => {
         setIsUploading(true);
         setUploadError(null);
   
@@ -24,7 +25,7 @@ const useIpfsUpload = () => {
   
             const result = await client.add(file);
             const cid = result.cid.toString();
-            const url = `https://ipfs.infura.io/ipfs/${result.path}`;
+            const url = `https://ipfs.infura.io/ipfs/${result.cid}`;
   
             setIsUploading(false);
             return { cid, url };
@@ -34,7 +35,7 @@ const useIpfsUpload = () => {
             setUploadError("Upload to IPFS failed: " + error.message);
             return undefined;
         }
-    }, []);
+    };
   
     return { uploadIpfs, isUploading, uploadError };
 };

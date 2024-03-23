@@ -10,11 +10,6 @@
         "internalType": "string",
         "name": "symbol",
         "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "initialOwner",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -346,11 +341,6 @@
         "internalType": "address",
         "name": "to",
         "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
       }
     ],
     "name": "mint",
@@ -475,6 +465,19 @@
       }
     ],
     "name": "setApprovalForAll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "metadataURI",
+        "type": "string"
+      }
+    ],
+    "name": "setTokenUri",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

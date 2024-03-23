@@ -17,16 +17,24 @@ const Step2: React.FC = () => {
   const contractsAddresses = useContractAddressLoader();
   const { address } = useAccount();
   const {  } = useChainId();
-  const { selectedNft, setStep } = usePageContext();
+  const { selectedNft, setStep, setSelectedNft } = usePageContext();
   const [royalties, setRoyalties] = useState<Royalty[]>([
     { recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", share: 20 },
     { recipient: "0x3F7a3b5A7ad399E3bEbe072Ec20aC6795f8aBCD8", share: 30 },
-    { recipient: "0xd278714499E76d58a28f57727A5545a006FF2985", share: 50 },
+    { recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", share: 50 },
   ]);
+
+
+  useEffect(() => {
+    setSelectedNft({address:contractsAddresses.MusicERC721, tokenId:"0"});
+    console.log('STEP 1 SET => ',contractsAddresses.MusicERC721, 0)
+  }, [contractsAddresses]); 
 
   const { data: hash, isPending, writeContract, error, isSuccess } = useWriteContract({
     
   });
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
 
   const handleAddRoyalty = () => {
     setRoyalties([...royalties, { recipient: "", share: 0 }]);
@@ -65,6 +73,8 @@ const Step2: React.FC = () => {
       })),
     ];
 
+    console.log(args);
+
     writeContract({
       abi: UMDPAbi,
       address: contractsAddresses.UMDP as Address,
@@ -73,7 +83,6 @@ const Step2: React.FC = () => {
     });
   };
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   useEffect(() => {
     if (isSuccess) {
@@ -83,7 +92,7 @@ const Step2: React.FC = () => {
 
   return (
     <React.Fragment>
-      <form onSubmit={handleSubmit} className="col-start-1 col-end-13 w-full flex flex-col border-2 p-5 bg-white/50 border-rose-300 backdrop-blur-sm rounded-xl space-y">
+      <form onSubmit={handleSubmit} className="w-full flex flex-col border-2 p-5 bg-white/50 border-rose-300 backdrop-blur-sm rounded-xl space-y">
         <div className="flex gap-2 justify-between">
 
         <p onClick={() => setStep(0)} className="mb-5 cursor-pointer">
