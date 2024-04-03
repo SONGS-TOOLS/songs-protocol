@@ -41,7 +41,7 @@ export const PageProvider = ({ children }: PageProviderProps): JSX.Element => {
     tokenId: "",
   });
   const [trackFile, setTrackFile] = useState<File>();
-  const [uploadingStatus, setUploadingStatus] = useState<string>();
+  const [uploadingStatus, setUploadingStatus] = useState<string>("");
   const [trackCover, setTrackCover] = useState<File>();
   const [musicMetadata, setMusicMetadata] =
     useState<MusicMetadata>(defaultMusicMetadata);
