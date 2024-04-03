@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap');
+@import url("https://use.typekit.net/rgd2ttk.css");
 
-@font-face {
+/* @font-face {
   font-family: 'Garet';
   src: url('./fonts/garet.book.woff') format('woff');
   font-weight: normal;
@@ -18,11 +18,13 @@
   font-weight: bold;
   font-style: bold;
   font-display: swap;
-}
+} */
+
 
 @layer base {
     h1,h2,h3,h4 {
       @apply font-headline;
+      font-weight: 800;
     }
     b, strong, i, em, u, strike, small, big, sub, sup, mark, button, p, span, h5 {
       @apply font-paragraph;

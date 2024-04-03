@@ -1,22 +1,23 @@
 import { useContractAddressLoader } from "@/app/hooks/contractLoader";
-import useIpfsUpload from "@/app/hooks/useIpfsUpload";
+import useIpfsNFTStorageUpload from "@/app/hooks/useNFTStorage";
+import { defaultBaseMusicMetadata } from "@/app/utils/defaults";
 import { usePageContext } from "@/context/PageContext";
 import MusicFactoryAbi from "@/contracts/MusicERC721Factory.json";
 import {
   Body3,
   Button,
   DropInput,
+  TextAreaInput,
   TextInput,
 } from "@gordo-d/mufi-ui-components";
 import React, { useEffect, useState } from "react";
 import { Address } from "viem";
 import {
   BaseError,
+  useAccount,
   useWaitForTransactionReceipt,
-  useWatchContractEvent,
-  useWriteContract,
+  useWriteContract
 } from "wagmi";
-import { TextAreaInput } from "../../../ui-components/src/components/molecules/inputs/TextAreaInput";
 interface Attribute {
   trait_type: string;
   value: string;
@@ -38,25 +39,26 @@ export interface MusicMetadata {
 }
 
 export const defaultMusicMetadata: MusicMetadata = {
-  name: "Enter song title here", // Example placeholder value
-  description: "Describe the track",
-  image: "http://example.com/path/to/your/image.jpg", // Example image URL
+  name: ``, // Example placeholder value with current date, minutes, and seconds
+  description: ``,
   attributes: [
-    { trait_type: "Mood", value: "Energetic" }, // Prefilled example attribute
-    { trait_type: "Genre", value: "Electronic" }, // Additional attribute
+    { trait_type: "Main Artist", value: "" }, // Prefilled example attribute
+    { trait_type: "Production Year", value: "" }, // Prefilled example attribute
+    { trait_type: "Genre", value: "" }, // Additional attribute
   ],
-  external_url: "http://example.com/path/to/track/info",
-  animation_url: "http://example.com/path/to/animation",
-  main_artists: "Artist Name",
-  production_year: new Date().getFullYear().toString(), // Defaults to current year
-  lyrics: "Your lyrics go here...",
+  external_url: "",
+  animation_url: "",
+  main_artists: "",
+  production_year: "", // Defaults to current year
+  lyrics: "",
   explicit_content: false, // Boolean field example
-  cover: "http://example.com/path/to/your/cover.jpg", // Example cover URL
+  cover: "", // Example cover URL
 };
+
 
 const MusicMetadataForm: React.FC = () => {
   const {
-    selectNft,
+    setSelectedNft,
     trackFile,
     trackCover,
     setStep,
@@ -67,7 +69,7 @@ const MusicMetadataForm: React.FC = () => {
     uploadingStatus,
     musicMetadata,
   }: any = usePageContext(); // Use the updated context to access the selectNft function
-  const { uploadIpfs, isUploading, uploadError } = useIpfsUpload();
+  const { uploadIpfs, isUploading, uploadError } = useIpfsNFTStorageUpload();
   const {
     data: hash,
     error,
@@ -79,9 +81,9 @@ const MusicMetadataForm: React.FC = () => {
     useWaitForTransactionReceipt({ hash });
 
   const contractsAddresses = useContractAddressLoader();
-
+  const account = useAccount()
   const [formFields, setFormFields] =
-    useState<MusicMetadata>(defaultMusicMetadata);
+    useState<MusicMetadata>(defaultBaseMusicMetadata);
 
   // Update context whenever formFields change
   useEffect(() => {
@@ -100,47 +102,26 @@ const MusicMetadataForm: React.FC = () => {
 
     // Simple validation for required fields
     if (
-      !formFields.name ||
-      !formFields.image
-      // !formFields.main_artists ||
-      // !formFields.cover||
-      // !trackCover||
-      // !trackFile
+      !formFields.name 
+      // || !formFields.image
+      // || !formFields.cover
+      // || !trackCover
+      // || !trackFile
     ) {
       alert("Please fill all required fields.");
       return;
     }
 
-    setUploadingStatus("write Metadata File");
-
-    const args = [
-      "MySong",
-      "GORDO",
-      "https://ipfs.infura.io/ipfs/QmVtmLmgFurxLTwzVAU1bmnHbF8bREyaGNTfPiYsUzNzNZ",
-      // JsonMetaDataURI?.url
-    ];
-
-    writeContract({
-      abi: MusicFactoryAbi,
-      address: contractsAddresses.MusicERC721Factory as Address,
-      functionName: "deployMusicERC721",
-      args: args,
-    });
-    console.log(error, hash, isError);
+    await generateErc721Metadata();
   };
 
-  console.log(contractsAddresses.MusicERC721Factory);
-  useWatchContractEvent({
-    abi: MusicFactoryAbi,
-    address: contractsAddresses.MusicERC721Factory as Address,
-    eventName: "MusicERC721Deployed",
-    onLogs(logs: any) {
-      console.log("New logs!", logs);
-    },
-    onError(error) { 
-      console.log('Log Error', error) 
+  // console.log(contractsAddresses.MusicERC721Factory);
+
+  useEffect(() => {
+    if (isConfirmed) {
+      setStep(1);
     }
-  });
+  }, [isConfirmed]);
 
   const handleAttributeChange = (
     index: number,
@@ -157,6 +138,28 @@ const MusicMetadataForm: React.FC = () => {
     }));
   };
 
+
+  // useWatchContractEvent({
+  //   abi: MusicFactoryAbi,
+  //   address: contractsAddresses.MusicERC721Factory as Address,
+  //   eventName: "MusicERC721Deployed",
+  //   args: { 
+  //     to: account
+  //   },
+  //   onLogs(logs: any) {
+  //     console.log("New logs!", logs);
+  //     logs.find((log:any) => {
+  //       console.log("New log!", log);
+  //       setSelectedNft({ address: log.args.contractAddress, tokenId: "0" });
+  //     });
+      
+  //   },
+  //   onError(error) {
+  //     console.log("Log Error", error);
+  //   },
+  // });
+  
+
   const addAttributeField = () => {
     setFormFields((prevState) => ({
       ...prevState,
@@ -164,59 +167,81 @@ const MusicMetadataForm: React.FC = () => {
     }));
   };
 
+  // const generateErc721Metadata = async () => {
+  
+  //     const args = [
+  //       formFields.attributes.find(attr => attr.trait_type = "Main Artist" )?.value,
+  //       formFields.name,
+  //       "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
+  //       // JsonMetaDataURI?.url,
+  //     ];
+
+  //     writeContract({
+  //       abi: MusicFactoryAbi,
+  //       address: contractsAddresses.MusicERC721Factory as Address,
+  //       functionName: "deployMusicERC721",
+  //       args: args,
+  //     });
+  // };
+
   const generateErc721Metadata = async () => {
-    // let trackUri, coverUri;
-    // setUploadingStatus("uploading track file");
-    // if (trackFile) {
-    //   trackUri = await uploadIpfs(trackFile);
-    //   // Update context or local state with the URI
-    // }
+    let trackUri, coverUri;
+    setUploadingStatus("uploading track file");
+    if (trackFile) {
+      console.log("track file ", trackFile);
+      trackUri = await uploadIpfs(trackFile);
+      // Update context or local state with the URI
+    }
+    
+    setUploadingStatus("uploading track cover");
+    if (trackCover) {
+      console.log("track cover ", trackCover);
+      coverUri = await uploadIpfs(trackCover);
+      // Update context or local state with the URI
+    }
 
-    // setUploadingStatus("uploading track cover");
-    // if (trackCover) {
-    //   coverUri = await uploadIpfs(trackCover);
-    //   // Update context or local state with the URI
-    // }
-    // console.log(trackUri, coverUri);
+    // Ensure that trackUri and coverUri are not null before using them
+    if (trackUri && coverUri) {
+      const erc721Metadata = {
+        ...musicMetadata,
+        image_data: coverUri.url, // Use uploaded cover URI
+        cover: coverUri.url, // Use uploaded cover URI
+        animation_url: trackUri.url, // Use uploaded track URI
+        attributes: musicMetadata.attributes.filter(
+          (attr: any) => attr.trait_type && attr.value
+        ),
+      };
+      const JSONFile = new Blob([JSON.stringify(erc721Metadata, null, 2)], {
+        type: "application/json",
+      });
 
-    // const erc721Metadata = {
-    //   ...musicMetadata,
-    //   image: coverUri?.url + "/" + trackCover?.name || musicMetadata.cover, // Use uploaded cover URI
-    //   cover: coverUri?.url || musicMetadata.cover, // Use uploaded cover URI
-    //   animation_url: trackUri?.url || musicMetadata.animation_url, // Use uploaded track URI
-    //   attributes: musicMetadata.attributes.filter(
-    //     (attr: any) => attr.trait_type && attr.value
-    //   ),
-    // };
+      // Convert the Blob to a File
+      const metadataFile = new File([JSONFile], "erc721Metadata.json", {
+        type: "application/json",
+      });
+      setUploadingStatus("uploading Metadata File");
+      const JsonMetaDataURI = await uploadIpfs(metadataFile); // Now uploadIpfs receives a File object
 
-    // const JSONFile = new Blob([JSON.stringify(erc721Metadata, null, 2)], {
-    //   type: "application/json",
-    // });
+      console.log("ERC-721 Metadata URI:", JsonMetaDataURI);
 
-    // // Convert the Blob to a File
-    // const metadataFile = new File([JSONFile], "erc721Metadata.json", {
-    //   type: "application/json",
-    // });
-    // setUploadingStatus("uploading Metadata File");
-    // const JsonMetaDataURI = await uploadIpfs(metadataFile); // Now uploadIpfs receives a File object
+      setUploadingStatus("write Metadata File");
 
-    // console.log("ERC-721 Metadata URI:", JsonMetaDataURI);
+      const args = [
+        formFields.attributes.find(attr => attr.trait_type = "Main Artist" ),
+        formFields.name,
+        // "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
+        JsonMetaDataURI?.url,
+      ];
 
-    setUploadingStatus("write Metadata File");
-
-    const args = [
-      "MySong",
-      "GORDO",
-      "https://ipfs.infura.io/ipfs/QmVtmLmgFurxLTwzVAU1bmnHbF8bREyaGNTfPiYsUzNzNZ",
-      // JsonMetaDataURI?.url
-    ];
-
-    writeContract({
-      abi: MusicFactoryAbi,
-      address: contractsAddresses.MusicERC721Factory as Address,
-      functionName: "deployMusicERC721",
-      args: args,
-    });
+      writeContract({
+        abi: MusicFactoryAbi,
+        address: contractsAddresses.MusicERC721Factory as Address,
+        functionName: "deployMusicERC721",
+        args: args,
+      });
+    } else {
+      console.error("Failed to upload track file or cover image to IPFS");
+    }
   };
 
   return (
@@ -231,7 +256,7 @@ const MusicMetadataForm: React.FC = () => {
       />
       {/* <DropInput/> */}
       <DropInput
-        label="Track file"
+        label="Track file (.mp3)"
         name="trackfile"
         // required
         dropzoneConfig={{
@@ -244,26 +269,12 @@ const MusicMetadataForm: React.FC = () => {
             acceptedFiles[0].text().then((text: string) => {
               console.log(text);
               setTrackFile(acceptedFiles[0]);
+              // setTrackFile(text);
             });
           },
         }}
         showFiles={true}
       />
-      {/* <DropInput
-        label="Lossless Track file"
-        dropzoneConfig={{
-          accept: {
-            "audio/wav": [".wav"],
-            "audio/flac": [".flac"],
-            "audio/aiff": [".aiff"],
-          },
-          maxFiles: 1,
-          onDrop: (acceptedFiles: File[]) => {
-            acceptedFiles[0].text().then((text: string) => setTrackFile(text));
-          },
-        }}
-        showFiles={true}
-      /> */}
       <DropInput
         label="Cover"
         // required
@@ -277,7 +288,10 @@ const MusicMetadataForm: React.FC = () => {
           onDrop: (acceptedFiles: File[]) => {
             acceptedFiles[0]
               .text()
-              .then((text: string) => setTrackCover(acceptedFiles[0]));
+              .then((text: string) => {
+                // setTrackCover(text)
+                setTrackCover(acceptedFiles[0])
+              });
           },
         }}
         showFiles={true}
@@ -289,21 +303,21 @@ const MusicMetadataForm: React.FC = () => {
         value={formFields.description}
         onChange={handleInputChange}
       />
-      <TextInput
+      {/* <TextInput
         required
         label="Artist Names"
         name="main_artists"
         placeholder="Artist 1, Artist 2"
         value={formFields.main_artists}
         onChange={handleInputChange}
-      />
-      <TextInput
+      /> */}
+      {/* <TextInput
         label="Production Year"
         name="production_year"
         placeholder="e.g., 2024"
         value={formFields.production_year}
         onChange={handleInputChange}
-      />
+      /> */}
       <TextAreaInput
         label="Lyrics"
         name="lyrics"
@@ -323,15 +337,17 @@ const MusicMetadataForm: React.FC = () => {
       <div className="w-full">
         {formFields.attributes.map((attribute, index) => (
           <div key={index} className="flex gap-2 w-full">
-            <TextInput
+            {/* <TextInput
               label="genre"
               name="trait_type"
               placeholder="e.g., Genre"
               value={attribute.trait_type}
               onChange={(e: any) => handleAttributeChange(index, e)}
-            />
+            /> */}
             <TextInput
-              label="Type"
+              className="w-full"
+              
+              label={attribute.trait_type}
               name="value"
               placeholder="e.g., Rock"
               value={attribute.value}
@@ -340,9 +356,9 @@ const MusicMetadataForm: React.FC = () => {
           </div>
         ))}
       </div>
-      <Button onClick={addAttributeField} size="small">
+      {/* <Button onClick={addAttributeField} size="small">
         Add Attribute
-      </Button>
+      </Button> */}
 
       {/* <TextInput
         label="External URL"
@@ -359,7 +375,7 @@ const MusicMetadataForm: React.FC = () => {
         onChange={handleInputChange}
       /> */}
       {/* <button onClick={generateJSONFile}>Generate JSON</button> */}
-      <Body3>You will be able to edit the Wrapped song metadata later.</Body3>
+      {/* <Body3>You will be able to edit the Wrapped song metadata later.</Body3> */}
       <div className="flex gap-3 mt-10 items-center">
         <Button type="submit">Create Wrapped Song</Button>
         <Body3>{uploadingStatus}</Body3>

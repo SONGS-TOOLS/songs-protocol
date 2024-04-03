@@ -15,6 +15,7 @@ contract MusicERC721 is ERC721, ERC721Enumerable, Ownable {
     string memory name,
     string memory symbol
   ) ERC721(name, symbol) Ownable(msg.sender) {
+    
   }
 
   function setTokenUri(string memory metadataURI) public onlyOwner {
@@ -34,7 +35,7 @@ contract MusicERC721 is ERC721, ERC721Enumerable, Ownable {
   }
 
   // Function to mint new tokens with an IPFS metadata URI
-  function mint(address to) public {
+  function mint(address to) public onlyOwner {
     uint256 newTokenId = totalSupply();
     _mint(to, newTokenId);
   }

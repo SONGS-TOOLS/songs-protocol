@@ -18,6 +18,7 @@ const Step3: React.FC<IStep3Props> = (props) => {
   useEffect(() => {}, []);
 
   console.log(selectedNft);
+
   const {
     data: royaltyData,
     error,

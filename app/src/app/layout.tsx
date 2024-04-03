@@ -7,7 +7,6 @@ import { cookieToInitialState } from "wagmi";
 import { config } from "@/config";
 import { ContextProvider } from "@/context";
 import { PageProvider } from "@/context/PageContext";
-import { Web3StorageProvider } from "@/context/Web3StorageContext";
 import "@gordo-d/mufi-ui-components/styles.css";
 import "./globals.css";
 
@@ -32,9 +31,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen">
         <ContextProvider initialState={initialState}>
-          <Web3StorageProvider config={web3StorageConfig}>
+          {/* <Web3StorageProvider config={web3StorageConfig}> */}
             <PageProvider>{children}</PageProvider>
-          </Web3StorageProvider>
+          {/* </Web3StorageProvider> */}
         </ContextProvider>
       </body>
     </html>

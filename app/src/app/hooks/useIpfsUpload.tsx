@@ -24,8 +24,10 @@ const useIpfsUpload = () => {
             });
   
             const result = await client.add(file);
+            console.log(result);
             const cid = result.cid.toString();
-            const url = `https://ipfs.infura.io/ipfs/${result.cid}`;
+            const path = result.path;
+            const url = `https://ipfs.io/ipfs/${cid}/${path}`;
   
             setIsUploading(false);
             return { cid, url };
