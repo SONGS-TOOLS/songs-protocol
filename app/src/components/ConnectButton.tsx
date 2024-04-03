@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 
 type IConnectButtonProps = {}
 
-const IConnectButtonDefaultProps = {}
 
 const ConnectButton: React.FC<IConnectButtonProps> = (props) => {
   const {} = props;
@@ -18,6 +17,5 @@ const ConnectButton: React.FC<IConnectButtonProps> = (props) => {
   )
 }
 
-ConnectButton.defaultProps = IConnectButtonDefaultProps;
 
 export default ConnectButton;

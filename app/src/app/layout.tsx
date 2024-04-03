@@ -7,6 +7,8 @@ import { cookieToInitialState } from "wagmi";
 import { config } from "@/config";
 import { ContextProvider } from "@/context";
 import { PageProvider } from "@/context/PageContext";
+import "@gordo-d/mufi-ui-components/styles.css";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "App | Mufi",
@@ -19,11 +21,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const initialState = cookieToInitialState(config, headers().get("cookie"));
+
+  const web3StorageConfig = {
+    spaceName: process.env.WEB3STORAGE_SPACE,
+    email: process.env.EMAIL_USERNAME + '@' + process.env.EMAIL_HOST,
+  };
+
   return (
     <html lang="en">
       <body className="min-h-screen">
         <ContextProvider initialState={initialState}>
-          <PageProvider>{children}</PageProvider>
+          {/* <Web3StorageProvider config={web3StorageConfig}> */}
+            <PageProvider>{children}</PageProvider>
+          {/* </Web3StorageProvider> */}
         </ContextProvider>
       </body>
     </html>

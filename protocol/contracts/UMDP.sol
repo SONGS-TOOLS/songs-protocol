@@ -42,20 +42,23 @@ contract UMDP is Ownable, ReentrancyGuard, AccessControl {
     event NFTISRCSet(address indexed nftContract, uint256 indexed tokenId, string isrc);
 
     // Constructor to set up roles and ownership
-    constructor(address initialOwner)  {
+    constructor(address initialOwner) Ownable(initialOwner) {
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(ISRC_MANAGER_ROLE, initialOwner);
-        transferOwnership(initialOwner);
     }
 
-    // Function to set royalties for an NFT, accessible only by ISRC Manager
-    function setRoyalties(address nftContract, uint256 tokenId, RoyaltyInfo[] calldata _royalties) external onlyRole(ISRC_MANAGER_ROLE) {
+    // Function to set royalties for an NFT
+    function setRoyalties(address nftContract, uint256 tokenId, RoyaltyInfo[] calldata _royalties) external {
         // TODO: check for the percentanges to not overflow.
         delete royalties[nftContract][tokenId];
         for (uint256 i = 0; i < _royalties.length; i++) {
             royalties[nftContract][tokenId].push(_royalties[i]);
         }
         emit RoyaltiesSet(nftContract, tokenId, _royalties);
+    }
+
+    function getRoyalties(address nftContract, uint256 tokenId) public view returns (RoyaltyInfo[] memory) {
+        return royalties[nftContract][tokenId];
     }
 
     // Function to allocate revenue to the set royalties, ensuring the call is non-reentrant

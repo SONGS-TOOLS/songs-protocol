@@ -17,7 +17,7 @@ async function main() {
   const [deployer, deployer2, deployer3, deployer4] = await ethers.getSigners();
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log("Account address:", deployer.address);
-  console.log("Account address:", deployer2.address, deployer3.address, deployer4.address);
+  // console.log("Account address:", deployer2.address, deployer3.address, deployer4.address);
   console.log("Account balance:", balance.toString());
 
   // Ensure the ABIs directory exists
@@ -33,21 +33,38 @@ async function main() {
   await saveAbi("UMDP", await umdp.getAddress());
 
   // Deploy MusicERC721 contract
+  console.log("...");
+  console.log("...");
+  console.log("...");
   console.log("Deploying MusicERC721...");
   const MusicERC721 = await ethers.getContractFactory("MusicERC721");
-  const musicERC721 = await MusicERC721.deploy("MufiBase", "MUFI", deployer.address);
+  const musicERC721 = await MusicERC721.deploy("MufiBase", "MUFI");
   console.log("MusicERC721 deployed to:", await musicERC721.getAddress());
   await saveAbi("MusicERC721", await musicERC721.getAddress());
+  
+  // Deploy MusicERC721 Factory contract
+  console.log("...");
+  console.log("...");
+  console.log("...");
+  console.log("Deploying MusicERC721 Factory...");
+  const MusicERC721Factory = await ethers.getContractFactory("MusicERC721Factory");
+  const musicERC721Factory = await MusicERC721Factory.deploy();
+  console.log("MusicERC721Factory deployed to:", await musicERC721Factory.getAddress());
+  await saveAbi("MusicERC721Factory", await musicERC721Factory.getAddress());
 
+  console.log("...");
+  console.log("...");
+  console.log("...");
 
 // Assuming the metadata.json is in the same directory as this script
-const metadataPath = path.join(__dirname, "nft-metadata.json");
-const metadataURI = "ipfs://QmXZVM2kj9r2uF1599eyona4pyNRBz3pa3j1RfgoLRNUBT"; // Placeholder, replace with actual URI after uploading to IPFS
+// const metadataPath = path.join(__dirname, "nft-metadata.json");
+// const metadataURI = "ipfs://QmXZVM2kj9r2uF1599eyona4pyNRBz3pa3j1RfgoLRNUBT"; // Placeholder, replace with actual URI after uploading to IPFS
 
 // Mint the first NFT with the metadata URI
-await musicERC721.mint(deployer.address, metadataURI);
+// await musicERC721.setTokenUri(metadataURI);
+// await musicERC721.mint(deployer.address);
 
-console.log("First NFT minted with metadata:", metadataURI);
+// console.log("First NFT minted with metadata:", metadataURI);
 
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
