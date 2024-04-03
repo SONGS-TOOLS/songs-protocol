@@ -11,6 +11,7 @@ export interface DropInputProps {
 	dropzoneConfig?: DropzoneOptions;
 	className?: string;
 	required?: boolean; // Added required prop
+	name?: string;
 }
 
 

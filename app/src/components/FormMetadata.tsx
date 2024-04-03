@@ -1,6 +1,5 @@
 import { useContractAddressLoader } from "@/app/hooks/contractLoader";
 import useIpfsNFTStorageUpload from "@/app/hooks/useNFTStorage";
-import { defaultBaseMusicMetadata } from "@/app/utils/defaults";
 import { usePageContext } from "@/context/PageContext";
 import MusicFactoryAbi from "@/contracts/MusicERC721Factory.json";
 import {
@@ -83,7 +82,7 @@ const MusicMetadataForm: React.FC = () => {
   const contractsAddresses = useContractAddressLoader();
   const account = useAccount()
   const [formFields, setFormFields] =
-    useState<MusicMetadata>(defaultBaseMusicMetadata);
+    useState<MusicMetadata>(defaultMusicMetadata);
 
   // Update context whenever formFields change
   useEffect(() => {
@@ -167,70 +166,13 @@ const MusicMetadataForm: React.FC = () => {
     }));
   };
 
-  // const generateErc721Metadata = async () => {
-  
-  //     const args = [
-  //       formFields.attributes.find(attr => attr.trait_type = "Main Artist" )?.value,
-  //       formFields.name,
-  //       "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
-  //       // JsonMetaDataURI?.url,
-  //     ];
-
-  //     writeContract({
-  //       abi: MusicFactoryAbi,
-  //       address: contractsAddresses.MusicERC721Factory as Address,
-  //       functionName: "deployMusicERC721",
-  //       args: args,
-  //     });
-  // };
-
   const generateErc721Metadata = async () => {
-    let trackUri, coverUri;
-    setUploadingStatus("uploading track file");
-    if (trackFile) {
-      console.log("track file ", trackFile);
-      trackUri = await uploadIpfs(trackFile);
-      // Update context or local state with the URI
-    }
-    
-    setUploadingStatus("uploading track cover");
-    if (trackCover) {
-      console.log("track cover ", trackCover);
-      coverUri = await uploadIpfs(trackCover);
-      // Update context or local state with the URI
-    }
-
-    // Ensure that trackUri and coverUri are not null before using them
-    if (trackUri && coverUri) {
-      const erc721Metadata = {
-        ...musicMetadata,
-        image_data: coverUri.url, // Use uploaded cover URI
-        cover: coverUri.url, // Use uploaded cover URI
-        animation_url: trackUri.url, // Use uploaded track URI
-        attributes: musicMetadata.attributes.filter(
-          (attr: any) => attr.trait_type && attr.value
-        ),
-      };
-      const JSONFile = new Blob([JSON.stringify(erc721Metadata, null, 2)], {
-        type: "application/json",
-      });
-
-      // Convert the Blob to a File
-      const metadataFile = new File([JSONFile], "erc721Metadata.json", {
-        type: "application/json",
-      });
-      setUploadingStatus("uploading Metadata File");
-      const JsonMetaDataURI = await uploadIpfs(metadataFile); // Now uploadIpfs receives a File object
-
-      console.log("ERC-721 Metadata URI:", JsonMetaDataURI);
-
-      setUploadingStatus("write Metadata File");
-
+  
       const args = [
-        formFields.attributes.find(attr => attr.trait_type = "Main Artist" ),
+        formFields.attributes.find(attr => attr.trait_type = "Main Artist" )?.value,
         formFields.name,
-        // "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
-        JsonMetaDataURI?.url,
+        "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
+        // JsonMetaDataURI?.url,
       ];
 
       writeContract({
@@ -239,10 +181,67 @@ const MusicMetadataForm: React.FC = () => {
         functionName: "deployMusicERC721",
         args: args,
       });
-    } else {
-      console.error("Failed to upload track file or cover image to IPFS");
-    }
   };
+
+  // const generateErc721Metadata = async () => {
+  //   let trackUri, coverUri;
+  //   setUploadingStatus("uploading track file");
+  //   if (trackFile) {
+  //     console.log("track file ", trackFile);
+  //     trackUri = await uploadIpfs(trackFile);
+  //     // Update context or local state with the URI
+  //   }
+    
+  //   setUploadingStatus("uploading track cover");
+  //   if (trackCover) {
+  //     console.log("track cover ", trackCover);
+  //     coverUri = await uploadIpfs(trackCover);
+  //     // Update context or local state with the URI
+  //   }
+
+  //   // Ensure that trackUri and coverUri are not null before using them
+  //   if (trackUri && coverUri) {
+  //     const erc721Metadata = {
+  //       ...musicMetadata,
+  //       image_data: coverUri.url, // Use uploaded cover URI
+  //       cover: coverUri.url, // Use uploaded cover URI
+  //       animation_url: trackUri.url, // Use uploaded track URI
+  //       attributes: musicMetadata.attributes.filter(
+  //         (attr: any) => attr.trait_type && attr.value
+  //       ),
+  //     };
+  //     const JSONFile = new Blob([JSON.stringify(erc721Metadata, null, 2)], {
+  //       type: "application/json",
+  //     });
+
+  //     // Convert the Blob to a File
+  //     const metadataFile = new File([JSONFile], "erc721Metadata.json", {
+  //       type: "application/json",
+  //     });
+  //     setUploadingStatus("uploading Metadata File");
+  //     const JsonMetaDataURI = await uploadIpfs(metadataFile); // Now uploadIpfs receives a File object
+
+  //     console.log("ERC-721 Metadata URI:", JsonMetaDataURI);
+
+  //     setUploadingStatus("write Metadata File");
+
+  //     const args = [
+  //       formFields.attributes.find(attr => attr.trait_type = "Main Artist" ),
+  //       formFields.name,
+  //       // "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
+  //       JsonMetaDataURI?.url,
+  //     ];
+
+  //     writeContract({
+  //       abi: MusicFactoryAbi,
+  //       address: contractsAddresses.MusicERC721Factory as Address,
+  //       functionName: "deployMusicERC721",
+  //       args: args,
+  //     });
+  //   } else {
+  //     console.error("Failed to upload track file or cover image to IPFS");
+  //   }
+  // };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -267,7 +266,7 @@ const MusicMetadataForm: React.FC = () => {
           onDrop: (acceptedFiles: File[]) => {
             console.log(acceptedFiles[0]);
             acceptedFiles[0].text().then((text: string) => {
-              console.log(text);
+              console.log(acceptedFiles[0]);
               setTrackFile(acceptedFiles[0]);
               // setTrackFile(text);
             });

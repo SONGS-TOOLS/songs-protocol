@@ -23,14 +23,6 @@ const Step1: React.FC = () => {
   return (
     <section>
       <div className="w-full flex flex-col gap-3 border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-lg p-5 mb-28">
-        <div className="flex gap-2 justify-between">
-          <p onClick={() => setStep(0)} className="mb-5 cursor-pointer">
-            ⬅️
-          </p>
-          <p onClick={() => setStep(1)} className="mb-5 cursor-pointer">
-            ➡️
-          </p>
-        </div>
         <MusicMetadataForm />
       </div>
       {/* 

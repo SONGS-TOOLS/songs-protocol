@@ -1,13 +1,20 @@
 "use client";
 
 import { useLogs } from "@/app/hooks/viewHooks";
-import { MusicFactoryConfig } from '@/config/contractsConfig';
+import { MusicFactoryConfig } from "@/config/contractsConfig";
 import { usePageContext } from "@/context/PageContext";
 import MusicFactoryAbi from "@/contracts/MusicERC721Factory.json";
 import { Button, Loading } from "@gordo-d/mufi-ui-components";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Address } from "viem";
-import { BaseError, useAccount, useChainId, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import {
+  BaseError,
+  useAccount,
+  useChainId,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { useContractAddressLoader } from "../../app/hooks/contractLoader";
 import UMDPAbi from "../../contracts/UMDP.json";
 
@@ -34,19 +41,30 @@ const Step2: React.FC = () => {
     writeContract,
     error,
     isSuccess,
-
   } = useWriteContract({});
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({ hash });
 
-    const {
-      data: deployedContracts,
-      isLoading,
-    } = useReadContract({
-      ...MusicFactoryConfig,
-      functionName: "getDeployedContractsByOwner",
-      args: [account.address],
-    });
+  const {
+    data: contractsDeployed,
+    error: ErrorcontractsDeployed,
+    isLoading: isLoadingcontractsDeployed,
+  } = useReadContract({
+    ...MusicFactoryConfig,
+    functionName: "getDeployedContractsByOwner",
+    args: [account.address],
+  }) as { data: string[] | null, error: any, isLoading: boolean };;
+
+  useEffect(() => {
+    console.log(contractsDeployed);
+    if (contractsDeployed && selectedNft) {
+      const contractsAdress: string = contractsDeployed[0];
+      setSelectedNft({
+        address: contractsAdress,
+        tokenId: selectedNft.tokenId,
+      });
+    }
+  }, [contractsDeployed]);
 
   /* 
   ACTIONS
@@ -78,6 +96,12 @@ const Step2: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Calculate the total share percentage
+    const totalShares = royalties.reduce((acc, { share }) => acc + share, 0);
+    if (totalShares > 100) {
+      alert("Total share percentage cannot exceed 100.");
+      return;
+    }
 
     if (!selectedNft || royalties.length === 0) {
       alert("no data");
@@ -125,44 +149,28 @@ const Step2: React.FC = () => {
     }
   }, [isConfirmed]);
 
-  useEffect(() => {
-    if (isLoadingLogs) {
-      console.log("Loading Logs");
-    }
-    // console.log("LOGS =>", logsData);
-    // console.log("LOGS ERRROR =>", errorData);
-    if (deployedContracts) {
-      console.log("NFT SELECTED => ", deployedContracts);
-      // setSelectedNft({address: deployedContracts, tokenId: "0"});
-    }
-  }, [deployedContracts]);
-
   return (
     <React.Fragment>
       <form
         onSubmit={handleSubmit}
         className="w-full flex flex-col border-2 p-5 bg-white/50 border-rose-300 backdrop-blur-sm rounded-xl space-y">
-        <div className="flex gap-2 justify-between">
-          <p onClick={() => setStep(0)} className="mb-5 cursor-pointer">
-            ⬅️
-          </p>
-          <p onClick={() => setStep(2)} className="mb-5 cursor-pointer">
-            ➡️
-          </p>
-        </div>
-        <h2 className="mb-1 text-2xl text-rose-700">
-          Track Royalties Distribution:
-        </h2>
+        <h2 className="mb-1 text-2xl text-rose-700">Track Participants</h2>
         <p className="mb-6 text-md text-rose-900 w-2/3">
           Set the track shares participants, each participant will be able to
           redeem its part of the track generated revenue.
         </p>
+        Links:
+        <a
+          href={`https://testnets.opensea.io/es/assets/sepolia/${selectedNft.address}`}
+          className="mb-6 text-md text-rose-900 w-2/3">
+          Open Sea
+        </a>
         <section className="bg-rose-200 border border-rose-500 p-5 gap-2 flex flex-col rounded-md mb-5">
           <div className="flex items-center gap-2  rounded-lg">
             <span className="w-full text-gray-900 text-sm font-medium">
               Participant
             </span>
-            <span className="w-1/4 text-gray-900 text-sm">Royalty share</span>
+            <span className="w-1/4 text-gray-900 text-sm">Royalty share %</span>
             <span className="w-12 text-gray-900 text-sm"></span>
           </div>
           {royalties.map((royalty, index) => (

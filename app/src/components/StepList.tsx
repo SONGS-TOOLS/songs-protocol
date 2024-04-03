@@ -14,7 +14,7 @@ interface StepsListProps {
 
 const StepsList: React.FC<StepsListProps> = ({ steps, currentStep }) => {
   return (
-    <ol className="col-start-10 col-end-13 p-2 space-y-4 sm:flex flex-col">
+    <ol className="p-2 space-y-4 sm:flex flex-col">
       {steps.map((step) => (
         <StepListItem
           key={step.stepNumber}
