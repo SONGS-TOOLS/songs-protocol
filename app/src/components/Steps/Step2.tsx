@@ -4,7 +4,7 @@ import { useLogs } from "@/app/hooks/viewHooks";
 import { MusicFactoryConfig } from "@/config/contractsConfig";
 import { usePageContext } from "@/context/PageContext";
 import MusicFactoryAbi from "@/contracts/MusicERC721Factory.json";
-import { Button, Loading } from "@gordo-d/mufi-ui-components";
+import { Body3, Button, Loading } from "@gordo-d/mufi-ui-components";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Address } from "viem";
 import {
@@ -19,7 +19,7 @@ import { useContractAddressLoader } from "../../app/hooks/contractLoader";
 import UMDPAbi from "../../contracts/UMDP.json";
 
 export interface Royalty {
-  recipient: string;
+  recipient: `0x${string}` | undefined | string;
   share: number;
 }
 
@@ -28,12 +28,10 @@ const Step2: React.FC = () => {
   const contractsAddresses = useContractAddressLoader();
   const {} = useChainId();
   const { selectedNft, setStep, setSelectedNft } = usePageContext();
-  const [royalties, setRoyalties] = useState<Royalty[]>([
-    { recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", share: 20 },
-    { recipient: "0x3F7a3b5A7ad399E3bEbe072Ec20aC6795f8aBCD8", share: 30 },
-    { recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", share: 50 },
-  ]);
   const account = useAccount();
+  const [royalties, setRoyalties] = useState<Royalty[]>([
+    { recipient: account.address, share: 100 },
+  ]);
 
   const {
     data: hash,
@@ -223,9 +221,9 @@ const Step2: React.FC = () => {
         </Button>
       </form>
       {isConfirming && (
-        <div>
-          <Loading /> Waiting for confirmation...
-        </div>
+        <Body3>
+          <Loading size={20} color="rgb(244 63 94)" /> Waiting for confirmation...
+        </Body3>
       )}
       {isConfirmed && <div>Transaction confirmed.</div>}
       {error && (

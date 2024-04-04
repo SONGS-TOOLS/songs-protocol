@@ -78,6 +78,7 @@ const MusicMetadataForm: React.FC = () => {
   } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({ hash });
+const [isPreparing, setisPreparing] = useState<boolean>(false);
 
   const contractsAddresses = useContractAddressLoader();
   const account = useAccount()
@@ -89,6 +90,7 @@ const MusicMetadataForm: React.FC = () => {
     setMusicMetadata(formFields);
   }, [formFields, setMusicMetadata]);
 
+
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -99,11 +101,9 @@ const MusicMetadataForm: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Simple validation for required fields
     if (
       !formFields.name 
-      || !formFields.image
-      || !formFields.cover
+      || !formFields.description 
       || !trackCover
       || !trackFile
     ) {
@@ -114,11 +114,11 @@ const MusicMetadataForm: React.FC = () => {
     await generateErc721Metadata();
   };
 
-  // console.log(contractsAddresses.MusicERC721Factory);
 
   useEffect(() => {
     if (isConfirmed) {
       setStep(1);
+      setisPreparing(false);
     }
   }, [isConfirmed]);
 
@@ -185,6 +185,7 @@ const MusicMetadataForm: React.FC = () => {
 
   const generateErc721Metadata = async () => {
     let trackUri, coverUri;
+    setisPreparing(true);
     setUploadingStatus("uploading track file");
     if (trackFile) {
       console.log("track file ", trackFile);
@@ -228,7 +229,6 @@ const MusicMetadataForm: React.FC = () => {
       const args = [
         formFields.attributes.find(attr => attr.trait_type = "Main Artist" ),
         formFields.name,
-        // "https://nftstorage.link/ipfs/bafkreidem5zvis6k3rt6re7wm2gx3uheb6z2etqcx3s47sfbjkp6mhds6i",
         JsonMetaDataURI?.url,
       ];
 
@@ -376,11 +376,13 @@ const MusicMetadataForm: React.FC = () => {
       {/* <button onClick={generateJSONFile}>Generate JSON</button> */}
       {/* <Body3>You will be able to edit the Wrapped song metadata later.</Body3> */}
       <div className="flex gap-3 mt-10 items-center">
-        <Button type="submit">Create Wrapped Song</Button>
-        <Body3>{uploadingStatus}</Body3>
+        <Button type="submit" disabled={isPreparing ||  !formFields.name 
+      || !formFields.description 
+      || !trackCover
+      || !trackFile}>Create Wrapped Song</Button>
       </div>
-      {isConfirming && <div>Waiting for confirmation...</div>}
-      {isConfirmed && <div>Transaction confirmed.</div>}
+      {isConfirming ? <Body3>Waiting for confirmation...</Body3> : <Body3>{uploadingStatus}</Body3>}
+      {isConfirmed && <Body3>Transaction confirmed.</Body3>}
       {error && (
         <div>Error: {(error as BaseError).shortMessage || error.message}</div>
       )}

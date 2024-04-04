@@ -1,6 +1,6 @@
 import { UMDPConfig } from '@/config/contractsConfig';
 import { usePageContext } from "@/context/PageContext";
-import { Body3, BodyHeadline, Button } from '@gordo-d/mufi-ui-components';
+import { BodyHeadline, Button } from '@gordo-d/mufi-ui-components';
 import React from "react";
 import { formatUnits } from "viem";
 import { useAccount, useReadContract } from "wagmi";
@@ -17,7 +17,7 @@ const Step3: React.FC<IStep3Props> = (props) => {
   const {} = props;
   const { selectedNft, setStep } = usePageContext();
   const account = useAccount()
-  console.log(selectedNft);
+  // console.log(selectedNft);
 
   const {
     data: royaltyData,
@@ -32,7 +32,7 @@ const Step3: React.FC<IStep3Props> = (props) => {
 
 
   const buildRoyalties = () => {
-    console.log("🚀 ~ buildRoyalties ~ royaltyData:", royaltyData);
+    // console.log("🚀 ~ buildRoyalties ~ royaltyData:", royaltyData);
 
     if (isLoading) {
       return <div>Loading royalty data...</div>;
@@ -89,7 +89,7 @@ const Step3: React.FC<IStep3Props> = (props) => {
 
         <section className="mb-6">{buildRoyalties()}</section>
 
-          <Body3 color='rose-500'>Work in progress</Body3>
+          {/* <Body3 color='rose-500'>Work in progress</Body3> */}
         <div className="flex gap-2">
           <Button disabled size="small" type="button"
             >
