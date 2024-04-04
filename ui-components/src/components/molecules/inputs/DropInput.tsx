@@ -39,6 +39,7 @@ export const DropInput = ({
 	dropzoneConfig,
 	className,
 	required,
+	name,
 	...props
 }: DropInputProps) => {
 	const {
@@ -72,7 +73,7 @@ export const DropInput = ({
 					),
 				})}
 			>
-				<input {...getInputProps()} required={required} {...props} />
+				<input {...getInputProps()} name={name} required={required} {...props} />
 				{showFiles && acceptedFilesCombined.length > 0 && (
 					<aside className="w-full">
 						<ul className="flex flex-col items-center p-2 gap-1 w-full">
