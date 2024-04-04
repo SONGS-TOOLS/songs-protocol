@@ -6,6 +6,9 @@
   "author": "Mufi",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "publish-update": "node publishAndUpdate.js"
+  },
   "workspaces": {
     "packages": [
       "ui-components",

@@ -1,7 +1,9 @@
-import { createConfig, http } from "@wagmi/core";
+import { http } from "@wagmi/core";
 import { mainnet, optimism, sepolia } from "@wagmi/core/chains";
+import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
 import { defineChain } from "viem";
 import { cookieStorage, createStorage } from "wagmi";
+
 
 // Define Hardhat network configuration
 export const hardhat = defineChain({
@@ -41,7 +43,7 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-export const config = createConfig({
+export const config = defaultWagmiConfig({
   chains: [hardhat, sepolia, optimism, mainnet],
   transports: {
     [hardhat.id]: http("http://localhost:8545"),
@@ -49,8 +51,8 @@ export const config = createConfig({
     [sepolia.id]: http(process.env.URL_SEPOLIA),
     [optimism.id]: http(process.env.URL_OPTIMISM),
   },
-  // projectId, // Required
-  // metadata, // Required
+  projectId, // Required
+  metadata, // Required
   ssr: true,
   storage: createStorage({
     storage: cookieStorage,
@@ -60,5 +62,6 @@ export const config = createConfig({
   enableEIP6963: true, // Optional - true by default
   enableCoinbase: true, // Optional - true by default
   //   ...wagmiOptions // Optional - Override createConfig parameters
+  enableEmail: true
 });
 
