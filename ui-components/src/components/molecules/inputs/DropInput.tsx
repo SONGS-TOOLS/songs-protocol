@@ -1,6 +1,8 @@
 import cx from "classnames";
 import React, { useMemo } from "react";
 import { DropzoneOptions, useDropzone } from "react-dropzone";
+import { useScreen } from "../../../hooks";
+import { ScreenType } from "../../../hooks/useScreen";
 import { FileAddIcon, PaperIcon } from "../../../icons";
 import { Body2, IconRenderer } from "../../atoms";
 
@@ -32,6 +34,7 @@ const FileLabel = ({
 	</div>
 );
 
+
 export const DropInput = ({
 	label,
 	showFiles,
@@ -42,6 +45,8 @@ export const DropInput = ({
 	name,
 	...props
 }: DropInputProps) => {
+	const { screen } = useScreen();
+	const isMobile = screen === ScreenType.Mobile;
 	const {
 		acceptedFiles: dropzoneAcceptedFiles,
 		getRootProps,
@@ -65,7 +70,7 @@ export const DropInput = ({
 				{...getRootProps({
 					className: cx(
 						"flex flex-col items-center justify-center w-full gap-2 p-3 rounded-md",
-						"h-20 sm:h-30", // Height adjustments
+						// "h-20 sm:h-30", // Height adjustments
 						"font-primary text-neutral-500 bg-neutral-200",
 						"border-2 border-dashed",
 						"cursor-pointer transition-transform",
@@ -92,7 +97,7 @@ export const DropInput = ({
 							size="large"
 						/>
 						<Body2 color="neutral-500" className="mt-2">
-							{"Drag and Drop files here or click to "}
+							{isMobile ? "Tap to add file" : "Drag and Drop files here or click to "}
 							{!acceptedFilesCombined || acceptedFilesCombined.length === 0 ? "upload" : "replace"}
 						</Body2>
 					</div>

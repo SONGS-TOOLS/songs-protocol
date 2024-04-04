@@ -17,6 +17,7 @@
     "deploy:mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
     "deploy:rinkeby": "npx hardhat run scripts/deploy.ts --network rinkeby",
     "deploy:sepolia": "npx hardhat run scripts/deploy.ts --network sepolia",
+    "deploy:baseSepolia": "npx hardhat run scripts/deploy.ts --network baseSepolia",
     "deploy:ropsten": "npx hardhat run scripts/deploy.ts --network ropsten",
     "compile": "npx hardhat compile",
     "size": "yarn run hardhat size-contracts",

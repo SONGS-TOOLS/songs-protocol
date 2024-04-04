@@ -50,7 +50,9 @@ async function main() {
 
   console.log(`Building and publishing ${packageName}@${newVersion}...`);
   await runCommand('yarn build', uiComponentsDir);
-  await runCommand(`yarn publish --new-version ${newVersion}`, uiComponentsDir);
+  await runCommand('yarn build:css', uiComponentsDir);
+  await runCommand(`npm publish --access public`, uiComponentsDir);
+
 
   console.log(`Updating ${packageName} version in mufi-app to ${newVersion}...`);
   await updateDependencyVersion(appDir, packageName, newVersion);

@@ -1,7 +1,7 @@
-import React from "react";
 import cx from "classnames";
+import React from "react";
 
-type IconSizes = "extra-small" | "small" | "large" | "custom";
+type IconSizes = "extra-small" | "small" | "medium" | "large" | "custom";
 
 export interface IconRendererProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "className"> {
 	icon: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -25,6 +25,7 @@ const IconRenderer = ({
 	const sizeClass = cx({
 		"w-4 h-4": size === "extra-small",
 		"w-6 h-6": size === "small",
+		"w-8 h-8": size === "medium",
 		"w-10 h-10": size === "large",
 	});
 	const paddingClass = cx({

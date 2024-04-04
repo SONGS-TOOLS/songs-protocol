@@ -16,7 +16,7 @@ import {
 } from "@gordo-d/mufi-ui-components";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useReadContract, useWriteContract } from "wagmi";
+import { useChainId, useReadContract, useWriteContract } from "wagmi";
 import abi from "../contracts/UMDP.json";
 import contracts from "../contracts/contractAddresses.json";
 
@@ -36,6 +36,7 @@ export default function Home() {
   const { currentStep, trackFile, trackCover } = usePageContext();
   const [trackCoverUrl, setTrackCoverUrl] = useState("");
   const [trackFileUrl, setTrackFileUrl] = useState("");
+  const {chainId} = useChainId();
 
   useEffect(() => {
     if (trackCover) {
@@ -98,11 +99,11 @@ export default function Home() {
             </div>
             <ConnectButton />
             {/* <Profile/> */}
-            <a
+            {chainId !== 1 && <a
               className="text-sm underline absolute right-6 text-rose-700 top-[70px]"
-              href="https://www.alchemy.com/faucets/ethereum-sepolia">
-              <p>{"Get Sepolia ETH"}</p>
-            </a>
+              href={chainId === 11155111 ? "https://www.alchemy.com/faucets/ethereum-sepolia" : chainId === 84532 ? "https://app.optimism.io/faucet" : "" }>
+              <p>{`Get ${chainId === 84532 ? "Base Sepolia" : "Sepolia"} ETH`}</p>
+            </a>}
           </header>
 
           {/* 
@@ -167,7 +168,7 @@ export default function Home() {
             )}
           </div>
 
-          <section className="col-start-10 col-end-13 md:flex flex-col hidden">
+          <section className="col-start-10 col-end-13 pt-5 md:flex flex-col hidden">
             <StepsList steps={steps} currentStep={currentStep} />
             {trackCover && (
               <img className="rounded-xl mt-10" src={trackCoverUrl}></img>

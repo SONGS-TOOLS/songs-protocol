@@ -29,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
 		"h-8 px-2 text-xs": size === "compact",
 	});
 	const styleClass = cx({
-		"bg-neutral-300 text-neutral-600": disabled,
+		"bg-neutral-100 text-neutral-600": disabled,
 		[`border-2 border-${border} bg-neutral-100 text-neutral-800`]: !disabled,
 	});
 	const effectClass = cx({

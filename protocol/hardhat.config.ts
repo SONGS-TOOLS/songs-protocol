@@ -69,6 +69,11 @@ export default {
       accounts:
         process.env.SEPOLIA_PRIVATE_KEY !== undefined ? [process.env.SEPOLIA_PRIVATE_KEY] : [],
     },
+    baseSepolia: {
+      url: process.env.URL_BASE_SEPOLIA || '',
+      accounts:
+        process.env.SEPOLIA_PRIVATE_KEY !== undefined ? [process.env.SEPOLIA_PRIVATE_KEY] : [],
+    },
     mumbai: {
       url: process.env.MUMBAI || '',
       accounts:

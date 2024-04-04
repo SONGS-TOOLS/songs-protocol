@@ -1,5 +1,5 @@
 import { http } from "@wagmi/core";
-import { mainnet, optimism, sepolia } from "@wagmi/core/chains";
+import { baseSepolia, mainnet, optimism, sepolia } from "@wagmi/core/chains";
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
 import { defineChain } from "viem";
 import { cookieStorage, createStorage } from "wagmi";
@@ -44,9 +44,16 @@ const metadata = {
 };
 
 export const config = defaultWagmiConfig({
-  chains: [hardhat, sepolia, optimism, mainnet],
+  chains: [
+    // hardhat, 
+    baseSepolia,
+    sepolia,
+     optimism,
+      mainnet
+    ],
   transports: {
-    [hardhat.id]: http("http://localhost:8545"),
+    // [hardhat.id]: http("http://localhost:8545"),
+    [baseSepolia.id]: http(process.env.URL_BASE_SEPOLIA),
     [mainnet.id]: http(process.env.URL_MAINNET),
     [sepolia.id]: http(process.env.URL_SEPOLIA),
     [optimism.id]: http(process.env.URL_OPTIMISM),
