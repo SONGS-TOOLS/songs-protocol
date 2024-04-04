@@ -1,7 +1,7 @@
 {
   "name": "@gordo-d/mufi-ui-components",
   "author": "Mufi UI Components",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
