@@ -19,6 +19,10 @@ const config: Config = {
       // ...designSystemConfig.theme
     },
   },
+  fontFamily: {
+    base: ['Noto Sans', 'ui-sans-serif', 'system-ui'],
+    title: ['mundial', 'ui-sans-serif', 'system-ui'],
+  },
   plugins: [
     // require("flowbite/plugin")
   ],

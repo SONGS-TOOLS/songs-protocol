@@ -54,7 +54,7 @@ const Step2: React.FC = () => {
   }) as { data: string[] | null, error: any, isLoading: boolean };;
 
   useEffect(() => {
-    console.log(contractsDeployed);
+    console.log("CONTRACTS DEPLOYED => ", contractsDeployed);
     if (contractsDeployed && selectedNft) {
       const contractsAdress: string = contractsDeployed[0];
       setSelectedNft({
