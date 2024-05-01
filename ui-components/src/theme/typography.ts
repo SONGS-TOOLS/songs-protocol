@@ -55,6 +55,6 @@ export const fontSize = {
 };
 
 export const fontFamily = {
-	headline: "proxima-nova, sans-serif",
-	paragraph: "sofia-pro, sans-serif",
+	headline: "mundial, sans-serif",
+	paragraph: "proxima-nova, sans-serif",
 };
