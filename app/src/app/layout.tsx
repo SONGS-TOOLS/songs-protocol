@@ -11,8 +11,8 @@ import "@gordo-d/mufi-ui-components/styles.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "App | Mufi",
-  description: "Mufi | Open Music Distribution Protocol",
+  title: "SONGS | App",
+  description: "Open Music Distribution Protocol",
 };
 
 export default function RootLayout({
