@@ -13,6 +13,10 @@
   "scripts": {
     "test": "npx hardhat test",
     "serve": "npx hardhat node",
+    "deploy:license:local": "npx hardhat run scripts/deploy-license.ts --network localhost",
+    "deploy:license:sepolia": "npx hardhat run scripts/deploy-license.ts --network sepolia",
+    "deploy:license:baseSepolia": "npx hardhat run scripts/deploy-license.ts --network baseSepolia",
+    "deploy:license:base": "npx hardhat run scripts/deploy-license.ts --network base",
     "deploy:local": "npx hardhat run scripts/deploy.ts --network localhost",
     "deploy:mumbai": "npx hardhat run scripts/deploy.ts --network mumbai",
     "deploy:rinkeby": "npx hardhat run scripts/deploy.ts --network rinkeby",
@@ -32,6 +36,7 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-verify": "^2.0.8",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@types/chai": "^4.3.11",
@@ -51,7 +56,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.1",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@remix-project/remixd": "^0.6.33",
     "dotenv": "^16.4.5"
   }
 }

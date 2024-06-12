@@ -1,4 +1,5 @@
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
 
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
@@ -21,14 +22,14 @@ export default {
         version: '0.8.7',
       },
       {
-        version: '0.8.20', // Add this line
+        version: '0.8.20',
         settings: {
           optimizer: {
             enabled: true,
             runs: 200
-          }
+          },
+          viaIR: true, // Enable Yul optimizer
         },
-        viaIR: true, // Enable Yul optimizer
       },
     ],
   },
@@ -38,13 +39,6 @@ export default {
         auto: true,
         interval: 5000,
       },
-      /*            forking: {
-                url: "http://127.0.0.1:8545/",
-                blockNumber: 18120
-            },*/
-      /*            forking: {
-                url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
-            }*/
       forking: {
         url: process.env.MAINNET,
       },
@@ -54,11 +48,6 @@ export default {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    /*     mainnet: {
-      url: process.env.MAINNET || '',
-      accounts:
-        process.env.MAINNET_KEY !== undefined ? [process.env.MAINNET_KEY] : [],
-    }, */
     rinkeby: {
       url: process.env.RINKEBY || '',
       accounts:
@@ -67,12 +56,12 @@ export default {
     sepolia: {
       url: process.env.SEPOLIA || '',
       accounts:
-        process.env.SEPOLIA_PRIVATE_KEY !== undefined ? [process.env.SEPOLIA_PRIVATE_KEY] : [],
+        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
     },
-    baseSepolia: {
-      url: process.env.URL_BASE_SEPOLIA || '',
+    base: {
+      url: process.env.BASE || '',
       accounts:
-        process.env.SEPOLIA_PRIVATE_KEY !== undefined ? [process.env.SEPOLIA_PRIVATE_KEY] : [],
+        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
     },
     mumbai: {
       url: process.env.MUMBAI || '',
@@ -95,11 +84,11 @@ export default {
   etherscan: {
     apiKey: {
       mainnet: process.env.ETHERSCAN_MAINNET,
-      goerli: process.env.ETHERSCAN_MAINNET,
+      base: process.env.ETHERSCAN_MAINNET,
+      sepolia: process.env.ETHERSCAN_MAINNET,
       optimisticEthereum: 'YOUR_OPTIMISTIC_ETHERSCAN_API_KEY',
       arbitrumOne: 'YOUR_ARBISCAN_API_KEY',
       polygon: process.env.POLYGONSCAN_MUMBAI,
     },
   },
 };
-
