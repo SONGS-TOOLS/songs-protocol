@@ -20,12 +20,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialState = cookieToInitialState(config, headers().get("cookie"));
 
-  const web3StorageConfig = {
-    spaceName: process.env.WEB3STORAGE_SPACE,
-    email: process.env.EMAIL_USERNAME + '@' + process.env.EMAIL_HOST,
-  };
+  const initialState = cookieToInitialState(config, headers().get("cookie"));
 
   return (
     <html lang="en">
