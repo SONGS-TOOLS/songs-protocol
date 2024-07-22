@@ -2,15 +2,15 @@
 pragma solidity ^0.8.14;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import './ITokenURIProvider2.sol';
 
 /// @title Songs License Contract
 /// @notice This contract allows minting of ERC721 tokens representing song licenses.
 /// @dev Inherits from OpenZeppelin's ERC721 and Ownable contracts.
-contract SongsLicense is ERC721, Ownable {
+contract SongsLicense is ERC721Enumerable, Ownable {
   /*///////////////////////////////////////////////////////////////
                                STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -29,6 +29,9 @@ contract SongsLicense is ERC721, Ownable {
   string private htmlHash;
 
   ITokenURIProvider private tokenURIProvider;
+
+  /// @dev The price for minting a token.
+  uint256 public mintingPrice = 0.015 ether;
 
   /*///////////////////////////////////////////////////////////////
                            CONSTRUCTOR
@@ -50,6 +53,7 @@ contract SongsLicense is ERC721, Ownable {
   /// @notice Mints a new token with the given name and URI to the caller.
   /// @param name The name of the song license.
   function mint(string memory name) public payable {
+    require(msg.value >= mintingPrice, 'Insufficient payment');
     _mintToken(msg.sender, name, msg.value);
   }
 
@@ -57,6 +61,7 @@ contract SongsLicense is ERC721, Ownable {
   /// @param to The address to receive the minted token.
   /// @param name The name of the song license.
   function mintFor(address to, string memory name) public payable {
+    require(msg.value >= mintingPrice, 'Insufficient payment');
     _mintToken(to, name, msg.value);
   }
 
@@ -65,8 +70,8 @@ contract SongsLicense is ERC721, Ownable {
   /// @param name The name of the song license.
   /// @param amount The amount of Ether sent with the transaction.
   function _mintToken(address to, string memory name, uint256 amount) internal {
-    require(_currentTokenId < 10000, "Maximum token limit reached");
     require(bytes(name).length <= 15, 'Name exceeds 15 characters');
+
     uint256 newTokenId = _currentTokenId;
     _mint(to, newTokenId);
     _names[newTokenId] = name;
@@ -75,6 +80,9 @@ contract SongsLicense is ERC721, Ownable {
     }
     emit TokenMintedWithPayment(to, newTokenId, name, amount);
   }
+
+  /*///////////////////////////////////////////////////////////////
+                       TOKEN URI FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
   /// @notice Returns the URI for a given token ID.
@@ -94,7 +102,7 @@ contract SongsLicense is ERC721, Ownable {
   }
 
   /*///////////////////////////////////////////////////////////////
-                       TOKEN NAME FUNCTIONS
+                       TOKEN INFO FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
   /// @notice Returns the name for a given token ID.
@@ -102,6 +110,18 @@ contract SongsLicense is ERC721, Ownable {
   /// @return The name of the song license.
   function getName(uint256 tokenId) public view returns (string memory) {
     return _names[tokenId];
+  }
+
+  /// @notice Returns the list of token IDs owned by a given address.
+  /// @param owner The address to query.
+  /// @return An array of token IDs owned by the address.
+  function tokensOfOwner(address owner) public view returns (uint256[] memory) {
+    uint256 tokenCount = balanceOf(owner);
+    uint256[] memory tokenIds = new uint256[](tokenCount);
+    for (uint256 i = 0; i < tokenCount; i++) {
+      tokenIds[i] = tokenOfOwnerByIndex(owner, i);
+    }
+    return tokenIds;
   }
 
   /*///////////////////////////////////////////////////////////////
@@ -120,6 +140,21 @@ contract SongsLicense is ERC721, Ownable {
   /*///////////////////////////////////////////////////////////////
                        ADMIN ACTIONS
     //////////////////////////////////////////////////////////////*/
+
+  /// @notice Admin function to change the name of a specified token.
+  /// @param tokenId The ID of the token to change the name.
+  /// @param newName The new name for the token.
+  function adminChangeTokenName(
+    uint256 tokenId,
+    string memory newName
+  ) public onlyOwner {
+    require(
+      _ownerOf(tokenId) != address(0),
+      'ERC721: URI query for nonexistent token'
+    );
+    require(bytes(newName).length <= 15, 'Name exceeds 15 characters');
+    _names[tokenId] = newName;
+  }
 
   /// @notice Allows the owner to withdraw any ERC20 tokens sent to the contract.
   /// @param token The ERC20 token to withdraw.
@@ -167,6 +202,19 @@ contract SongsLicense is ERC721, Ownable {
   /// @param _tokenURIProvider The address of the new token URI provider.
   function setTokenURIProvider(address _tokenURIProvider) external onlyOwner {
     tokenURIProvider = ITokenURIProvider(_tokenURIProvider);
+  }
+
+  /// @notice Allows the owner to set a new minting price.
+  /// @param newMintingPrice The new minting price.
+  function setMintingPrice(uint256 newMintingPrice) public onlyOwner {
+    mintingPrice = newMintingPrice;
+  }
+
+  /// @notice Admin function to mint a new token without amount check.
+  /// @param to The address to receive the minted token.
+  /// @param name The name of the song license.
+  function adminMint(address to, string memory name) public onlyOwner {
+    _mintToken(to, name, 0);
   }
 
   /*///////////////////////////////////////////////////////////////

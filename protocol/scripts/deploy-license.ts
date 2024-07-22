@@ -50,13 +50,13 @@ async function main() {
   }
 
   // Deploy TokenURIProvider contract
-  console.log('Deploying TokenURIProvider...');
-  const TokenURIProvider = await ethers.getContractFactory('ITokenURIProvider');
-  const tokenURIProvider = await TokenURIProvider.deploy();
-  console.log('ITokenURIProvider deployed to:', await tokenURIProvider.getAddress());
-  await saveAbi('ITokenURIProvider', await tokenURIProvider.getAddress());
+  // console.log('Deploying TokenURIProvider...');
+  // const TokenURIProvider = await ethers.getContractFactory('ITokenURIProvider');
+  // const tokenURIProvider = await TokenURIProvider.deploy();
+  // console.log('ITokenURIProvider deployed to:', await tokenURIProvider.getAddress());
+  // await saveAbi('ITokenURIProvider', await tokenURIProvider.getAddress());
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // Deploy SongsLicense contract
   console.log('Deploying SongsLicense...');
@@ -64,18 +64,18 @@ async function main() {
   const songsLicense = await SongsLicense.deploy(
     'SONGS Licenses',
     '◒',
-    await tokenURIProvider.getAddress()
+    "0x9c3c75D170f4a3561DFe0A4a4af33D3dB6DAc30E"
   );
   console.log('SongsLicense deployed to:', await songsLicense.getAddress());
   await saveAbi('SongsLicense', await songsLicense.getAddress());
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  await songsLicense.mintFor(deployer.address, 'Gordo');
+  await songsLicense.adminMint(deployer.address, 'Gordo');
   console.log('Minted to:', deployer.address);
 
   // After all deployments, save the contract addresses to a file
-  contractAddresses['TokenURIProvider'] = await tokenURIProvider.getAddress();
+  // contractAddresses['TokenURIProvider'] = await tokenURIProvider.getAddress();
   contractAddresses['SongsLicense'] = await songsLicense.getAddress();
 
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
@@ -90,7 +90,7 @@ async function main() {
   await verifyContract(await songsLicense.getAddress(), [
     'SONGS Licenses',
     '◒',
-    await tokenURIProvider.getAddress()
+    "0x9c3c75D170f4a3561DFe0A4a4af33D3dB6DAc30E"
   ]);
 }
 

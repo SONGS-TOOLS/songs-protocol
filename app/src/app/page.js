@@ -11,13 +11,14 @@ import {
   Body3,
   Button,
   Headline1,
-  Headline3
+  Headline3,
 } from "@gordo-d/mufi-ui-components";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useChainId, useReadContract, useWriteContract } from "wagmi";
 import abi from "../contracts/UMDP.json";
 import contracts from "../contracts/contractAddresses.json";
+import Header from "@/components/Header";
 
 export default function Home() {
   // TODO type
@@ -35,7 +36,7 @@ export default function Home() {
   const { currentStep, trackFile, trackCover, setStep } = usePageContext();
   const [trackCoverUrl, setTrackCoverUrl] = useState("");
   const [trackFileUrl, setTrackFileUrl] = useState("");
-  const {chainId} = useChainId();
+  const { chainId } = useChainId();
 
   useEffect(() => {
     if (trackCover) {
@@ -80,28 +81,7 @@ export default function Home() {
           TOPBAR
            */}
 
-          <header className="mx-3 relative mt-3 col-start-1 col-end-13 flex justify-between items-center border-2 bg-white/50 border-rose-300 backdrop-blur-sm rounded-full p-2">
-            <div className="flex items-center gap-3 relative">
-              <Image
-                src="/logo.svg"
-                alt="Logo"
-                width={40} // Replace with actual logo size
-                height={50} // Replace with actual logo size
-                className="md:inline-block"
-              />
-              <div className="md:flex w-full items-center">
-              <h2 className="text-2xl font-semibold text-[#2b2b2b] tracking-[5px]">SONGS</h2>
-                <p className="text-sm text-rose-800 pl-3 mt-1">Alpha v0.1</p>
-              </div>
-            </div>
-            <ConnectButton />
-            {/* <Profile/> */}
-            {chainId !== 1 && <a
-              className="text-sm underline absolute right-6 text-rose-700 top-[70px]"
-              href={chainId === 11155111 ? "https://www.alchemy.com/faucets/ethereum-sepolia" : chainId === 84532 ? "https://app.optimism.io/faucet" : "" }>
-              <p>{`Get ${chainId === 84532 ? "Base Sepolia" : "Sepolia"} ETH`}</p>
-            </a>}
-          </header>
+          <Header />
 
           {/* 
           CONTENT HEADER
@@ -143,21 +123,20 @@ export default function Home() {
             </div>
           )}
 
-
           <div className="col-start-1 col-end-10 mb-28 md:p-0 p-5">
-          <div className="flex gap-2 mb-5 justify-between md:p-0">
+            <div className="flex gap-2 mb-5 justify-between md:p-0">
               {/* <Body3 onClick={() => setStep(stepNumber-1)} className=" cursor-pointer">
                 ⬅️ Back
               </Body3> */}
               <Body3 onClick={() => setStep(1)} className=" cursor-pointer">
                 Ahead ➡️
               </Body3>
-            {currentStep === 1 && (
-              <Body3 onClick={() => setStep(0)} className=" cursor-pointer">
-                ⬅️ Back
-              </Body3>
-            )}
-          </div>
+              {currentStep === 1 && (
+                <Body3 onClick={() => setStep(0)} className=" cursor-pointer">
+                  ⬅️ Back
+                </Body3>
+              )}
+            </div>
             {currentStep === 0 && <Step1 />}
             {currentStep === 1 && <Step2 />}
             {currentStep === 2 && <Step3 />}
