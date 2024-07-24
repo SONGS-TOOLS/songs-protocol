@@ -1,6 +1,6 @@
 [
 	{
-		"name": "Jane Smith",
+		"name": "Lua de Santana",
 		"email": "jane.smith@example.com",
 		"has_spotify_link": true,
 		"spotify": "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb",
@@ -9,7 +9,7 @@
 		"profile_picture": "/artist-test.jpg",
 		"bio": "Jane Smith is a groundbreaking musician whose innovative sound has redefined modern pop music. Hailing from New York City, John has captivated audiences with his soulful melodies and lyrical prowess since his debut album in 2015. With a blend of electrifying beats and heartfelt lyrics, his music transcends genres, resonating deeply with fans worldwide. John’s passion for music is evident in his dynamic performances and his ability to connect with listeners on a personal level. Alongside his musical career, he is an advocate for mental health awareness, using his platform to support various charitable causes. His latest album, Echoes of Tomorrow, showcases his evolution as an artist and solidifies his place as a leading voice in the industry.",
 		"phone_number": "+0987654321",
-		"pro_number": 654321,
+		"pro_number": "654321",
 		"facebook": "https://www.facebook.com/janesmith",
 		"instagram": "https://www.instagram.com/janesmith",
 		"x": "https://www.x.com/janesmith",
@@ -20,7 +20,8 @@
 		"youtube": "https://www.youtube.com/channel/UC0987654321",
 		"soundcloud": "https://soundcloud.com/janesmith",
 		"wikipedia": "https://en.wikipedia.org/wiki/Jane_Smith",
-		"website": "https://www.janesmith.com"
+		"website": "https://www.janesmith.com",
+		"verified": true
 	},
 	{
 		"name": "John Doe",
@@ -32,7 +33,7 @@
 		"profile_picture": "https://images.unsplash.com/photo-1528892952291-009c663ce843",
 		"bio": "John Doe is a talented artist known for his unique style.",
 		"phone_number": "+1234567890",
-		"pro_number": 123456,
+		"pro_number": "123456",
 		"facebook": "https://www.facebook.com/johndoe",
 		"instagram": "https://www.instagram.com/johndoe",
 		"x": "https://www.x.com/johndoe",
@@ -43,6 +44,7 @@
 		"youtube": "https://www.youtube.com/channel/UC1234567890",
 		"soundcloud": "https://soundcloud.com/johndoe",
 		"wikipedia": "https://en.wikipedia.org/wiki/John_Doe",
-		"website": "https://www.johndoe.com"
+		"website": "https://www.johndoe.com",
+		"verified": false
 	}
 ]

@@ -6,6 +6,8 @@ interface DashboardPageTitleProps {
 }
 
 const DashboardPageTitle = ({ children }: DashboardPageTitleProps) => {
-	return <Headline3 className="text-3xl font-semibold md:text-4xl">{children}</Headline3>;
+	return (
+		<Headline3 className="text-3xl font-semibold !leading-none md:text-4xl">{children}</Headline3>
+	);
 };
 export default DashboardPageTitle;

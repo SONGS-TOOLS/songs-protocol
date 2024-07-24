@@ -1,6 +1,5 @@
 "use client";
 import Link, { LinkProps } from "next/link";
-import { HTMLAttributes } from "react";
 import cx from "classnames";
 import { usePathname } from "next/navigation";
 import { Body1 } from "@gordo-d/mufi-ui-components";
@@ -22,16 +21,7 @@ const NavItem = ({ href, label, ...props }: NavItemProps) => {
 			})}
 			href={href}
 		>
-			{/* <Link href={href}>{label}</Link> */}
-			<Body1
-				color={active ? "black" : "slate-500"}
-				// className={cx({
-				// 	"text-slate-500": !active,
-				// 	"text-black": active,
-				// })}
-			>
-				{label}
-			</Body1>
+			<Body1 color={active ? "black" : "slate-500"}>{label}</Body1>
 		</Link>
 	);
 };

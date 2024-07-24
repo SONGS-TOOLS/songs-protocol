@@ -1,5 +1,5 @@
 import PencilIcon from "@/components/icons/PencilIcon";
-import { Body2, Body3 } from "@gordo-d/mufi-ui-components";
+import { Body2 } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
 import Image from "next/image";
 import { forwardRef, useEffect, useId, useRef, useState } from "react";
@@ -21,6 +21,7 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 			rounded = false,
 			watchFile,
 			required = false,
+			disabled = false,
 			...props
 		}: ImageFileInputProps,
 		ref,
@@ -38,6 +39,8 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 					const urlImage = URL.createObjectURL(file);
 
 					setPreview(urlImage);
+				} else if (files?.length === 0 && typeof watchFile === "string") {
+					setPreview(watchFile);
 				}
 			} else {
 				setPreview(defaultImageSrc);
@@ -61,6 +64,7 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 								"absolute left-0 top-0 flex h-full w-full": true,
 								"rounded-full": rounded,
 								"rounded-base": !rounded,
+								"object-cover": true,
 							})}
 							src={preview}
 							width={819}
@@ -86,17 +90,14 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 				</div>
 
 				<input
-					onChange={(e) => {
-						console.log("HOLA");
-						console.log(e.target.value);
-					}}
 					required={required}
 					className="hidden"
 					id={id}
 					type="file"
 					accept={".png, .jpg"}
 					{...props}
-					ref={ref}
+					ref={inputRef}
+					disabled={disabled}
 				/>
 			</div>
 		);

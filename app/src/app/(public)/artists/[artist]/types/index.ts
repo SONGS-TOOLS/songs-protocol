@@ -1,5 +1,5 @@
-import { ArtistFields } from "@/app/dashboard/artists/types";
+import { ArtistFormFields } from "@/app/dashboard/artists/types";
 
 export interface ArtistComponentProps {
-	artist: ArtistFields;
+	artist: ArtistFormFields;
 }

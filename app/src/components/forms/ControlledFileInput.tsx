@@ -1,9 +1,8 @@
-import { Body2, Body3, TextInput } from "@gordo-d/mufi-ui-components";
-import { Control, Controller, FieldValues, Path, PathValue, useController } from "react-hook-form";
+import { Body3 } from "@gordo-d/mufi-ui-components";
+import { Control, Controller, FieldValues } from "react-hook-form";
 import cx from "classnames";
 import { ControlledImageFileInputProps } from "./types";
 import ImageFileInputWithPreview from "./inputs/ImageFileInputWithPreview";
-import { useEffect, useRef, useState } from "react";
 
 const ControlledFileInput = <T extends FieldValues>({
 	watch,
@@ -15,36 +14,17 @@ const ControlledFileInput = <T extends FieldValues>({
 	defaultImageSrc = undefined,
 	rounded = false,
 	required = false,
+	setValue,
+	...props
 }: ControlledImageFileInputProps<T>) => {
-	const watchFile = watch(inputName); // you can supply default value as second argument
-
-	// const [preview, setPreview] = useState<string | undefined>(defaultImageSrc ?? undefined);
-	// const ref = useRef<HTMLInputElement>(null);
-
-	// useEffect(() => {
-	// 	if (watchFile && ref.current) {
-	// 		const files = ref.current.files;
-
-	// 		if (files?.length) {
-	// 			const file = files[0];
-	// 			const urlImage = URL.createObjectURL(file);
-
-	// 			setPreview(urlImage);
-	// 		}
-	// 	} else {
-	// 		setPreview(defaultImageSrc);
-	// 	}
-	// }, [watchFile, defaultImageSrc]);
-
+	const watchFile = watch(inputName);
 	return (
 		<Controller
 			name={inputName}
 			control={control as Control<T>}
 			rules={rules}
-			// defaultValue={"" as PathValue<T, Path<T>>}
 			render={({ field }) => {
 				const { value, ...rest } = field;
-				console.log(field);
 				return (
 					<div>
 						<ImageFileInputWithPreview
@@ -57,11 +37,19 @@ const ControlledFileInput = <T extends FieldValues>({
 							watchFile={watchFile}
 							{...rest}
 							onChange={(e) => {
-								field.onChange(e.target.files);
+								if (e.target.files?.length) {
+									e.target.files[0].text().then((text: string) => {
+										if (e.target.files?.length) {
+											field.onChange(e.target.files[0]);
+											if (props.customOnChange) {
+												props.customOnChange(e.target.files[0], { setValue });
+											}
+										}
+									});
+								}
 							}}
+							{...props}
 							required={required}
-
-							// ref={ref}
 						/>
 						{errors[inputName]?.message && (
 							<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>

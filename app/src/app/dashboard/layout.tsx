@@ -1,7 +1,5 @@
 "use client";
 import Sidebar from "@/components/layout/sidebar/Sidebar";
-import { GridContainer } from "@gordo-d/mufi-ui-components";
-import cx from "classnames";
 
 export default function DashboardLayout({
 	children,

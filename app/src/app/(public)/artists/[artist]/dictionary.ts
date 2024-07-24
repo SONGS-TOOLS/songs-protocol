@@ -1,8 +1,8 @@
-import { ArtistFields } from "../create/types";
+import { ArtistFormFields } from "@/app/dashboard/artists/types";
 
 export const socialsDictionary: {
 	[K in keyof Pick<
-		ArtistFields,
+		ArtistFormFields,
 		| "spotify"
 		| "apple_music"
 		| "facebook"
@@ -31,7 +31,7 @@ export const socialsDictionary: {
 	wikipedia: "Wikipedia",
 };
 export const socialLinks: (keyof Pick<
-	ArtistFields,
+	ArtistFormFields,
 	| "spotify"
 	| "apple_music"
 	| "facebook"

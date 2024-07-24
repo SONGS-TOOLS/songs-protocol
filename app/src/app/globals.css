@@ -27,6 +27,9 @@ body {
     )
     #efbbbb; */
 }
+body:has(#modal) {
+	overflow: hidden;
+}
 
 @layer utilities {
 	.text-balance {

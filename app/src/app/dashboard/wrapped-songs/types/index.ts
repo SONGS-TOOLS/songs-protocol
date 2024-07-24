@@ -1,67 +1,85 @@
-import {
-	Control,
-	FieldErrors,
-	Path,
-	RegisterOptions,
-	UseFormRegister,
-	UseFormWatch,
-} from "react-hook-form";
+import { FormFieldType, Option } from "@/components/forms/types";
 
-interface CreditItem {
+export interface CreditItem {
 	artist: string;
 	role: string;
 }
 
-export interface WrappedSongFormFields {
+export interface WrappedSongAttributes {
 	main_artist: string;
-	release_title: string;
 	language: string;
 	primary_genre: string;
-	track: string;
-	artwork: string;
 	featuring_artist: string;
-	production_year: number;
+	production_year: string;
 	previously_released: boolean;
 	producer: string;
 	copyright: string;
 	lyrics: string;
-	isrc: number;
+	isrc: string;
 	iswc: string;
 	credits: CreditItem[];
+	tiktok_start_time: string;
+	recording_location: string;
+	upc_ean: string;
+	secondary_genre: string;
+	track_duration: string;
 }
 
-export interface FormBlockProps {
-	className?: string;
-	control: Control<WrappedSongFormFields>;
-	errors: FieldErrors<WrappedSongFormFields>;
-	watch: UseFormWatch<WrappedSongFormFields>;
-	register: UseFormRegister<WrappedSongFormFields>;
+export interface WrappedSongFormFields extends WrappedSongAttributes {
+	release_title: string;
+	track: string | File;
+	artwork: string;
+	description: string;
 }
 
-interface BaseFieldType {
-	type: "textInput" | "conditionalTextInput" | "textAreaInput" | "numberInput" | "fileInput";
-	name: keyof WrappedSongFormFields;
-	label: string;
-	rules?: Omit<
-		RegisterOptions<WrappedSongFormFields, Path<WrappedSongFormFields>>,
-		"valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled"
-	>;
-}
+type CreditItemField =
+	| (Omit<FormFieldType<CreditItem>, "name"> & {
+			name: keyof CreditItem;
+			type: Exclude<FormFieldType<CreditItem>["type"], "selectInput">;
+	  })
+	| (Omit<FormFieldType<CreditItem>, "name"> & {
+			name: keyof CreditItem;
+			type: "selectInput";
+			options: Option[];
+	  });
 
-// Define the type when `type` is `"textInput"`
-interface TextInputFieldType extends BaseFieldType {
-	type: "textInput" | "textAreaInput" | "numberInput" | "fileInput";
-	checkbox?: never; // Ensure `checkbox` is not allowed here
-}
+export type WrappedSongFieldType =
+	| FormFieldType<WrappedSongFormFields>
+	| {
+			type: "repeater";
+			name: "credits";
+			label: string;
+			fields: CreditItemField[];
+			rules?: FormFieldType<WrappedSongFormFields>["rules"];
+			placeholder?: string;
+	  };
 
-// Define the type when `type` is `"conditionalTextInput"`
-interface ConditionalTextInputFieldType extends BaseFieldType {
-	type: "conditionalTextInput";
-	checkbox: {
-		name: keyof WrappedSongFormFields;
-		label: string;
-	};
+export interface AttributeType {
+	trait_type:
+		| "Main artist"
+		| "Language"
+		| "Primary genre"
+		| "Featuring artist"
+		| "Production year"
+		| "Previously released"
+		| "Producer"
+		| "Copyright"
+		| "Lyrics"
+		| "ISRC"
+		| "ISWC"
+		| `Credit ${number}`
+		| "TikTok start time"
+		| "Recording location"
+		| "UPC / EAN Code"
+		| "Secondary genre"
+		| "Track duration";
+	value: string | boolean;
 }
-
-// Combine both types into one using a union
-export type FieldType = TextInputFieldType | ConditionalTextInputFieldType;
+export interface WrappedSongMetadataType {
+	name: string;
+	description: string;
+	external_url: string;
+	image: string;
+	animation_url: string;
+	attributes: AttributeType[];
+}

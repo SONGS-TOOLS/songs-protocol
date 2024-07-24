@@ -11,6 +11,7 @@ import "@gordo-d/mufi-ui-components/styles.css";
 import "./globals.css";
 import Logo from "@/components/typography/Logo";
 import PersonIcon from "@/components/icons/PersonIcon";
+import Head from "next/head";
 
 export const metadata: Metadata = {
 	title: "SONGS | App",
@@ -26,9 +27,9 @@ export default function RootLayout({
 
 	return (
 		<html lang="en">
-			<head>
-				<link rel="icon" href="./favicon.ico" sizes="any" />
-			</head>
+			{/* <Head> */}
+			{/* <link rel="icon" href="/favicon.ico" sizes="any" /> */}
+			{/* </Head> */}
 			<body className="min-h-screen">
 				{/* <ContextProvider initialState={initialState}> */}
 				{/* <Web3StorageProvider config={web3StorageConfig}> */}
