@@ -11,34 +11,34 @@ import "@gordo-d/mufi-ui-components/styles.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SONGS | App",
-  description: "Open Music Distribution Protocol",
+	title: "SONGS | App",
+	description: "Open Music Distribution Protocol",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  const initialState = cookieToInitialState(config, headers().get("cookie"));
+	const initialState = cookieToInitialState(config, headers().get("cookie"));
 
-  const web3StorageConfig = {
-    spaceName: process.env.WEB3STORAGE_SPACE,
-    email: process.env.EMAIL_USERNAME + '@' + process.env.EMAIL_HOST,
-  };
+	const web3StorageConfig = {
+		spaceName: process.env.WEB3STORAGE_SPACE,
+		email: process.env.EMAIL_USERNAME + "@" + process.env.EMAIL_HOST,
+	};
 
-  return (
-    <html lang="en">
-      <head>
-      <link rel="icon" href="./favicon.ico" sizes="any" />
-      </head>
-      <body className="min-h-screen">
-        <ContextProvider initialState={initialState}>
-          {/* <Web3StorageProvider config={web3StorageConfig}> */}
-            <PageProvider>{children}</PageProvider>
-          {/* </Web3StorageProvider> */}
-        </ContextProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<head>
+				<link rel="icon" href="./favicon.ico" sizes="any" />
+			</head>
+			<body className="min-h-screen overflow-hidden">
+				<ContextProvider initialState={initialState}>
+					{/* <Web3StorageProvider config={web3StorageConfig}> */}
+					<PageProvider>{children}</PageProvider>
+					{/* </Web3StorageProvider> */}
+				</ContextProvider>
+			</body>
+		</html>
+	);
 }
