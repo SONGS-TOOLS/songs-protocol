@@ -22,11 +22,6 @@ export default function RootLayout({
 }>) {
 	const initialState = cookieToInitialState(config, headers().get("cookie"));
 
-	const web3StorageConfig = {
-		spaceName: process.env.WEB3STORAGE_SPACE,
-		email: process.env.EMAIL_USERNAME + "@" + process.env.EMAIL_HOST,
-	};
-
 	return (
 		<html lang="en">
 			<head>
