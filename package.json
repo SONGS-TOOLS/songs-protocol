@@ -13,12 +13,14 @@
     "packages": [
       "ui-components",
       "protocol",
-      "app"
+      "app",
+      "web"
     ]
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "devDependencies": {
+  "dependencies": {
+    "nft.storage": "^7.1.1"
   }
 }

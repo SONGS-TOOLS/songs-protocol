@@ -1,7 +1,7 @@
 import cx from 'classnames';
 import React, { useState } from 'react';
 
-import Spinner from './Spinner';
+import Spinner from "../../atoms/Spinner";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	label?: string;

@@ -43,6 +43,7 @@ async function getCurrentGitBranch(directory) {
 async function main() {
   const uiComponentsDir = path.join(__dirname, 'ui-components');
   const appDir = path.join(__dirname, 'app');
+  const webDir = path.join(__dirname, 'web');
   const packageName = '@gordo-d/mufi-ui-components';
 
   console.log('Updating package version...');
@@ -51,11 +52,13 @@ async function main() {
   console.log(`Building and publishing ${packageName}@${newVersion}...`);
   await runCommand('yarn build', uiComponentsDir);
   await runCommand('yarn build:css', uiComponentsDir);
-  await runCommand(`npm publish --access public`, uiComponentsDir);
-
+  await runCommand(`yarn publish`, uiComponentsDir);
 
   console.log(`Updating ${packageName} version in mufi-app to ${newVersion}...`);
   await updateDependencyVersion(appDir, packageName, newVersion);
+
+  console.log(`Updating ${packageName} version in web to ${newVersion}...`);
+  await updateDependencyVersion(webDir, packageName, newVersion);
 
   // Get the current branch to use in git push
   const currentBranch = await getCurrentGitBranch(appDir);
