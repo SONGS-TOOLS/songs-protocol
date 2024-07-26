@@ -1,27 +1,37 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import './WrappedSongSmartAccount.sol';
 import './ProtocolModule.sol';
 
-contract DistributorWallet {
-  IERC20 public stablecoin;
+contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+  IERC20Upgradeable public stablecoin;
   ProtocolModule public protocolModule;
   mapping(address => uint256) public wrappedSongTreasury;
   address[] public managedWrappedSongs;
 
+  event WrappedSongReleaseRequested(address indexed wrappedSong);
+  event WrappedSongReleased(address indexed wrappedSong);
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() {
+    _disableInitializers();
+  }
+
   /**
-   * @dev Constructor to initialize the stablecoin and protocol module addresses.
+   * @dev Initializes the contract with the given parameters.
    * @param _stablecoin The address of the stablecoin contract.
    * @param _protocolModule The address of the protocol module contract.
    */
-  constructor(address _stablecoin, address _protocolModule) {
-    stablecoin = IERC20(_stablecoin);
+  function initialize(address _stablecoin, address _protocolModule) public initializer {
+    __Ownable_init();
+    __UUPSUpgradeable_init();
+    stablecoin = IERC20Upgradeable(_stablecoin);
     protocolModule = ProtocolModule(_protocolModule);
   }
-
-  // Constructor and other functions...
 
   /**
    * @dev Receives payment in stablecoin and updates the treasury for the specified wrapped song.
@@ -63,7 +73,9 @@ contract DistributorWallet {
     emit WrappedSongReleased(wrappedSong);
   }
 
-  // Events
-  event WrappedSongReleaseRequested(address indexed wrappedSong);
-  event WrappedSongReleased(address indexed wrappedSong);
+  /**
+   * @dev Authorizes the upgrade of the contract. Only the owner can authorize upgrades.
+   * @param newImplementation The address of the new implementation contract.
+   */
+  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
