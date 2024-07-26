@@ -1,14 +1,15 @@
-import Button from "./Button";
+import Button from "../molecules/buttons/Button";
+import AnimationLoader from './AnimationLoader';
+import IllustrationRenderer from './IllustrationRenderer';
 import Label from "./Label";
 import Spinner from "./Spinner";
-import IllustrationRenderer from './IllustrationRenderer';
-import AnimationLoader from './AnimationLoader';
 
+export * from "../molecules/buttons/Button";
 export * from "./containers";
 export * from "./displays";
 export * from "./icon-renderer";
-export * from "./typography";
-export * from "./Button";
 export * from "./Label";
+export * from "./typography";
 
-export { Button, Label, IllustrationRenderer, Spinner, AnimationLoader };
+export { AnimationLoader, Button, IllustrationRenderer, Label, Spinner };
+

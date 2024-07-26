@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 
-import Button, { ButtonProps } from "../../atoms/Button";
+import Button, { ButtonProps } from "./Button";
 
 export interface IconButtonProps extends ButtonProps {
 	leftIcon?: React.FC<{className?: string}>;
@@ -33,6 +33,8 @@ const IconButton = ({
 		"pr-3": size === "small",
 		"pr-4": size === "medium",
 	});
+
+	
 
 	return (
 		<Button
