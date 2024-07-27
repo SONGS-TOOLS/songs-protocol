@@ -22,6 +22,7 @@ contract WrappedSongFactory {
         wrappedSongImplementation = _wrappedSongImplementation;
     }
 
+
     /**
      * @dev Creates a new wrapped song.
      * @param _songManagement The address of the song management contract.
@@ -46,6 +47,7 @@ contract WrappedSongFactory {
         address newWrappedSong = address(newWrappedSongProxy);
         ownerWrappedSongs[msg.sender].push(newWrappedSong);
         
+
         emit WrappedSongCreated(msg.sender, newWrappedSong);
     }
 

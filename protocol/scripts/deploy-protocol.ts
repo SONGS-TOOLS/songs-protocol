@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { artifacts, ethers, network } from "hardhat";
+import { artifacts, ethers, network, upgrades } from "hardhat";
 import path from 'path';
 
 const abisDirectory = path.join(__dirname, '..', '..', 'app', 'src', 'contracts');
@@ -25,66 +25,70 @@ async function main() {
   // Deploy WhitelistingManager contract
   console.log("Deploying WhitelistingManager...");
   const WhitelistingManager = await ethers.getContractFactory("WhitelistingManager");
-  const whitelistingManager = await WhitelistingManager.deploy();
-  await whitelistingManager.initialize(deployer.address);
-  console.log("WhitelistingManager deployed to:", await whitelistingManager.getAddress());
-  await saveAbi("WhitelistingManager", await whitelistingManager.getAddress());
+  const whitelistingManager = await upgrades.deployProxy(WhitelistingManager, [deployer.address], { initializer: 'initialize' });
+  await whitelistingManager.deployed();
+  console.log("WhitelistingManager deployed to:", whitelistingManager.address);
+  await saveAbi("WhitelistingManager", whitelistingManager.address);
 
   // Deploy DistributorWalletFactory contract
   console.log("Deploying DistributorWalletFactory...");
   const DistributorWalletFactory = await ethers.getContractFactory("DistributorWalletFactory");
   const distributorWalletFactory = await DistributorWalletFactory.deploy();
-  console.log("DistributorWalletFactory deployed to:", await distributorWalletFactory.getAddress());
-  await saveAbi("DistributorWalletFactory", await distributorWalletFactory.getAddress());
+  await distributorWalletFactory.deployed();
+  console.log("DistributorWalletFactory deployed to:", distributorWalletFactory.address);
+  await saveAbi("DistributorWalletFactory", distributorWalletFactory.address);
 
   // Deploy ProtocolModule contract
   console.log("Deploying ProtocolModule...");
   const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
-  const protocolModule = await ProtocolModule.deploy();
-  console.log("ProtocolModule deployed to:", await protocolModule.getAddress());
-  await saveAbi("ProtocolModule", await protocolModule.getAddress());
+  const protocolModule = await upgrades.deployProxy(
+    ProtocolModule,
+    [distributorWalletFactory.address, whitelistingManager.address],
+    { initializer: 'initialize' }
+  );
+  await protocolModule.deployed();
+  console.log("ProtocolModule deployed to:", protocolModule.address);
+  await saveAbi("ProtocolModule", protocolModule.address);
 
   // Deploy WrappedSongSmartAccount contract
   console.log("Deploying WrappedSongSmartAccount...");
   const WrappedSongSmartAccount = await ethers.getContractFactory("WrappedSongSmartAccount");
-  const wrappedSongSmartAccount = await WrappedSongSmartAccount.deploy();
-  await wrappedSongSmartAccount.initialize(
-    "SongManagementAddress", // Replace with actual SongManagement contract address
-    "StablecoinAddress", // Replace with actual Stablecoin contract address
-    deployer.address,
-    await protocolModule.getAddress()
+  const wrappedSongSmartAccount = await upgrades.deployProxy(
+    WrappedSongSmartAccount,
+    ["SongManagementAddress", "StablecoinAddress", deployer.address, protocolModule.address],
+    { initializer: 'initialize' }
   );
-  console.log("WrappedSongSmartAccount deployed to:", await wrappedSongSmartAccount.getAddress());
-  await saveAbi("WrappedSongSmartAccount", await wrappedSongSmartAccount.getAddress());
+  await wrappedSongSmartAccount.deployed();
+  console.log("WrappedSongSmartAccount deployed to:", wrappedSongSmartAccount.address);
+  await saveAbi("WrappedSongSmartAccount", wrappedSongSmartAccount.address);
 
   // Deploy WrappedSongFactory contract
   console.log("Deploying WrappedSongFactory...");
   const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
-  const wrappedSongFactory = await WrappedSongFactory.deploy(
-    await protocolModule.getAddress(),
-    await wrappedSongSmartAccount.getAddress()
-  );
-  console.log("WrappedSongFactory deployed to:", await wrappedSongFactory.getAddress());
-  await saveAbi("WrappedSongFactory", await wrappedSongFactory.getAddress());
+  const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.address, wrappedSongSmartAccount.address);
+  await wrappedSongFactory.deployed();
+  console.log("WrappedSongFactory deployed to:", wrappedSongFactory.address);
+  await saveAbi("WrappedSongFactory", wrappedSongFactory.address);
 
   // Deploy WSTokenManagement contract
   console.log("Deploying WSTokenManagement...");
   const WSTokenManagement = await ethers.getContractFactory("WSTokenManagement");
-  const wsTokenManagement = await WSTokenManagement.deploy();
-  await wsTokenManagement.initialize(deployer.address);
-  console.log("WSTokenManagement deployed to:", await wsTokenManagement.getAddress());
-  await saveAbi("WSTokenManagement", await wsTokenManagement.getAddress());
+  const wsTokenManagement = await upgrades.deployProxy(WSTokenManagement, [deployer.address], { initializer: 'initialize' });
+  await wsTokenManagement.deployed();
+  console.log("WSTokenManagement deployed to:", wsTokenManagement.address);
+  await saveAbi("WSTokenManagement", wsTokenManagement.address);
 
   // Deploy DistributorWallet contract
   console.log("Deploying DistributorWallet...");
   const DistributorWallet = await ethers.getContractFactory("DistributorWallet");
-  const distributorWallet = await DistributorWallet.deploy();
-  await distributorWallet.initialize(
-    "StablecoinAddress", // Replace with actual Stablecoin contract address
-    await protocolModule.getAddress()
+  const distributorWallet = await upgrades.deployProxy(
+    DistributorWallet,
+    ["StablecoinAddress", protocolModule.address],
+    { initializer: 'initialize' }
   );
-  console.log("DistributorWallet deployed to:", await distributorWallet.getAddress());
-  await saveAbi("DistributorWallet", await distributorWallet.getAddress());
+  await distributorWallet.deployed();
+  console.log("DistributorWallet deployed to:", distributorWallet.address);
+  await saveAbi("DistributorWallet", distributorWallet.address);
 
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
@@ -102,8 +106,6 @@ async function saveAbi(contractName: string, contractAddress: any) {
   // Update the contract addresses object
   contractAddresses[contractName] = contractAddress;
 }
-
-// Additional functions remain unchanged...
 
 main()
   .then(() => process.exit(0))
