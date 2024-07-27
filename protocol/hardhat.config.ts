@@ -1,4 +1,5 @@
 import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-upgrades";
 import "@nomicfoundation/hardhat-verify";
 
 import 'hardhat-contract-sizer';
