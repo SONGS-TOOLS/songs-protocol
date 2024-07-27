@@ -18,7 +18,7 @@ contract WhitelistingManager is Initializable, UUPSUpgradeable, OwnableUpgradeab
      * @param initialOwner The address of the initial owner.
      */
     function initialize(address initialOwner) public initializer {
-        __Ownable_init();
+        __Ownable_init(initialOwner); // Pass the initial owner
         __UUPSUpgradeable_init();
         transferOwnership(initialOwner);
         nftRequirementEnabled = true;

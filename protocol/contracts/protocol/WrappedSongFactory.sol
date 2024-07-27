@@ -33,7 +33,7 @@ contract WrappedSongFactory {
         require(protocolModule.whitelistingManager().isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
         
         bytes memory initializeData = abi.encodeWithSelector(
-            WrappedSong(address(0)).initialize.selector,
+            WrappedSongSmartAccount(address(0)).initialize.selector,
             _songManagement,
             _stablecoin,
             msg.sender

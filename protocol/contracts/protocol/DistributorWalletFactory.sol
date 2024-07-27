@@ -11,6 +11,10 @@ contract DistributorWalletFactory is Ownable {
     event DistributorWalletCreated(address indexed distributor, address wallet);
     event WrappedSongReleased(address indexed wrappedSong, address indexed distributor);
 
+    constructor(address initialOwner) Ownable(initialOwner) {
+        // Initialization code
+    }
+
     /**
      * @dev Creates a new distributor wallet for the given distributor address.
      * @param distributor The address of the distributor.
@@ -19,7 +23,7 @@ contract DistributorWalletFactory is Ownable {
     function createDistributorWallet(address distributor) external onlyOwner returns (address) {
         require(distributorToWallet[distributor] == address(0), "Distributor wallet already exists");
         
-        DistributorWallet newWallet = new DistributorWallet(distributor);
+        DistributorWallet newWallet = new DistributorWallet();
         address walletAddress = address(newWallet);
         
         distributorToWallet[distributor] = walletAddress;
