@@ -13,6 +13,7 @@
   "scripts": {
     "test": "npx hardhat test",
     "serve": "npx hardhat node",
+    "deploy:protocol:local": "npx hardhat run scripts/deploy-protocol.ts --network localhost",
     "deploy:license:local": "npx hardhat run scripts/deploy-license.ts --network localhost",
     "deploy:license:sepolia": "npx hardhat run scripts/deploy-license.ts --network sepolia",
     "deploy:license:baseSepolia": "npx hardhat run scripts/deploy-license.ts --network baseSepolia",
@@ -39,6 +40,7 @@
     "@nomicfoundation/hardhat-verify": "^2.0.8",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@openzeppelin/hardhat-upgrades": "^3.2.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",

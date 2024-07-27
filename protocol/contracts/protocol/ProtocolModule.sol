@@ -4,13 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./WrappedSongFactory.sol";
 import "./DistributorWalletFactory.sol";
+import "./WhitelistingManager.sol"; // Ensure the path is correct
 
 contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
-    WrappedSongFactory public wrappedSongFactory;
     DistributorWalletFactory public distributorWalletFactory;
     WhitelistingManager public whitelistingManager;
 
@@ -34,13 +33,11 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      * @dev Initializes the contract with the given parameters.
      */
     function initialize(
-        address _wrappedSongFactory,
         address _distributorWalletFactory,
         address _whitelistingManager
     ) public initializer {
-        __Ownable_init();
+        __Ownable_init(msg.sender); // Pass the initial owner
         __UUPSUpgradeable_init();
-        wrappedSongFactory = WrappedSongFactory(_wrappedSongFactory);
         distributorWalletFactory = DistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = WhitelistingManager(_whitelistingManager);
     }
@@ -129,14 +126,6 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      */
     function setReleaseFee(uint256 _fee) external onlyOwner {
         releaseFee = _fee;
-    }
-
-    /**
-     * @dev Updates the address of the WrappedSongFactory contract. Only the owner can update the address.
-     * @param _newFactory The address of the new WrappedSongFactory contract.
-     */
-    function updateWrappedSongFactory(address _newFactory) external onlyOwner {
-        wrappedSongFactory = WrappedSongFactory(_newFactory);
     }
 
     /**

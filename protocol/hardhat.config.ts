@@ -1,6 +1,6 @@
 import "@nomicfoundation/hardhat-ethers";
-import "@nomicfoundation/hardhat-upgrades";
 import "@nomicfoundation/hardhat-verify";
+import "@openzeppelin/hardhat-upgrades";
 
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
@@ -92,4 +92,11 @@ export default {
       polygon: process.env.POLYGONSCAN_MUMBAI,
     },
   },
+  // external: {
+  //   contracts: [
+  //     {
+  //       artifacts: "node_modules/@openzeppelin/contracts-upgradeable"
+  //     }
+  //   ]
+  // }
 };

@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import './WrappedSongSmartAccount.sol';
 import './ProtocolModule.sol';
 
 contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable {
-  IERC20Upgradeable public stablecoin;
+  IERC20 public stablecoin;
   ProtocolModule public protocolModule;
   mapping(address => uint256) public wrappedSongTreasury;
   address[] public managedWrappedSongs;
-
-  uint256 public currentBatchIndex;
+  // TODO: CHECK THIS and the function
+  uint256 public currentBatchIndex; // Added this line to declare currentBatchIndex
 
   event WrappedSongReleaseRequested(address indexed wrappedSong);
   event WrappedSongReleased(address indexed wrappedSong);
@@ -30,9 +30,9 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
    * @param _protocolModule The address of the protocol module contract.
    */
   function initialize(address _stablecoin, address _protocolModule) public initializer {
-    __Ownable_init();
+    __Ownable_init(msg.sender); // Pass the initial owner
     __UUPSUpgradeable_init();
-    stablecoin = IERC20Upgradeable(_stablecoin);
+    stablecoin = IERC20(_stablecoin);
     protocolModule = ProtocolModule(_protocolModule);
   }
 
@@ -111,7 +111,7 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
     uint256 amount = wrappedSongTreasury[_wrappedSong];
     require(amount > 0, 'No earnings to distribute');
     wrappedSongTreasury[_wrappedSong] = 0;
-    WrappedSong(_wrappedSong).receiveEarnings(amount);
+    WrappedSongSmartAccount(_wrappedSong).receiveEarnings(amount);
   }
 
   /**
