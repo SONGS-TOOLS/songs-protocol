@@ -2,7 +2,7 @@ import { Body3, TextInput } from "@gordo-d/mufi-ui-components";
 import { Controller, FieldValues } from "react-hook-form";
 import cx from "classnames";
 import { ControlledInputProps } from "./types";
-import { NumberInput } from "./inputs/NumberInput";
+import NumberInput from "./inputs/NumberInput";
 
 const ControlledNumberInput = <T extends FieldValues>({
 	control,
@@ -10,6 +10,7 @@ const ControlledNumberInput = <T extends FieldValues>({
 	rules,
 	inputName,
 	inputLabel,
+	required = false,
 }: ControlledInputProps<T>) => {
 	return (
 		<Controller
@@ -22,6 +23,7 @@ const ControlledNumberInput = <T extends FieldValues>({
 						<NumberInput
 							label={inputLabel}
 							className={cx({ "border-semantic-error": errors[inputName] })}
+							required={required}
 							{...field}
 						/>
 						{errors[inputName] && (

@@ -1,18 +1,21 @@
 import { Body2, TextInputProps } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
-import React from "react";
+import React, { forwardRef } from "react";
 
 export interface NumberInputProps extends TextInputProps {}
 
-export const NumberInput = ({
-	label,
-	focusColor = "primary-blue-400",
-	status = "default",
-	disabled = false,
-	className,
-	required,
-	...props
-}: NumberInputProps) => {
+const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(function NumberInput(
+	{
+		label,
+		focusColor = "primary-blue-400",
+		status = "default",
+		disabled = false,
+		className,
+		required = false,
+		...props
+	}: NumberInputProps,
+	ref,
+) {
 	const statusClass = cx({
 		"border-neutral-300": status === "default" && !disabled,
 		"border-semantic-success": status === "success" && !disabled,
@@ -40,7 +43,10 @@ export const NumberInput = ({
 				disabled={disabled}
 				required={required} // Pass the required attribute to the input element
 				{...props}
+				ref={ref}
 			/>
 		</div>
 	);
-};
+});
+
+export default NumberInput;

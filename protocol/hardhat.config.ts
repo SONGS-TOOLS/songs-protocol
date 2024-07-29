@@ -1,5 +1,5 @@
-import "@nomicfoundation/hardhat-ethers";
-import "@nomicfoundation/hardhat-verify";
+import '@nomicfoundation/hardhat-ethers';
+import '@nomicfoundation/hardhat-verify';
 
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
@@ -26,7 +26,7 @@ export default {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200
+            runs: 200,
           },
           viaIR: true, // Enable Yul optimizer
         },
@@ -43,31 +43,31 @@ export default {
         url: process.env.MAINNET,
       },
     },
-    ropsten: {
-      url: process.env.ROPSTEN || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    rinkeby: {
-      url: process.env.RINKEBY || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    sepolia: {
-      url: process.env.SEPOLIA || '',
-      accounts:
-        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
-    },
-    base: {
-      url: process.env.BASE || '',
-      accounts:
-        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
-    },
-    mumbai: {
-      url: process.env.MUMBAI || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
+    // ropsten: {
+    //   url: process.env.ROPSTEN || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    // },
+    // rinkeby: {
+    //   url: process.env.RINKEBY || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    // },
+    // sepolia: {
+    //   url: process.env.SEPOLIA || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
+    // },
+    // base: {
+    //   url: process.env.BASE || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
+    // },
+    // mumbai: {
+    //   url: process.env.MUMBAI || '',
+    //   accounts:
+    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    // },
   },
   gasReporter: {
     gasPrice: 21,

@@ -9,7 +9,7 @@ export default function DashboardLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<div className={cx("grid", "grid-cols-12", "w-full")}>
+		<div className="absolute grid max-h-screen w-full grid-cols-12 overflow-hidden">
 			<div className="relative col-span-2 min-h-screen border-r border-slate-200 p-4">
 				<Sidebar />
 			</div>

@@ -17,6 +17,7 @@ export interface ControlledInputProps<T extends FieldValues> {
 	>;
 	inputName: Path<T>;
 	inputLabel: string;
+	required?: boolean;
 }
 
 export interface ControlledConditionalInputProps<T extends FieldValues> {
@@ -32,6 +33,7 @@ export interface ControlledConditionalInputProps<T extends FieldValues> {
 	checkboxLabel: string;
 	inputName: Path<T>;
 	inputLabel: string;
+	required?: boolean;
 }
 
 export interface ControlledImageFileInputProps<T extends FieldValues> {
@@ -46,4 +48,5 @@ export interface ControlledImageFileInputProps<T extends FieldValues> {
 	inputLabel: string;
 	defaultImageSrc?: string;
 	rounded?: boolean;
+	required?: boolean;
 }

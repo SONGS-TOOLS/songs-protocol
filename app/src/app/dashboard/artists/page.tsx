@@ -10,7 +10,7 @@ const ArtistsPage = () => {
 		<>
 			<DashboardPageTitle>My artist profiles</DashboardPageTitle>
 			<div className="flex flex-col items-center gap-10 self-center text-center">
-				<Headline4>You don't have any artist profiles yet yet</Headline4>
+				<Headline4>You don't have any artist profiles yet</Headline4>
 				<Button
 					className="min-w-64 font-semibold"
 					onClick={() => {

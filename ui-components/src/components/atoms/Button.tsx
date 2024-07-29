@@ -38,7 +38,6 @@ const Button: React.FC<ButtonProps> = ({
 		"cursor-default": !disabled && loading,
 		"cursor-not-allowed": disabled,
 	});
-	
 
 	return (
 		<button

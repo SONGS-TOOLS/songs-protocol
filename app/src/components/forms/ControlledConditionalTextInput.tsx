@@ -13,6 +13,7 @@ const ControlledConditionalTextInput = <T extends FieldValues>({
 	inputName,
 	rules,
 	inputLabel,
+	required = false,
 }: ControlledConditionalInputProps<T>) => {
 	const watchCheckbox = watch(checkboxFieldName); // you can supply default value as second argument
 
@@ -33,6 +34,7 @@ const ControlledConditionalTextInput = <T extends FieldValues>({
 								<TextInput
 									label={inputLabel}
 									className={cx({ "border-semantic-error": errors[inputName] })}
+									required={required}
 									{...field}
 								/>
 								{errors[inputName]?.message && (
