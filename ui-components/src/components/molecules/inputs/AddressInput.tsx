@@ -12,7 +12,7 @@ export interface AddressInputProps extends InputHTMLAttributes<HTMLInputElement>
 	defaultValue?: string | undefined;
 	showEnsName?: boolean;
 	disabled?: boolean;
-	status?: 'default' | 'success' | 'warning' | 'error';
+	status?: "default" | "success" | "warning" | "error";
 }
 
 export const AddressInput = (props: AddressInputProps) => {
@@ -21,7 +21,7 @@ export const AddressInput = (props: AddressInputProps) => {
 		ensProvider,
 		defaultValue,
 		label,
-		status = 'default',
+		status = "default",
 		onBlurCustom,
 		disabled = false,
 		showEnsName = false,
@@ -31,12 +31,14 @@ export const AddressInput = (props: AddressInputProps) => {
 	const [inputValue, setInputValue] = useState("");
 	const [ensName, setEnsName] = useState("");
 
-	const statusClass = !disabled && cx({
-		"border-neutral-300": status === 'default',
-		"border-semantic-success": status === 'success', 
-		"border-semantic-warning": status === 'warning',
-		"border-semantic-error": status === 'error',
-	});
+	const statusClass =
+		!disabled &&
+		cx({
+			"border-neutral-300": status === "default",
+			"border-semantic-success": status === "success",
+			"border-semantic-warning": status === "warning",
+			"border-semantic-error": status === "error",
+		});
 
 	useEffect(() => {
 		setInputValue(defaultValue ?? "");
@@ -73,10 +75,10 @@ export const AddressInput = (props: AddressInputProps) => {
 					id="text-input"
 					value={showEnsName && ensName ? ensName : inputValue}
 					className={cx(
-					"block w-full p-3 border-2 rounded-base outline-none transition-all",
-					disabled ? "bg-neutral-200 text-neutral-500" : "bg-white text-neutral-800",
-					statusClass,
-					`focus:ring-${focusColor} focus:border-${focusColor}`
+						"block w-full p-3 border-2 rounded-base outline-none transition-all",
+						disabled ? "bg-neutral-200 text-neutral-500" : "bg-white text-neutral-800",
+						statusClass,
+						`focus:ring-${focusColor} focus:border-${focusColor}`,
 					)}
 					onChange={(e) => setInputValue(e.target.value)}
 					onBlur={handleBlur}
