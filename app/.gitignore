@@ -6,7 +6,7 @@
 .env.production.local
 
 # Node modules
-node_modules/
+node_modules
 
 # IDE files
 .idea
@@ -26,4 +26,3 @@ out
 Thumbs.db
 
 # TODO: Add any other specific files or directories to ignore
-

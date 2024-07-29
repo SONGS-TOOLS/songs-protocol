@@ -6,7 +6,7 @@
 .env.production.local
 
 # Node modules
-node_modules/
+node_modules
 
 # IDE files
 .idea
