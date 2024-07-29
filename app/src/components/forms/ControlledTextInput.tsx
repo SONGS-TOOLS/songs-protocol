@@ -9,6 +9,7 @@ const ControlledTextInput = <T extends FieldValues>({
 	rules,
 	inputName,
 	inputLabel,
+	required = false,
 }: ControlledInputProps<T>) => {
 	return (
 		<Controller
@@ -21,6 +22,7 @@ const ControlledTextInput = <T extends FieldValues>({
 						<TextInput
 							label={inputLabel}
 							className={cx({ "border-semantic-error": errors[inputName] })}
+							required={required}
 							{...field}
 						/>
 						{errors[inputName] && (

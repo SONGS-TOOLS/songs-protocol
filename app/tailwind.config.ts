@@ -24,12 +24,16 @@ const config: Config = {
 									#a9e6c8 79%,
 									#31d0e9 90%
 									);`,
+				"box-vignete": `linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.4) 100%)`,
+				"box-vignete-bottom": `linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 20%)`,
+				"box-vignete-bottom-xl": `linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 40%)`,
 			},
 			boxShadow: {
 				right: "2px 0 20px rgba(0, 0, 0, 0.1)",
 			},
 			gridTemplateRows: {
 				dashboard: "auto 1fr",
+				// login: "auto"
 			},
 			// ...designSystemConfig.theme
 		},

@@ -4,10 +4,10 @@ import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
 import { Body1, Button, Card, Headline4, TextInput } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
 import { useState } from "react";
-import RequiredInformationForm from "./forms/RequiredInformationForm";
-import OptionalInformationForm from "./forms/OptionalInformationForm";
+import RequiredInformationForm from "../forms/RequiredInformationForm";
+import OptionalInformationForm from "../forms/OptionalInformationForm";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { ArtistFields } from "./types";
+import { ArtistFields } from "../types";
 
 const tabItems = [
 	{
@@ -44,23 +44,24 @@ const CreateArtistsPage = () => {
 				<TabMenu className="grid-cols-2" tab={tab} setTab={setTab} items={tabItems} />
 			</div>
 			<form className="flex items-start justify-center py-10" onSubmit={handleSubmit(onSubmit)}>
-				{tab === 0 && (
-					<RequiredInformationForm
-						control={control}
-						errors={errors}
-						watch={watch}
-						register={register}
-					/>
-				)}
-				{tab === 1 && (
-					<OptionalInformationForm
-						control={control}
-						errors={errors}
-						watch={watch}
-						register={register}
-					/>
-				)}
-				{/* <button type="submit">Submit</button> */}
+				<RequiredInformationForm
+					control={control}
+					errors={errors}
+					watch={watch}
+					register={register}
+					className={cx({
+						hidden: tab !== 0,
+					})}
+				/>
+				<OptionalInformationForm
+					control={control}
+					errors={errors}
+					watch={watch}
+					register={register}
+					className={cx({
+						hidden: tab !== 1,
+					})}
+				/>
 			</form>
 		</>
 	);

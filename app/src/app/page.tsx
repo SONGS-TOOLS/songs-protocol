@@ -14,17 +14,17 @@ export default function Home() {
 	const router = useRouter();
 
 	return (
-		<div className="flex flex-col min-h-[100vh] bg-brand-gradient">
-			<header className="text-center my-2">
+		<div className="absolute left-0 top-0 grid h-screen w-screen grid-rows-dashboard overflow-hidden bg-brand-gradient">
+			<header className="py-2 text-center">
 				<Logo className="justify-center" />
 			</header>
-			<main className="flex justify-center flex-1 items-center">
+			<main className="flex items-center justify-center">
 				<div className="max-w-xl p-4">
 					<Card className="p-10">
 						<div className="text-center">
 							<Headline3>Sign into your account</Headline3>
 						</div>
-						<div className="my-4">
+						<div className="py-4">
 							<Button
 								// Placeholder
 								onClick={() => {

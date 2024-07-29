@@ -1,5 +1,5 @@
-import React, { HTMLAttributes, ReactNode } from "react";
-import cx from "classnames";
+import React, { HTMLAttributes, ReactNode } from 'react';
+import cx from 'classnames';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
 	children?: ReactNode;
@@ -9,13 +9,13 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const Card: React.FC<CardProps> = (props) => {
 	const { children, className, ...rest } = props;
 	const cardClass = cx(
-		"p-4",
-		"w-full",
-		"bg-white",
-		"rounded-lg",
-		"border-2",
-		"border-neutral-c-200",
-		"transition-all",
+		'p-4',
+		'w-full',
+		'bg-white',
+		'rounded-lg',
+		'border',
+		'border-neutral-c-200',
+		'transition-all',
 		className,
 	);
 
