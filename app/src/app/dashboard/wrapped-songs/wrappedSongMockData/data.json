@@ -1,0 +1,24 @@
+[
+	{
+		"main_artist": "Lua de Santana",
+		"release_title": "GiNGA",
+		"language": "es",
+		"primary_genre": "Urban",
+		"track": "/test-track.flac",
+		"artwork": "/artist-test.jpg",
+		"featuring_artist": "Featuring artist",
+		"production_year": "2019",
+		"previously_released": true,
+		"producer": "Producer's name",
+		"copyright": "Copyright holder",
+		"lyrics": "Vou atacar na escuridão Quando ache, verá que não Vou atacar na escuridão Chutei de Miami a Barcelona e foi gol  [Pre-Estribillo: Lua de Santana] Abusadora, venha ver Deusa 10 não puxou a Maradona Só R.G. como a Vettorazzi: vacilona, culona com a língua de fora Se você quer chegar tem que apertar, já tá na hora  [Estribillo: Lua de Santana] Abusadora (Ginga, ginga lá, ginga lá) Vacilona (Ginga, ginga lá, ginga lá) Abusadora (Ginga, ginga lá, ginga lá) Ginga, ginga lá, ginga lá",
+		"isrc": "1209381",
+		"iswc": "234890234",
+		"credits": [{ "artist": "Artist", "role": "Role" }],
+		"tiktok_start_time": "00:10",
+		"description": "",
+		"recording_location": "location",
+		"upc_ean": "upc",
+		"secondary_genre": "whatever"
+	}
+]

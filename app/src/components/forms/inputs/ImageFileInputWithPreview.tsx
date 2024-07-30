@@ -61,6 +61,7 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 								"absolute left-0 top-0 flex h-full w-full": true,
 								"rounded-full": rounded,
 								"rounded-base": !rounded,
+								"object-cover": true,
 							})}
 							src={preview}
 							width={819}
@@ -86,17 +87,17 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 				</div>
 
 				<input
-					onChange={(e) => {
-						console.log("HOLA");
-						console.log(e.target.value);
-					}}
+					// onChange={(e) => {
+					// 	console.log("HOLA");
+					// 	console.log(e.target.value);
+					// }}
 					required={required}
 					className="hidden"
 					id={id}
 					type="file"
 					accept={".png, .jpg"}
 					{...props}
-					ref={ref}
+					ref={inputRef}
 				/>
 			</div>
 		);

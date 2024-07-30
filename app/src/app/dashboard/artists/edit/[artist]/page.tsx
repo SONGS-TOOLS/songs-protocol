@@ -5,18 +5,20 @@ import { Body1, Button, Card, Headline4, TextInput } from "@gordo-d/mufi-ui-comp
 import cx from "classnames";
 import { useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import RequiredInformationForm from "../../forms/RequiredInformationForm";
-import OptionalInformationForm from "../../forms/OptionalInformationForm";
-import { ArtistFields } from "../../types";
+import RequiredInformationForm from "../../forms/ArtistRequiredInformationForm";
+import OptionalInformationForm from "../../forms/ArtistOptionalInformationForm";
 import artists from "@/app/dashboard/artists/artistsMockData/data.json";
-const artist = artists[0] as ArtistFields;
+import { ArtistFormFields } from "../../types";
+const artist = artists[0] as ArtistFormFields;
 
 const tabItems = [
 	{
 		label: "Required information",
+		hasError: false,
 	},
 	{
 		label: "Optional information",
+		hasError: false,
 	},
 ];
 
@@ -28,8 +30,8 @@ const CreateArtistsPage = () => {
 		watch,
 		control,
 		formState: { errors },
-	} = useForm<ArtistFields>({ mode: "onBlur", defaultValues: artist });
-	const onSubmit: SubmitHandler<ArtistFields> = (data) => {
+	} = useForm<ArtistFormFields>({ mode: "onBlur", defaultValues: artist });
+	const onSubmit: SubmitHandler<ArtistFormFields> = (data) => {
 		console.log("Here is the data for the whole form");
 		console.log(data);
 	};

@@ -5,6 +5,7 @@ import { Body2, Body3 } from "@gordo-d/mufi-ui-components";
 
 interface TabMenuItem {
 	label: string;
+	hasError: boolean;
 }
 
 interface TabMenuProps extends HTMLAttributes<HTMLUListElement> {
@@ -23,12 +24,13 @@ const TabMenu = ({ className, items, setTab, tab, ...props }: TabMenuProps) => {
 						className={cx({
 							"font-semibold underline": index === tab,
 							"cursor-pointer": true,
+							"text-semantic-error": item.hasError,
 						})}
 						onClick={() => {
 							setTab(index);
 						}}
 					>
-						<Body3> {item.label}</Body3>
+						<Body3 color={item.hasError ? "semantic-error" : ""}> {item.label}</Body3>
 					</li>
 				);
 			})}
