@@ -1,11 +1,4 @@
-import {
-	Control,
-	FieldErrors,
-	Path,
-	RegisterOptions,
-	UseFormRegister,
-	UseFormWatch,
-} from "react-hook-form";
+import { FormFieldType } from "@/components/forms/types";
 
 interface CreditItem {
 	artist: string;
@@ -20,48 +13,18 @@ export interface WrappedSongFormFields {
 	track: string;
 	artwork: string;
 	featuring_artist: string;
-	production_year: number;
+	production_year: string;
 	previously_released: boolean;
 	producer: string;
 	copyright: string;
 	lyrics: string;
-	isrc: number;
+	isrc: string;
 	iswc: string;
 	credits: CreditItem[];
+	tiktok_start_time: string;
+	description: string;
+	recording_location: string;
+	upc_ean: string;
+	secondary_genre: string;
 }
-
-export interface FormBlockProps {
-	className?: string;
-	control: Control<WrappedSongFormFields>;
-	errors: FieldErrors<WrappedSongFormFields>;
-	watch: UseFormWatch<WrappedSongFormFields>;
-	register: UseFormRegister<WrappedSongFormFields>;
-}
-
-interface BaseFieldType {
-	type: "textInput" | "conditionalTextInput" | "textAreaInput" | "numberInput" | "fileInput";
-	name: keyof WrappedSongFormFields;
-	label: string;
-	rules?: Omit<
-		RegisterOptions<WrappedSongFormFields, Path<WrappedSongFormFields>>,
-		"valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled"
-	>;
-}
-
-// Define the type when `type` is `"textInput"`
-interface TextInputFieldType extends BaseFieldType {
-	type: "textInput" | "textAreaInput" | "numberInput" | "fileInput";
-	checkbox?: never; // Ensure `checkbox` is not allowed here
-}
-
-// Define the type when `type` is `"conditionalTextInput"`
-interface ConditionalTextInputFieldType extends BaseFieldType {
-	type: "conditionalTextInput";
-	checkbox: {
-		name: keyof WrappedSongFormFields;
-		label: string;
-	};
-}
-
-// Combine both types into one using a union
-export type FieldType = TextInputFieldType | ConditionalTextInputFieldType;
+export type WrappedSongFieldType = FormFieldType<WrappedSongFormFields>;

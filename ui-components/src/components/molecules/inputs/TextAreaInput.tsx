@@ -7,6 +7,8 @@ export interface TextAreaInputProps extends InputHTMLAttributes<HTMLTextAreaElem
 	focusColor?: string;
 	disabled?: boolean;
 	status?: 'default' | 'success' | 'warning' | 'error';
+	className?: string;
+
 	required?: boolean; // Added required prop
 }
 
@@ -18,6 +20,7 @@ export const TextAreaInput = forwardRef<HTMLTextAreaElement, TextAreaInputProps>
 			disabled = false,
 			label,
 			required,
+			className,
 			...inputProps
 		} = props;
 		const statusClass = cx({
@@ -38,10 +41,11 @@ export const TextAreaInput = forwardRef<HTMLTextAreaElement, TextAreaInputProps>
 				<textarea
 					id='text-area-input'
 					className={cx(
-						'block w-full p-3 border-2 rounded-base outline-none transition-colors',
+						'block w-full p-3 border-2 rounded-base outline-none transition-all',
 						disabled ? 'bg-neutral-200 text-neutral-500' : 'bg-white text-neutral-800',
 						statusClass,
 						`focus:ring-${focusColor} focus:border-${focusColor}`,
+						className,
 					)}
 					disabled={disabled}
 					{...inputProps} // Spread the rest of the inputProps to the textarea

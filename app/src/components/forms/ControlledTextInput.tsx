@@ -24,6 +24,7 @@ const ControlledTextInput = <T extends FieldValues>({
 							className={cx({ "border-semantic-error": errors[inputName] })}
 							required={required}
 							{...field}
+							// value=""
 						/>
 						{errors[inputName] && (
 							<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>
