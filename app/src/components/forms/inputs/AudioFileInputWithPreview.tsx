@@ -50,7 +50,6 @@ const AudioFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 						maxFiles: 1,
 						onDrop: (acceptedFiles: File[]) => {
 							// console.log(acceptedFiles[0]);
-
 							acceptedFiles[0].text().then((text: string) => {
 								// console.log(acceptedFiles[0]);
 								//   setTrackFile(acceptedFiles[0]);
