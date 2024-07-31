@@ -71,9 +71,11 @@ export default {
     // },
   },
   gasReporter: {
-    gasPrice: 21,
     coinMarketCap: process.env.COINMARKETCAP,
     showTimeSpent: true,
+    enabled: true,
+    currency: 'USD',
+    gasPrice: 20,
     remoteContracts: [],
   },
   contractSizer: {

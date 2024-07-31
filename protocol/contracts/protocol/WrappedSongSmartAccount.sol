@@ -84,14 +84,12 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
   /**
    * @dev Registers a new song with the given URI and creates fungible shares.
    * @param songURI The URI of the song.
-   * @param participants The addresses of the participants.
    * @param sharesAmount The amount of shares to be created.
    * @return songId The ID of the registered song.
    * @return newSongSharesId The ID of the created fungible shares.
    */
   function createsWrappedSongTokens(
     string memory songURI,
-    address[] memory participants,
     uint256 sharesAmount
   ) public onlyOwner returns (uint256 songId, uint256 newSongSharesId) {
     // require(sharesAmount == 10000, "Shares amount must be 10,000");

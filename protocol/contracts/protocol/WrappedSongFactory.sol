@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "./WrappedSongSmartAccount.sol";
 import "./ProtocolModule.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "hardhat/console.sol";
 
 contract WrappedSongFactory {
     ProtocolModule public protocolModule;
@@ -22,21 +24,47 @@ contract WrappedSongFactory {
         wrappedSongImplementation = _wrappedSongImplementation;
     }
 
+    /**
+     * @dev Creates a new wrapped song.
+     * @param _songTokensManagementAddress The address of the song management contract.
+     * @param _stablecoin The address of the stablecoin contract.
+     */
+    function createWrappedSong(address _songTokensManagementAddress, address _stablecoin) public payable {
+        //TODO: Pay fee in stablecoins
+        // require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
+        // require(protocolModule.whitelistingManager().isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+        
+        WrappedSongSmartAccount newWrappedSong = new WrappedSongSmartAccount();
+        address newWrappedSongAddress = address(newWrappedSong);
+
+        // Call the initialize function directly
+        newWrappedSong.initialize(
+            _songTokensManagementAddress,
+            _stablecoin,
+            msg.sender,
+            address(protocolModule)
+        );
+
+        ownerWrappedSongs[msg.sender].push(newWrappedSongAddress);
+
+        emit WrappedSongCreated(msg.sender, newWrappedSongAddress);
+    }
 
     /**
      * @dev Creates a new wrapped song.
-     * @param _songManagement The address of the song management contract.
+     * @param _songTokensManagementAddress The address of the song management contract.
      * @param _stablecoin The address of the stablecoin contract.
      */
-    function createWrappedSong(address _songManagement, address _stablecoin) external payable {
-        require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
-        require(protocolModule.whitelistingManager().isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+    function createUpgradableWrappedSong(address _songTokensManagementAddress, address _stablecoin) external payable {
+        // require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
+        // require(protocolModule.whitelistingManager().isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
         
         bytes memory initializeData = abi.encodeWithSelector(
             WrappedSongSmartAccount(address(0)).initialize.selector,
-            _songManagement,
+            _songTokensManagementAddress,
             _stablecoin,
-            msg.sender
+            msg.sender,
+            address(protocolModule)
         );
 
         ERC1967Proxy newWrappedSongProxy = new ERC1967Proxy(
@@ -47,8 +75,49 @@ contract WrappedSongFactory {
         address newWrappedSong = address(newWrappedSongProxy);
         ownerWrappedSongs[msg.sender].push(newWrappedSong);
         
-
         emit WrappedSongCreated(msg.sender, newWrappedSong);
+    }
+
+    /**
+     * @dev Creates a new wrapped song with metadata.
+     * @param _songTokensManagementAddress The address of the song management contract.
+     * @param _stablecoin The address of the stablecoin contract.
+     * @param songURI The URI of the song.
+     * @param sharesAmount The amount of shares to be created.
+     */
+    function createWrappedSongWithMetadata(
+        address _songTokensManagementAddress,
+        address _stablecoin,
+        string memory songURI,
+        uint256 sharesAmount
+    ) external {
+        // require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
+        // require(protocolModule.whitelistingManager().isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+        
+        console.log("Passed require statements");
+
+        WrappedSongSmartAccount newWrappedSong = new WrappedSongSmartAccount();
+        address newWrappedSongAddress = address(newWrappedSong);
+        
+        console.log("New WrappedSongSmartAccount address: %s", Strings.toHexString(uint160(newWrappedSongAddress), 20));
+
+        // Call the initialize function directly
+        newWrappedSong.initialize(
+            _songTokensManagementAddress,
+            _stablecoin,
+            msg.sender,
+            address(protocolModule)
+        );
+        
+        // TODO: Optionally add ISRC on registry
+        console.log("Initialized WrappedSongSmartAccount");
+
+        ownerWrappedSongs[msg.sender].push(newWrappedSongAddress);
+
+        // Create Wrapped Song Tokens with metadata
+        newWrappedSong.createsWrappedSongTokens(songURI, sharesAmount);
+
+        emit WrappedSongCreated(msg.sender, newWrappedSongAddress);
     }
 
     /**

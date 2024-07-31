@@ -3,10 +3,12 @@ import { artifacts, ethers, network, upgrades } from "hardhat";
 import path from 'path';
 
 const abisDirectory = path.join(__dirname, '..', '..', 'app', 'src', 'contracts');
+const localAbisDirectory = path.join(__dirname, '..', 'abis');
 const networkName = network.name;
 
 // Adjust the path to save each network's contract addresses with the network name
 const addressesFile = path.join(abisDirectory, `protocolContractAddresses-${networkName}.json`);
+const addressesFile2 = path.join(localAbisDirectory, `protocolContractAddresses-${networkName}.json`);
 
 // Object to hold contract addresses
 let contractAddresses: any = {};
@@ -20,9 +22,12 @@ async function main() {
   console.log("Account address:", deployer.address);
   console.log("Account balance:", balance.toString());
 
-  // Ensure the ABIs directory exists
+  // Ensure the ABIs directories exist
   if (!fs.existsSync(abisDirectory)) {
     fs.mkdirSync(abisDirectory, { recursive: true });
+  }
+  if (!fs.existsSync(localAbisDirectory)) {
+    fs.mkdirSync(localAbisDirectory, { recursive: true });
   }
 
   // Deploy WhitelistingManager contract
@@ -110,16 +115,29 @@ async function main() {
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
   console.log(`Contract addresses saved to ${addressesFile}`);
+
+  fs.writeFileSync(addressesFile2, JSON.stringify(contractAddresses, null, 2));
+  console.log(`Contract addresses saved to ${addressesFile2}`);
 }
 
 async function saveAbi(contractName: string, contractAddress: any) {
   const artifact = await artifacts.readArtifact(contractName);
+  const abiContent = JSON.stringify(artifact.abi, null, 2); // Pretty print the JSON
+
+  // Save ABI in the app directory
   fs.writeFileSync(
     path.join(abisDirectory, `${contractName}.json`),
-    JSON.stringify(artifact.abi, null, 2) // Pretty print the JSON
+    abiContent
   );
   console.log(`ABI for ${contractName} saved to ${abisDirectory}/${contractName}-${networkName}.json`);
-  
+
+  // Save ABI in the local protocol directory
+  fs.writeFileSync(
+    path.join(localAbisDirectory, `${contractName}.json`),
+    abiContent
+  );
+  console.log(`ABI for ${contractName} saved to ${localAbisDirectory}/${contractName}-${networkName}.json`);
+
   // Update the contract addresses object
   contractAddresses[contractName] = contractAddress;
 }
