@@ -8,7 +8,7 @@ import { useForm, SubmitHandler, Controller, useWatch } from "react-hook-form";
 import { WrappedSongFormFields } from "../types";
 import WrappedSongRequiredInformationForm from "../forms/WrappedSongRequiredInformationForm";
 import WrappedSongOptionalInformationForm from "../forms/WrappedSongOptionalInformationForm";
-import { optionalWrappedSongFields, requiredWrappedSongFields } from "../forms/fields";
+import { formatWrappedSongFieldsToMetadata } from "@/app/utils/formatWrappedSongMetadata";
 
 const defaultTabItems = [
 	{
@@ -40,17 +40,34 @@ const CreateWrappedSongPage = () => {
 			lyrics: "",
 			isrc: "",
 			iswc: "",
-			credits: [{ artist: "Artist", role: "Role" }],
+			credits: [],
 			tiktok_start_time: "",
 			description: "",
 			recording_location: "",
 			upc_ean: "",
 			secondary_genre: "",
+			track_duration: "",
 		},
 	});
-	const onSubmit: SubmitHandler<WrappedSongFormFields> = (data) => {
+
+	const loadTrackDuration: (file: File) => Promise<number> = (file) => {
+		return new Promise((resolve) => {
+			var url_src = URL.createObjectURL(file);
+			var audio = new Audio(url_src);
+			audio.addEventListener("loadeddata", function () {
+				resolve(audio.duration);
+			});
+		});
+	};
+	const onSubmit: SubmitHandler<WrappedSongFormFields> = async (data) => {
+		if (data.track instanceof File) {
+			const duration = await loadTrackDuration(data.track);
+			data.track_duration = duration.toString();
+		}
 		console.log("Here is the data for the whole form");
 		console.log(data);
+		const formattedData = formatWrappedSongFieldsToMetadata(data);
+		console.log(formattedData);
 	};
 	const { errors } = formState;
 

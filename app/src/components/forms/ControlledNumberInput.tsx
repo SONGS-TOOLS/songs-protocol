@@ -11,6 +11,7 @@ const ControlledNumberInput = <T extends FieldValues>({
 	inputName,
 	inputLabel,
 	required = false,
+	className,
 }: ControlledInputProps<T>) => {
 	return (
 		<Controller
@@ -19,7 +20,7 @@ const ControlledNumberInput = <T extends FieldValues>({
 			rules={rules}
 			render={({ field }) => {
 				return (
-					<div>
+					<div className={className}>
 						<NumberInput
 							label={inputLabel}
 							className={cx({ "border-semantic-error": errors[inputName] })}

@@ -1,12 +1,13 @@
 import { WrappedSongFieldType } from "../types";
 export const requiredWrappedSongFields: WrappedSongFieldType[] = [
 	{
-		type: "textInput",
+		type: "selectInput",
 		name: "main_artist",
 		label: "Main artist",
 		rules: {
 			required: "Main artist is required",
 		},
+		options: [],
 	},
 	{
 		type: "textInput",
@@ -25,11 +26,11 @@ export const requiredWrappedSongFields: WrappedSongFieldType[] = [
 		},
 		options: [
 			{
-				value: "es",
+				value: "Spanish",
 				label: "Spanish",
 			},
 			{
-				value: "en",
+				value: "English",
 				label: "English",
 			},
 		],

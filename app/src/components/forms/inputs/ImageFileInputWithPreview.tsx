@@ -87,10 +87,6 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 				</div>
 
 				<input
-					// onChange={(e) => {
-					// 	console.log("HOLA");
-					// 	console.log(e.target.value);
-					// }}
 					required={required}
 					className="hidden"
 					id={id}

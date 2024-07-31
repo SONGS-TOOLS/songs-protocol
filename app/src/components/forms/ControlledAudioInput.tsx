@@ -32,11 +32,9 @@ const ControlledAudioInput = <T extends FieldValues>({
 							watchFile={watchFile}
 							{...rest}
 							onChange={(e) => {
-								console.log(e);
 								field.onChange(e.target.files);
 							}}
 							setValue={(value) => {
-								console.log(value);
 								field.onChange(value);
 							}}
 							required={required}

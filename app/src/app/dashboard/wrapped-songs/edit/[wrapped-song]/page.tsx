@@ -5,11 +5,16 @@ import { Button } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler, Controller, useWatch } from "react-hook-form";
-import { WrappedSongFormFields } from "../../types";
+import { WrappedSongFormFields, WrappedSongMetadataType } from "../../types";
 import WrappedSongRequiredInformationForm from "../../forms/WrappedSongRequiredInformationForm";
 import WrappedSongOptionalInformationForm from "../../forms/WrappedSongOptionalInformationForm";
-import { optionalWrappedSongFields, requiredWrappedSongFields } from "../../forms/fields";
 import wrappedSongs from "@/app/dashboard/wrapped-songs/wrappedSongMockData/data.json";
+import {
+	formatMetadataToWrappedSongFields,
+	formatWrappedSongFieldsToMetadata,
+} from "@/app/utils/formatWrappedSongMetadata";
+import wrappedSongsMetadata from "@/app/dashboard/wrapped-songs/wrappedSongMockData/mintedData.json";
+const wrappedSongMetadata = wrappedSongsMetadata[0] as WrappedSongMetadataType;
 
 const wrappedSong = wrappedSongs[0] as WrappedSongFormFields;
 
@@ -26,13 +31,20 @@ const defaultTabItems = [
 
 const EditWrappedSongPage = () => {
 	const [tab, setTab] = useState(0);
+	const defaultValues = useMemo(() => {
+		return formatMetadataToWrappedSongFields(wrappedSongMetadata);
+	}, [wrappedSongMetadata]);
+
 	const { register, handleSubmit, watch, control, formState } = useForm<WrappedSongFormFields>({
 		mode: "onBlur",
-		defaultValues: wrappedSong,
+		defaultValues: defaultValues,
 	});
+
 	const onSubmit: SubmitHandler<WrappedSongFormFields> = (data) => {
 		console.log("Here is the data for the whole form");
 		console.log(data);
+		const formattedData = formatWrappedSongFieldsToMetadata(data);
+		console.log("FORMATTED DATA", formattedData);
 	};
 	const { errors } = formState;
 

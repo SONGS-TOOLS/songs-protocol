@@ -14,7 +14,7 @@ export interface DropInputProps {
 	className?: string;
 	required?: boolean; // Added required prop
 	name?: string;
-	value?: string;
+	value?: string | number | readonly string[] | undefined;
 }
 
 const FileLabel = ({
@@ -22,7 +22,7 @@ const FileLabel = ({
 	color = 'black',
 	background = 'white',
 }: {
-	name: string;
+	name: string | number | readonly string[];
 	color?: string;
 	background?: string;
 }) => (
@@ -57,7 +57,6 @@ export const DropInput = ({
 		() => (acceptedFiles && acceptedFiles.length > 0 ? acceptedFiles : dropzoneAcceptedFiles),
 		[acceptedFiles, dropzoneAcceptedFiles],
 	);
-	console.log('VALUE', value);
 
 	return (
 		<div>

@@ -16,13 +16,13 @@ import {
 	Headline4,
 } from "@gordo-d/mufi-ui-components";
 import UnderlinedAnchor from "@/components/typography/UnderlinedAnchor";
-import { ArtistFields } from "@/app/dashboard/artists/types";
+import { ArtistFormFields } from "@/app/dashboard/artists/types";
 import { socialLinks } from "./dictionary";
 import LinkArrow from "@/components/icons/LinkArrow";
 import Link from "next/link";
 import FeedGrid from "@/components/layout/FeedGrid";
 import ArtistHeader from "./components/ArtistHeader";
-const artist = artists[0] as ArtistFields;
+const artist = artists[0] as ArtistFormFields;
 
 const ArtistPage = () => {
 	const placeholderCards = Array(4).fill(0);

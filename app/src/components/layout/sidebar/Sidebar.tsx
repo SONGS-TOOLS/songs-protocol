@@ -6,7 +6,7 @@ import PersonIcon from "@/components/icons/PersonIcon";
 const navItems = [
 	{
 		href: "/dashboard/songshares",
-		label: "My songshares",
+		label: "My Songshares",
 	},
 	{
 		href: "/dashboard/artists",

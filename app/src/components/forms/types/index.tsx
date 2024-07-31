@@ -23,6 +23,7 @@ interface BaseControlledInputProps<T extends FieldValues> {
 	inputName: Path<T>;
 	inputLabel: string;
 	required?: boolean;
+	className?: string;
 }
 
 export interface ControlledInputProps<T extends FieldValues> extends BaseControlledInputProps<T> {}

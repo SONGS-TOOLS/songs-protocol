@@ -1,0 +1,76 @@
+import ControlledNumberInput from "@/components/forms/ControlledNumberInput";
+import ControlledTextInput from "@/components/forms/ControlledTextInput";
+import NumberInput from "@/components/forms/inputs/NumberInput";
+import CloseIcon from "@/components/icons/CloseIcon";
+import Modal from "@/components/layout/Modal";
+import { Button, Headline2, Headline3, TextInput } from "@gordo-d/mufi-ui-components";
+import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+interface WrappedSongSendSectionProps {
+	setSendModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface formFields {
+	amount: number;
+	walletAddress: string;
+}
+
+const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) => {
+	// const [amount, setAmount] = useState(1);
+	// const [walletAddress, setWalletAddress] = useState()
+	const {
+		handleSubmit,
+		control,
+		formState: { errors },
+	} = useForm<formFields>({
+		mode: "onBlur",
+		defaultValues: {
+			amount: 0,
+			walletAddress: "",
+		},
+	});
+
+	const onSubmit: SubmitHandler<formFields> = (data) => {
+		console.log("Here is the data for the whole form");
+		console.log(data);
+	};
+
+	return (
+		<Modal closeModal={() => setSendModal(false)}>
+			<div>
+				<Headline3>To which address do you want to send?</Headline3>
+			</div>
+			<form className="flex flex-col gap-4">
+				{/* <TextInput label="Wallet address" /> */}
+				<ControlledTextInput
+					{...{ control, errors }}
+					inputName="walletAddress"
+					rules={{
+						required: "You must enter a wallet address",
+						pattern: {
+							value: /^0x[a-fA-F0-9]{40}$/,
+							message: "Invalid Ethereum wallet address",
+						},
+					}}
+					inputLabel="Wallet address"
+				/>
+				<div className="flex items-end gap-4">
+					{/* <NumberInput value={amount} onChange={(e) => setAmount(e.target.valueAsNumber)} /> */}
+					<ControlledNumberInput
+						{...{ control, errors }}
+						inputName="amount"
+						rules={{
+							min: { value: 1, message: "You must enter a value greater than 0" },
+							required: "You must enter a value",
+						}}
+						inputLabel="Amount"
+						className="flex-1"
+					/>
+					<Button onClick={handleSubmit(onSubmit)}>Send</Button>
+				</div>
+			</form>
+		</Modal>
+	);
+};
+export default WrappedSongSendSection;
