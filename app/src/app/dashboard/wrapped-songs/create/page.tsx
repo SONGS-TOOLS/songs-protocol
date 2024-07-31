@@ -3,12 +3,12 @@ import TabMenu from "@/components/layout/TabMenu";
 import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
 import { Button } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
-import { useState } from "react";
-// import RequiredInformationForm from "../forms/RequiredInformationForm";
-// import OptionalInformationForm from "../forms/OptionalInformationForm";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { ArtistFormFields } from "../../artists/types";
-// import { ArtistFields } from "../types";
+import { useEffect, useMemo, useState } from "react";
+import { useForm, SubmitHandler, Controller, useWatch } from "react-hook-form";
+import { WrappedSongFormFields } from "../types";
+import WrappedSongRequiredInformationForm from "../forms/WrappedSongRequiredInformationForm";
+import WrappedSongOptionalInformationForm from "../forms/WrappedSongOptionalInformationForm";
+import { formatWrappedSongFieldsToMetadata } from "@/app/utils/formatWrappedSongMetadata";
 
 const defaultTabItems = [
 	{
@@ -23,17 +23,55 @@ const defaultTabItems = [
 
 const CreateWrappedSongPage = () => {
 	const [tab, setTab] = useState(0);
-	const {
-		register,
-		handleSubmit,
-		watch,
-		control,
-		formState: { errors },
-	} = useForm<ArtistFormFields>({ mode: "onBlur" });
-	const onSubmit: SubmitHandler<ArtistFormFields> = (data) => {
+	const { register, handleSubmit, watch, control, formState } = useForm<WrappedSongFormFields>({
+		mode: "onBlur",
+		defaultValues: {
+			main_artist: "",
+			release_title: "",
+			language: "",
+			primary_genre: "",
+			track: "",
+			artwork: "",
+			featuring_artist: "",
+			production_year: "",
+			previously_released: false,
+			producer: "",
+			copyright: "",
+			lyrics: "",
+			isrc: "",
+			iswc: "",
+			credits: [],
+			tiktok_start_time: "",
+			description: "",
+			recording_location: "",
+			upc_ean: "",
+			secondary_genre: "",
+			track_duration: "",
+		},
+	});
+
+	const loadTrackDuration: (file: File) => Promise<number> = (file) => {
+		return new Promise((resolve) => {
+			var url_src = URL.createObjectURL(file);
+			var audio = new Audio(url_src);
+			audio.addEventListener("loadeddata", function () {
+				resolve(audio.duration);
+			});
+		});
+	};
+	const onSubmit: SubmitHandler<WrappedSongFormFields> = async (data) => {
+		if (data.track instanceof File) {
+			const duration = await loadTrackDuration(data.track);
+			data.track_duration = duration.toString();
+		}
 		console.log("Here is the data for the whole form");
 		console.log(data);
+		const formattedData = formatWrappedSongFieldsToMetadata(data);
+		console.log(formattedData);
 	};
+	const { errors } = formState;
+
+	const [tabItems, setTabItems] = useState(defaultTabItems);
 
 	return (
 		<>
