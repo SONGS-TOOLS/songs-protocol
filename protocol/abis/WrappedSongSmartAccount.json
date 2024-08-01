@@ -291,11 +291,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_songManagementAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_stablecoinAddress",
         "type": "address"
       },

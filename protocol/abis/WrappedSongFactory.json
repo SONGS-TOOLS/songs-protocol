@@ -54,11 +54,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_songTokensManagementAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_stablecoin",
         "type": "address"
       }
@@ -72,11 +67,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_songTokensManagementAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_stablecoin",
         "type": "address"
       }
@@ -88,11 +78,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_songTokensManagementAddress",
-        "type": "address"
-      },
       {
         "internalType": "address",
         "name": "_stablecoin",

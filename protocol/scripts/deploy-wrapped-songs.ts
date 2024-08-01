@@ -67,13 +67,18 @@ async function main() {
 
   console.log(`Creating Wrapped Song 1 with URI: ${songURI1} and shares amount: ${sharesAmount}`);
   try {
-    const createWrappedSongTx1 = await WrappedSongFactory.createWrappedSong(
-      contractAddresses.WSTokenManagement,
+    // const createWrappedSongTx1 = await WrappedSongFactory.createWrappedSongWithMetadata(
+    //   USDC_ADDRESS,
+    //   songURI1,
+    //   sharesAmount,
+    //   // { value: ethers.parseEther('0.3'), gasLimit: 10000000 }
+    // );
+    const createWrappedSongUpgradeable = await WrappedSongFactory.createUpgradableWrappedSong(
       USDC_ADDRESS,
-      // songURI1,
-      // sharesAmount,
       // { value: ethers.parseEther('0.3'), gasLimit: 10000000 }
     );
+
+
     // await createWrappedSongTx1.wait();
     // const ownerWrappedSongs1 = await WrappedSongFactory.getOwnerWrappedSongs(deployer.address);
     // const wrappedSongAddress1 = ownerWrappedSongs1[ownerWrappedSongs1.length - 1];

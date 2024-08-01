@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import './WSTokensBase.sol';
 import './ProtocolModule.sol';
@@ -35,33 +35,33 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
 
   /**
    * @dev Initializes the contract with the given parameters.
-   * @param _songManagementAddress The address of the SongManagement contract.
    * @param _stablecoinAddress The address of the stablecoin contract.
    * @param _owner The address of the owner.
    * @param _protocolModuleAddress The address of the ProtocolModule contract.
    */
   function initialize(
-    address _songManagementAddress,
     address _stablecoinAddress,
     address _owner,
     address _protocolModuleAddress
   ) public initializer {
-    __Ownable_init(_owner); // Pass the initial owner
+    __Ownable_init(_owner); // Initialize Ownable
     __UUPSUpgradeable_init();
 
-    require(
-      _songManagementAddress != address(0),
-      'Invalid SongManagement address'
-    );
     require(_stablecoinAddress != address(0), 'Invalid stablecoin address');
+    require(_owner != address(0), 'Invalid owner address');
+    require(
+      _protocolModuleAddress != address(0),
+      'Invalid protocol module address'
+    );
 
-    songManagementContract = WSTokenManagement(_songManagementAddress);
+    // songManagementContract = new WSTokenManagement();
+    // songManagementContract.initialize(address(this), _owner); // Initialize the new instance
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = ProtocolModule(_protocolModuleAddress);
     transferOwnership(_owner);
 
-    isReleased = false;
-    isAuthentic = false;
+    isReleased = false; // Initialize isReleased
+    isAuthentic = false; // Initialize isAuthentic
   }
 
   /**
@@ -76,8 +76,10 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
    * @dev Requests the release of the wrapped song.
    * @param _distributorWallet The address of the distributor wallet.
    */
-  function requestWrappedSongRelease(address _distributorWallet) external onlyOwner {
-    require(!isReleased, "Already released");
+  function requestWrappedSongRelease(
+    address _distributorWallet
+  ) external onlyOwner {
+    require(!isReleased, 'Already released');
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
@@ -91,7 +93,7 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
   function createsWrappedSongTokens(
     string memory songURI,
     uint256 sharesAmount
-  ) public onlyOwner returns (uint256 songId, uint256 newSongSharesId) {
+  ) public returns (uint256 songId, uint256 newSongSharesId) {
     // require(sharesAmount == 10000, "Shares amount must be 10,000");
 
     songId = songManagementContract.createSongConcept(songURI, address(this));
