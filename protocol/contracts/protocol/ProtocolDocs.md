@@ -2,7 +2,7 @@
 
 ## Overview
 
-This documentation provides a comprehensive guide to the protocol's smart contracts, focusing on the functions that are externally or publicly accessible. The protocol is designed to manage and interact with wrapped songs, distributors, and various modules within the ecosystem. The primary contracts include `WhitelistingManager`, `DistributorWallet`, `DistributorWalletFactory`, `ProtocolModule`, `WrappedSongFactory`, `WrappedSongSmartAccount`, and `WSTokens`.
+This documentation provides a comprehensive guide to the protocol's smart contracts, focusing on the functions that are externally or publicly accessible. The protocol is designed to manage and interact with wrapped songs, distributors, and various modules within the ecosystem. The primary contracts include `WhitelistingManager`, `DistributorWallet`, `DistributorWalletFactory`, `ProtocolModule`, `WrappedSongFactory`, `WrappedSongSmartAccount`, and `WSTokensManagement`.
 
 ### Understanding the Protocol
 
@@ -141,12 +141,18 @@ The `WrappedSongFactory` contract is responsible for creating new wrapped songs.
 
 ### Functions
 
-- **createWrappedSong(address _songManagement, address _stablecoin)**
+- **createWrappedSong(address _stablecoin)**
   - Creates a new wrapped song.
   - **Parameters:**
-    - `_songManagement`: The address of the song management contract.
     - `_stablecoin`: The address of the stablecoin contract.
   - **Returns:** `address`
+
+- **createWrappedSongWithMetadata(address _stablecoin, string memory songURI, uint256 sharesAmount)**
+  - Creates a new wrapped song with metadata.
+  - **Parameters:**
+    - `_stablecoin`: The address of the stablecoin contract.
+    - `songURI`: The URI of the song metadata.
+    - `sharesAmount`: The amount of shares to be created.
 
 - **getOwnerWrappedSongs(address _owner)**
   - Returns the list of wrapped songs owned by the specified owner.
@@ -160,10 +166,9 @@ The `WrappedSongSmartAccount` contract represents the smart account for a wrappe
 
 ### Functions
 
-- **initialize(address _songManagementAddress, address _stablecoinAddress, address _owner, address _protocolModuleAddress)**
+- **constructor(address _stablecoinAddress, address _owner, address _protocolModuleAddress)**
   - Initializes the contract with the given parameters.
   - **Parameters:**
-    - `_songManagementAddress`: The address of the SongManagement contract.
     - `_stablecoinAddress`: The address of the stablecoin contract.
     - `_owner`: The address of the owner.
     - `_protocolModuleAddress`: The address of the ProtocolModule contract.
@@ -173,11 +178,47 @@ The `WrappedSongSmartAccount` contract represents the smart account for a wrappe
   - **Parameters:**
     - `_distributorWallet`: The address of the distributor wallet.
 
-- **makePayment(uint256 amount, address to)**
-  - Handles refunds or other disbursements from the wallet.
+- **createsWrappedSongTokens(string memory songURI, uint256 sharesAmount)**
+  - Registers a new song with the given URI and creates fungible shares.
   - **Parameters:**
-    - `amount`: The amount of stablecoin to be disbursed.
-    - `to`: The address to which the payment is made.
+    - `songURI`: The URI of the song.
+    - `sharesAmount`: The amount of shares to be created.
+  - **Returns:** `uint256 songId, uint256 newSongSharesId`
+
+- **createsSongToken(string memory songURI, address[] memory participants)**
+  - Registers a new song with the given URI.
+  - **Parameters:**
+    - `songURI`: The URI of the song.
+    - `participants`: The addresses of the participants.
+  - **Returns:** `uint256 songId`
+
+- **createFungibleSongShares(uint256 songId, uint256 sharesAmount)**
+  - Creates fungible song shares for the given song ID and shares amount.
+  - **Parameters:**
+    - `songId`: The ID of the song.
+    - `sharesAmount`: The amount of shares to be created.
+  - **Returns:** `uint256 sharesId`
+
+- **setSharesForSale(uint256 sharesId, uint256 percentage, uint256 pricePerShare)**
+  - Sets the price and percentage of shares available for sale.
+  - **Parameters:**
+    - `sharesId`: The ID of the shares.
+    - `percentage`: The percentage of shares to be sold.
+    - `pricePerShare`: The price per share.
+
+- **transferShares(uint256 sharesId, uint256 amount, address recipient)**
+  - Transfers shares to a recipient.
+  - **Parameters:**
+    - `sharesId`: The ID of the shares.
+    - `amount`: The amount of shares to be transferred.
+    - `recipient`: The address of the recipient.
+
+- **batchTransferSongShares(uint256[] memory tokenIds, uint256[] memory amounts, address to)**
+  - Batch transfers tokens to a recipient.
+  - **Parameters:**
+    - `tokenIds`: The IDs of the tokens.
+    - `amounts`: The amounts of tokens to be transferred.
+    - `to`: The address of the recipient.
 
 - **getTokenBalance(uint256 tokenId)**
   - Returns the token balance of the specified token ID.
@@ -185,34 +226,59 @@ The `WrappedSongSmartAccount` contract represents the smart account for a wrappe
     - `tokenId`: The ID of the token.
   - **Returns:** `uint256`
 
-- **transferToken(uint256 tokenId, uint256 amount, address to)**
-  - Transfers tokens to a recipient.
-  - **Parameters:**
-    - `tokenId`: The ID of the token.
-    - `amount`: The amount of tokens to be transferred.
-    - `to`: The address of the recipient.
-
-- **batchTransferTokens(uint256[] memory tokenIds, uint256[] memory amounts, address to)**
-  - Batch transfers tokens to a recipient.
-  - **Parameters:**
-    - `tokenIds`: The IDs of the tokens.
-    - `amounts`: The amounts of tokens to be transferred.
-    - `to`: The address of the recipient.
-
 - **canReceiveERC20()**
   - Indicates whether the contract can receive ERC20 tokens.
   - **Returns:** `bool`
 
-## WSTokens.sol
+- **receiveEarnings(uint256 amount)**
+  - Handles the receipt of earnings.
+  - **Parameters:**
+    - `amount`: The amount of earnings received.
 
-The `WSTokens` contract manages the creation and distribution of song-related tokens, including both NFTs and fungible shares. It allows for the creation of song concept NFTs, the minting of participation NFTs, and the exchange of NFTs for fungible shares. This contract also handles the setting and retrieval of token URIs.
+- **onERC1155Received(address operator, address from, uint256 id, uint256 value, bytes calldata data)**
+  - Handles the receipt of a single ERC1155 token type.
+  - **Parameters:**
+    - `operator`: The address which initiated the transfer (i.e. msg.sender).
+    - `from`: The address which previously owned the token.
+    - `id`: The ID of the token being transferred.
+    - `value`: The amount of tokens being transferred.
+    - `data`: Additional data with no specified format.
+  - **Returns:** `bytes4`
+
+- **onERC1155BatchReceived(address operator, address from, uint256[] calldata ids, uint256[] calldata values, bytes calldata data)**
+  - Handles the receipt of multiple ERC1155 token types.
+  - **Parameters:**
+    - `operator`: The address which initiated the batch transfer (i.e. msg.sender).
+    - `from`: The address which previously owned the token.
+    - `ids`: An array containing ids of each token being transferred.
+    - `values`: An array containing amounts of each token being transferred.
+    - `data`: Additional data with no specified format.
+  - **Returns:** `bytes4`
+
+- **supportsInterface(bytes4 interfaceId)**
+  - Indicates whether a contract implements the `IERC1155Receiver` interface.
+  - **Parameters:**
+    - `interfaceId`: The interface identifier, as specified in ERC-165.
+  - **Returns:** `bool`
+
+## WSTokensManagement.sol
+
+The `WSTokensManagement` contract manages the creation and distribution of song-related tokens, including both NFTs and fungible shares. It allows for the creation of song concept NFTs, the minting of participation NFTs, and the exchange of NFTs for fungible shares. This contract also handles the setting and retrieval of token URIs.
 
 ### Functions
 
-- **initialize(address initialOwner)**
-  - Initializes the contract with the given initial owner.
+- **initialize(address _smartAccountAddress, address _minterAddress)**
+  - Initializes the contract with the given initial owner and minter.
   - **Parameters:**
-    - `initialOwner`: The address of the initial owner.
+    - `_smartAccountAddress`: The address of the smart account.
+    - `_minterAddress`: The address of the minter.
+
+- **burn(address account, uint256 id, uint256 amount)**
+  - Burns tokens and transfers them back to the minter if balance is zero.
+  - **Parameters:**
+    - `account`: The address of the account to transfer tokens from.
+    - `id`: The ID of the token to transfer.
+    - `amount`: The amount of tokens to transfer.
 
 - **getShareholderAddresses(uint256 sharesId)**
   - Returns the list of shareholder addresses for a given shares ID.
@@ -238,18 +304,6 @@ The `WSTokens` contract manages the creation and distribution of song-related to
     - `songURI`: The URI containing metadata for the song.
     - `smartWallet`: The address of the smart wallet to mint the NFT to.
   - **Returns:** `uint256`
-
-- **mintParticipationNFTs(uint256 songId, address[] memory participants)**
-  - Mints participation NFTs for a specific song to multiple participants.
-  - **Parameters:**
-    - `songId`: The ID of the song to mint participation NFTs for.
-    - `participants`: An array of addresses to receive the participation NFTs.
-
-- **exchangeNFTForShares(uint256 songId, uint256 sharesAmount)**
-  - Exchanges a participation NFT for fungible shares.
-  - **Parameters:**
-    - `songId`: The ID of the song to exchange the NFT for.
-    - `sharesAmount`: The amount of shares to receive in exchange.
 
 - **createFungibleSongShares(uint256 songId, uint256 sharesAmount)**
   - Creates fungible shares for a specific song.
