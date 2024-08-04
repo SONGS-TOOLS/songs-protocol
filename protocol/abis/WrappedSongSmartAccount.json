@@ -303,6 +303,11 @@
         "internalType": "address",
         "name": "_protocolModuleAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_songManagementContract",
+        "type": "address"
       }
     ],
     "name": "initialize",

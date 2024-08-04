@@ -44,31 +44,36 @@ export default {
         url: process.env.MAINNET,
       },
     },
-    // ropsten: {
-    //   url: process.env.ROPSTEN || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
-    // rinkeby: {
-    //   url: process.env.RINKEBY || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
-    // sepolia: {
-    //   url: process.env.SEPOLIA || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
-    // },
-    // base: {
-    //   url: process.env.BASE || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
-    // },
-    // mumbai: {
-    //   url: process.env.MUMBAI || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
+    ropsten: {
+      url: process.env.ROPSTEN || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    polygon: {
+      url: process.env.POLYGON || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    rinkeby: {
+      url: process.env.RINKEBY || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    sepolia: {
+      url: process.env.SEPOLIA || '',
+      accounts:
+        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
+    },
+    base: {
+      url: process.env.BASE || '',
+      accounts:
+        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
+    },
+    mumbai: {
+      url: process.env.MUMBAI || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   gasReporter: {
     coinMarketCap: process.env.COINMARKETCAP,
@@ -94,6 +99,11 @@ export default {
       polygon: process.env.POLYGONSCAN_MUMBAI,
     },
   },
+  defender: {
+    apiKey: process.env.DEFENDER_API_KEY,
+    apiSecret: process.env.DEFENDER_API_SECRET,
+    useDefenderDeploy: false,
+  }
   // external: {
   //   contracts: [
   //     {

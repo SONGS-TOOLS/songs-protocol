@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./DistributorWallet.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "./DistributorWalletUpgradeable.sol";
 
-contract DistributorWalletFactory is Ownable {
+contract DistributorWalletFactoryUpgradeable is Ownable {
     mapping(address => address) public distributorToWallet;
     mapping(address => address) public wrappedSongToDistributor;
 
@@ -23,8 +24,16 @@ contract DistributorWalletFactory is Ownable {
     function createDistributorWallet(address distributor) external onlyOwner returns (address) {
         require(distributorToWallet[distributor] == address(0), "Distributor wallet already exists");
         
-        DistributorWallet newWallet = new DistributorWallet();
-        address walletAddress = address(newWallet);
+        // Deploy the implementation contract
+        DistributorWalletUpgradeable implementation = new DistributorWalletUpgradeable();
+        
+        // Deploy the proxy contract
+        ERC1967Proxy proxy = new ERC1967Proxy(
+            address(implementation),
+            abi.encodeWithSelector(implementation.initialize.selector)
+        );
+        
+        address walletAddress = address(proxy);
         
         distributorToWallet[distributor] = walletAddress;
         

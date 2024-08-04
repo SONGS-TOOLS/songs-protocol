@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./DistributorWalletFactory.sol";
-import "./WhitelistingManager.sol"; // Ensure the path is correct
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./../Interfaces/IDistributorWalletFactory.sol";
+import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 
-contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
-    DistributorWalletFactory public distributorWalletFactory;
-    WhitelistingManager public whitelistingManager;
+    IDistributorWalletFactory public distributorWalletFactory;
+    IWhitelistingManager public whitelistingManager;
 
     mapping(address => string) public isrcRegistry;
     mapping(address => string) public upcRegistry;
@@ -24,30 +22,18 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     event WrappedSongReleaseRequested(address indexed wrappedSong, address indexed distributor);
     event WrappedSongReleased(address indexed wrappedSong, address indexed distributor);
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
     /**
      * @dev Initializes the contract with the given parameters.
+     * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
+     * @param _whitelistingManager The address of the WhitelistingManager contract.
      */
-    function initialize(
+    constructor  (
         address _distributorWalletFactory,
         address _whitelistingManager
-    ) public initializer {
-        __Ownable_init(msg.sender); // Pass the initial owner
-        __UUPSUpgradeable_init();
-        distributorWalletFactory = DistributorWalletFactory(_distributorWalletFactory);
-        whitelistingManager = WhitelistingManager(_whitelistingManager);
+    ) Ownable(msg.sender) {
+        distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
+        whitelistingManager = IWhitelistingManager(_whitelistingManager);
     }
-
-    /**
-     * @dev Authorizes the upgrade of the contract. Only the owner can authorize upgrades.
-     * @param newImplementation The address of the new implementation contract.
-     */
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
     /**
      * @dev Requests the release of a wrapped song by the owner.
      * @param wrappedSong The address of the wrapped song.
@@ -56,6 +42,7 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function requestWrappedSongRelease(address wrappedSong, address distributor) external {
         require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can request release");
         require(wrappedSongToDistributor[wrappedSong] == address(0), "Wrapped song already released");
+        require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Distributor does not exist"); // Check if distributor exists
         pendingDistributorRequests[wrappedSong] = distributor;
         emit WrappedSongReleaseRequested(wrappedSong, distributor);
     }
@@ -67,6 +54,7 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function removeWrappedSongReleaseRequest(address wrappedSong) external {
         require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can remove release request");
         require(pendingDistributorRequests[wrappedSong] != address(0), "No pending release request");
+        require(distributorWalletFactory.checkIsDistributorWallet(pendingDistributorRequests[wrappedSong]), "Distributor does not exist"); // Check if distributor exists
         delete pendingDistributorRequests[wrappedSong];
     }
 
@@ -77,7 +65,8 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function confirmWrappedSongRelease(address wrappedSong) external {
         address distributor = pendingDistributorRequests[wrappedSong];
         require(distributor != address(0), "No pending release request");
-        require(msg.sender == distributorWalletFactory.getDistributorWallet(distributor), "Only pending distributor can confirm release");
+        require(distributorWalletFactory.checkIsDistributorWallet(msg.sender), "Distributor does not exist");
+
         wrappedSongToDistributor[wrappedSong] = distributor;
         delete pendingDistributorRequests[wrappedSong];
         emit WrappedSongReleased(wrappedSong, distributor);
@@ -90,7 +79,7 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     function rejectWrappedSongRelease(address wrappedSong) external {
         address distributor = pendingDistributorRequests[wrappedSong];
         require(distributor != address(0), "No pending release request");
-        require(msg.sender == distributorWalletFactory.getDistributorWallet(distributor), "Only pending distributor can reject release");
+        require(distributorWalletFactory.checkIsDistributorWallet(msg.sender), "Distributor does not exist");
         delete pendingDistributorRequests[wrappedSong];
     }
 
@@ -108,7 +97,7 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      * @param wrappedSong The address of the wrapped song.
      * @return The address of the pending distributor.
      */
-    function getPendingDistributor(address wrappedSong) external view returns (address) {
+    function getPendingDistributorRequests(address wrappedSong) external view returns (address) {
         return pendingDistributorRequests[wrappedSong];
     }
 
@@ -133,7 +122,7 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      * @param _newFactory The address of the new DistributorWalletFactory contract.
      */
     function updateDistributorWalletFactory(address _newFactory) external onlyOwner {
-        distributorWalletFactory = DistributorWalletFactory(_newFactory);
+        distributorWalletFactory = IDistributorWalletFactory(_newFactory);
     }
 
     /**
@@ -141,7 +130,7 @@ contract ProtocolModule is Initializable, UUPSUpgradeable, OwnableUpgradeable {
      * @param _whitelistingManager The address of the new WhitelistingManager contract.
      */
     function setWhitelistingManager(address _whitelistingManager) external onlyOwner {
-        whitelistingManager = WhitelistingManager(_whitelistingManager);
+        whitelistingManager = IWhitelistingManager(_whitelistingManager);
     }
 
     /**

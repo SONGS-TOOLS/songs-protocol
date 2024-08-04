@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
-contract WhitelistingManager is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract WhitelistingManagerUpgradeable is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     IERC721Enumerable public nftContract;
     bool public nftRequirementEnabled;
 

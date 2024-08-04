@@ -5,31 +5,10 @@
         "internalType": "address",
         "name": "_protocolModule",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_wrappedSongImplementation",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "length",
-        "type": "uint256"
-      }
-    ],
-    "name": "StringsInsufficientHexLength",
-    "type": "error"
   },
   {
     "anonymous": false,
@@ -41,9 +20,9 @@
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "wrappedSongSmartAccount",
         "type": "address"
       }
     ],
@@ -58,21 +37,14 @@
         "type": "address"
       }
     ],
-    "name": "createUpgradableWrappedSong",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "name": "createWrappedSong",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "_stablecoin",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "createWrappedSong",
-    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
@@ -96,7 +68,7 @@
     ],
     "name": "createWrappedSongWithMetadata",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -147,20 +119,7 @@
     "name": "protocolModule",
     "outputs": [
       {
-        "internalType": "contract ProtocolModule",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "wrappedSongImplementation",
-    "outputs": [
-      {
-        "internalType": "address",
+        "internalType": "contract IProtocolModule",
         "name": "",
         "type": "address"
       }

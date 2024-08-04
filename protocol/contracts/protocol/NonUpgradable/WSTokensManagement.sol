@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract WSTokenManagement is
-  ERC1155Upgradeable,
-  OwnableUpgradeable,
-  UUPSUpgradeable
-{
+contract WSTokenManagement is ERC1155, Ownable {
   uint256 private _currentTokenId;
   address private _minter;
 
@@ -19,57 +14,36 @@ contract WSTokenManagement is
   mapping(uint256 => uint256) public fungibleTokenShares;
   mapping(uint256 => address[]) private _shareholders;
 
-  /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor() {
-    _disableInitializers();
-  }
-
   /**
    * @dev Initializes the contract with the given initial owner.
    * @param _smartAccountAddress Wrapped Song smartAccount address.
    * @param _minterAddress Wrapped Song smartAccount address.
    */
-  function initialize(address _smartAccountAddress, address _minterAddress) public initializer {
-    __ERC1155_init('');
-    __Ownable_init(_smartAccountAddress); // Pass the initial owner
-    __UUPSUpgradeable_init();
+  constructor(
+    address _smartAccountAddress,
+    address _minterAddress
+  ) ERC1155('') Ownable(_smartAccountAddress) {
     _minter = _minterAddress;
     _currentTokenId = 0;
   }
 
   /**
-   * @dev Authorizes the upgrade of the contract. Only the owner can authorize upgrades.
-   * @param newImplementation The address of the new implementation contract.
+   * @dev Burns tokens and transfers them back to the minter if balance is zero.
+   * @param account The address of the account to transfer tokens from.
+   * @param id The ID of the token to transfer.
+   * @param amount The amount of tokens to transfer.
    */
-  function _authorizeUpgrade(
-    address newImplementation
-  ) internal override onlyOwner {}
+  function burn(address account, uint256 id, uint256 amount) external {
+      require(_minter != address(0), "Minter address not set");
+      require(balanceOf(account, id) >= amount, "Insufficient token balance");
+      require(msg.sender == account, "Caller is not the token owner");
 
-  /**
-   * @dev Modifier to restrict minting to the minter address.
-   */
-  modifier onlyMinter() {
-    require(msg.sender == _minter, 'Caller is not the minter');
-    _;
+      // Transfer tokens back to the minter instead of burning
+      _safeTransferFrom(account, _minter, id, amount, "");
+
+      // Remove shareholder if balance is zero
+      _removeShareholder(id, account);
   }
-
-  //TODO FIX BURN + Virtual on ERC-1155
-
-  // /**
-  //  * @dev Burns tokens and transfers them back to the minter if balance is zero.
-  //  * @param account The address of the account to transfer tokens from.
-  //  * @param id The ID of the token to transfer.
-  //  * @param amount The amount of tokens to transfer.
-  //  */
-  // function _burn(address account, uint256 id, uint256 amount) internal override {
-  //     require(_minter != address(0), "Minter address not set");
-
-  //     // Transfer tokens back to the minter instead of burning
-  //     _safeTransferFrom(account, _minter, id, amount, "");
-
-  //     // Remove shareholder if balance is zero
-  //     _removeShareholder(id, account);
-  // }
 
   /**
    * @dev Removes a shareholder from the list if they no longer hold tokens.

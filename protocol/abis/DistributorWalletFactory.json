@@ -93,7 +93,36 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "distributor",
+        "name": "wallet",
+        "type": "address"
+      }
+    ],
+    "name": "checkIsDistributorWallet",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_stablecoin",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_protocolModule",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
         "type": "address"
       }
     ],
@@ -114,9 +143,14 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
-    "name": "distributorToWallet",
+    "name": "distributorWallets",
     "outputs": [
       {
         "internalType": "address",
@@ -131,16 +165,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "distributor",
+        "name": "ownerOfWallets",
         "type": "address"
       }
     ],
-    "name": "getDistributorWallet",
+    "name": "getDistributorWallets",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "address[]",
         "name": "",
-        "type": "address"
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -160,6 +194,25 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isDistributorWallet",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 import './WrappedSongSmartAccount.sol';
-import './ProtocolModule.sol';
+import './../Interfaces/IProtocolModule.sol';
+import 'hardhat/console.sol';
 
-contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+contract DistributorWallet is Ownable {
   IERC20 public stablecoin;
-  ProtocolModule public protocolModule;
+  IProtocolModule public protocolModule;
   mapping(address => uint256) public wrappedSongTreasury;
   address[] public managedWrappedSongs;
   // TODO: CHECK THIS and the function
@@ -18,22 +18,20 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
   event WrappedSongReleaseRequested(address indexed wrappedSong);
   event WrappedSongReleased(address indexed wrappedSong);
   event WrappedSongRedeemed(address indexed wrappedSong, uint256 amount);
-
-  /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor() {
-    _disableInitializers();
-  }
+  event WrappedSongReleaseRejected(address indexed wrappedSong);
 
   /**
-   * @dev Initializes the contract with the given parameters.
+   * @dev Constructor to initialize the contract with the given parameters.
    * @param _stablecoin The address of the stablecoin contract.
    * @param _protocolModule The address of the protocol module contract.
    */
-  function initialize(address _stablecoin, address _protocolModule) public initializer {
-    __Ownable_init(msg.sender); // Pass the initial owner
-    __UUPSUpgradeable_init();
+  constructor(
+    address _stablecoin,
+    address _protocolModule,
+    address _owner
+  ) Ownable(_owner) {
     stablecoin = IERC20(_stablecoin);
-    protocolModule = ProtocolModule(_protocolModule);
+    protocolModule = IProtocolModule(_protocolModule);
   }
 
   /**
@@ -54,7 +52,10 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
    * @param _wrappedSong The address of the wrapped song.
    * @param _amount The amount of stablecoin to be set.
    */
-  function setAccounting(address _wrappedSong, uint256 _amount) external onlyOwner {
+  function setAccounting(
+    address _wrappedSong,
+    uint256 _amount
+  ) external onlyOwner {
     wrappedSongTreasury[_wrappedSong] = _amount;
   }
 
@@ -65,14 +66,25 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
    * @param _totalAmount The total amount of stablecoin received.
    * @param _batchSize The number of items to process per call.
    */
-  function setAccountingBatch(address[] calldata _wrappedSongs, uint256[] calldata _amounts, uint256 _totalAmount, uint256 _batchSize) external onlyOwner {
-    require(_wrappedSongs.length == _amounts.length, "Mismatched input lengths");
+  function setAccountingBatch(
+    address[] calldata _wrappedSongs,
+    uint256[] calldata _amounts,
+    uint256 _totalAmount,
+    uint256 _batchSize
+  ) external onlyOwner {
+    require(
+      _wrappedSongs.length == _amounts.length,
+      'Mismatched input lengths'
+    );
 
     uint256 sum = 0;
     for (uint256 i = 0; i < _wrappedSongs.length; i++) {
       sum += _amounts[i];
     }
-    require(sum == _totalAmount, "Total amount does not match sum of individual amounts");
+    require(
+      sum == _totalAmount,
+      'Total amount does not match sum of individual amounts'
+    );
 
     uint256 endIndex = currentBatchIndex + _batchSize;
     if (endIndex > _wrappedSongs.length) {
@@ -95,11 +107,14 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
    * @param _wrappedSong The address of the wrapped song.
    */
   function redeem(address _wrappedSong) external {
-    require(msg.sender == Ownable(_wrappedSong).owner(), "Only wrapped song owner can redeem");
+    require(
+      msg.sender == Ownable(_wrappedSong).owner(),
+      'Only wrapped song owner can redeem'
+    );
     uint256 amount = wrappedSongTreasury[_wrappedSong];
-    require(amount > 0, "No earnings to redeem");
+    require(amount > 0, 'No earnings to redeem');
     wrappedSongTreasury[_wrappedSong] = 0;
-    require(stablecoin.transfer(msg.sender, amount), "Transfer failed");
+    require(stablecoin.transfer(msg.sender, amount), 'Transfer failed');
     emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
@@ -115,14 +130,34 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
   }
 
   /**
+   * @dev Rejects the release of a wrapped song.
+   * @param wrappedSong The address of the wrapped song to be rejected.
+   */
+  function rejectWrappedSongRelease(address wrappedSong) external onlyOwner {
+    console.log('Start Rejecting release for wrapped song:', wrappedSong);
+    require(
+      protocolModule.getPendingDistributorRequests(wrappedSong) ==
+        address(this),
+      'Not the pending distributor for this wrapped song'
+    );
+    console.log('Rejecting release for wrapped song:', wrappedSong);
+
+    protocolModule.rejectWrappedSongRelease(wrappedSong);
+    emit WrappedSongReleaseRejected(wrappedSong);
+  }
+
+  /**
    * @dev Confirms the release of a wrapped song and adds it to the managed wrapped songs.
    * @param wrappedSong The address of the wrapped song to be released.
    */
-  function confirmWrappedSongRelease(address wrappedSong) external {
+  function confirmWrappedSongRelease(address wrappedSong) external onlyOwner {
+    console.log('Start Confirming release for wrapped song:', wrappedSong);
     require(
-        protocolModule.getPendingDistributor(wrappedSong) == address(this),
-        'Not the pending distributor for this wrapped song'
+      protocolModule.getPendingDistributorRequests(wrappedSong) ==
+        address(this),
+      'Not the pending distributor for this wrapped song'
     );
+    console.log('Confirming release for wrapped song:', wrappedSong);
 
     protocolModule.confirmWrappedSongRelease(wrappedSong);
     managedWrappedSongs.push(wrappedSong);
@@ -143,10 +178,4 @@ contract DistributorWallet is Initializable, UUPSUpgradeable, OwnableUpgradeable
   fallback() external payable {
     // Handle other calls
   }
-
-  /**
-   * @dev Authorizes the upgrade of the contract. Only the owner can authorize upgrades.
-   * @param newImplementation The address of the new implementation contract.
-   */
-  function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }

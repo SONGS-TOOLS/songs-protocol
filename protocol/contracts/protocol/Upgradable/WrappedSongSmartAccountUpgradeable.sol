@@ -5,13 +5,13 @@ import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
-import './WSTokensBase.sol';
-import './ProtocolModule.sol';
+import './WSTokensManagementUpgradeable.sol';
+import './../Interfaces/IProtocolModule.sol';
 
-contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
-  WSTokenManagement public songManagementContract;
+contract WrappedSongSmartAccountUpgradeable is OwnableUpgradeable, UUPSUpgradeable {
+  WSTokensManagementUpgradeable public wsTokensManagement;
   IERC20 public stablecoin;
-  ProtocolModule public protocolModule;
+  IProtocolModule public protocolModule;
 
   bool public isReleased;
   string public isrc;
@@ -38,11 +38,13 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
    * @param _stablecoinAddress The address of the stablecoin contract.
    * @param _owner The address of the owner.
    * @param _protocolModuleAddress The address of the ProtocolModule contract.
+   * @param _songManagementContract The address of the WSTokenManagement contract.
    */
   function initialize(
     address _stablecoinAddress,
     address _owner,
-    address _protocolModuleAddress
+    address _protocolModuleAddress,
+    address _songManagementContract
   ) public initializer {
     __Ownable_init(_owner); // Initialize Ownable
     __UUPSUpgradeable_init();
@@ -53,11 +55,14 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
       _protocolModuleAddress != address(0),
       'Invalid protocol module address'
     );
+    require(
+      _songManagementContract != address(0),
+      'Invalid song management contract address'
+    );
 
-    // songManagementContract = new WSTokenManagement();
-    // songManagementContract.initialize(address(this), _owner); // Initialize the new instance
+    wsTokensManagement = WSTokensManagementUpgradeable(_songManagementContract);
     stablecoin = IERC20(_stablecoinAddress);
-    protocolModule = ProtocolModule(_protocolModuleAddress);
+    protocolModule = IProtocolModule(_protocolModuleAddress);
     transferOwnership(_owner);
 
     isReleased = false; // Initialize isReleased
@@ -96,9 +101,9 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
   ) public returns (uint256 songId, uint256 newSongSharesId) {
     // require(sharesAmount == 10000, "Shares amount must be 10,000");
 
-    songId = songManagementContract.createSongConcept(songURI, address(this));
+    songId = wsTokensManagement.createSongConcept(songURI, address(this));
     wrappedSongTokenId = songId;
-    newSongSharesId = songManagementContract.createFungibleSongShares(
+    newSongSharesId = wsTokensManagement.createFungibleSongShares(
       songId,
       sharesAmount
     );
@@ -116,7 +121,7 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
     string memory songURI,
     address[] memory participants
   ) public onlyOwner returns (uint256 songId) {
-    songId = songManagementContract.createSongConcept(songURI, address(this));
+    songId = wsTokensManagement.createSongConcept(songURI, address(this));
     wrappedSongTokenId = songId;
     return songId;
   }
@@ -131,7 +136,7 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
     uint256 songId,
     uint256 sharesAmount
   ) public onlyOwner returns (uint256 sharesId) {
-    sharesId = songManagementContract.createFungibleSongShares(
+    sharesId = wsTokensManagement.createFungibleSongShares(
       songId,
       sharesAmount
     );
@@ -170,12 +175,12 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
     address recipient
   ) public onlyOwner {
     require(
-      songManagementContract.balanceOf(address(this), sharesId) >= amount,
+      wsTokensManagement.balanceOf(address(this), sharesId) >= amount,
       'Not enough shares to transfer'
     );
 
     // Transfer the shares from the SmartWallet to the recipient
-    songManagementContract.safeTransferFrom(
+    wsTokensManagement.safeTransferFrom(
       address(this),
       recipient,
       sharesId,
@@ -190,7 +195,7 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
    * @return The balance of the token.
    */
   function getTokenBalance(uint256 tokenId) public view returns (uint256) {
-    return songManagementContract.balanceOf(address(this), tokenId);
+    return wsTokensManagement.balanceOf(address(this), tokenId);
   }
 
   /**
@@ -207,7 +212,7 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
     // Ensure the SmartWallet has enough of the token to transfer
     require(getTokenBalance(tokenId) >= amount, 'Insufficient token balance');
     // Perform the safe transfer
-    songManagementContract.safeTransferFrom(
+    wsTokensManagement.safeTransferFrom(
       address(this),
       to,
       tokenId,
@@ -233,7 +238,7 @@ contract WrappedSongSmartAccount is OwnableUpgradeable, UUPSUpgradeable {
       'Arrays must be the same length'
     );
     // Perform the safe batch transfer
-    songManagementContract.safeBatchTransferFrom(
+    wsTokensManagement.safeBatchTransferFrom(
       address(this),
       to,
       tokenIds,

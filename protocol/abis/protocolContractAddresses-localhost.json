@@ -1,7 +1,6 @@
 {
-  "WhitelistingManager": "0x5147c5C1Cb5b5D3f56186C37a4bcFBb3Cd0bD5A7",
-  "DistributorWalletFactory": "0xF2cb3cfA36Bfb95E0FD855C1b41Ab19c517FcDB9",
-  "ProtocolModule": "0xC3549920b94a795D75E6C003944943D552C46F97",
-  "WrappedSongSmartAccount": "0x205Cfc23ef26922E116135500abb4B12Ab6d4668",
-  "WrappedSongFactory": "0xbB57FE325e769DEDB1236525a91cDEd842143fA7"
+  "WhitelistingManager": "0x6C3F7ed79b9D75486D0250946f7a20BDA74844Ba",
+  "DistributorWalletFactory": "0x90A3B384F62f43Ba07938EA43aEEc35c2aBfeCa2",
+  "ProtocolModule": "0x43c5DF0c482c88Cef8005389F64c362eE720A5bC",
+  "WrappedSongFactory": "0x2098cb47B17082Ab6969FB2661f2759A9BF357c4"
 }

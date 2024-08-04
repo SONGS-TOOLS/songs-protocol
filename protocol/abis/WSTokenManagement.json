@@ -538,12 +538,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "initialOwner",
+        "name": "_smartAccountAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "minter",
+        "name": "_minterAddress",
         "type": "address"
       }
     ],
