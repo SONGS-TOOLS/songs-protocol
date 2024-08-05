@@ -1,5 +1,6 @@
-import '@nomicfoundation/hardhat-ethers';
-import '@nomicfoundation/hardhat-verify';
+import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-verify";
+import "@openzeppelin/hardhat-upgrades";
 
 import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
@@ -43,36 +44,43 @@ export default {
         url: process.env.MAINNET,
       },
     },
-    // ropsten: {
-    //   url: process.env.ROPSTEN || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
-    // rinkeby: {
-    //   url: process.env.RINKEBY || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
-    // sepolia: {
-    //   url: process.env.SEPOLIA || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
-    // },
-    // base: {
-    //   url: process.env.BASE || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
-    // },
-    // mumbai: {
-    //   url: process.env.MUMBAI || '',
-    //   accounts:
-    //     process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    // },
+    ropsten: {
+      url: process.env.ROPSTEN || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    polygon: {
+      url: process.env.POLYGON || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    rinkeby: {
+      url: process.env.RINKEBY || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    sepolia: {
+      url: process.env.SEPOLIA || '',
+      accounts:
+        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
+    },
+    base: {
+      url: process.env.BASE || '',
+      accounts:
+        process.env.PRIVATE_KEY_MAIN !== undefined ? [process.env.PRIVATE_KEY_MAIN] : [],
+    },
+    mumbai: {
+      url: process.env.MUMBAI || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   gasReporter: {
-    gasPrice: 21,
     coinMarketCap: process.env.COINMARKETCAP,
     showTimeSpent: true,
+    enabled: true,
+    currency: 'USD',
+    gasPrice: 20,
     remoteContracts: [],
   },
   contractSizer: {
@@ -91,4 +99,16 @@ export default {
       polygon: process.env.POLYGONSCAN_MUMBAI,
     },
   },
+  defender: {
+    apiKey: process.env.DEFENDER_API_KEY,
+    apiSecret: process.env.DEFENDER_API_SECRET,
+    useDefenderDeploy: false,
+  }
+  // external: {
+  //   contracts: [
+  //     {
+  //       artifacts: "node_modules/@openzeppelin/contracts-upgradeable"
+  //     }
+  //   ]
+  // }
 };

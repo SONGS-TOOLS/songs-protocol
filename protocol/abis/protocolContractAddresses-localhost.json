@@ -1,0 +1,6 @@
+{
+  "WhitelistingManager": "0x6C3F7ed79b9D75486D0250946f7a20BDA74844Ba",
+  "DistributorWalletFactory": "0x90A3B384F62f43Ba07938EA43aEEc35c2aBfeCa2",
+  "ProtocolModule": "0x43c5DF0c482c88Cef8005389F64c362eE720A5bC",
+  "WrappedSongFactory": "0x2098cb47B17082Ab6969FB2661f2759A9BF357c4"
+}
