@@ -217,6 +217,7 @@ const ControlledInputs = <T extends FieldValues>({
 							subfields={field.fields as any}
 							inversed={field.checkbox.inversed}
 							disabled={field.disabled}
+							checkboxTooltip={field.checkbox.tooltip}
 							{...props}
 						/>
 					);

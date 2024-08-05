@@ -8,6 +8,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { ArtistFormFields } from "../types";
 import { optionalArtistFields, requiredArtistFieldsForNewArtist } from "../forms/fields";
 import FormWithControlledInputs from "@/components/forms/FormWithControlledInputs";
+import VerificationConfirmationModal from "../components/VerificationConfirmationModal";
 
 const defaultTabItems = [
 	{
@@ -22,6 +23,8 @@ const defaultTabItems = [
 
 const CreateArtistsPage = () => {
 	const [tab, setTab] = useState(0);
+	const [verificatationConfirmationModal, setVerificationConfirmationModal] = useState(false);
+
 	const { register, handleSubmit, watch, control, formState, setValue } = useForm<ArtistFormFields>(
 		{
 			mode: "onBlur",
@@ -50,6 +53,13 @@ const CreateArtistsPage = () => {
 			},
 		},
 	);
+	const beforeOnSubmit: SubmitHandler<ArtistFormFields> = (data) => {
+		console.log("Here is the data for the whole form, launch modal to confirm verification");
+		console.log(data);
+		if (data.verification_request) {
+			setVerificationConfirmationModal(true);
+		}
+	};
 	const onSubmit: SubmitHandler<ArtistFormFields> = (data) => {
 		console.log("Here is the data for the whole form");
 		console.log(data);
@@ -99,19 +109,20 @@ const CreateArtistsPage = () => {
 			<div>
 				<div className="flex justify-between">
 					<DashboardPageTitle>Add artist</DashboardPageTitle>
-					<Button onClick={handleSubmit(onSubmit)} className="font-semibold">
+					<Button onClick={handleSubmit(beforeOnSubmit)} className="font-semibold">
 						Save artist
 					</Button>
 				</div>
 				<TabMenu className="grid-cols-2" tab={tab} setTab={setTab} items={tabItems} />
 			</div>
-			<form className="flex items-start justify-center py-10" onSubmit={handleSubmit(onSubmit)}>
+			<form className="flex items-start justify-center gap-4 py-10">
 				<FormWithControlledInputs
 					control={control}
 					errors={errors}
 					watch={watch}
 					register={register}
 					setValue={setValue}
+					headline="Required information"
 					className={cx({
 						hidden: tab !== 0,
 					})}
@@ -123,12 +134,19 @@ const CreateArtistsPage = () => {
 					watch={watch}
 					register={register}
 					setValue={setValue}
+					headline="Optional information"
 					className={cx({
 						hidden: tab !== 1,
 					})}
 					fields={optionalArtistFields}
 				/>
 			</form>
+			{verificatationConfirmationModal && (
+				<VerificationConfirmationModal
+					handleSubmit={handleSubmit(onSubmit)}
+					setVerificationConfirmationModal={setVerificationConfirmationModal}
+				/>
+			)}
 		</>
 	);
 };

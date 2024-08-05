@@ -27,6 +27,7 @@ export const requiredArtistFields: ArtistFieldType[] = [
 		checkbox: {
 			name: "has_spotify_link",
 			label: "This artist is already on Spotify",
+			tooltip: "If you don't have an artist account on Spotify we will create one for you.",
 		},
 		fields: [
 			{

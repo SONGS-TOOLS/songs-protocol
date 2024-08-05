@@ -1,7 +1,7 @@
 "use client";
 import TabMenu from "@/components/layout/TabMenu";
 import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
-import { Button } from "@gordo-d/mufi-ui-components";
+import { Body1, Body2, Body3, Button, Card } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
 import { useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -11,6 +11,7 @@ import FormWithControlledInputs from "@/components/forms/FormWithControlledInput
 import { optionalArtistFields, requiredArtistFields } from "../../forms/fields";
 import VerifiedIcon from "@/components/icons/VerifiedIcon";
 const artist = artists[0] as ArtistFormFields;
+import VerificationConfirmationModal from "@/app/dashboard/artists/components/VerificationConfirmationModal";
 
 const tabItems = [
 	{
@@ -25,6 +26,9 @@ const tabItems = [
 
 const CreateArtistsPage = () => {
 	const [tab, setTab] = useState(0);
+
+	const [verificatationConfirmationModal, setVerificationConfirmationModal] = useState(false);
+
 	const {
 		register,
 		handleSubmit,
@@ -38,7 +42,7 @@ const CreateArtistsPage = () => {
 		console.log(data);
 
 		//ensure this fields are unchanged if artist is verified; in case they manually changed the fields (i.e with devtools)
-		if (artist.verified) {
+		if (artist.verified || artist.verification_request) {
 			data.name = artist.name;
 			data.has_apple_music_link = artist.has_apple_music_link;
 			data.has_spotify_link = artist.has_spotify_link;
@@ -48,7 +52,7 @@ const CreateArtistsPage = () => {
 	};
 
 	const requiredFields = useMemo(() => {
-		if (artist.verified) {
+		if (artist.verified || artist.verification_request) {
 			const name = requiredArtistFields.find((field) => field.name === "name");
 			if (name) name.disabled = true;
 
@@ -80,8 +84,17 @@ const CreateArtistsPage = () => {
 						{artist.verified && <VerifiedIcon />}
 					</div>
 					<div className="flex gap-4">
-						{!artist.verified && (
-							<Button className="font-semibold">Submit artist for verification</Button>
+						{!artist.verified && !artist.verification_request && (
+							<Button
+								className="font-semibold"
+								onClick={() => {
+									if (Object.keys(errors).length === 0) {
+										setVerificationConfirmationModal(true);
+									}
+								}}
+							>
+								Submit artist for verification
+							</Button>
 						)}
 						<Button onClick={handleSubmit(onSubmit)} className="font-semibold">
 							Save artist
@@ -90,7 +103,15 @@ const CreateArtistsPage = () => {
 				</div>
 				<TabMenu className="grid-cols-2" tab={tab} setTab={setTab} items={tabItems} />
 			</div>
-			<form className="flex items-start justify-center py-10" onSubmit={handleSubmit(onSubmit)}>
+			<form className="flex flex-col items-center gap-4 py-10" onSubmit={handleSubmit(onSubmit)}>
+				{artist.verification_request && !artist.verified && (
+					<Card className={`max-w-2xl`}>
+						<Body2>
+							This artist is still being verified. We will email you once the verification process
+							is complete.
+						</Body2>
+					</Card>
+				)}
 				<FormWithControlledInputs
 					control={control}
 					errors={errors}
@@ -101,6 +122,7 @@ const CreateArtistsPage = () => {
 						hidden: tab !== 0,
 					})}
 					fields={requiredFields}
+					headline="Required information"
 				/>
 				<FormWithControlledInputs
 					control={control}
@@ -112,8 +134,15 @@ const CreateArtistsPage = () => {
 						hidden: tab !== 1,
 					})}
 					fields={optionalArtistFields}
+					headline="Optional information"
 				/>
 			</form>
+			{verificatationConfirmationModal && (
+				<VerificationConfirmationModal
+					handleSubmit={handleSubmit(onSubmit)}
+					setVerificationConfirmationModal={setVerificationConfirmationModal}
+				/>
+			)}
 		</>
 	);
 };
