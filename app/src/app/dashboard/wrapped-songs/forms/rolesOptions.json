@@ -1,0 +1,354 @@
+[
+	{
+		"value": "main artist",
+		"label": "main artist"
+	},
+	{
+		"value": "performer",
+		"label": "performer"
+	},
+	{
+		"value": "producer",
+		"label": "producer"
+	},
+	{
+		"value": "12-string guitar",
+		"label": "12-string guitar"
+	},
+	{
+		"value": "acoustic guitar",
+		"label": "acoustic guitar"
+	},
+	{
+		"value": "actor",
+		"label": "actor"
+	},
+	{
+		"value": "alto saxophone",
+		"label": "alto saxophone"
+	},
+	{
+		"value": "alto solo",
+		"label": "alto solo"
+	},
+	{
+		"value": "arranger",
+		"label": "arranger"
+	},
+	{
+		"value": "background vocals",
+		"label": "background vocals"
+	},
+	{
+		"value": "banjo",
+		"label": "banjo"
+	},
+	{
+		"value": "baritone saxophone",
+		"label": "baritone saxophone"
+	},
+	{
+		"value": "baritone solo",
+		"label": "baritone solo"
+	},
+	{
+		"value": "bass clarinet",
+		"label": "bass clarinet"
+	},
+	{
+		"value": "bass guitar",
+		"label": "bass guitar"
+	},
+	{
+		"value": "bass trombone",
+		"label": "bass trombone"
+	},
+	{
+		"value": "bassoon",
+		"label": "bassoon"
+	},
+	{
+		"value": "bongos",
+		"label": "bongos"
+	},
+	{
+		"value": "cajon",
+		"label": "cajon"
+	},
+	{
+		"value": "cello",
+		"label": "cello"
+	},
+	{
+		"value": "choir",
+		"label": "choir"
+	},
+	{
+		"value": "choir master",
+		"label": "choir master"
+	},
+	{
+		"value": "chorus",
+		"label": "chorus"
+	},
+	{
+		"value": "clarinet",
+		"label": "clarinet"
+	},
+	{
+		"value": "classical guitar",
+		"label": "classical guitar"
+	},
+	{
+		"value": "clavier",
+		"label": "clavier"
+	},
+	{
+		"value": "composer",
+		"label": "composer"
+	},
+	{
+		"value": "conductor",
+		"label": "conductor"
+	},
+	{
+		"value": "congas",
+		"label": "congas"
+	},
+	{
+		"value": "countertenor solo",
+		"label": "countertenor solo"
+	},
+	{
+		"value": "djembe",
+		"label": "djembe"
+	},
+	{
+		"value": "double bass",
+		"label": "double bass"
+	},
+	{
+		"value": "cornet",
+		"label": "cornet"
+	},
+	{
+		"value": "fretless electric bass guitar",
+		"label": "fretless electric bass guitar"
+	},
+	{
+		"value": "guitar technician",
+		"label": "guitar technician"
+	},
+	{
+		"value": "guitar",
+		"label": "guitar"
+	},
+	{
+		"value": "hammond organ",
+		"label": "hammond organ"
+	},
+	{
+		"value": "harmonica",
+		"label": "harmonica"
+	},
+	{
+		"value": "flute",
+		"label": "flute"
+	},
+	{
+		"value": "harmony vocals",
+		"label": "harmony vocals"
+	},
+	{
+		"value": "horn",
+		"label": "horn"
+	},
+	{
+		"value": "keyboards",
+		"label": "keyboards"
+	},
+	{
+		"value": "lead vocals",
+		"label": "lead vocals"
+	},
+	{
+		"value": "librettist",
+		"label": "librettist"
+	},
+	{
+		"value": "lyricist",
+		"label": "lyricist"
+	},
+	{
+		"value": "mandolin",
+		"label": "mandolin"
+	},
+	{
+		"value": "lead guitar",
+		"label": "lead guitar"
+	},
+	{
+		"value": "mastering engineer",
+		"label": "mastering engineer"
+	},
+	{
+		"value": "mezzo-soprano solo",
+		"label": "mezzo-soprano solo"
+	},
+	{
+		"value": "kora",
+		"label": "kora"
+	},
+	{
+		"value": "mixing engineer",
+		"label": "mixing engineer"
+	},
+	{
+		"value": "music director",
+		"label": "music director"
+	},
+	{
+		"value": "harpsichord",
+		"label": "harpsichord"
+	},
+	{
+		"value": "oboe",
+		"label": "oboe"
+	},
+	{
+		"value": "orchestra",
+		"label": "orchestra"
+	},
+	{
+		"value": "organ",
+		"label": "organ"
+	},
+	{
+		"value": "harp",
+		"label": "harp"
+	},
+	{
+		"value": "piano",
+		"label": "piano"
+	},
+	{
+		"value": "piccolo",
+		"label": "piccolo"
+	},
+	{
+		"value": "production assistant",
+		"label": "production assistant"
+	},
+	{
+		"value": "percussion",
+		"label": "percussion"
+	},
+	{
+		"value": "remixer",
+		"label": "remixer"
+	},
+	{
+		"value": "rhodes piano",
+		"label": "rhodes piano"
+	},
+	{
+		"value": "pedal steel guitar",
+		"label": "pedal steel guitar"
+	},
+	{
+		"value": "rhythm guitar",
+		"label": "rhythm guitar"
+	},
+	{
+		"value": "steel guitar",
+		"label": "steel guitar"
+	},
+	{
+		"value": "sound engineer",
+		"label": "sound engineer"
+	},
+	{
+		"value": "tenor solo",
+		"label": "tenor solo"
+	},
+	{
+		"value": "timbales",
+		"label": "timbales"
+	},
+	{
+		"value": "timpani",
+		"label": "timpani"
+	},
+	{
+		"value": "transcriber",
+		"label": "transcriber"
+	},
+	{
+		"value": "trombone",
+		"label": "trombone"
+	},
+	{
+		"value": "trumpet",
+		"label": "trumpet"
+	},
+	{
+		"value": "tuba",
+		"label": "tuba"
+	},
+	{
+		"value": "tenor saxophone",
+		"label": "tenor saxophone"
+	},
+	{
+		"value": "ukulele",
+		"label": "ukulele"
+	},
+	{
+		"value": "upright bass",
+		"label": "upright bass"
+	},
+	{
+		"value": "tambourine",
+		"label": "tambourine"
+	},
+	{
+		"value": "soprano solo",
+		"label": "soprano solo"
+	},
+	{
+		"value": "soprano saxophone",
+		"label": "soprano saxophone"
+	},
+	{
+		"value": "tabla",
+		"label": "tabla"
+	},
+	{
+		"value": "violin",
+		"label": "violin"
+	},
+	{
+		"value": "viola",
+		"label": "viola"
+	},
+	{
+		"value": "sitar",
+		"label": "sitar"
+	},
+	{
+		"value": "second violin",
+		"label": "second violin"
+	},
+	{
+		"value": "saxophone",
+		"label": "saxophone"
+	},
+	{
+		"value": "flugelhorn",
+		"label": "flugelhorn"
+	},
+	{
+		"value": "first violin",
+		"label": "first violin"
+	}
+]

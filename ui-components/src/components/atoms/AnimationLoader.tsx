@@ -1,5 +1,5 @@
-import React from "react";
-import Lottie from "react-lottie";
+import React from 'react';
+import Lottie from 'react-lottie';
 
 interface AnimationLoaderProps {
 	animationData: object;
@@ -17,7 +17,7 @@ const AnimationLoader: React.FC<AnimationLoaderProps> = ({
 		autoplay: true,
 		animationData: animationData,
 		rendererSettings: {
-			preserveAspectRatio: "xMidYMid slice",
+			preserveAspectRatio: 'xMidYMid slice',
 		},
 	};
 	return (

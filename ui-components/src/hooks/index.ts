@@ -1,3 +1,3 @@
-import { useScreen } from "./useScreen"
+import { useScreen } from "./useScreen";
 
-export { useScreen }
+export { useScreen };

@@ -1,0 +1,4 @@
+node_modules
+app/.next
+ui-components/dist
+app/.env
