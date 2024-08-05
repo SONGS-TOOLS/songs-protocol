@@ -45,14 +45,6 @@ const ControlledSelectInput = <T extends FieldValues>({
 							{...props}
 							value={field.value}
 							onChange={(val) => {
-								// if (!isMulti) {
-								// 	if (val) {
-								// 		field.onChange(val.value);
-								// 	}
-								// 	if (customOnChange) {
-								// 		customOnChange(val, { setValue });
-								// 	}
-								// }
 								if (isMultiValue(val, isMulti)) {
 									const values = val.map((option) => option.value);
 

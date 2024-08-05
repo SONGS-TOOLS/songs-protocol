@@ -38,11 +38,7 @@ const ControlledFileInput = <T extends FieldValues>({
 							{...rest}
 							onChange={(e) => {
 								if (e.target.files?.length) {
-									// field.onChange(e.target.files[0]);
 									e.target.files[0].text().then((text: string) => {
-										// console.log(e.target.files[0]);
-										//   setTrackFile(e.target.files[0]);
-										// setTrackFile(text);
 										if (e.target.files?.length) {
 											field.onChange(e.target.files[0]);
 											if (props.customOnChange) {

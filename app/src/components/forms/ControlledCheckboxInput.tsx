@@ -1,8 +1,7 @@
-import { Body3, TextInput } from "@gordo-d/mufi-ui-components";
+import { Body3 } from "@gordo-d/mufi-ui-components";
 import { Controller, FieldValues } from "react-hook-form";
 import cx from "classnames";
 import { ControlledInputProps } from "./types";
-import NumberInput from "./inputs/NumberInput";
 import CheckBoxInput from "./inputs/CheckboxInput";
 
 const ControlledCheckboxInput = <T extends FieldValues>({

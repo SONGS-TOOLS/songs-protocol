@@ -22,7 +22,6 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
 			const currentTime = audioRef.current.currentTime;
 			setTimeProgress(currentTime);
 			progressBarRef.current.value = currentTime.toString();
-			// console.log(currentTime);
 			progressBarRef.current.style.setProperty(
 				"--range-progress",
 				`${(progressBarRef.current.valueAsNumber / duration) * 100}%`,

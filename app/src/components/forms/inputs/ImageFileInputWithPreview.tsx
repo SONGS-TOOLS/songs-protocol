@@ -1,5 +1,5 @@
 import PencilIcon from "@/components/icons/PencilIcon";
-import { Body2, Body3 } from "@gordo-d/mufi-ui-components";
+import { Body2 } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
 import Image from "next/image";
 import { forwardRef, useEffect, useId, useRef, useState } from "react";

@@ -29,7 +29,6 @@ const ControlledTextInput = <T extends FieldValues>({
 							required={required}
 							disabled={disabled}
 							{...field}
-							// value=""
 							{...props}
 							onChange={(e) => {
 								field.onChange(e.target.value);

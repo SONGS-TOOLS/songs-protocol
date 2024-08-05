@@ -1,6 +1,4 @@
-import { ActionMeta, SingleValue } from "react-select";
 import { ReleaseFieldType } from "../types";
-import { Option } from "@/components/forms/types";
 import { WrappedSongMetadataType } from "../../wrapped-songs/types";
 import dspOptions from "./dspOptions.json";
 
@@ -148,20 +146,4 @@ export const optionalReleaseFields: ReleaseFieldType[] = [
 			},
 		},
 	},
-	// {
-	// 	type: "imageFileInput",
-	// 	name: "artwork",
-	// 	label: "Artwork",
-	// 	rules: {
-	// 		required: "Artwork is required",
-	// 	},
-	// },
-	// {
-	// 	type: "textInput",
-	// 	name: "release_date",
-	// 	label: "Release date",
-	// 	rules: {
-	// 		required: "Release date is required",
-	// 	},
-	// },
 ];

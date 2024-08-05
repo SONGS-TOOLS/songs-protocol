@@ -1,5 +1,4 @@
 import { WrappedSongMetadataType } from "@/app/dashboard/wrapped-songs/types";
-import { ChangeEvent } from "react";
 import {
 	Control,
 	FieldErrors,
@@ -10,8 +9,7 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { ActionMeta, MultiValue, SetValueAction, SingleValue } from "react-select";
-import { FieldType } from "../ControlledInputs";
+import { ActionMeta, MultiValue, SingleValue } from "react-select";
 
 export interface Option {
 	label: string;
@@ -38,13 +36,6 @@ interface BaseControlledInputProps<T extends FieldValues> {
 			setValue: UseFormSetValue<T>;
 		},
 	) => void;
-	// onChange?: (
-	// 	event:
-	// 		| ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-	// 		| SingleValue<Option>
-	// 		| null,
-	// 	actionMeta?: ActionMeta<Option>,
-	// ) => void;
 }
 
 export interface ControlledInputProps<T extends FieldValues> extends BaseControlledInputProps<T> {}

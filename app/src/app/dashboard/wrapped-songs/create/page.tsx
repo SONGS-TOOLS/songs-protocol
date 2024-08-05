@@ -3,12 +3,13 @@ import TabMenu from "@/components/layout/TabMenu";
 import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
 import { Button } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm, SubmitHandler, Controller, useWatch } from "react-hook-form";
 import { WrappedSongFormFields } from "../types";
-import WrappedSongRequiredInformationForm from "../forms/WrappedSongRequiredInformationForm";
-import WrappedSongOptionalInformationForm from "../forms/WrappedSongOptionalInformationForm";
 import { formatWrappedSongFieldsToMetadata } from "@/app/utils/formatWrappedSongMetadata";
+import FormWithControlledInputs from "@/components/forms/FormWithControlledInputs";
+import { optionalWrappedSongFields, requiredWrappedSongFields } from "../forms/fields";
+import artists from "@/app/dashboard/artists/artistsMockData/data.json";
 
 const defaultTabItems = [
 	{
@@ -78,6 +79,15 @@ const CreateWrappedSongPage = () => {
 
 	const [tabItems, setTabItems] = useState(defaultTabItems);
 
+	const requiredFields = useMemo(() => {
+		const index = requiredWrappedSongFields.findIndex((field) => (field.name = "main_artist"));
+		const options = artists.map((artist) => ({ label: artist.name, value: artist.name }));
+		if (index >= 0 && requiredWrappedSongFields[index].type === "selectInput") {
+			requiredWrappedSongFields[index].options = options;
+		}
+		return requiredWrappedSongFields;
+	}, [artists]);
+
 	return (
 		<>
 			<div>
@@ -90,7 +100,7 @@ const CreateWrappedSongPage = () => {
 				<TabMenu className="grid-cols-2" tab={tab} setTab={setTab} items={tabItems} />
 			</div>
 			<form className="flex items-start justify-center py-10" onSubmit={handleSubmit(onSubmit)}>
-				<WrappedSongRequiredInformationForm
+				<FormWithControlledInputs
 					control={control}
 					errors={errors}
 					watch={watch}
@@ -99,8 +109,9 @@ const CreateWrappedSongPage = () => {
 					className={cx({
 						hidden: tab !== 0,
 					})}
+					fields={requiredFields}
 				/>
-				<WrappedSongOptionalInformationForm
+				<FormWithControlledInputs
 					control={control}
 					errors={errors}
 					watch={watch}
@@ -109,6 +120,7 @@ const CreateWrappedSongPage = () => {
 					className={cx({
 						hidden: tab !== 1,
 					})}
+					fields={optionalWrappedSongFields}
 				/>
 			</form>
 		</>

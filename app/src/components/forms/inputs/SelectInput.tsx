@@ -5,7 +5,6 @@ import Select, {
 	PropsValue,
 	SelectInstance,
 	SingleValue,
-	StylesConfig,
 } from "react-select";
 import cx from "classnames";
 import { Body2 } from "@gordo-d/mufi-ui-components";
@@ -25,7 +24,6 @@ interface SelectInputProps {
 		newValue: MultiValue<Option> | SingleValue<Option>,
 		actionMeta: ActionMeta<Option>,
 	) => void;
-	// Add other props as needed
 }
 
 const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function NumberInput(

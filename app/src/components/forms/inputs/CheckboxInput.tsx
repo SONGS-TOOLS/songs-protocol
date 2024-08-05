@@ -25,29 +25,8 @@ const CheckBoxInput = forwardRef<HTMLInputElement, CheckBoxInputProps>(function 
 
 	return (
 		<div className="flex w-full flex-col gap-2">
-			{/* {label && (
-				<Body2 color="neutral-600">
-					{label}
-					{required && <span className="text-semantic-error"> *</span>}
-				</Body2>
-			)}
-			<input
-				type="checkbox"
-				className={cx(
-					"rounded-base block w-full border-2 p-3 outline-none transition-all",
-					disabled ? "bg-neutral-200 text-neutral-500" : "bg-white text-neutral-800",
-					statusClass,
-					`focus:ring-${focusColor} focus:border-${focusColor}`,
-					className,
-				)}
-				disabled={disabled}
-				required={required} // Pass the required attribute to the input element
-				{...props}
-				ref={ref}
-			/> */}
 			<label
 				htmlFor={props.name}
-				// className={}
 				className={cx(
 					"rounded-base block w-full border-0 py-3 outline-none transition-all",
 					"bg-white text-neutral-800",
@@ -58,7 +37,6 @@ const CheckBoxInput = forwardRef<HTMLInputElement, CheckBoxInputProps>(function 
 				)}
 			>
 				<input
-					// {...register(checkboxFieldName)}
 					id={props.name}
 					type="checkbox"
 					{...props}

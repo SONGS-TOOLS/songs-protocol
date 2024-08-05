@@ -1,20 +1,14 @@
 "use client";
 import TabMenu from "@/components/layout/TabMenu";
 import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
-import { Body1, Button, Card, Headline4, TextInput } from "@gordo-d/mufi-ui-components";
+import { Button } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
 import { useMemo, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import RequiredInformationForm from "../../forms/ArtistRequiredInformationForm";
-import OptionalInformationForm from "../../forms/ArtistOptionalInformationForm";
+import { useForm, SubmitHandler } from "react-hook-form";
 import artists from "@/app/dashboard/artists/artistsMockData/data.json";
 import { ArtistFormFields } from "../../types";
 import FormWithControlledInputs from "@/components/forms/FormWithControlledInputs";
-import {
-	optionalArtistFields,
-	requiredArtistFields,
-	requiredArtistFieldsForNewArtist,
-} from "../../forms/fields";
+import { optionalArtistFields, requiredArtistFields } from "../../forms/fields";
 import VerifiedIcon from "@/components/icons/VerifiedIcon";
 const artist = artists[0] as ArtistFormFields;
 

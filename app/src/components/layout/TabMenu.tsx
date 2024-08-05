@@ -1,7 +1,7 @@
-import { HTMLAttributes, SetStateAction } from "react";
+import { HTMLAttributes } from "react";
 import cx from "classnames";
 import React from "react";
-import { Body2, Body3 } from "@gordo-d/mufi-ui-components";
+import { Body3 } from "@gordo-d/mufi-ui-components";
 
 interface TabMenuItem {
 	label: string;

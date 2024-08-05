@@ -1,6 +1,5 @@
 import { FormFieldType, Option } from "@/components/forms/types";
 import { WrappedSongMetadataType } from "../../wrapped-songs/types";
-import { UseFormSetValue } from "react-hook-form";
 
 export interface ReleaseFormFields {
 	wrapped_song: { label: string; value: WrappedSongMetadataType };
@@ -17,14 +16,5 @@ export interface ReleaseFormFields {
 	itunes_price: Option;
 	pre_order_date: string;
 }
-
-// export type ReleaseFieldType = FormFieldType<ReleaseFormFields> & {
-//     onChange?: (
-//       val: any,
-//       helpers: {
-//         setValue: UseFormSetValue<ReleaseFormFields>
-//       }
-//     ) => void;
-//   };;
 
 export type ReleaseFieldType = FormFieldType<ReleaseFormFields>;

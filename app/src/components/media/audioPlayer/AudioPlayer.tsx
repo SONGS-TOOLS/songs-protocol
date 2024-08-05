@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import PlayIcon from "../../icons/PlayIcon";
-import PauseIcon from "../../icons/PauseIcon";
 import "./audioPlayer.css";
 import ProgressBar from "./ProgressBar";
 import Controls from "./Controls";
@@ -30,13 +28,6 @@ const AudioPlayer = ({ src }: { src: string }) => {
 					}}
 				/>
 				<ProgressBar {...{ progressBarRef, audioRef, timeProgress, duration }} />
-				{/* <div>00:00</div> */}
-				{/* <div className="flex w-full items-center">
-				<div className="h-4 w-px bg-black"></div>
-				<div className="h-px w-full border-t border-black"></div>
-
-			</div> */}
-				{/* <input className="w-full" type="range" defaultValue={0} /> */}
 			</div>
 			<audio ref={audioRef} src={src} onLoadedMetadata={onLoadedMetadata}></audio>
 		</>

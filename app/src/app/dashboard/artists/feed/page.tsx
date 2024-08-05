@@ -3,10 +3,9 @@ import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
 import artists from "@/app/dashboard/artists/artistsMockData/data.json";
 import FeedGrid from "@/components/layout/FeedGrid";
 import Image from "next/image";
-import { Body3, Card, Headline3, Headline4 } from "@gordo-d/mufi-ui-components";
+import { Body3, Card, Headline4 } from "@gordo-d/mufi-ui-components";
 import { useMemo } from "react";
 import Link from "next/link";
-import PencilIcon from "@/components/icons/PencilIcon";
 import UnderlinedAnchor from "@/components/typography/UnderlinedAnchor";
 const FeedArtistsPage = () => {
 	const placeholderCards = useMemo(() => {
@@ -53,10 +52,6 @@ const FeedArtistsPage = () => {
 												</Headline4>
 											</div>
 										</div>
-										{/* <div className="grid grid-cols-2 py-2 text-center">
-										<div className="border-r">View</div>
-										<div>Edit</div>
-									</div> */}
 									</div>
 								</Card>
 							</div>

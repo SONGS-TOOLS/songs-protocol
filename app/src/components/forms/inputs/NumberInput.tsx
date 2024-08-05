@@ -41,7 +41,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(function Numb
 					className,
 				)}
 				disabled={disabled}
-				required={required} // Pass the required attribute to the input element
+				required={required}
 				{...props}
 				ref={ref}
 			/>

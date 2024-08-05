@@ -2,7 +2,6 @@ import { Body3 } from "@gordo-d/mufi-ui-components";
 import { Control, Controller, FieldValues } from "react-hook-form";
 import cx from "classnames";
 import { ControlledImageFileInputProps } from "./types";
-import ImageFileInputWithPreview from "./inputs/ImageFileInputWithPreview";
 import AudioFileInputWithPreview from "./inputs/AudioFileInputWithPreview";
 
 const ControlledAudioInput = <T extends FieldValues>({

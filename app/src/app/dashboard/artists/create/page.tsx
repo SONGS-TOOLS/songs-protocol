@@ -1,18 +1,12 @@
 "use client";
 import TabMenu from "@/components/layout/TabMenu";
 import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
-import { Body1, Button, Card, Headline4, TextInput } from "@gordo-d/mufi-ui-components";
+import { Button } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
-import { useEffect, useState } from "react";
-import ArtistRequiredInformationForm from "../forms/ArtistRequiredInformationForm";
-import ArtistOptionalInformationForm from "../forms/ArtistOptionalInformationForm";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { ArtistFormFields } from "../types";
-import {
-	optionalArtistFields,
-	requiredArtistFields,
-	requiredArtistFieldsForNewArtist,
-} from "../forms/fields";
+import { optionalArtistFields, requiredArtistFieldsForNewArtist } from "../forms/fields";
 import FormWithControlledInputs from "@/components/forms/FormWithControlledInputs";
 
 const defaultTabItems = [
@@ -66,6 +60,7 @@ const CreateArtistsPage = () => {
 	const [tabItems, setTabItems] = useState(defaultTabItems);
 
 	// THIS WILL SET AN ERROR ON TAB MENU TO INDICATE WHICH TAB STILL CONTAINS ERRORS
+	// CREATES INFINITE LOOP
 	// useEffect(() => {
 	// 	const errorKeys = Object.keys(errors);
 	// 	const firstTabFields = requiredArtistFields.map((el) => el.name) as string[];
@@ -133,28 +128,6 @@ const CreateArtistsPage = () => {
 					})}
 					fields={optionalArtistFields}
 				/>
-				{/* 				
-				<ArtistRequiredInformationForm
-					control={control}
-					errors={errors}
-					watch={watch}
-					register={register}
-					setValue={setValue}
-					className={cx({
-						hidden: tab !== 0,
-					})}
-				/> */}
-
-				{/* <ArtistOptionalInformationForm
-					control={control}
-					errors={errors}
-					watch={watch}
-					register={register}
-					setValue={setValue}
-					className={cx({
-						hidden: tab !== 1,
-					})}
-				/> */}
 			</form>
 		</>
 	);

@@ -1,4 +1,4 @@
-import { Body3, TextInput } from "@gordo-d/mufi-ui-components";
+import { Body3 } from "@gordo-d/mufi-ui-components";
 import { Controller, FieldValues } from "react-hook-form";
 import cx from "classnames";
 import { ControlledInputProps } from "./types";

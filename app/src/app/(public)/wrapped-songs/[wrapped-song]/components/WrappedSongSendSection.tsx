@@ -1,10 +1,7 @@
 import ControlledNumberInput from "@/components/forms/ControlledNumberInput";
 import ControlledTextInput from "@/components/forms/ControlledTextInput";
-import NumberInput from "@/components/forms/inputs/NumberInput";
-import CloseIcon from "@/components/icons/CloseIcon";
 import Modal from "@/components/layout/Modal";
-import { Button, Headline2, Headline3, TextInput } from "@gordo-d/mufi-ui-components";
-import { useState } from "react";
+import { Button, Headline3 } from "@gordo-d/mufi-ui-components";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 interface WrappedSongSendSectionProps {
@@ -17,8 +14,6 @@ interface formFields {
 }
 
 const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) => {
-	// const [amount, setAmount] = useState(1);
-	// const [walletAddress, setWalletAddress] = useState()
 	const {
 		handleSubmit,
 		control,
@@ -43,7 +38,6 @@ const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) =
 				<Headline3>To which address do you want to send?</Headline3>
 			</div>
 			<form className="flex flex-col gap-4">
-				{/* <TextInput label="Wallet address" /> */}
 				<ControlledTextInput
 					{...{ control, errors }}
 					inputName="walletAddress"
@@ -58,7 +52,6 @@ const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) =
 					setValue={setValue}
 				/>
 				<div className="flex items-end gap-4">
-					{/* <NumberInput value={amount} onChange={(e) => setAmount(e.target.valueAsNumber)} /> */}
 					<ControlledNumberInput
 						{...{ control, errors }}
 						inputName="amount"

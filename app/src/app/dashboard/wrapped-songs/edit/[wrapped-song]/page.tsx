@@ -3,11 +3,9 @@ import TabMenu from "@/components/layout/TabMenu";
 import DashboardPageTitle from "@/components/typography/DashboardPageTitle";
 import { Button } from "@gordo-d/mufi-ui-components";
 import cx from "classnames";
-import { useEffect, useMemo, useState } from "react";
-import { useForm, SubmitHandler, Controller, useWatch } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { WrappedSongFormFields, WrappedSongMetadataType } from "../../types";
-import WrappedSongRequiredInformationForm from "../../forms/WrappedSongRequiredInformationForm";
-import WrappedSongOptionalInformationForm from "../../forms/WrappedSongOptionalInformationForm";
 import wrappedSongs from "@/app/dashboard/wrapped-songs/wrappedSongMockData/data.json";
 import {
 	formatMetadataToWrappedSongFields,
@@ -55,53 +53,6 @@ const EditWrappedSongPage = () => {
 	const { errors } = formState;
 
 	const [tabItems, setTabItems] = useState(defaultTabItems);
-
-	// const formData = watch();
-	// const [dataChanged, setDataChanged] = useState(false);
-
-	// useEffect(() => {
-	// 	// Check if formData is different from the data
-	// 	if (dataChanged) {
-	// 		//   setData(formData);
-	// 		// Reset the flag to false
-	// 		const errorKeys = Object.keys(errors);
-	// 		const firstTabFields = requiredWrappedSongFields.map((el) => el.name) as string[];
-	// 		const secondTabFields = optionalWrappedSongFields.map((el) => el.name) as string[];
-
-	// 		if (errorKeys.some((v) => firstTabFields.includes(v))) {
-	// 			setTabItems((state) => {
-	// 				const stateCopy = [...state];
-	// 				stateCopy[0].hasError = true;
-	// 				return stateCopy;
-	// 			});
-	// 		} else {
-	// 			setTabItems((state) => {
-	// 				const stateCopy = [...state];
-	// 				stateCopy[0].hasError = false;
-	// 				return stateCopy;
-	// 			});
-	// 		}
-	// 		if (errorKeys.some((v) => secondTabFields.includes(v))) {
-	// 			setTabItems((state) => {
-	// 				const stateCopy = [...state];
-	// 				stateCopy[1].hasError = true;
-	// 				return stateCopy;
-	// 			});
-	// 		} else {
-	// 			setTabItems((state) => {
-	// 				const stateCopy = [...state];
-	// 				stateCopy[1].hasError = false;
-	// 				return stateCopy;
-	// 			});
-	// 		}
-	// 		setDataChanged(false);
-	// 	}
-	// }, [dataChanged, formData, errors, setTabItems]);
-
-	// useEffect(() => {
-	// 	// Set the flag to true when formData changes
-	// 	setDataChanged(true);
-	// }, [formData]);
 
 	const requiredFields = useMemo(() => {
 		const index = requiredWrappedSongFields.findIndex((field) => (field.name = "main_artist"));

@@ -80,7 +80,6 @@ const ControlledMinutesSecondsInput = <T extends FieldValues>({
 								field.onBlur();
 							}}
 							{...props}
-							// onChange={handleTimeChange}
 						/>
 						{errors[inputName] && (
 							<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>
