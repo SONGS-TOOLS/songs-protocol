@@ -1,4 +1,5 @@
-# Global Music Distribution Protocol
+# SONGS PROTOCOL
+### The Open Music Distribution Protocol
 
 SONGS Protocol is an experimental approach on how music should be treated in the context of ownership and capital distribution in the modern world.
 
