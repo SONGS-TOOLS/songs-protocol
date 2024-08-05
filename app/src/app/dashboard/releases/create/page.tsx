@@ -99,6 +99,7 @@ const CreateReleasePage = () => {
 						hidden: tab !== 0,
 					})}
 					fields={requiredFields}
+					headline="Required information"
 				/>
 				<FormWithControlledInputs
 					control={control}
@@ -110,6 +111,7 @@ const CreateReleasePage = () => {
 						hidden: tab !== 1,
 					})}
 					fields={optionalReleaseFields}
+					headline="Optional information"
 				/>
 			</form>
 		</>

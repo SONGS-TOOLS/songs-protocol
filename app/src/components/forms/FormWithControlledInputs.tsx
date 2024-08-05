@@ -1,9 +1,6 @@
 import { Card, Headline4 } from "@gordo-d/mufi-ui-components";
 import { FormBlockProps } from "./types";
 import ControlledInputs, { FieldType } from "./ControlledInputs";
-import { ReleaseFieldType } from "@/app/dashboard/releases/types";
-import { WrappedSongFieldType } from "@/app/dashboard/wrapped-songs/types";
-import { ArtistFieldType } from "@/app/dashboard/artists/types";
 import { FieldValues, Path, RegisterOptions, UseFormSetValue } from "react-hook-form";
 
 interface FormWithControlledInputsProps<T extends FieldValues> extends FormBlockProps<T> {
@@ -25,10 +22,11 @@ const FormWithControlledInputs = <T extends FieldValues>({
 	watch,
 	setValue,
 	fields,
+	headline,
 }: FormWithControlledInputsProps<T>) => {
 	return (
-		<Card className={`max-w-2xl ${className}`}>
-			<Headline4>Required information</Headline4>
+		<Card className={`max-w-2xl ${className ?? ""}`}>
+			<Headline4>{headline}</Headline4>
 			<div className="my-4 grid grid-flow-row gap-4">
 				<ControlledInputs
 					fields={fields}

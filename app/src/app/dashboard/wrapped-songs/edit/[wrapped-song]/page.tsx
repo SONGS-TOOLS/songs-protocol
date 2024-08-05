@@ -87,6 +87,7 @@ const EditWrappedSongPage = () => {
 						hidden: tab !== 0,
 					})}
 					fields={requiredFields}
+					headline="Required information"
 				/>
 				<FormWithControlledInputs
 					control={control}
@@ -98,6 +99,7 @@ const EditWrappedSongPage = () => {
 						hidden: tab !== 1,
 					})}
 					fields={optionalWrappedSongFields}
+					headline="Optional information"
 				/>
 			</form>
 		</>

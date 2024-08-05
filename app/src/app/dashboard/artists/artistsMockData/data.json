@@ -21,7 +21,8 @@
 		"soundcloud": "https://soundcloud.com/janesmith",
 		"wikipedia": "https://en.wikipedia.org/wiki/Jane_Smith",
 		"website": "https://www.janesmith.com",
-		"verified": true
+		"verified": false,
+		"verification_request": false
 	},
 	{
 		"name": "John Doe",

@@ -50,6 +50,7 @@ export interface ControlledConditionalInputProps<T extends FieldValues>
 	checkboxDisabled?: boolean;
 	inversed?: boolean;
 	subfields: FormFieldType<T>[];
+	checkboxTooltip?: string;
 }
 
 export interface ControlledImageFileInputProps<T extends FieldValues>
@@ -82,6 +83,7 @@ export interface FormBlockProps<T extends FieldValues> {
 	watch: UseFormWatch<T>;
 	register: UseFormRegister<T>;
 	setValue: UseFormSetValue<T>;
+	headline: string;
 }
 
 export interface BaseFieldType<T extends FieldValues> {
@@ -90,6 +92,7 @@ export interface BaseFieldType<T extends FieldValues> {
 	label: string;
 	placeholder?: string;
 	disabled?: boolean;
+	tooltip?: string;
 	customOnChange?: (
 		event: any,
 		helpers: {
@@ -120,6 +123,7 @@ export type FormFieldType<T extends FieldValues> =
 				default?: boolean;
 				inversed?: boolean;
 				disabled?: boolean;
+				tooltip?: string;
 			};
 			fields: FormFieldType<T>[];
 	  })

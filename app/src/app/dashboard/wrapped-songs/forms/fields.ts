@@ -22,7 +22,7 @@ export const requiredWrappedSongFields: WrappedSongFieldType[] = [
 	{
 		type: "selectInput",
 		name: "language",
-		label: "Language",
+		label: "Language / Instrumental",
 		rules: {
 			required: "Language is required",
 		},

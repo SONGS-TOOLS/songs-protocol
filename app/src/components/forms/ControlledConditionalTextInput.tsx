@@ -19,6 +19,7 @@ const ControlledConditionalTextInput = <T extends FieldValues>({
 	subfields,
 	inversed = false,
 	checkboxDisabled = false,
+	checkboxTooltip,
 	disabled = false,
 	...props
 }: ControlledConditionalInputProps<T>) => {
@@ -32,6 +33,7 @@ const ControlledConditionalTextInput = <T extends FieldValues>({
 				defaultChecked={checkboxDefault}
 				disabled={checkboxDisabled}
 				{...register(checkboxFieldName)}
+				tooltip={checkboxTooltip}
 			/>
 			{condition && (
 				<ControlledInputs
