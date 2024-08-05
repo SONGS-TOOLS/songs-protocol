@@ -12,6 +12,7 @@ const WrappedSongRequiredInformationForm = ({
 	errors,
 	watch,
 	register,
+	setValue,
 }: FormBlockProps<WrappedSongFormFields>) => {
 	//POPULATE MAIN ARTIST OPTIONS WITH ARTISTS FROM DATABASE
 	const fields = useMemo(() => {
@@ -33,6 +34,7 @@ const WrappedSongRequiredInformationForm = ({
 					register={register}
 					errors={errors}
 					watch={watch}
+					setValue={setValue}
 				/>
 			</div>
 		</Card>

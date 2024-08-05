@@ -11,6 +11,7 @@ import {
 	Path,
 	RegisterOptions,
 	UseFormRegister,
+	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
 import ControlledTextAreaInput from "./ControlledTextAreaInput";
@@ -18,8 +19,10 @@ import ControlledSelectInput from "./ControlledSelectInput";
 import ControlledAudioInput from "./ControlledAudioInput";
 import ControlledCheckboxInput from "./ControlledCheckboxInput";
 import ControlledRepeaterInput from "./ControlledRepeaterInput";
+import ControlledMinutesSecondsInput from "./ControlledMinutesSecondsInput";
+import { ReleaseFieldType } from "@/app/dashboard/releases/types";
 
-type FieldType = ArtistFieldType | WrappedSongFieldType;
+export type FieldType = ArtistFieldType | WrappedSongFieldType | ReleaseFieldType;
 
 interface ControlledInputsProps<T extends FieldValues> {
 	fields: (FieldType & {
@@ -28,11 +31,13 @@ interface ControlledInputsProps<T extends FieldValues> {
 			RegisterOptions<T, Path<T>>,
 			"valueAsNumber" | "valueAsDate" | "setValueAs" | "disabled"
 		>;
+		customOnChange?: (event: any, helpers: { setValue: UseFormSetValue<T> }) => void;
 	})[];
 	control: Control<T>;
 	errors: FieldErrors<T>;
 	watch: UseFormWatch<T>;
 	register: UseFormRegister<T>;
+	setValue: UseFormSetValue<T>;
 }
 
 const ControlledInputs = <T extends FieldValues>({
@@ -41,6 +46,8 @@ const ControlledInputs = <T extends FieldValues>({
 	errors,
 	watch,
 	register,
+	setValue,
+	...props
 }: ControlledInputsProps<T>) => {
 	return (
 		<>
@@ -50,10 +57,14 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledTextInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "numberInput") {
@@ -61,10 +72,29 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledNumberInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
+						/>
+					);
+				} else if (field.type === "minutesSecondsInput") {
+					return (
+						<ControlledMinutesSecondsInput<T>
+							key={field.name}
+							control={control}
+							setValue={setValue}
+							errors={errors}
+							inputName={field.name as Path<T>}
+							inputLabel={field.label}
+							rules={field.rules}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "imageFileInput") {
@@ -72,6 +102,7 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledFileInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
@@ -79,6 +110,9 @@ const ControlledInputs = <T extends FieldValues>({
 							watch={watch}
 							rounded={field.rounded}
 							defaultImageSrc={field.defaultImageSrc ?? undefined}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "textAreaInput") {
@@ -86,10 +120,14 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledTextAreaInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "repeater") {
@@ -97,23 +135,35 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledRepeaterInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
-							subfields={field.fields}
+							subfields={field.fields as any}
+							register={register}
+							watch={watch}
+							placeholder={field.placeholder}
+							// disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "selectInput") {
 					return (
 						<ControlledSelectInput<T>
+							{...field}
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
 							options={field.options}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							isMulti={field.isMulti}
+							{...props}
 						/>
 					);
 				} else if (field.type === "audioFileInput") {
@@ -121,11 +171,15 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledAudioInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
 							watch={watch}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "checkboxInput") {
@@ -133,10 +187,14 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledCheckboxInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
 							rules={field.rules}
+							placeholder={field.placeholder}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				} else if (field.type === "conditionalTextInput") {
@@ -144,6 +202,7 @@ const ControlledInputs = <T extends FieldValues>({
 						<ControlledConditionalTextInput<T>
 							key={field.name}
 							control={control}
+							setValue={setValue}
 							errors={errors}
 							inputName={field.name as Path<T>}
 							inputLabel={field.label}
@@ -152,6 +211,13 @@ const ControlledInputs = <T extends FieldValues>({
 							checkboxFieldName={field.checkbox?.name as Path<T>}
 							checkboxLabel={field.checkbox?.label}
 							rules={field.rules}
+							placeholder={field.placeholder}
+							checkboxDefault={field.checkbox.default}
+							checkboxDisabled={field.checkbox.disabled}
+							subfields={field.fields as any}
+							inversed={field.checkbox.inversed}
+							disabled={field.disabled}
+							{...props}
 						/>
 					);
 				}

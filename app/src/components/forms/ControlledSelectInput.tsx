@@ -1,9 +1,17 @@
 import { Body3, TextInput } from "@gordo-d/mufi-ui-components";
 import { Controller, FieldValues } from "react-hook-form";
 import cx from "classnames";
-import { ControlledInputProps, ControlledSelectInputProps } from "./types";
+import { ControlledInputProps, ControlledSelectInputProps, Option } from "./types";
 import NumberInput from "./inputs/NumberInput";
 import SelectInput from "./inputs/SelectInput";
+import { MultiValue, SingleValue } from "react-select";
+
+function isMultiValue(
+	value: SingleValue<Option> | MultiValue<Option>,
+	isMulti: boolean,
+): value is MultiValue<Option> {
+	return isMulti;
+}
 
 const ControlledSelectInput = <T extends FieldValues>({
 	control,
@@ -13,6 +21,10 @@ const ControlledSelectInput = <T extends FieldValues>({
 	inputLabel,
 	required = false,
 	options,
+	setValue,
+	customOnChange,
+	isMulti = false,
+	...props
 }: ControlledSelectInputProps<T>) => {
 	return (
 		<Controller
@@ -21,23 +33,38 @@ const ControlledSelectInput = <T extends FieldValues>({
 			rules={rules}
 			render={({ field }) => {
 				return (
-					<div>
-						{/* <NumberInput
-							label={inputLabel}
-							className={cx({ "border-semantic-error": errors[inputName] })}
-							required={required}
-							{...field}
-						/> */}
+					<div className="flex-1">
 						<SelectInput
 							label={inputLabel}
 							className={cx({ "border-semantic-error": errors[inputName] })}
 							options={options}
 							required={required}
 							disabled={field.disabled || false}
+							isMulti={isMulti}
 							{...field}
+							{...props}
+							value={field.value}
 							onChange={(val) => {
-								if (val) {
-									field.onChange(val.value);
+								// if (!isMulti) {
+								// 	if (val) {
+								// 		field.onChange(val.value);
+								// 	}
+								// 	if (customOnChange) {
+								// 		customOnChange(val, { setValue });
+								// 	}
+								// }
+								if (isMultiValue(val, isMulti)) {
+									const values = val.map((option) => option.value);
+
+									field.onChange(val);
+									if (customOnChange) {
+										customOnChange(val, { setValue });
+									}
+								} else {
+									field.onChange(val?.value ?? null);
+									if (customOnChange) {
+										customOnChange(val, { setValue });
+									}
 								}
 							}}
 						/>

@@ -57,7 +57,6 @@ export const DropInput = ({
 		() => (acceptedFiles && acceptedFiles.length > 0 ? acceptedFiles : dropzoneAcceptedFiles),
 		[acceptedFiles, dropzoneAcceptedFiles],
 	);
-	console.log('VALUE', value);
 
 	return (
 		<div>

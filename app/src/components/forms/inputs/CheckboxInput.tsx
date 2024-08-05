@@ -50,7 +50,7 @@ const CheckBoxInput = forwardRef<HTMLInputElement, CheckBoxInputProps>(function 
 				// className={}
 				className={cx(
 					"rounded-base block w-full border-0 py-3 outline-none transition-all",
-					disabled ? "bg-neutral-200 text-neutral-500" : "bg-white text-neutral-800",
+					"bg-white text-neutral-800",
 					statusClass,
 					`focus:ring-${focusColor} focus:border-${focusColor}`,
 					"flex gap-4 align-middle",
@@ -63,6 +63,8 @@ const CheckBoxInput = forwardRef<HTMLInputElement, CheckBoxInputProps>(function 
 					type="checkbox"
 					{...props}
 					ref={ref}
+					disabled={disabled}
+					required={required}
 				></input>
 				<Body2 color="neutral-600">{label}</Body2>
 			</label>

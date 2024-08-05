@@ -8,7 +8,12 @@ import ArtistRequiredInformationForm from "../forms/ArtistRequiredInformationFor
 import ArtistOptionalInformationForm from "../forms/ArtistOptionalInformationForm";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { ArtistFormFields } from "../types";
-import { optionalArtistFields, requiredArtistFields } from "../forms/fields";
+import {
+	optionalArtistFields,
+	requiredArtistFields,
+	requiredArtistFieldsForNewArtist,
+} from "../forms/fields";
+import FormWithControlledInputs from "@/components/forms/FormWithControlledInputs";
 
 const defaultTabItems = [
 	{
@@ -23,32 +28,34 @@ const defaultTabItems = [
 
 const CreateArtistsPage = () => {
 	const [tab, setTab] = useState(0);
-	const { register, handleSubmit, watch, control, formState } = useForm<ArtistFormFields>({
-		mode: "onBlur",
-		defaultValues: {
-			name: "",
-			email: "",
-			has_spotify_link: false,
-			spotify: "",
-			has_apple_music_link: false,
-			apple_music: "",
-			profile_picture: "",
-			bio: "",
-			phone_number: "",
-			pro_number: "",
-			facebook: "",
-			instagram: "",
-			x: "",
-			tiktok: "",
-			vk: "",
-			snapchat: "",
-			songkick: "",
-			youtube: "",
-			soundcloud: "",
-			wikipedia: "",
-			website: "",
+	const { register, handleSubmit, watch, control, formState, setValue } = useForm<ArtistFormFields>(
+		{
+			mode: "onBlur",
+			defaultValues: {
+				name: "",
+				email: "",
+				has_spotify_link: false,
+				spotify: "",
+				has_apple_music_link: false,
+				apple_music: "",
+				profile_picture: "",
+				bio: "",
+				phone_number: "",
+				pro_number: "",
+				facebook: "",
+				instagram: "",
+				x: "",
+				tiktok: "",
+				vk: "",
+				snapchat: "",
+				songkick: "",
+				youtube: "",
+				soundcloud: "",
+				wikipedia: "",
+				website: "",
+			},
 		},
-	});
+	);
 	const onSubmit: SubmitHandler<ArtistFormFields> = (data) => {
 		console.log("Here is the data for the whole form");
 		console.log(data);
@@ -104,24 +111,50 @@ const CreateArtistsPage = () => {
 				<TabMenu className="grid-cols-2" tab={tab} setTab={setTab} items={tabItems} />
 			</div>
 			<form className="flex items-start justify-center py-10" onSubmit={handleSubmit(onSubmit)}>
+				<FormWithControlledInputs
+					control={control}
+					errors={errors}
+					watch={watch}
+					register={register}
+					setValue={setValue}
+					className={cx({
+						hidden: tab !== 0,
+					})}
+					fields={requiredArtistFieldsForNewArtist}
+				/>
+				<FormWithControlledInputs
+					control={control}
+					errors={errors}
+					watch={watch}
+					register={register}
+					setValue={setValue}
+					className={cx({
+						hidden: tab !== 1,
+					})}
+					fields={optionalArtistFields}
+				/>
+				{/* 				
 				<ArtistRequiredInformationForm
 					control={control}
 					errors={errors}
 					watch={watch}
 					register={register}
+					setValue={setValue}
 					className={cx({
 						hidden: tab !== 0,
 					})}
-				/>
-				<ArtistOptionalInformationForm
+				/> */}
+
+				{/* <ArtistOptionalInformationForm
 					control={control}
 					errors={errors}
 					watch={watch}
 					register={register}
+					setValue={setValue}
 					className={cx({
 						hidden: tab !== 1,
 					})}
-				/>
+				/> */}
 			</form>
 		</>
 	);

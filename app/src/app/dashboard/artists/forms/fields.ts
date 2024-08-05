@@ -28,16 +28,23 @@ export const requiredArtistFields: ArtistFieldType[] = [
 			name: "has_spotify_link",
 			label: "This artist is already on Spotify",
 		},
+		fields: [
+			{
+				type: "textInput",
+				name: "spotify",
+				label: "Spotify link",
+				rules: {
+					required: "Your spotify profile link is required",
+					pattern: {
+						// REGEX FOR VALIDATING SPOTIFY URL
+						value: /^https:\/\/open\.spotify\.com\/(?:[a-zA-Z\-]+\/)?artist\/[a-zA-Z0-9]+$/i,
+						message: "Invalid Spotify link",
+					},
+				},
+			},
+		],
 		name: "spotify",
 		label: "Spotify link",
-		rules: {
-			required: "Your spotify profile link is required",
-			pattern: {
-				// REGEX FOR VALIDATING SPOTIFY URL
-				value: /^https:\/\/open\.spotify\.com\/(?:[a-zA-Z\-]+\/)?artist\/[a-zA-Z0-9]+$/i,
-				message: "Invalid Spotify link",
-			},
-		},
 	},
 	{
 		type: "conditionalTextInput",
@@ -45,16 +52,31 @@ export const requiredArtistFields: ArtistFieldType[] = [
 			name: "has_apple_music_link",
 			label: "This artist is already on Apple Music",
 		},
+		fields: [
+			{
+				type: "textInput",
+				name: "apple_music",
+				label: "Apple Music link",
+				rules: {
+					required: "Your Apple Music profile link is required",
+					pattern: {
+						// REGEX FOR VALIDATING SPOTIFY URL
+						value: /^https?:\/\/music\.apple\.com\/[a-zA-Z]{2}\/artist\/[a-zA-Z0-9\-]+\/\d+$/i,
+						message: "Invalid Apple Music link",
+					},
+				},
+			},
+		],
 		name: "apple_music",
 		label: "Apple Music link",
-		rules: {
-			required: "Your Apple Music profile link is required",
-			pattern: {
-				// REGEX FOR VALIDATING SPOTIFY URL
-				value: /^https?:\/\/music\.apple\.com\/[a-zA-Z]{2}\/artist\/[a-zA-Z0-9\-]+\/\d+$/i,
-				message: "Invalid Apple Music link",
-			},
-		},
+	},
+];
+export const requiredArtistFieldsForNewArtist: ArtistFieldType[] = [
+	...requiredArtistFields,
+	{
+		type: "checkboxInput",
+		name: "verification_request",
+		label: "Submit this artist for verification in order to create releases",
 	},
 ];
 

@@ -1,4 +1,6 @@
-import { WrappedSongFieldType } from "../types";
+import { CreditItem, WrappedSongFieldType } from "../types";
+import roleOptions from "./rolesOptions.json";
+import languageOptions from "./languageOptions.json";
 export const requiredWrappedSongFields: WrappedSongFieldType[] = [
 	{
 		type: "selectInput",
@@ -24,16 +26,7 @@ export const requiredWrappedSongFields: WrappedSongFieldType[] = [
 		rules: {
 			required: "Language is required",
 		},
-		options: [
-			{
-				value: "Spanish",
-				label: "Spanish",
-			},
-			{
-				value: "English",
-				label: "English",
-			},
-		],
+		options: languageOptions,
 	},
 	{
 		type: "textInput",
@@ -112,16 +105,43 @@ export const optionalWrappedSongFields: WrappedSongFieldType[] = [
 				},
 			},
 			{
-				type: "textInput",
+				type: "selectInput",
 				name: "role",
 				label: "Role",
+				options: roleOptions,
 			},
 		],
 	},
 	{
-		type: "textInput",
+		type: "minutesSecondsInput",
 		name: "tiktok_start_time",
 		label: "Start time for TikTok",
+		placeholder: "00:00",
+		rules: {
+			pattern: {
+				value: /^([0-9][0-9]):([0-9][0-9])$/,
+				message: "Start time must be in the format MM:SS (e.g., 01:30)",
+			},
+			validate: (value: string | boolean | File | CreditItem | CreditItem[], formValues) => {
+				if (typeof value !== "string") return true;
+				if (value === "") return true;
+				const [minutes, seconds] = value.split(":").map(Number);
+				if (isNaN(minutes) || isNaN(seconds) || minutes >= 60 || seconds >= 60) {
+					return "Minutes and seconds must be less than 60";
+				}
+				// const trackDuration = formValues.track_duration;
+				// console.log(formValues);
+				// const [trackMinutes, trackSeconds] = trackDuration.split(":").map(Number);
+				// const startTimeInSeconds = minutes * 60 + seconds;
+				// const trackDurationInSeconds = trackMinutes * 60 + trackSeconds;
+				// console.log("TRACK DURATION IN SECONDS", trackDurationInSeconds);
+				// console.log("Start time in seconds", startTimeInSeconds);
+				// if (startTimeInSeconds >= trackDurationInSeconds) {
+				// 	return "Start time cannot be greater than or equal to track duration";
+				// }
+				return true;
+			},
+		},
 	},
 	{
 		type: "textInput",

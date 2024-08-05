@@ -23,46 +23,51 @@ const defaultTabItems = [
 
 const CreateWrappedSongPage = () => {
 	const [tab, setTab] = useState(0);
-	const { register, handleSubmit, watch, control, formState } = useForm<WrappedSongFormFields>({
-		mode: "onBlur",
-		defaultValues: {
-			main_artist: "",
-			release_title: "",
-			language: "",
-			primary_genre: "",
-			track: "",
-			artwork: "",
-			featuring_artist: "",
-			production_year: "",
-			previously_released: false,
-			producer: "",
-			copyright: "",
-			lyrics: "",
-			isrc: "",
-			iswc: "",
-			credits: [],
-			tiktok_start_time: "",
-			description: "",
-			recording_location: "",
-			upc_ean: "",
-			secondary_genre: "",
-			track_duration: "",
-		},
-	});
+	const { register, handleSubmit, watch, control, formState, setValue } =
+		useForm<WrappedSongFormFields>({
+			mode: "onBlur",
+			defaultValues: {
+				main_artist: "",
+				release_title: "",
+				language: "",
+				primary_genre: "",
+				track: "",
+				artwork: "",
+				featuring_artist: "",
+				production_year: "",
+				previously_released: false,
+				producer: "",
+				copyright: "",
+				lyrics: "",
+				isrc: "",
+				iswc: "",
+				credits: [],
+				tiktok_start_time: "",
+				description: "",
+				recording_location: "",
+				upc_ean: "",
+				secondary_genre: "",
+				track_duration: "",
+			},
+		});
 
-	const loadTrackDuration: (file: File) => Promise<number> = (file) => {
+	const loadTrackDuration: (file: File) => Promise<string> = (file) => {
 		return new Promise((resolve) => {
 			var url_src = URL.createObjectURL(file);
 			var audio = new Audio(url_src);
 			audio.addEventListener("loadeddata", function () {
-				resolve(audio.duration);
+				const durationInSeconds = Math.round(audio.duration);
+				const minutes = Math.floor(durationInSeconds / 60);
+				const seconds = durationInSeconds % 60;
+				const formattedDuration = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+				resolve(formattedDuration);
 			});
 		});
 	};
 	const onSubmit: SubmitHandler<WrappedSongFormFields> = async (data) => {
 		if (data.track instanceof File) {
 			const duration = await loadTrackDuration(data.track);
-			data.track_duration = duration.toString();
+			data.track_duration = duration;
 		}
 		console.log("Here is the data for the whole form");
 		console.log(data);
@@ -90,6 +95,7 @@ const CreateWrappedSongPage = () => {
 					errors={errors}
 					watch={watch}
 					register={register}
+					setValue={setValue}
 					className={cx({
 						hidden: tab !== 0,
 					})}
@@ -99,6 +105,7 @@ const CreateWrappedSongPage = () => {
 					errors={errors}
 					watch={watch}
 					register={register}
+					setValue={setValue}
 					className={cx({
 						hidden: tab !== 1,
 					})}

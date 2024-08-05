@@ -14,6 +14,8 @@ const ControlledFileInput = <T extends FieldValues>({
 	defaultImageSrc = undefined,
 	rounded = false,
 	required = false,
+	setValue,
+	...props
 }: ControlledImageFileInputProps<T>) => {
 	const watchFile = watch(inputName);
 	return (
@@ -43,10 +45,14 @@ const ControlledFileInput = <T extends FieldValues>({
 										// setTrackFile(text);
 										if (e.target.files?.length) {
 											field.onChange(e.target.files[0]);
+											if (props.customOnChange) {
+												props.customOnChange(e.target.files[0], { setValue });
+											}
 										}
 									});
 								}
 							}}
+							{...props}
 							required={required}
 						/>
 						{errors[inputName]?.message && (

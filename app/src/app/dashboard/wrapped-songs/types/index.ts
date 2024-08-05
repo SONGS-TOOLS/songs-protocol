@@ -1,6 +1,6 @@
-import { FormFieldType } from "@/components/forms/types";
+import { FormFieldType, Option } from "@/components/forms/types";
 
-interface CreditItem {
+export interface CreditItem {
 	artist: string;
 	role: string;
 }
@@ -32,7 +32,27 @@ export interface WrappedSongFormFields extends WrappedSongAttributes {
 	description: string;
 }
 
-export type WrappedSongFieldType = FormFieldType<WrappedSongFormFields>;
+type CreditItemField =
+	| (Omit<FormFieldType<CreditItem>, "name"> & {
+			name: keyof CreditItem;
+			type: Exclude<FormFieldType<CreditItem>["type"], "selectInput">;
+	  })
+	| (Omit<FormFieldType<CreditItem>, "name"> & {
+			name: keyof CreditItem;
+			type: "selectInput";
+			options: Option[];
+	  });
+
+export type WrappedSongFieldType =
+	| FormFieldType<WrappedSongFormFields>
+	| {
+			type: "repeater";
+			name: "credits";
+			label: string;
+			fields: CreditItemField[];
+			rules?: FormFieldType<WrappedSongFormFields>["rules"];
+			placeholder?: string;
+	  };
 
 export interface AttributeType {
 	trait_type:

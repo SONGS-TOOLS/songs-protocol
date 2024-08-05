@@ -1,7 +1,16 @@
 import { Body2, Body3, TextInput } from "@gordo-d/mufi-ui-components";
-import { ArrayPath, Control, Controller, FieldValues, useFieldArray } from "react-hook-form";
+import {
+	ArrayPath,
+	Control,
+	Controller,
+	FieldArray,
+	FieldValues,
+	Path,
+	useFieldArray,
+} from "react-hook-form";
 import cx from "classnames";
 import { ControlledRepeaterInputProps } from "./types";
+import ControlledInputs from "./ControlledInputs";
 
 //TYPES NEED FIXING. EVERYTHING RELATED TO REPEATER FIELDS.
 
@@ -12,8 +21,14 @@ const ControlledRepeaterInput = <T extends FieldValues>({
 	inputName,
 	inputLabel,
 	subfields,
+	register,
+	watch,
 	// field,
 	required = false,
+	setValue,
+	disabled = false,
+
+	...props
 }: ControlledRepeaterInputProps<T>) => {
 	const { fields, append, prepend, remove, swap, move, insert } = useFieldArray<T>({
 		control, // control props comes from useForm (optional: if you are using FormProvider)
@@ -39,15 +54,27 @@ const ControlledRepeaterInput = <T extends FieldValues>({
 				{fields.map((item, index) => {
 					return (
 						<div key={item.id} className="flex gap-4">
-							{subfields.map((subField) => {
+							{
+								<ControlledInputs
+									//@ts-expect-error
+									fields={subfields}
+									control={control}
+									register={register}
+									errors={errors}
+									watch={watch}
+									setValue={setValue}
+								/>
+							}
+							{/* {subfields.map((subField) => {
 								return (
 									<Controller
 										key={subField.name}
 										control={control}
-										name={`${inputName}.${index}.${subField.name}`}
+										name={`${inputName}.${index}.${subField.name}` as Path<T>}
 										rules={subField.rules}
 										render={({ field }) => {
-											const errorMessage = errors[inputName]?.[index]?.[subField.name]?.message;
+											const errorMessage = (errors[inputName] as any[])?.[index]?.[subField.name]
+												?.message;
 											return (
 												<div className="flex-1">
 													<TextInput
@@ -67,7 +94,7 @@ const ControlledRepeaterInput = <T extends FieldValues>({
 										}}
 									/>
 								);
-							})}
+							})} */}
 							<div className="flex flex-col gap-2">
 								<Body2>&nbsp;</Body2>
 								<div className="flex flex-1 flex-col justify-center">
@@ -87,7 +114,7 @@ const ControlledRepeaterInput = <T extends FieldValues>({
 					color="neutral-600"
 					className="cursor-pointer pt-4 underline"
 					onClick={() => {
-						append({ ...emptyObject });
+						append(emptyObject as FieldArray<T, ArrayPath<T>>);
 					}}
 				>
 					{" "}
@@ -96,28 +123,5 @@ const ControlledRepeaterInput = <T extends FieldValues>({
 			</div>
 		</>
 	);
-	// return (
-	// <Controller
-	// 	name={inputName}
-	// 	control={control}
-	// 	rules={rules}
-	// 	render={({ field }) => {
-	// 		return (
-	// 			<div>
-	// 				<TextInput
-	// 					label={inputLabel}
-	// 					className={cx({ "border-semantic-error": errors[inputName] })}
-	// 					required={required}
-	// 					{...field}
-	// 					// value=""
-	// 				/>
-	// 				{errors[inputName] && (
-	// 					<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>
-	// 				)}
-	// 			</div>
-	// 		);
-	// 	}}
-	// />
-	// );
 };
 export default ControlledRepeaterInput;

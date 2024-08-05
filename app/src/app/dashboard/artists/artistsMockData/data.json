@@ -1,6 +1,6 @@
 [
 	{
-		"name": "Jane Smith",
+		"name": "Lua de Santana",
 		"email": "jane.smith@example.com",
 		"has_spotify_link": true,
 		"spotify": "https://open.spotify.com/artist/4Z8W4fKeB5YxbusRsdQVPb",
@@ -20,7 +20,8 @@
 		"youtube": "https://www.youtube.com/channel/UC0987654321",
 		"soundcloud": "https://soundcloud.com/janesmith",
 		"wikipedia": "https://en.wikipedia.org/wiki/Jane_Smith",
-		"website": "https://www.janesmith.com"
+		"website": "https://www.janesmith.com",
+		"verified": true
 	},
 	{
 		"name": "John Doe",
@@ -43,6 +44,7 @@
 		"youtube": "https://www.youtube.com/channel/UC1234567890",
 		"soundcloud": "https://soundcloud.com/johndoe",
 		"wikipedia": "https://en.wikipedia.org/wiki/John_Doe",
-		"website": "https://www.johndoe.com"
+		"website": "https://www.johndoe.com",
+		"verified": false
 	}
 ]

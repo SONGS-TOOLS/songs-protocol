@@ -12,6 +12,9 @@ const ControlledCheckboxInput = <T extends FieldValues>({
 	inputName,
 	inputLabel,
 	required = false,
+	setValue,
+
+	...props
 }: ControlledInputProps<T>) => {
 	return (
 		<Controller
@@ -26,6 +29,7 @@ const ControlledCheckboxInput = <T extends FieldValues>({
 							className={cx({ "border-semantic-error": errors[inputName] })}
 							required={required}
 							{...field}
+							{...props}
 						/>
 						{errors[inputName] && (
 							<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>

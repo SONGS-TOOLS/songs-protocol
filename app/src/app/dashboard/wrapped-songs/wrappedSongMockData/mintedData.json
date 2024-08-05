@@ -26,5 +26,33 @@
 			{ "trait_type": "UPC / EAN Code", "value": "upc" },
 			{ "trait_type": "Secondary genre", "value": "whatever" }
 		]
+	},
+	{
+		"name": "Other song",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus scelerisque mi vitae eleifend efficitur. Cras luctus quam vel neque sagittis ullamcorper id quis ex. Praesent tristique enim ipsum. Nunc pharetra maximus elit, in commodo lectus interdum ac. Morbi porttitor ex eu rutrum sodales. Vivamus feugiat augue a purus condimentum, eu eleifend sapien scelerisque.",
+		"external_url": "https://app.songs-tools.com/wrapped-songs/GiNGA",
+		"image": "/songs-sphere.png",
+		"animation_url": "/test-track.flac",
+		"attributes": [
+			{ "trait_type": "Main artist", "value": "John Smith" },
+			{ "trait_type": "Language", "value": "Spanish" },
+			{ "trait_type": "Primary genre", "value": "Urban" },
+			{ "trait_type": "Featuring artist", "value": "Featuring artist" },
+			{ "trait_type": "Production year", "value": "2019" },
+			{ "trait_type": "Previously released", "value": true },
+			{ "trait_type": "Producer", "value": "Producer's name" },
+			{ "trait_type": "Copyright", "value": "Copyright holder" },
+			{
+				"trait_type": "Lyrics",
+				"value": "Vou atacar na escuridão Quando ache, verá que não Vou atacar na escuridão Chutei de Miami a Barcelona e foi gol  [Pre-Estribillo: Lua de Santana] Abusadora, venha ver Deusa 10 não puxou a Maradona Só R.G. como a Vettorazzi: vacilona, culona com a língua de fora Se você quer chegar tem que apertar, já tá na hora  [Estribillo: Lua de Santana] Abusadora (Ginga, ginga lá, ginga lá) Vacilona (Ginga, ginga lá, ginga lá) Abusadora (Ginga, ginga lá, ginga lá) Ginga, ginga lá, ginga lá"
+			},
+			{ "trait_type": "ISRC", "value": "1209381" },
+			{ "trait_type": "ISWC", "value": "234890234" },
+			{ "trait_type": "Credit 0", "value": "Artist: Pepe López - Role: Cantante Secundario" },
+			{ "trait_type": "TikTok start time", "value": "00:10" },
+			{ "trait_type": "Recording location", "value": "location" },
+			{ "trait_type": "UPC / EAN Code", "value": "upc" },
+			{ "trait_type": "Secondary genre", "value": "whatever" }
+		]
 	}
 ]

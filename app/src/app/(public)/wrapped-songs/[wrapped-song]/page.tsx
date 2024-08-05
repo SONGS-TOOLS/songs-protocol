@@ -40,7 +40,7 @@ const WrappedSongPage = () => {
 						</div>
 						<div>
 							<Body1>Earning to redeem</Body1>
-							<Headline3>$5</Headline3>
+							<Headline3>$5.00</Headline3>
 						</div>
 						<div>
 							<Button className="w-full">Redeem</Button>

@@ -6,6 +6,8 @@ export interface ArtistFormFields {
 	has_apple_music_link: boolean;
 	spotify: string;
 	apple_music: string;
+	verification_request: boolean;
+	verified: boolean;
 	profile_picture?: string;
 	bio?: string;
 	pro_number?: string;

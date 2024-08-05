@@ -21,6 +21,7 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 			rounded = false,
 			watchFile,
 			required = false,
+			disabled = false,
 			...props
 		}: ImageFileInputProps,
 		ref,
@@ -38,6 +39,8 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 					const urlImage = URL.createObjectURL(file);
 
 					setPreview(urlImage);
+				} else if (files?.length === 0 && typeof watchFile === "string") {
+					setPreview(watchFile);
 				}
 			} else {
 				setPreview(defaultImageSrc);
@@ -94,6 +97,7 @@ const ImageFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 					accept={".png, .jpg"}
 					{...props}
 					ref={inputRef}
+					disabled={disabled}
 				/>
 			</div>
 		);

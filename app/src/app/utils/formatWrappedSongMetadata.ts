@@ -88,8 +88,18 @@ export const formatWrappedSongFieldsToMetadata = (formdata: WrappedSongFormField
 				}));
 				metadata.attributes.push(...credits);
 			}
+		} else if (attribute_key === "copyright" && formdata[attribute_key] === "") {
+			metadata.attributes.push({
+				trait_type: human_readable[attribute_key],
+				value: `${formdata.main_artist} (◒)`,
+			});
+		} else if (attribute_key === "producer" && formdata[attribute_key] === "") {
+			metadata.attributes.push({
+				trait_type: human_readable[attribute_key],
+				value: `${formdata.main_artist} (◒)`,
+			});
 		} else {
-			if (formdata[attribute_key] !== undefined) {
+			if (formdata[attribute_key] !== undefined && formdata[attribute_key] !== "") {
 				metadata.attributes.push({
 					trait_type: human_readable[attribute_key],
 					value: formdata[attribute_key],
@@ -160,11 +170,9 @@ export const formatMetadataToWrappedSongFields = (metadata: WrappedSongMetadataT
 	metadata.attributes.forEach((attribute) => {
 		const traitType = attribute.trait_type as HumanReadableKey;
 		const key = invertedHumanReadable[traitType] as keyof WrappedSongFormFields;
-		console.log(key);
 		if (!attribute.trait_type.includes("Credit") && key in formfields) {
 			(formfields[key] as any) = attribute.value;
 		} else {
-			console.log(attribute.value);
 			const { artist, role } = extractArtistAndRole(attribute.value as string);
 			formfields.credits.push({
 				artist,

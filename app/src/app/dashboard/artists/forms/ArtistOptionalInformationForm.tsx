@@ -10,6 +10,7 @@ const ArtistOptionalInformationForm = ({
 	errors,
 	watch,
 	register,
+	setValue,
 }: FormBlockProps<ArtistFormFields>) => {
 	return (
 		<Card className={`max-w-2xl ${className}`}>
@@ -21,6 +22,7 @@ const ArtistOptionalInformationForm = ({
 					register={register}
 					errors={errors}
 					watch={watch}
+					setValue={setValue}
 				/>
 			</div>
 		</Card>

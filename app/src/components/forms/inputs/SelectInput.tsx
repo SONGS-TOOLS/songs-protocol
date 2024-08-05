@@ -1,23 +1,30 @@
 import React, { forwardRef, useId } from "react";
-import Select, { SelectInstance, StylesConfig } from "react-select";
+import Select, {
+	ActionMeta,
+	MultiValue,
+	PropsValue,
+	SelectInstance,
+	SingleValue,
+	StylesConfig,
+} from "react-select";
 import cx from "classnames";
 import { Body2 } from "@gordo-d/mufi-ui-components";
-
-interface Option {
-	value: string;
-	label: string;
-}
+import { Option } from "../types";
 
 interface SelectInputProps {
 	label: string;
 	options: Option[];
 	required?: boolean;
 	className?: string;
-	value?: string;
+	value?: PropsValue<Option>;
 	disabled: boolean;
 	focusColor?: string;
 	status?: "default" | "success" | "warning" | "error";
-	onChange: (option: Option | null) => void;
+	isMulti?: boolean;
+	onChange: (
+		newValue: MultiValue<Option> | SingleValue<Option>,
+		actionMeta: ActionMeta<Option>,
+	) => void;
 	// Add other props as needed
 }
 
@@ -32,6 +39,7 @@ const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function Number
 		focusColor = "primary-blue-400",
 		status = "default",
 		onChange,
+		isMulti = false,
 		...props
 	}: SelectInputProps,
 	ref,
@@ -42,8 +50,9 @@ const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function Number
 		"border-semantic-warning": status === "warning" && !disabled,
 		"border-semantic-error": status === "error" && !disabled,
 	});
+
 	return (
-		<div className="flex w-full flex-col gap-2">
+		<div className={`flex w-full flex-col gap-2 ${className}`}>
 			{label && (
 				<Body2 color="neutral-600">
 					{label}
@@ -55,12 +64,13 @@ const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function Number
 				options={options}
 				className={cx(className)}
 				unstyled
+				isMulti={isMulti}
 				classNames={{
 					clearIndicator: ({ isFocused }) =>
 						cx(
-							isFocused ? "text-neutral-600" : "text-neutral-200",
+							isFocused ? "text-neutral-600" : "text-neutral-400",
 							"p-2",
-							isFocused ? "hover:text-neutral-800" : "hover:text-neutral-400",
+							isFocused ? "hover:text-neutral-800" : "hover:text-neutral-800",
 						),
 					// container: () => cx(),
 					control: ({ isDisabled, isFocused }) =>
@@ -83,7 +93,7 @@ const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function Number
 					dropdownIndicator: ({ isFocused }) =>
 						cx(
 							isFocused ? "text-neutral-600" : "text-neutral-400",
-							isFocused ? "hover:text-neutral-800" : "hover:text-neutral-400",
+							isFocused ? "hover:text-neutral-800" : "hover:text-neutral-800",
 						),
 					// group: () => cx("py-2"),
 					// groupHeading: () =>
@@ -98,16 +108,16 @@ const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function Number
 					menu: () => cx("bg-white", "rounded", "shadow-[0_0_0_1px_rgba(0,0,0,0.1)]", "my-1"),
 					menuList: () => cx("py-1"),
 					// // menuPortal: () => cx(),
-					// multiValue: () => cx("bg-neutral-100", "rounded-sm", "m-0.5"),
-					// multiValueLabel: () => cx("rounded-sm", "text-neutral-800", "text-sm", "p-[3]", "pl-[6]"),
-					// multiValueRemove: ({ isFocused }) =>
-					// 	cx(
-					// 		"rounded-sm",
-					// 		isFocused && "bg-red-500",
-					// 		"px-1",
-					// 		"hover:bg-red-500",
-					// 		"hover:text-red-800",
-					// 	),
+					multiValue: () => cx("bg-neutral-300", "rounded-sm", "m-0.5"),
+					multiValueLabel: () => cx("rounded-sm", "text-neutral-800", "text-sm", "p-1", "pl-[6]"),
+					multiValueRemove: ({ isFocused }) =>
+						cx(
+							"rounded-sm",
+							isFocused && "bg-red-500",
+							"px-1",
+							"hover:bg-red-500",
+							// "hover:text-red-800",
+						),
 					// noOptionsMessage: () => cx("text-neutral-400", "py-2", "px-3"),
 					option: ({ isDisabled, isFocused, isSelected }) =>
 						cx(
@@ -122,7 +132,7 @@ const SelectInput = forwardRef<SelectInstance, SelectInputProps>(function Number
 					// 	cx(isDisabled ? "text-neutral-400" : "text-neutral-800", "mx-0.5"),
 					// valueContainer: () => cx("py-0.5", "px-2"),
 				}}
-				value={options.find((c) => c.value === value)}
+				value={isMulti ? value : options.find((c) => (c.value as any) === value)}
 				onChange={onChange}
 				{...props}
 			/>

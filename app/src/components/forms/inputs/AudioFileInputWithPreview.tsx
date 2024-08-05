@@ -43,6 +43,7 @@ const AudioFileInputWithPreview = forwardRef<HTMLInputElement, ImageFileInputPro
 					label={label}
 					name="trackfile"
 					// required
+					required={required}
 					dropzoneConfig={{
 						accept: {
 							"audio/mpeg": [".flac"],

@@ -14,9 +14,13 @@ import {
 	formatWrappedSongFieldsToMetadata,
 } from "@/app/utils/formatWrappedSongMetadata";
 import wrappedSongsMetadata from "@/app/dashboard/wrapped-songs/wrappedSongMockData/mintedData.json";
+import FormWithControlledInputs from "@/components/forms/FormWithControlledInputs";
+import { optionalWrappedSongFields, requiredWrappedSongFields } from "../../forms/fields";
 const wrappedSongMetadata = wrappedSongsMetadata[0] as WrappedSongMetadataType;
 
 const wrappedSong = wrappedSongs[0] as WrappedSongFormFields;
+
+import artists from "@/app/dashboard/artists/artistsMockData/data.json";
 
 const defaultTabItems = [
 	{
@@ -34,11 +38,13 @@ const EditWrappedSongPage = () => {
 	const defaultValues = useMemo(() => {
 		return formatMetadataToWrappedSongFields(wrappedSongMetadata);
 	}, [wrappedSongMetadata]);
+	console.log(defaultValues);
 
-	const { register, handleSubmit, watch, control, formState } = useForm<WrappedSongFormFields>({
-		mode: "onBlur",
-		defaultValues: defaultValues,
-	});
+	const { register, handleSubmit, watch, control, formState, setValue } =
+		useForm<WrappedSongFormFields>({
+			mode: "onBlur",
+			defaultValues: defaultValues,
+		});
 
 	const onSubmit: SubmitHandler<WrappedSongFormFields> = (data) => {
 		console.log("Here is the data for the whole form");
@@ -97,6 +103,15 @@ const EditWrappedSongPage = () => {
 	// 	setDataChanged(true);
 	// }, [formData]);
 
+	const requiredFields = useMemo(() => {
+		const index = requiredWrappedSongFields.findIndex((field) => (field.name = "main_artist"));
+		const options = artists.map((artist) => ({ label: artist.name, value: artist.name }));
+		if (index >= 0 && requiredWrappedSongFields[index].type === "selectInput") {
+			requiredWrappedSongFields[index].options = options;
+		}
+		return requiredWrappedSongFields;
+	}, [artists]);
+
 	return (
 		<>
 			<div>
@@ -111,23 +126,27 @@ const EditWrappedSongPage = () => {
 				<TabMenu className="grid-cols-2" tab={tab} setTab={setTab} items={tabItems} />
 			</div>
 			<form className="flex items-start justify-center py-10" onSubmit={handleSubmit(onSubmit)}>
-				<WrappedSongRequiredInformationForm
+				<FormWithControlledInputs
 					control={control}
 					errors={errors}
 					watch={watch}
 					register={register}
+					setValue={setValue}
 					className={cx({
 						hidden: tab !== 0,
 					})}
+					fields={requiredFields}
 				/>
-				<WrappedSongOptionalInformationForm
+				<FormWithControlledInputs
 					control={control}
 					errors={errors}
 					watch={watch}
 					register={register}
+					setValue={setValue}
 					className={cx({
 						hidden: tab !== 1,
 					})}
+					fields={optionalWrappedSongFields}
 				/>
 			</form>
 		</>

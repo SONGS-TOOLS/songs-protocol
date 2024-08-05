@@ -15,6 +15,9 @@ const ControlledAudioInput = <T extends FieldValues>({
 	defaultImageSrc = undefined,
 	rounded = false,
 	required = false,
+	setValue,
+
+	...props
 }: ControlledImageFileInputProps<T>) => {
 	const watchFile = watch(inputName);
 	return (
@@ -32,12 +35,17 @@ const ControlledAudioInput = <T extends FieldValues>({
 							watchFile={watchFile}
 							{...rest}
 							onChange={(e) => {
-								field.onChange(e.target.files);
+								field.onChange(e.target.value);
+
+								if (props.customOnChange) {
+									props.customOnChange(e.target.value, { setValue });
+								}
 							}}
 							setValue={(value) => {
 								field.onChange(value);
 							}}
 							required={required}
+							{...props}
 						/>
 						{errors[inputName]?.message && (
 							<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>

@@ -23,6 +23,7 @@ const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) =
 		handleSubmit,
 		control,
 		formState: { errors },
+		setValue,
 	} = useForm<formFields>({
 		mode: "onBlur",
 		defaultValues: {
@@ -54,6 +55,7 @@ const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) =
 						},
 					}}
 					inputLabel="Wallet address"
+					setValue={setValue}
 				/>
 				<div className="flex items-end gap-4">
 					{/* <NumberInput value={amount} onChange={(e) => setAmount(e.target.valueAsNumber)} /> */}
@@ -66,6 +68,7 @@ const WrappedSongSendSection = ({ setSendModal }: WrappedSongSendSectionProps) =
 						}}
 						inputLabel="Amount"
 						className="flex-1"
+						setValue={setValue}
 					/>
 					<Button onClick={handleSubmit(onSubmit)}>Send</Button>
 				</div>

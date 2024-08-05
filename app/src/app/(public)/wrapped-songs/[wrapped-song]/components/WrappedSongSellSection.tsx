@@ -20,6 +20,7 @@ const WrappedSongSellSection = ({ setSellModal }: WrappedSongSellSectionProps) =
 		handleSubmit,
 		control,
 		formState: { errors },
+		setValue,
 	} = useForm<formFields>({
 		mode: "onBlur",
 		defaultValues: {
@@ -50,6 +51,7 @@ const WrappedSongSellSection = ({ setSellModal }: WrappedSongSellSectionProps) =
 						required: "You must enter a value",
 					}}
 					inputLabel="Amount"
+					setValue={setValue}
 					className="flex-1"
 				/>
 				<Button onClick={handleSubmit(onSubmit)}>Sell</Button>

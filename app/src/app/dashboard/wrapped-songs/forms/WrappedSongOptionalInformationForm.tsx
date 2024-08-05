@@ -9,6 +9,7 @@ const WrappedSongOptionalInformationForm = ({
 	errors,
 	watch,
 	register,
+	setValue,
 }: FormBlockProps<WrappedSongFormFields>) => {
 	return (
 		<Card className={`max-w-2xl ${className}`}>
@@ -20,6 +21,7 @@ const WrappedSongOptionalInformationForm = ({
 					register={register}
 					errors={errors}
 					watch={watch}
+					setValue={setValue}
 				/>
 			</div>
 		</Card>

@@ -10,6 +10,10 @@ const ControlledTextInput = <T extends FieldValues>({
 	inputName,
 	inputLabel,
 	required = false,
+	setValue,
+	disabled = false,
+
+	...props
 }: ControlledInputProps<T>) => {
 	return (
 		<Controller
@@ -18,13 +22,22 @@ const ControlledTextInput = <T extends FieldValues>({
 			rules={rules}
 			render={({ field }) => {
 				return (
-					<div>
+					<div className="flex-1">
 						<TextInput
 							label={inputLabel}
 							className={cx({ "border-semantic-error": errors[inputName] })}
 							required={required}
+							disabled={disabled}
 							{...field}
 							// value=""
+							{...props}
+							onChange={(e) => {
+								field.onChange(e.target.value);
+
+								if (props.customOnChange) {
+									props.customOnChange(e.target.value, { setValue });
+								}
+							}}
 						/>
 						{errors[inputName] && (
 							<Body3 color="semantic-error">{errors[inputName].message as React.ReactNode}</Body3>
