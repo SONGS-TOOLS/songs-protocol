@@ -19,11 +19,26 @@ contract DistributorWallet is Ownable {
   event WrappedSongReleased(address indexed wrappedSong);
   event WrappedSongRedeemed(address indexed wrappedSong, uint256 amount);
   event WrappedSongReleaseRejected(address indexed wrappedSong);
+  event MetadataUpdateRequested(
+    address indexed wrappedSong,
+    uint256 indexed tokenId,
+    string newMetadata
+  );
+  event MetadataUpdated(
+    address indexed wrappedSong,
+    uint256 indexed tokenId,
+    string newMetadata
+  );
+  event MetadataUpdateRejected(
+    address indexed wrappedSong,
+    uint256 indexed tokenId
+  );
 
   /**
    * @dev Constructor to initialize the contract with the given parameters.
    * @param _stablecoin The address of the stablecoin contract.
    * @param _protocolModule The address of the protocol module contract.
+   * @param _owner The address of the owner.
    */
   constructor(
     address _stablecoin,
@@ -163,6 +178,52 @@ contract DistributorWallet is Ownable {
     managedWrappedSongs.push(wrappedSong);
 
     emit WrappedSongReleased(wrappedSong);
+  }
+
+  /**
+   * @dev Confirms the update to the metadata.
+   * @param wrappedSong The address of the wrapped song.
+   * @param tokenId The ID of the token to update.
+   */
+  function confirmUpdateMetadata(
+    address wrappedSong,
+    uint256 tokenId
+  ) external onlyOwner {
+    require(
+      keccak256(bytes(protocolModule.getPendingMetadataUpdate(wrappedSong, tokenId))) != keccak256(bytes("")),
+      'No pending metadata update for this token'
+    );
+    require(
+      protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
+      'Not the distributor for this wrapped song'
+    );
+    protocolModule.confirmUpdateMetadata(wrappedSong, tokenId);
+    emit MetadataUpdated(
+      wrappedSong,
+      tokenId,
+      protocolModule.getPendingMetadataUpdate(wrappedSong, tokenId)
+    );
+  }
+
+  /**
+   * @dev Rejects the update to the metadata.
+   * @param wrappedSong The address of the wrapped song.
+   * @param tokenId The ID of the token to update.
+   */
+  function rejectUpdateMetadata(
+    address wrappedSong,
+    uint256 tokenId
+  ) external onlyOwner {
+    require(
+      keccak256(bytes(protocolModule.getPendingMetadataUpdate(wrappedSong, tokenId))) != keccak256(bytes("")),
+      'No pending metadata update for this token'
+    );
+    require(
+      protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
+      'Not the distributor for this wrapped song'
+    );
+    protocolModule.rejectUpdateMetadata(wrappedSong, tokenId);
+    emit MetadataUpdateRejected(wrappedSong, tokenId);
   }
 
   /**

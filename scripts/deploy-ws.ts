@@ -53,7 +53,10 @@ async function main() {
     await distributorWalletTx.wait();
     distributorWalletAddresses =
       await DistributorWalletFactory.getDistributorWallets(deployer.address);
-    console.log('Distributor Wallet created at:', distributorWalletAddresses[0]);
+    console.log(
+      'Distributor Wallet created at:',
+      distributorWalletAddresses[0]
+    );
   } else {
     console.log(
       'Distributor Wallet already exists at:',
@@ -67,9 +70,19 @@ async function main() {
     distributorWalletAddress
   );
 
-  // Create 3 Wrapped Songs with metadata
+
+  //
+  // CREATE WRAPPED SONGS
+  //
+
+  // Create 5 Wrapped Songs with metadata
+  console.log('...');
   console.log('Creating Wrapped Songs with metadata...');
+  console.log('...');
+  
   const songURIs = [
+    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
+    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
     `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
     `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
     `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
@@ -79,9 +92,7 @@ async function main() {
   for (let i = 0; i < songURIs.length; i++) {
     const songURI = songURIs[i];
     console.log(
-      `Creating Wrapped Song ${
-        i + 1
-      } with URI: ${songURI} and shares amount: ${sharesAmount}`
+      `Creating Wrapped Song ${i} with URI: ${songURI} and shares amount: ${sharesAmount}`
     );
     try {
       const createWrappedSongTx =
@@ -97,17 +108,24 @@ async function main() {
       );
       const wrappedSongAddress =
         ownerWrappedSongs[ownerWrappedSongs.length - 1];
-      console.log(`Wrapped Song created at:`, wrappedSongAddress);
-      console.log(`Wrapped Song ${i + 1} created at:`, wrappedSongAddress);
+      console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
+      console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
     } catch (error) {
-      console.error(`Failed to create Wrapped Song ${i + 1}:`, error);
+      console.error(`Failed to create Wrapped Song ${i}:`, error);
       return; // Exit if creation fails
     }
   }
 
+  //
+  // RELEASE WRAPPED SONGS 0 - 3
+  //
+  console.log('...');
   console.log('Requesting release for Wrapped Songs...');
-  for (let i = 0; i < 2; i++) {
-    // Request release for the first two songs
+  console.log('...');
+
+
+  for (let i = 0; i < 4; i++) {
+    // Request release for the first four songs
     const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
       deployer.address
     );
@@ -119,16 +137,20 @@ async function main() {
       );
       await requestReleaseTx.wait();
       console.log(
-        `Release requested for Wrapped Song ${i + 1} at:`,
+        `Release requested for Wrapped Song ${i} at:`,
         wrappedSongAddress
       );
     } catch (error) {
       console.error(
-        `Failed to request release for Wrapped Song ${i + 1}:`,
+        `Failed to request release for Wrapped Song ${i}:`,
         error
       );
     }
   }
+
+  //
+  // RELEASE REJECTIONS
+  //
 
   const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
     deployer.address
@@ -139,24 +161,123 @@ async function main() {
     );
     await rejectReleaseTx.wait();
     console.log(
-      `Release rejected for Wrapped Song 1 at:`,
+      `Release rejected for Wrapped Song ${0} at:`,
       ownerWrappedSongs[0]
     );
   } catch (error) {
-    console.error(`Failed to reject release for Wrapped Song 1:`, error);
+    console.error(`Failed to reject release for Wrapped Song ${0}:`, error);
   }
 
+  //
+  // RELEASE CONFIRMATIONS
+  //
+
   try {
-    const confirmReleaseTx = await DistributorWallet.confirmWrappedSongRelease(
+    const confirmReleaseTx1 = await DistributorWallet.confirmWrappedSongRelease(
       ownerWrappedSongs[1]
     );
-    await confirmReleaseTx.wait();
+    await confirmReleaseTx1.wait();
     console.log(
-      `Release confirmed for Wrapped Song 2 at:`,
+      `Release confirmed for Wrapped Song ${1} at:`,
       ownerWrappedSongs[1]
     );
   } catch (error) {
-    console.error(`Failed to confirm release for Wrapped Song 2:`, error);
+    console.error(`Failed to confirm release for Wrapped Song ${1}:`, error);
+  }
+
+  // TODO: Confirm release for Wrapped Songs 3 and 4
+  try {
+    const confirmReleaseTx2 = await DistributorWallet.confirmWrappedSongRelease(
+      ownerWrappedSongs[2]
+    );
+    await confirmReleaseTx2.wait();
+    console.log(
+      `Release confirmed for Wrapped Song ${2} at:`,
+      ownerWrappedSongs[2]
+    );
+  } catch (error) {
+    console.error(`Failed to confirm release for Wrapped Song ${2}:`, error);
+  }
+
+  try {
+    const confirmReleaseTx3 = await DistributorWallet.confirmWrappedSongRelease(
+      ownerWrappedSongs[3]
+    );
+    await confirmReleaseTx3.wait();
+    console.log(
+      `Release confirmed for Wrapped Song ${3} at:`,
+      ownerWrappedSongs[3]
+    );
+  } catch (error) {
+    console.error(`Failed to confirm release for Wrapped Song ${3}:`, error);
+  }
+
+  //
+  // METADATA CHANGES
+  //
+
+  console.log('...');
+  console.log('Requesting metadata changes...');
+  console.log('...');
+
+  // Handle metadata updates for the two new Wrapped Songs
+  const newWrappedSongs = ownerWrappedSongs.slice(2, 4);
+  const newMetadata1 =
+    'https://nftstorage.link/ipfs/bafkreihdwdcef7z7xqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm';
+  const newMetadata2 =
+    'https://nftstorage.link/ipfs/bafkreihdwdcef7z7xqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm';
+
+  for (let i = 0; i < newWrappedSongs.length; i++) {
+    // SELECT THE WRAPPED SONG ACCOUNT
+    const wrappedSongAddress = newWrappedSongs[i];
+    const WrappedSongSmartAccount = await ethers.getContractAt(
+      'WrappedSongSmartAccount',
+      wrappedSongAddress
+    );
+    try {
+      // Request metadata update
+      const requestUpdateTx1 =
+        await WrappedSongSmartAccount.requestUpdateMetadata(
+          1, // TOKEN ID TARGETS THE RELEASE NFT , tokenId 2 is the SONGSHARES NFTs
+          newMetadata1
+        );
+      await requestUpdateTx1.wait();
+      console.log(
+        `Metadata update requested for Wrapped Song ${i + 2} at:`,
+        wrappedSongAddress
+      );
+
+      // Confirm or reject metadata updates
+      if (i === 0) {
+        // Reject the first metadata update
+        const rejectUpdateTx = await DistributorWallet.rejectUpdateMetadata(
+          wrappedSongAddress,
+          1 // TOKEN ID TARGETS THE RELEASE NFT , tokenId 2 is the SONGSHARES NFTs
+        );
+        await rejectUpdateTx.wait();
+        console.log(
+          `Metadata update rejected for Wrapped Song ${i + 2} at:`,
+          wrappedSongAddress
+        );
+
+      } else {
+        // Confirm both metadata updates for the second new Wrapped Song
+        const confirmUpdateTx1 = await DistributorWallet.confirmUpdateMetadata(
+          wrappedSongAddress,
+          1
+        );
+        await confirmUpdateTx1.wait();
+        console.log(
+          `Metadata update confirmed for Wrapped Song ${i + 2} at:`,
+          wrappedSongAddress
+        );
+      }
+    } catch (error) {
+      console.error(
+        `Failed to handle metadata updates for Wrapped Song ${i + 2}:`,
+        error
+      );
+    }
   }
 }
 

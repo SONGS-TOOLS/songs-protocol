@@ -13,9 +13,6 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   IERC20 public stablecoin;
   IProtocolModule public protocolModule;
 
-  bool public isReleased;
-  string public isrc;
-  bool public isAuthentic;
   address public distributorWallet;
 
   uint256 public songSharesId;
@@ -41,18 +38,16 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   ) Ownable(_owner) {
     require(_stablecoinAddress != address(0), 'Invalid stablecoin address');
     require(_owner != address(0), 'Invalid owner address');
-    require(_protocolModuleAddress != address(0), 'Invalid protocol module address');
-
-    newWSTokenManagement = new WSTokenManagement(
-      address(this),
-      msg.sender
+    require(
+      _protocolModuleAddress != address(0),
+      'Invalid protocol module address'
     );
+
+    newWSTokenManagement = new WSTokenManagement(address(this), msg.sender);
 
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
 
-    isReleased = false;
-    isAuthentic = false;
   }
 
   /**
@@ -62,7 +57,6 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   function requestWrappedSongRelease(
     address _distributorWallet
   ) external onlyOwner {
-    require(!isReleased, 'Already released');
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
@@ -177,6 +171,15 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   }
 
   /**
+   * @dev Retrieves the metadata for a specific token ID from the WSTokenManagement contract.
+   * @param tokenId The ID of the token to get the metadata for.
+   * @return The metadata of the specified token.
+   */
+  function getWrappedSongMetadata(uint256 tokenId) public view returns (string memory) {
+    return newWSTokenManagement.uri(tokenId);
+  }
+
+  /**
    * @dev Transfers tokens to a recipient.
    * @param tokenId The ID of the token.
    * @param amount The amount of tokens to be transferred.
@@ -280,7 +283,57 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param interfaceId The interface identifier, as specified in ERC-165.
    * @return `true` if the contract implements the `IERC1155Receiver` interface.
    */
-  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
-    return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
+  function supportsInterface(
+    bytes4 interfaceId
+  ) public view virtual override(ERC165, IERC165) returns (bool) {
+    return
+      interfaceId == type(IERC1155Receiver).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
+
+  /**
+   * @dev Retrieves the metadata for a specific token ID from the WSTokenManagement contract.
+   * @param tokenId The ID of the token to get the metadata for.
+   * @return The metadata of the specified token.
+   */
+  function getTokenMetadata(uint256 tokenId) public view returns (string memory) {
+    return newWSTokenManagement.uri(tokenId);
+  }
+
+  /**
+   * @dev Requests an update to the metadata if the song has been released.
+   * @param tokenId The ID of the token to update.
+   * @param newMetadata The new metadata to be set.
+   */
+  function requestUpdateMetadata(uint256 tokenId, string memory newMetadata) public onlyOwner {
+    require(protocolModule.isReleased(address(this)), "Song not released, update metadata directly");
+    protocolModule.requestUpdateMetadata(address(this), tokenId, newMetadata);
+  }
+
+  /**
+   * @dev Updates the metadata directly if the song has not been released.
+   * @param tokenId The ID of the token to update.
+   * @param newMetadata The new metadata to be set.
+   */
+  function updateMetadata(uint256 tokenId, string memory newMetadata) public onlyOwner {
+    require(!protocolModule.isReleased(address(this)), "Cannot update metadata directly after release, request update instead");
+    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
+  }
+
+  /**
+   * @dev Executes the confirmed metadata update.
+   * @param tokenId The ID of the token to update.
+   */
+  function executeConfirmedMetadataUpdate(uint256 tokenId) public onlyOwner {
+    require(protocolModule.isReleased(address(this)), "Song not released, update metadata directly");
+    require(protocolModule.isMetadataUpdateConfirmed(address(this), tokenId), "Metadata update not confirmed");
+    string memory newMetadata = protocolModule.getPendingMetadataUpdate(address(this), tokenId);
+    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
+    protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
+  }
+
+  // New function to check authenticity
+  function checkAuthenticity() public view returns (bool) {
+    return protocolModule.isAuthentic(address(this));
   }
 }

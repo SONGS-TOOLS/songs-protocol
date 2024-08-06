@@ -13,4 +13,5 @@ interface IWrappedSongSmartAccount {
   function batchTransferSongShares(uint256[] memory tokenIds, uint256[] memory amounts, address to) external;
   function canReceiveERC20() external pure returns (bool);
   function receiveEarnings(uint256 amount) external;
+  function updateMetadata(uint256 tokenId, string memory newMetadata) external;
 }

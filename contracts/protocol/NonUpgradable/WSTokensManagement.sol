@@ -79,7 +79,7 @@ contract WSTokenManagement is ERC1155, Ownable {
    * @param tokenId The ID of the token to set the URI for.
    * @param tokenURI The URI to be set for the token.
    */
-  function setTokenURI(uint256 tokenId, string memory tokenURI) private {
+  function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
     _tokenURIs[tokenId] = tokenURI;
   }
 
