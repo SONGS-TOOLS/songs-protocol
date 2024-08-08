@@ -17,6 +17,7 @@
     "deploy:songs:sepolia": "npx hardhat run scripts/deploy-ws.ts --network sepolia",
     "deploy:protocol:local": "npx hardhat run scripts/deploy-protocol.ts --network localhost",
     "deploy:protocol:sepolia": "npx hardhat run scripts/deploy-protocol.ts --network sepolia",
+    "deploy:protocol:polygon": "npx hardhat run scripts/deploy-protocol.ts --network polygon",
     "deploy:license:local": "npx hardhat run scripts/deploy-license.ts --network localhost",
     "deploy:license:sepolia": "npx hardhat run scripts/deploy-license.ts --network sepolia",
     "deploy:license:baseSepolia": "npx hardhat run scripts/deploy-license.ts --network baseSepolia",

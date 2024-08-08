@@ -11,6 +11,8 @@ contract ProtocolModule is Ownable {
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
 
+    bool public paused; // Add paused state variable
+
     mapping(address => string) public isrcRegistry;
     mapping(address => string) public upcRegistry;
     mapping(address => string) public iswcRegistry;
@@ -29,6 +31,7 @@ contract ProtocolModule is Ownable {
     event MetadataUpdateRequested(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
     event MetadataUpdateConfirmed(address indexed wrappedSong, uint256 indexed tokenId);
     event MetadataUpdated(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
+    event Paused(bool isPaused); // Add event for pausing
 
     /**
      * @dev Initializes the contract with the given parameters.
@@ -41,7 +44,21 @@ contract ProtocolModule is Ownable {
     ) Ownable(msg.sender) {
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
+        paused = false; // Initialize paused state
     }
+
+    // Add a modifier to check if the protocol is paused
+    modifier whenNotPaused() {
+        require(!paused, "Protocol is paused");
+        _;
+    }
+
+    // Add a function to toggle the paused state
+    function setPaused(bool _paused) external onlyOwner {
+        paused = _paused;
+        emit Paused(_paused);
+    }
+
     /**
      * @dev Requests the release of a wrapped song by the owner.
      * @param wrappedSong The address of the wrapped song.
@@ -259,5 +276,14 @@ contract ProtocolModule is Ownable {
      */
     function isAuthentic(address wrappedSong) external view returns (bool) {
         return wrappedSongAuthenticity[wrappedSong];
+    }
+
+    /**
+     * @dev Checks if the creator is valid to create a wrapped song based on the NFT requirement.
+     * @param creator The address of the creator.
+     * @return True if the creator is valid to create a wrapped song, false otherwise.
+     */
+    function isValidToCreateWrappedSong(address creator) external view returns (bool) {
+        return whitelistingManager.isValidToCreateWrappedSong(creator);
     }
 }

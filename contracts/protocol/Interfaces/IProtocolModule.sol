@@ -47,4 +47,9 @@ interface IProtocolModule {
     // New functions to manage authenticity
     function setWrappedSongAuthenticity(address wrappedSong, bool isAuthentic) external;
     function isAuthentic(address wrappedSong) external view returns (bool);
+
+    // New function to check if a creator is valid to create a wrapped song
+    function isValidToCreateWrappedSong(address creator) external view returns (bool);
+    function paused() external view returns (bool);
+
 }

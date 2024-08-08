@@ -26,8 +26,9 @@ contract WrappedSongFactory {
   function createWrappedSong(
     address _stablecoin
   ) public payable returns (address) {
+    require(!protocolModule.paused(), "Protocol is paused"); // Check if protocol is paused
     //TODO: Pay fee in stablecoins
-    // require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
+    require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
     // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
 
     // Create WrappedSongSmartAccount instance
@@ -55,6 +56,7 @@ contract WrappedSongFactory {
     string memory songURI,
     uint256 sharesAmount
   ) public payable {
+    require(!protocolModule.paused(), "Protocol is paused"); // Check if protocol is paused
     address newWrappedSongSmartAccount = createWrappedSong(_stablecoin);
 
     WrappedSongSmartAccount wrappedSong = WrappedSongSmartAccount(
