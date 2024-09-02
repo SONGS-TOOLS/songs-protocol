@@ -29,6 +29,15 @@ let contractAddresses: any = {};
 // USDC stablecoin address on mainnet
 const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 
+// Utility function to compute CREATE2 address
+function getCreate2Address(
+  factoryAddress: string,
+  salt: string,
+  bytecode: string
+): string {
+  return ethers.utils.getCreate2Address(factoryAddress, salt, ethers.utils.keccak256(bytecode));
+}
+
 async function main() {
   const [deployer] = await ethers.getSigners();
   const balance = await ethers.provider.getBalance(deployer.address);
@@ -43,35 +52,44 @@ async function main() {
     fs.mkdirSync(localAbisDirectory, { recursive: true });
   }
 
+  // Factory contract for CREATE2 deployments
+  const Create2Factory = await ethers.getContractFactory('Create2Factory');
+  const create2Factory = await Create2Factory.deploy();
+  await create2Factory.deployed();
+
   /* ////////////////////////////////////////////
   ////////  WhitelistingManager contract  ////////
   //////////////////////////////////////////// */
 
   console.log('Deploying WhitelistingManager...');
-  const WhitelistingManager = await ethers.getContractFactory(
-    'WhitelistingManager'
+  const WhitelistingManager = await ethers.getContractFactory('WhitelistingManager');
+  const whitelistingManagerBytecode = WhitelistingManager.bytecode;
+  const whitelistingManagerSalt = ethers.utils.id('WhitelistingManager');
+  const whitelistingManagerAddress = getCreate2Address(
+    create2Factory.address,
+    whitelistingManagerSalt,
+    whitelistingManagerBytecode
   );
-  const whitelistingManager = await WhitelistingManager.deploy(
-    deployer.address
-  );
-  await whitelistingManager.waitForDeployment();
-  console.log('WhitelistingManager deployed to:', await whitelistingManager.getAddress());
-  await saveAbi('WhitelistingManager', await whitelistingManager.getAddress());
+  await create2Factory.deploy(whitelistingManagerBytecode, whitelistingManagerSalt);
+  console.log('WhitelistingManager deployed to:', whitelistingManagerAddress);
+  await saveAbi('WhitelistingManager', whitelistingManagerAddress);
 
   /* ////////////////////////////////////////////
   ////////  DistributorWalletFactory contract  ////////
   //////////////////////////////////////////// */
 
   console.log('Deploying DistributorWalletFactory...');
-  const DistributorWalletFactory = await ethers.getContractFactory(
-    'DistributorWalletFactory'
+  const DistributorWalletFactory = await ethers.getContractFactory('DistributorWalletFactory');
+  const distributorWalletFactoryBytecode = DistributorWalletFactory.bytecode;
+  const distributorWalletFactorySalt = ethers.utils.id('DistributorWalletFactory');
+  const distributorWalletFactoryAddress = getCreate2Address(
+    create2Factory.address,
+    distributorWalletFactorySalt,
+    distributorWalletFactoryBytecode
   );
-  const distributorWalletFactory = await DistributorWalletFactory.deploy(
-    deployer.address
-  );
-  await distributorWalletFactory.waitForDeployment();
-  console.log('DistributorWalletFactory deployed to:', await distributorWalletFactory.getAddress());
-  await saveAbi('DistributorWalletFactory', await distributorWalletFactory.getAddress());
+  await create2Factory.deploy(distributorWalletFactoryBytecode, distributorWalletFactorySalt);
+  console.log('DistributorWalletFactory deployed to:', distributorWalletFactoryAddress);
+  await saveAbi('DistributorWalletFactory', distributorWalletFactoryAddress);
 
   /* ////////////////////////////////////////////
   ////////  ProtocolModule contract  ////////
@@ -79,28 +97,33 @@ async function main() {
 
   console.log('Deploying ProtocolModule...');
   const ProtocolModule = await ethers.getContractFactory('ProtocolModule');
-  const protocolModule = await ProtocolModule.deploy(
-    await distributorWalletFactory.getAddress(),
-    await whitelistingManager.getAddress()
+  const protocolModuleBytecode = ProtocolModule.bytecode;
+  const protocolModuleSalt = ethers.utils.id('ProtocolModule');
+  const protocolModuleAddress = getCreate2Address(
+    create2Factory.address,
+    protocolModuleSalt,
+    protocolModuleBytecode
   );
-  await protocolModule.waitForDeployment();
-  console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
-  await saveAbi('ProtocolModule', await protocolModule.getAddress());
+  await create2Factory.deploy(protocolModuleBytecode, protocolModuleSalt);
+  console.log('ProtocolModule deployed to:', protocolModuleAddress);
+  await saveAbi('ProtocolModule', protocolModuleAddress);
 
   /* ////////////////////////////////////////////
   ////////  WrappedSongFactory contract  ////////
   //////////////////////////////////////////// */
 
   console.log('Deploying WrappedSongFactory...');
-  const WrappedSongFactory = await ethers.getContractFactory(
-    'WrappedSongFactory'
+  const WrappedSongFactory = await ethers.getContractFactory('WrappedSongFactory');
+  const wrappedSongFactoryBytecode = WrappedSongFactory.bytecode;
+  const wrappedSongFactorySalt = ethers.utils.id('WrappedSongFactory');
+  const wrappedSongFactoryAddress = getCreate2Address(
+    create2Factory.address,
+    wrappedSongFactorySalt,
+    wrappedSongFactoryBytecode
   );
-  const wrappedSongFactory = await WrappedSongFactory.deploy(
-    await protocolModule.getAddress()
-  );
-  await wrappedSongFactory.waitForDeployment();
-  console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
-  await saveAbi('WrappedSongFactory', await wrappedSongFactory.getAddress());
+  await create2Factory.deploy(wrappedSongFactoryBytecode, wrappedSongFactorySalt);
+  console.log('WrappedSongFactory deployed to:', wrappedSongFactoryAddress);
+  await saveAbi('WrappedSongFactory', wrappedSongFactoryAddress);
 
   // Save the ABI of WrappedSongSmartAccount without deploying it
   await saveAbi('WrappedSongSmartAccount', '0x0000000000000000000000000000000000000000');

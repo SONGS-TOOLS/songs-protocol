@@ -137,7 +137,7 @@ contract DistributorWallet is Ownable {
    * @dev Distributes earnings to the specified wrapped song.
    * @param _wrappedSong The address of the wrapped song.
    */
-  function distributeEarnings(address _wrappedSong) external onlyOwner {
+  function distributeEarnings(address payable _wrappedSong) external onlyOwner {
     uint256 amount = wrappedSongTreasury[_wrappedSong];
     require(amount > 0, 'No earnings to distribute');
     wrappedSongTreasury[_wrappedSong] = 0;

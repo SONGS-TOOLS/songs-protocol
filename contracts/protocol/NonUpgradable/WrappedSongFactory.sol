@@ -45,24 +45,27 @@ contract WrappedSongFactory {
     return address(newWrappedSongSmartAccount);
   }
 
+
   /**
    * @dev Creates a new wrapped song with metadata.
    * @param _stablecoin The address of the stablecoin contract.
    * @param songURI The URI of the song metadata.
    * @param sharesAmount The amount of shares to be created.
+   * @param sharesURI The URI containing metadata for the shares.
    */
   function createWrappedSongWithMetadata(
     address _stablecoin,
     string memory songURI,
-    uint256 sharesAmount
+    uint256 sharesAmount,
+    string memory sharesURI
   ) public payable {
     require(!protocolModule.paused(), "Protocol is paused"); // Check if protocol is paused
     address newWrappedSongSmartAccount = createWrappedSong(_stablecoin);
 
     WrappedSongSmartAccount wrappedSong = WrappedSongSmartAccount(
-      newWrappedSongSmartAccount
+      payable(newWrappedSongSmartAccount)
     );
-    wrappedSong.createsWrappedSongTokens(songURI, sharesAmount);
+    wrappedSong.createsWrappedSongTokens(songURI, sharesAmount, sharesURI, msg.sender);
   }
 
   /**

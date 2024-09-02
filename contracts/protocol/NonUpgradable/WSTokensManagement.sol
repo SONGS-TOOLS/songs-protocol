@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
+// import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import '@openzeppelin/contracts/access/Ownable.sol';
 
-contract WSTokenManagement is ERC1155, Ownable {
+contract WSTokenManagement is ERC1155Supply, Ownable {
   uint256 private _currentTokenId;
   address private _minter;
 
@@ -107,17 +108,22 @@ contract WSTokenManagement is ERC1155, Ownable {
     _mint(smartWallet, songId, 1, '');
     setTokenURI(songId, songURI);
     songToConceptNFT[songId] = songId;
+    return songId;
   }
-
+  
   /**
    * @dev Creates fungible shares for a specific song.
    * @param songId The ID of the song to create shares for.
    * @param sharesAmount The total amount of shares to create.
+   * @param sharesURI The URI containing metadata for the shares.
+   * @param creator The address of the owner to mint the shares to.
    * @return sharesId The ID of the newly created fungible shares.
    */
   function createFungibleSongShares(
     uint256 songId,
-    uint256 sharesAmount
+    uint256 sharesAmount,
+    string memory sharesURI,
+    address creator
   ) public onlyOwner returns (uint256 sharesId) {
     require(
       songToConceptNFT[songId] != 0,
@@ -130,7 +136,8 @@ contract WSTokenManagement is ERC1155, Ownable {
 
     _currentTokenId++;
     sharesId = _currentTokenId;
-    _mint(msg.sender, sharesId, sharesAmount, '');
+    _mint(creator, sharesId, sharesAmount, '');
+    setTokenURI(sharesId, sharesURI);
     songToFungibleShares[songId] = sharesId;
     fungibleTokenShares[sharesId] = sharesAmount;
   }

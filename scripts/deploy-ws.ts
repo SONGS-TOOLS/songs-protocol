@@ -86,6 +86,7 @@ async function main() {
     `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
     `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
     `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
+    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
   ];
   const sharesAmount = 10000; // Example shares amount
 
@@ -99,7 +100,8 @@ async function main() {
         await WrappedSongFactory.createWrappedSongWithMetadata(
           USDC_ADDRESS,
           songURI,
-          sharesAmount
+          sharesAmount,
+          songURI
         );
       await createWrappedSongTx.wait();
 
@@ -124,8 +126,8 @@ async function main() {
   console.log('...');
 
 
-  for (let i = 0; i < 4; i++) {
-    // Request release for the first four songs
+  for (let i = 0; i < 5; i++) {
+    // Request release for the first five songs
     const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
       deployer.address
     );

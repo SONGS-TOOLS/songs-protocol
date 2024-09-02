@@ -64,6 +64,11 @@
         "internalType": "uint256",
         "name": "sharesAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "sharesURI",
+        "type": "string"
       }
     ],
     "name": "createWrappedSongWithMetadata",

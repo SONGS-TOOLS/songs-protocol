@@ -105,6 +105,9 @@ async function main() {
   // Save the ABI of WrappedSongSmartAccount without deploying it
   await saveAbi('WrappedSongSmartAccount', '0x0000000000000000000000000000000000000000');
 
+  // Save the ABI of WSTokenManagement without deploying it
+  await saveAbi('WSTokenManagement', '0x0000000000000000000000000000000000000000');
+
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
   console.log(`Contract addresses saved to ${addressesFile}`);

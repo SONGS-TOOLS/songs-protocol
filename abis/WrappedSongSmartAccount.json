@@ -64,9 +64,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "tokenIds",
-        "type": "uint256[]"
+        "internalType": "uint256",
+        "name": "sharesId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256[]",
@@ -74,12 +74,12 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "recipients",
+        "type": "address[]"
       }
     ],
-    "name": "batchTransferSongShares",
+    "name": "batchTransferShares",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -121,6 +121,16 @@
         "internalType": "uint256",
         "name": "sharesAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "sharesURI",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
       }
     ],
     "name": "createFungibleSongShares",
@@ -169,6 +179,16 @@
         "internalType": "uint256",
         "name": "sharesAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "sharesURI",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
       }
     ],
     "name": "createsWrappedSongTokens",
@@ -246,6 +266,38 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTotalSupplyOfShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getWSTokenManagementAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -390,6 +442,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "receiveERC20",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -434,6 +504,24 @@
       }
     ],
     "name": "requestWrappedSongRelease",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_distributorWallet",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "songURI",
+        "type": "string"
+      }
+    ],
+    "name": "requestWrappedSongReleaseWithMetadata",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -547,29 +635,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "transferShares",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       },
@@ -619,5 +684,9 @@
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

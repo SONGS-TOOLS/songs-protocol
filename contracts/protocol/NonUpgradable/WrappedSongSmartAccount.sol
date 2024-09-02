@@ -43,11 +43,23 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
       'Invalid protocol module address'
     );
 
-    newWSTokenManagement = new WSTokenManagement(address(this), msg.sender);
+    newWSTokenManagement = new WSTokenManagement(address(this), _owner);
 
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
 
+  }
+  /**
+   * @dev Requests the release of the wrapped song with a metadata update.
+   * @param _distributorWallet The address of the distributor wallet.
+   * @param songURI The new metadata URI for the song.
+   */
+  function requestWrappedSongReleaseWithMetadata(
+    address _distributorWallet,
+    string memory songURI
+  ) external onlyOwner {
+    updateMetadata(wrappedSongTokenId, songURI);
+    protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
   /**
@@ -69,7 +81,9 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function createsWrappedSongTokens(
     string memory songURI,
-    uint256 sharesAmount
+    uint256 sharesAmount,
+    string memory sharesURI,
+    address creator
   ) public returns (uint256 songId, uint256 newSongSharesId) {
     // require(sharesAmount == 10000, "Shares amount must be 10,000");
 
@@ -77,7 +91,9 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     wrappedSongTokenId = songId;
     newSongSharesId = newWSTokenManagement.createFungibleSongShares(
       songId,
-      sharesAmount
+      sharesAmount,
+      sharesURI,
+      creator
     );
     songSharesId = newSongSharesId; // Update the state variable
     return (songId, newSongSharesId);
@@ -106,11 +122,15 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function createFungibleSongShares(
     uint256 songId,
-    uint256 sharesAmount
+    uint256 sharesAmount,
+    string memory sharesURI,
+    address creator
   ) public onlyOwner returns (uint256 sharesId) {
     sharesId = newWSTokenManagement.createFungibleSongShares(
       songId,
-      sharesAmount
+      sharesAmount,
+      sharesURI,
+      creator
     );
     songSharesId = sharesId;
     return sharesId;
@@ -133,32 +153,6 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
       pricePerShare: pricePerShare,
       percentageForSale: percentage
     });
-  }
-
-  /**
-   * @dev Transfers shares to a recipient.
-   * @param sharesId The ID of the shares.
-   * @param amount The amount of shares to be transferred.
-   * @param recipient The address of the recipient.
-   */
-  function transferShares(
-    uint256 sharesId,
-    uint256 amount,
-    address recipient
-  ) public onlyOwner {
-    require(
-      newWSTokenManagement.balanceOf(address(this), sharesId) >= amount,
-      'Not enough shares to transfer'
-    );
-
-    // Transfer the shares from the SmartWallet to the recipient
-    newWSTokenManagement.safeTransferFrom(
-      address(this),
-      recipient,
-      sharesId,
-      amount,
-      ''
-    );
   }
 
   /**
@@ -194,7 +188,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     require(getTokenBalance(tokenId) >= amount, 'Insufficient token balance');
     // Perform the safe transfer
     newWSTokenManagement.safeTransferFrom(
-      address(this),
+      msg.sender,
       to,
       tokenId,
       amount,
@@ -203,29 +197,55 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   }
 
   /**
-   * @dev Batch transfers tokens to a recipient.
-   * @param tokenIds The IDs of the tokens.
-   * @param amounts The amounts of tokens to be transferred.
-   * @param to The address of the recipient.
+   * @dev Batch transfers shares to multiple recipients.
+   * @param sharesId The ID of the shares.
+   * @param amounts The amounts of shares to be transferred.
+   * @param recipients The addresses of the recipients.
    */
-  function batchTransferSongShares(
-    uint256[] memory tokenIds,
+  function batchTransferShares(
+    uint256 sharesId,
     uint256[] memory amounts,
-    address to
+    address[] memory recipients
   ) public onlyOwner {
-    // Ensure arrays are of the same length to prevent mismatch
+    require(amounts.length == recipients.length, 'Arrays must be the same length');
+    
+    uint256 totalAmount = 0;
+    for (uint256 i = 0; i < amounts.length; i++) {
+      totalAmount += amounts[i];
+    }
+    
     require(
-      tokenIds.length == amounts.length,
-      'Arrays must be the same length'
+      newWSTokenManagement.balanceOf(msg.sender, sharesId) >= totalAmount,
+      'Not enough shares to transfer'
     );
-    // Perform the safe batch transfer
-    newWSTokenManagement.safeBatchTransferFrom(
-      address(this),
-      to,
-      tokenIds,
-      amounts,
-      ''
-    );
+
+    // Perform individual transfers
+    for (uint256 i = 0; i < recipients.length; i++) {
+      newWSTokenManagement.safeTransferFrom(
+        msg.sender,
+        recipients[i],
+        sharesId,
+        amounts[i],
+        ''
+      );
+    }
+  }
+
+  /**
+   * @dev Returns the total supply of shares for a given song.
+   * @param id The ID of the shares token.
+   * @return The total supply of shares for the given ID.
+   */
+  function getTotalSupplyOfShares(uint256 id) public view returns (uint256) {
+    return newWSTokenManagement.totalSupply(id);
+  }
+
+  /**
+   * @dev Returns the address of the associated WSTokenManagement contract.
+   * @return The address of the newWSTokenManagement contract.
+   */
+  function getWSTokenManagementAddress() public view returns (address) {
+    return address(newWSTokenManagement);
   }
 
   /**
@@ -234,6 +254,22 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function canReceiveERC20() external pure returns (bool) {
     return true;
+  }
+
+  /**
+   * @dev Function to receive ERC20 tokens.
+   * @param token The address of the ERC20 token contract.
+   * @param amount The amount of tokens to be received.
+   */
+  function receiveERC20(address token, uint256 amount) external {
+    require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Transfer failed");
+  }
+
+  /**
+   * @dev Function to receive ETH.
+   */
+  receive() external payable {
+    // Custom logic can be added here if needed
   }
 
   function receiveEarnings(uint256 amount) external {
