@@ -47,8 +47,8 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
 
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
-
   }
+
   /**
    * @dev Requests the release of the wrapped song with a metadata update.
    * @param _distributorWallet The address of the distributor wallet.

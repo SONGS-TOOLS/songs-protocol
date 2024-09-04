@@ -103,8 +103,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
     string memory songURI,
     address smartWallet
   ) public onlyOwner returns (uint256 songId) {
-    _currentTokenId++;
-    songId = _currentTokenId;
+    // _currentTokenId++;
+    songId = 0;
     _mint(smartWallet, songId, 1, '');
     setTokenURI(songId, songURI);
     songToConceptNFT[songId] = songId;
@@ -134,8 +134,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
       'Shares already created for this song'
     );
 
-    _currentTokenId++;
-    sharesId = _currentTokenId;
+    // _currentTokenId++;
+    sharesId = 1;
     _mint(creator, sharesId, sharesAmount, '');
     setTokenURI(sharesId, sharesURI);
     songToFungibleShares[songId] = sharesId;

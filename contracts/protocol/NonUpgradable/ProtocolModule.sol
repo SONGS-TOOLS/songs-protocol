@@ -65,7 +65,7 @@ contract ProtocolModule is Ownable {
      * @param distributor The address of the distributor.
      */
     function requestWrappedSongRelease(address wrappedSong, address distributor) external {
-        require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can request release");
+        // require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can request release");
         require(wrappedSongToDistributor[wrappedSong] == address(0), "Wrapped song already released");
         require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Distributor does not exist"); // Check if distributor exists
         pendingDistributorRequests[wrappedSong] = distributor;
