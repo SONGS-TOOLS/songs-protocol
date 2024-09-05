@@ -99,9 +99,9 @@ async function main() {
       const createWrappedSongTx =
         await WrappedSongFactory.createWrappedSongWithMetadata(
           USDC_ADDRESS,
-          songURI,
+          songURI, // SONG URI
           sharesAmount,
-          songURI
+          songURI // SONG SHARES URI 
         );
       await createWrappedSongTx.wait();
 

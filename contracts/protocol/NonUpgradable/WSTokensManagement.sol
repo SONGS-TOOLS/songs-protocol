@@ -126,7 +126,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
     address creator
   ) public onlyOwner returns (uint256 sharesId) {
     require(
-      songToConceptNFT[songId] != 0,
+      songToConceptNFT[songId] == 0,
       "Invalid song ID, concept NFT doesn't exist"
     );
     require(
