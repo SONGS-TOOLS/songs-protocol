@@ -69,6 +69,11 @@ export default {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    baseSepolia: {
+      url: process.env.BASE_SEPOLIA || '',
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
     optimism: {
       url: process.env.OPTIMISM || '',
       accounts:
