@@ -1,8 +1,0 @@
-{
-  "base-sepolia": {
-    "ProtocolModule": {
-      "address": "0x4Bff1eFB3f49440CC311144802cd505B1Ad363fB",
-      "startBlock": 15103144
-    }
-  }
-}

@@ -1,10 +1,10 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: ProtocolModule
-    network: "base-sepolia"
+    network: base-sepolia
     source:
       address: "0xef6A4E5024C9f5Df6E7A0Ff03e444C83076e5F76"
       abi: ProtocolModule
@@ -19,7 +19,7 @@ dataSources:
         - Distributor
       abis:
         - name: ProtocolModule
-          file: ../artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
+          file: artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
       eventHandlers:
         - event: WrappedSongRequested(indexed address,indexed address,indexed address)
           handler: handleWrappedSongRequested
@@ -31,4 +31,4 @@ dataSources:
           handler: handleMetadataUpdateRequested
         - event: MetadataUpdateConfirmed(indexed address,indexed uint256)
           handler: handleMetadataUpdateConfirmed
-      file: ./src/protocol-module.ts
+      file: ProtocolModule/ProtocolModule.wasm

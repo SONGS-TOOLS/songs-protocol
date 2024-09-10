@@ -1,30 +1,31 @@
 import {
-    MetadataUpdateConfirmed,
-    MetadataUpdateRequested,
-    WrappedSongReleaseConfirmed,
-    WrappedSongReleaseRejected,
-    WrappedSongRequested
+    MetadataUpdateConfirmed as MetadataUpdateConfirmedEvent,
+    MetadataUpdateRequested as MetadataUpdateRequestedEvent,
+    WrappedSongReleaseConfirmed as WrappedSongReleaseConfirmedEvent,
+    WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
+    WrappedSongRequested as WrappedSongRequestedEvent
 } from "../generated/ProtocolModule/ProtocolModule"
 import { Distributor, MetadataUpdateRequest, WrappedSong } from "../generated/schema"
 
-export function handleWrappedSongRequested(event: WrappedSongRequested): void {
-  let wrappedSong = new WrappedSong(event.params.wrappedSong.toHexString())
-  wrappedSong.address = event.params.wrappedSong
-  wrappedSong.creator = event.params.creator
-  wrappedSong.distributor = event.params.distributor
-  wrappedSong.status = "Requested"
-  wrappedSong.createdAt = event.block.timestamp
-  wrappedSong.save()
-
-  let distributor = Distributor.load(event.params.distributor.toHexString())
+export function handleWrappedSongRequested(event: WrappedSongRequestedEvent): void {
+  let distributorId = event.params.distributor.toHexString()
+  let distributor = Distributor.load(distributorId)
   if (!distributor) {
-    distributor = new Distributor(event.params.distributor.toHexString())
+    distributor = new Distributor(distributorId)
     distributor.address = event.params.distributor
     distributor.save()
   }
+
+  let wrappedSong = new WrappedSong(event.params.wrappedSong.toHexString())
+  wrappedSong.address = event.params.wrappedSong
+  wrappedSong.creator = event.params.creator
+  wrappedSong.distributor = distributor.id
+  wrappedSong.status = "Requested"
+  wrappedSong.createdAt = event.block.timestamp
+  wrappedSong.save()
 }
 
-export function handleWrappedSongReleaseConfirmed(event: WrappedSongReleaseConfirmed): void {
+export function handleWrappedSongReleaseConfirmed(event: WrappedSongReleaseConfirmedEvent): void {
   let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
   if (wrappedSong) {
     wrappedSong.status = "Released"
@@ -33,7 +34,7 @@ export function handleWrappedSongReleaseConfirmed(event: WrappedSongReleaseConfi
   }
 }
 
-export function handleWrappedSongReleaseRejected(event: WrappedSongReleaseRejected): void {
+export function handleWrappedSongReleaseRejected(event: WrappedSongReleaseRejectedEvent): void {
   let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
   if (wrappedSong) {
     wrappedSong.status = "Rejected"
@@ -41,7 +42,7 @@ export function handleWrappedSongReleaseRejected(event: WrappedSongReleaseReject
   }
 }
 
-export function handleMetadataUpdateRequested(event: MetadataUpdateRequested): void {
+export function handleMetadataUpdateRequested(event: MetadataUpdateRequestedEvent): void {
   let id = event.params.wrappedSong.toHexString() + "-" + event.params.tokenId.toString()
   let metadataUpdateRequest = new MetadataUpdateRequest(id)
   metadataUpdateRequest.wrappedSong = event.params.wrappedSong.toHexString()
@@ -52,7 +53,7 @@ export function handleMetadataUpdateRequested(event: MetadataUpdateRequested): v
   metadataUpdateRequest.save()
 }
 
-export function handleMetadataUpdateConfirmed(event: MetadataUpdateConfirmed): void {
+export function handleMetadataUpdateConfirmed(event: MetadataUpdateConfirmedEvent): void {
   let id = event.params.wrappedSong.toHexString() + "-" + event.params.tokenId.toString()
   let metadataUpdateRequest = MetadataUpdateRequest.load(id)
   if (metadataUpdateRequest) {

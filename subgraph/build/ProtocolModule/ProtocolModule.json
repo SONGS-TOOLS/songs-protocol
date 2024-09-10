@@ -17,14 +17,22 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
     ],
     "name": "OwnableInvalidOwner",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "OwnableUnauthorizedAccount",
     "type": "error"
@@ -233,8 +241,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "string", "name": "iscc", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "iscc",
+        "type": "string"
+      }
     ],
     "name": "addISCC",
     "outputs": [],
@@ -243,8 +259,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "string", "name": "isrc", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "isrc",
+        "type": "string"
+      }
     ],
     "name": "addISRC",
     "outputs": [],
@@ -253,8 +277,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "string", "name": "iswc", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "iswc",
+        "type": "string"
+      }
     ],
     "name": "addISWC",
     "outputs": [],
@@ -263,8 +295,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "string", "name": "upc", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "upc",
+        "type": "string"
+      }
     ],
     "name": "addUPC",
     "outputs": [],
@@ -273,8 +313,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
     ],
     "name": "clearPendingMetadataUpdate",
     "outputs": [],
@@ -283,8 +331,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
     ],
     "name": "confirmUpdateMetadata",
     "outputs": [],
@@ -293,7 +349,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "confirmWrappedSongRelease",
     "outputs": [],
@@ -315,135 +375,309 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "getPendingDistributorRequests",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
     ],
     "name": "getPendingMetadataUpdate",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "getWrappedSongDistributor",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "isAuthentic",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
     ],
     "name": "isMetadataUpdateConfirmed",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "isReleased",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "creator", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      }
     ],
     "name": "isValidToCreateWrappedSong",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "isccRegistry",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "isrcRegistry",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "iswcRegistry",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isccRegistry",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isrcRegistry",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "iswcRegistry",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
     "name": "metadataUpdateConfirmed",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "paused",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "pendingDistributorRequests",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "pendingDistributorRequests",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
     "name": "pendingMetadataUpdates",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
     ],
     "name": "rejectUpdateMetadata",
     "outputs": [],
@@ -452,7 +686,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "rejectWrappedSongRelease",
     "outputs": [],
@@ -462,13 +700,23 @@
   {
     "inputs": [],
     "name": "releaseFee",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
     ],
     "name": "removeWrappedSongReleaseRequest",
     "outputs": [],
@@ -484,9 +732,21 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-      { "internalType": "string", "name": "newMetadata", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "newMetadata",
+        "type": "string"
+      }
     ],
     "name": "requestUpdateMetadata",
     "outputs": [],
@@ -495,8 +755,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "address", "name": "distributor", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "distributor",
+        "type": "address"
+      }
     ],
     "name": "requestWrappedSongRelease",
     "outputs": [],
@@ -504,7 +772,13 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bool", "name": "_paused", "type": "bool" }],
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_paused",
+        "type": "bool"
+      }
+    ],
     "name": "setPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -512,7 +786,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_fee", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
     ],
     "name": "setReleaseFee",
     "outputs": [],
@@ -534,8 +812,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "wrappedSong", "type": "address" },
-      { "internalType": "bool", "name": "isAuthentic", "type": "bool" }
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      }
     ],
     "name": "setWrappedSongAuthenticity",
     "outputs": [],
@@ -544,7 +830,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_fee", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
     ],
     "name": "setWrappedSongCreationFee",
     "outputs": [],
@@ -553,7 +843,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -561,15 +855,31 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "upcRegistry",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_newFactory", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "_newFactory",
+        "type": "address"
+      }
     ],
     "name": "updateDistributorWalletFactory",
     "outputs": [],
@@ -590,23 +900,53 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "wrappedSongAuthenticity",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "wrappedSongCreationFee",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "wrappedSongToDistributor",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }
