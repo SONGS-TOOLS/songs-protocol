@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import '@openzeppelin/contracts/access/Ownable.sol';
+import "hardhat/console.sol";
 
 contract WSTokenManagement is ERC1155Supply, Ownable {
   uint256 private _currentTokenId;
@@ -81,7 +82,11 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
    * @param tokenURI The URI to be set for the token.
    */
   function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
+    console.log("WSTokenManagement: setTokenURI called");
+    console.log("tokenId:", tokenId);
+    console.log("new tokenURI:", tokenURI);
     _tokenURIs[tokenId] = tokenURI;
+    console.log("TokenURI updated successfully");
   }
 
   /**
@@ -90,6 +95,9 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
    * @return The URI of the specified token.
    */
   function uri(uint256 tokenId) public view override returns (string memory) {
+    console.log("WSTokenManagement: uri called");
+    console.log("tokenId:", tokenId);
+    console.log("Returning URI:", _tokenURIs[tokenId]);
     return _tokenURIs[tokenId];
   }
 

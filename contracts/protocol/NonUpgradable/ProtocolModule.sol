@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
+import "hardhat/console.sol";
 
 
 contract ProtocolModule is Ownable {
@@ -116,7 +117,13 @@ contract ProtocolModule is Ownable {
      * @return The address of the distributor.
      */
     function getWrappedSongDistributor(address wrappedSong) external view returns (address) {
-        return wrappedSongToDistributor[wrappedSong];
+        console.log("ProtocolModule: getWrappedSongDistributor called");
+        console.log("wrappedSong:", wrappedSong);
+
+        address distributor = wrappedSongToDistributor[wrappedSong];
+        console.log("Distributor:", distributor);
+        
+        return distributor;
     }
 
     /**
@@ -216,14 +223,26 @@ contract ProtocolModule is Ownable {
      * @param tokenId The ID of the token to update.
      */
     function confirmUpdateMetadata(address wrappedSong, uint256 tokenId) external {
+        console.log("ProtocolModule: confirmUpdateMetadata called");
+        console.log("wrappedSong:", wrappedSong);
+        console.log("tokenId:", tokenId);
+
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can confirm metadata update");
+        console.log("Distributor verified");
+
         require(bytes(pendingMetadataUpdates[wrappedSong][tokenId]).length > 0, "No pending metadata update");
+        console.log("Pending metadata update found");
+
         metadataUpdateConfirmed[wrappedSong][tokenId] = true;
+        console.log("Metadata update confirmed");
         
         // Call the WrappedSongSmartAccount to update the metadata
+        console.log("Calling WrappedSongSmartAccount to execute confirmed update");
         IWrappedSongSmartAccount(wrappedSong).executeConfirmedMetadataUpdate(tokenId);
         
+        console.log("Metadata update executed");
         emit MetadataUpdateConfirmed(wrappedSong, tokenId);
+        console.log("MetadataUpdateConfirmed event emitted");
     }
 
     /**
@@ -244,6 +263,10 @@ contract ProtocolModule is Ownable {
      * @return The pending metadata update.
      */
     function getPendingMetadataUpdate(address wrappedSong, uint256 tokenId) external view returns (string memory) {
+        console.log("ProtocolModule: getPendingMetadataUpdate called");
+        console.log("wrappedSong:", wrappedSong);
+        console.log("tokenId:", tokenId);
+        console.log("Pending metadata:", pendingMetadataUpdates[wrappedSong][tokenId]);
         return pendingMetadataUpdates[wrappedSong][tokenId];
     }
 
@@ -254,6 +277,10 @@ contract ProtocolModule is Ownable {
      * @return True if the metadata update is confirmed, false otherwise.
      */
     function isMetadataUpdateConfirmed(address wrappedSong, uint256 tokenId) external view returns (bool) {
+        console.log("ProtocolModule: isMetadataUpdateConfirmed called");
+        console.log("wrappedSong:", wrappedSong);
+        console.log("tokenId:", tokenId);
+        console.log("Is confirmed:", metadataUpdateConfirmed[wrappedSong][tokenId]);
         return metadataUpdateConfirmed[wrappedSong][tokenId];
     }
 
@@ -291,5 +318,16 @@ contract ProtocolModule is Ownable {
      */
     function isValidToCreateWrappedSong(address creator) external view returns (bool) {
         return whitelistingManager.isValidToCreateWrappedSong(creator);
+    }
+
+    // Add this new function
+    function clearPendingMetadataUpdate(address wrappedSong, uint256 tokenId) external {
+        console.log("ProtocolModule: clearPendingMetadataUpdate called");
+        console.log("wrappedSong:", wrappedSong);
+        console.log("tokenId:", tokenId);
+        require(msg.sender == wrappedSong, "Only WrappedSongSmartAccount can clear pending updates");
+        delete pendingMetadataUpdates[wrappedSong][tokenId];
+        delete metadataUpdateConfirmed[wrappedSong][tokenId];
+        console.log("Pending metadata update cleared");
     }
 }

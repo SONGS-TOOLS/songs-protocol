@@ -7,6 +7,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
+import "hardhat/console.sol";
 
 contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   WSTokenManagement public newWSTokenManagement;
@@ -361,14 +362,25 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to update.
    */
   function executeConfirmedMetadataUpdate(uint256 tokenId) external {
+    console.log("WrappedSongSmartAccount: executeConfirmedMetadataUpdate called");
+    console.log("tokenId:", tokenId);
+
     require(msg.sender == address(protocolModule), "Only ProtocolModule can execute confirmed updates");
+    console.log("Caller verified as ProtocolModule");
+
     require(protocolModule.isMetadataUpdateConfirmed(address(this), tokenId), "Metadata update not confirmed");
+    console.log("Metadata update confirmed");
     
     string memory newMetadata = protocolModule.getPendingMetadataUpdate(address(this), tokenId);
+    console.log("New metadata:", newMetadata);
+
+    console.log("Updating metadata in WSTokenManagement");
     newWSTokenManagement.setTokenURI(tokenId, newMetadata);
     
-    // Clear the pending update in the ProtocolModule
+    console.log("Clearing pending update in ProtocolModule");
     protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
+    
+    console.log("Metadata update executed successfully");
   }
 
   // New function to check authenticity
