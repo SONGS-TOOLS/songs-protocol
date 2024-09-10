@@ -81,13 +81,14 @@ async function main() {
   console.log('...');
   
   const songURIs = [
-    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
-    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
-    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
-    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
-    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
-    `https://nftstorage.link/ipfs/bafkreibhvbqnsxahxqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm`,
-  ];
+    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmYokwEwRiSHtfukgtZ5LTBSnTQfp1JALYXhK7uASk9Y88",
+    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv",
+    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmXmNYqFmqCseAE2PLoK9is4A68Vg8QGFy1Se3kL94xYf7",
+    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmbEyaQCsc1ggzzAKLwHqspBCjUCbpKrXkSmDL8SLtd7xH",
+    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv",
+    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmRMwtdxLkkAVtKanXNv9sPrF8ycfAakxUGnfvHAREkSHv"
+  ]
+
   const sharesAmount = 10000; // Example shares amount
 
   for (let i = 0; i < songURIs.length; i++) {
@@ -229,58 +230,58 @@ async function main() {
   const newMetadata2 =
     'https://nftstorage.link/ipfs/bafkreihdwdcef7z7xqcn2cvkfi3e6lahqx3elgkquvkpvwvxodvirrqnhm';
 
-  for (let i = 0; i < newWrappedSongs.length; i++) {
-    // SELECT THE WRAPPED SONG ACCOUNT
-    const wrappedSongAddress = newWrappedSongs[i];
-    const WrappedSongSmartAccount = await ethers.getContractAt(
-      'WrappedSongSmartAccount',
-      wrappedSongAddress
-    );
-    try {
-      // Request metadata update
-      const requestUpdateTx1 =
-        await WrappedSongSmartAccount.requestUpdateMetadata(
-          1, // TOKEN ID TARGETS THE RELEASE NFT , tokenId 2 is the SONGSHARES NFTs
-          newMetadata1
-        );
-      await requestUpdateTx1.wait();
-      console.log(
-        `Metadata update requested for Wrapped Song ${i + 2} at:`,
-        wrappedSongAddress
-      );
+  // for (let i = 0; i < newWrappedSongs.length; i++) {
+  //   // SELECT THE WRAPPED SONG ACCOUNT
+  //   const wrappedSongAddress = newWrappedSongs[i];
+  //   const WrappedSongSmartAccount = await ethers.getContractAt(
+  //     'WrappedSongSmartAccount',
+  //     wrappedSongAddress
+  //   );
+  //   try {
+  //     // Request metadata update
+  //     const requestUpdateTx1 =
+  //       await WrappedSongSmartAccount.requestUpdateMetadata(
+  //         0, // TOKEN ID TARGETS THE RELEASE NFT , tokenId 2 is the SONGSHARES NFTs
+  //         newMetadata1
+  //       );
+  //     await requestUpdateTx1.wait();
+  //     console.log(
+  //       `Metadata update requested for Wrapped Song ${i + 2} at:`,
+  //       wrappedSongAddress
+  //     );
 
-      // Confirm or reject metadata updates
-      if (i === 0) {
-        // Reject the first metadata update
-        const rejectUpdateTx = await DistributorWallet.rejectUpdateMetadata(
-          wrappedSongAddress,
-          1 // TOKEN ID TARGETS THE RELEASE NFT , tokenId 2 is the SONGSHARES NFTs
-        );
-        await rejectUpdateTx.wait();
-        console.log(
-          `Metadata update rejected for Wrapped Song ${i + 2} at:`,
-          wrappedSongAddress
-        );
+  //     // Confirm or reject metadata updates
+  //     if (i === 0) {
+  //       // Reject the first metadata update
+  //       const rejectUpdateTx = await DistributorWallet.rejectUpdateMetadata(
+  //         wrappedSongAddress,
+  //         0 // TOKEN ID TARGETS THE RELEASE NFT , tokenId 2 is the SONGSHARES NFTs
+  //       );
+  //       await rejectUpdateTx.wait();
+  //       console.log(
+  //         `Metadata update rejected for Wrapped Song ${i + 2} at:`,
+  //         wrappedSongAddress
+  //       );
 
-      } else {
-        // Confirm both metadata updates for the second new Wrapped Song
-        const confirmUpdateTx1 = await DistributorWallet.confirmUpdateMetadata(
-          wrappedSongAddress,
-          1
-        );
-        await confirmUpdateTx1.wait();
-        console.log(
-          `Metadata update confirmed for Wrapped Song ${i + 2} at:`,
-          wrappedSongAddress
-        );
-      }
-    } catch (error) {
-      console.error(
-        `Failed to handle metadata updates for Wrapped Song ${i + 2}:`,
-        error
-      );
-    }
-  }
+  //     } else {
+  //       // Confirm both metadata updates for the second new Wrapped Song
+  //       const confirmUpdateTx1 = await DistributorWallet.confirmUpdateMetadata(
+  //         wrappedSongAddress,
+  //         0
+  //       );
+  //       await confirmUpdateTx1.wait();
+  //       console.log(
+  //         `Metadata update confirmed for Wrapped Song ${i + 2} at:`,
+  //         wrappedSongAddress
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       `Failed to handle metadata updates for Wrapped Song ${i + 2}:`,
+  //       error
+  //     );
+  //   }
+  // }
 }
 
 main()
