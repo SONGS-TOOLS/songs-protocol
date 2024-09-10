@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
+import "./../Interfaces/IWrappedSongSmartAccount.sol";
+
 
 contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
@@ -217,6 +219,10 @@ contract ProtocolModule is Ownable {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can confirm metadata update");
         require(bytes(pendingMetadataUpdates[wrappedSong][tokenId]).length > 0, "No pending metadata update");
         metadataUpdateConfirmed[wrappedSong][tokenId] = true;
+        
+        // Call the WrappedSongSmartAccount to update the metadata
+        IWrappedSongSmartAccount(wrappedSong).executeConfirmedMetadataUpdate(tokenId);
+        
         emit MetadataUpdateConfirmed(wrappedSong, tokenId);
     }
 

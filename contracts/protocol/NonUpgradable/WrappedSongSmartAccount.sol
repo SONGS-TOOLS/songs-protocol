@@ -360,11 +360,14 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @dev Executes the confirmed metadata update.
    * @param tokenId The ID of the token to update.
    */
-  function executeConfirmedMetadataUpdate(uint256 tokenId) public onlyOwner {
-    require(protocolModule.isReleased(address(this)), "Song not released, update metadata directly");
+  function executeConfirmedMetadataUpdate(uint256 tokenId) external {
+    require(msg.sender == address(protocolModule), "Only ProtocolModule can execute confirmed updates");
     require(protocolModule.isMetadataUpdateConfirmed(address(this), tokenId), "Metadata update not confirmed");
+    
     string memory newMetadata = protocolModule.getPendingMetadataUpdate(address(this), tokenId);
     newWSTokenManagement.setTokenURI(tokenId, newMetadata);
+    
+    // Clear the pending update in the ProtocolModule
     protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
   }
 
