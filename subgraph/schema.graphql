@@ -1,0 +1,28 @@
+type WrappedSong @entity {
+  id: ID!
+  address: Bytes!
+  creator: Bytes!
+  distributor: Distributor
+  status: String!
+  createdAt: BigInt!
+  releasedAt: BigInt
+  metadata: String
+  newMetadata: String
+}
+
+type MetadataUpdateRequest @entity {
+  id: ID!
+  wrappedSong: WrappedSong!
+  tokenId: BigInt!
+  newMetadata: String!
+  status: String!
+  createdAt: BigInt!
+  confirmedAt: BigInt
+}
+
+type Distributor @entity {
+  id: ID!
+  address: Bytes!
+  requestedWrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
+  releasedWrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
+}

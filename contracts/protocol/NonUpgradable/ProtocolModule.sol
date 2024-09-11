@@ -36,6 +36,11 @@ contract ProtocolModule is Ownable {
     event MetadataUpdated(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
     event Paused(bool isPaused); // Add event for pausing
 
+    // Add new events
+    event WrappedSongRequested(address indexed wrappedSong, address indexed distributor, address indexed creator);
+    event WrappedSongReleaseConfirmed(address indexed wrappedSong, address indexed distributor);
+    event WrappedSongReleaseRejected(address indexed wrappedSong, address indexed distributor);
+
     /**
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
@@ -73,6 +78,7 @@ contract ProtocolModule is Ownable {
         require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Distributor does not exist"); // Check if distributor exists
         pendingDistributorRequests[wrappedSong] = distributor;
         emit WrappedSongReleaseRequested(wrappedSong, distributor);
+        emit WrappedSongRequested(wrappedSong, distributor, msg.sender);
     }
 
     /**
@@ -98,6 +104,7 @@ contract ProtocolModule is Ownable {
         wrappedSongToDistributor[wrappedSong] = distributor;
         delete pendingDistributorRequests[wrappedSong];
         emit WrappedSongReleased(wrappedSong, distributor);
+        emit WrappedSongReleaseConfirmed(wrappedSong, distributor);
     }
 
     /**
@@ -109,6 +116,7 @@ contract ProtocolModule is Ownable {
         require(distributor != address(0), "No pending release request");
         require(distributorWalletFactory.checkIsDistributorWallet(msg.sender), "Distributor does not exist");
         delete pendingDistributorRequests[wrappedSong];
+        emit WrappedSongReleaseRejected(wrappedSong, distributor);
     }
 
     /**

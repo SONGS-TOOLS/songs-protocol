@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, { writeFileSync } from 'fs';
 import { artifacts, ethers, network } from 'hardhat';
 import path from 'path';
 
@@ -86,6 +86,22 @@ async function main() {
   await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
+
+  // After deploying ProtocolModule
+  const protocolModuleAddress = await protocolModule.getAddress();
+  const deploymentBlockNumber = await ethers.provider.getBlockNumber();
+
+  // Save deployment info for subgraph
+  const subgraphDeployInfo = {
+    networkName: networkName,
+    chainId: network.config.chainId,
+    protocolModuleAddress: protocolModuleAddress,
+    startBlock: deploymentBlockNumber
+  };
+
+  const subgraphDeployInfoPath = path.join(__dirname, '..', 'subgraph', 'deployment-info.json');
+  writeFileSync(subgraphDeployInfoPath, JSON.stringify(subgraphDeployInfo, null, 2));
+  console.log(`Subgraph deployment info saved to ${subgraphDeployInfoPath}`);
 
   /* ////////////////////////////////////////////
   ////////  WrappedSongFactory contract  ////////

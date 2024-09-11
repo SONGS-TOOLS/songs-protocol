@@ -1,0 +1,36 @@
+specVersion: 0.0.5
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ProtocolModule
+    network: base-sepolia
+    source:
+      address: "0xef6A4E5024C9f5Df6E7A0Ff03e444C83076e5F76"
+      abi: ProtocolModule
+      startBlock: 15105649
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - WrappedSong
+        - MetadataUpdateRequest
+        - Distributor
+      abis:
+        - name: ProtocolModule
+          file: artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
+        - name: WrappedSongSmartAccount
+          file: artifacts/contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol/WrappedSongSmartAccount.json
+      eventHandlers:
+        - event: WrappedSongRequested(indexed address,indexed address,indexed address)
+          handler: handleWrappedSongRequested
+        - event: WrappedSongReleaseConfirmed(indexed address,indexed address)
+          handler: handleWrappedSongReleaseConfirmed
+        - event: WrappedSongReleaseRejected(indexed address,indexed address)
+          handler: handleWrappedSongReleaseRejected
+        - event: MetadataUpdateRequested(indexed address,indexed uint256,string)
+          handler: handleMetadataUpdateRequested
+        - event: MetadataUpdateConfirmed(indexed address,indexed uint256)
+          handler: handleMetadataUpdateConfirmed
+      file: ProtocolModule/ProtocolModule.wasm
