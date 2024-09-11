@@ -6,6 +6,8 @@ type WrappedSong @entity {
   status: String!
   createdAt: BigInt!
   releasedAt: BigInt
+  metadata: String
+  newMetadata: String
 }
 
 type MetadataUpdateRequest @entity {

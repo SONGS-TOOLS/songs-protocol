@@ -20,6 +20,8 @@ dataSources:
       abis:
         - name: ProtocolModule
           file: ../artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
+        - name: WrappedSongSmartAccount
+          file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol/WrappedSongSmartAccount.json
       eventHandlers:
         - event: WrappedSongRequested(indexed address,indexed address,indexed address)
           handler: handleWrappedSongRequested

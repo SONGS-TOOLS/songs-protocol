@@ -137,6 +137,40 @@ export class WrappedSong extends Entity {
       this.set("releasedAt", Value.fromBigInt(<BigInt>value));
     }
   }
+
+  get metadata(): string | null {
+    let value = this.get("metadata");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set metadata(value: string | null) {
+    if (!value) {
+      this.unset("metadata");
+    } else {
+      this.set("metadata", Value.fromString(<string>value));
+    }
+  }
+
+  get newMetadata(): string | null {
+    let value = this.get("newMetadata");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set newMetadata(value: string | null) {
+    if (!value) {
+      this.unset("newMetadata");
+    } else {
+      this.set("newMetadata", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class MetadataUpdateRequest extends Entity {
