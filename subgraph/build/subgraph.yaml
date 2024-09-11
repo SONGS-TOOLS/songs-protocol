@@ -6,9 +6,9 @@ dataSources:
     name: ProtocolModule
     network: base-sepolia
     source:
-      address: "0xef6A4E5024C9f5Df6E7A0Ff03e444C83076e5F76"
+      address: "0x1Dc815A4Fd95DA2d28D3814F8C554d79212E7c79"
       abi: ProtocolModule
-      startBlock: 15105649
+      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -34,3 +34,23 @@ dataSources:
         - event: MetadataUpdateConfirmed(indexed address,indexed uint256)
           handler: handleMetadataUpdateConfirmed
       file: ProtocolModule/ProtocolModule.wasm
+  - kind: ethereum
+    name: WrappedSongFactory
+    network: base-sepolia
+    source:
+      address: "0x92F5BB26B7c050D23C47BdBDd112b608aCfFB0A3"
+      abi: WrappedSongFactory
+      startBlock: 15149755
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - WrappedSong
+      abis:
+        - name: WrappedSongFactory
+          file: artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
+      eventHandlers:
+        - event: WrappedSongCreated(indexed address,address)
+          handler: handleWrappedSongCreated
+      file: WrappedSongFactory/WrappedSongFactory.wasm

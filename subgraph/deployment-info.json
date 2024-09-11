@@ -1,5 +1,6 @@
 {
-  "networkName": "localhost",
-  "protocolModuleAddress": "0x7580708993de7CA120E957A62f26A5dDD4b3D8aC",
-  "startBlock": 12885
+  "networkName": "baseSepolia",
+  "protocolModuleAddress": "0x1Dc815A4Fd95DA2d28D3814F8C554d79212E7c79",
+  "wrappedSongFactoryAddress": "0x92F5BB26B7c050D23C47BdBDd112b608aCfFB0A3",
+  "startBlock": 15149755
 }

@@ -14,7 +14,8 @@ function updateSubgraphConfig() {
   // Replace placeholders
   subgraphYaml = subgraphYaml.replace('{{networkName}}', 'base-sepolia');
   subgraphYaml = subgraphYaml.replace('{{protocolModuleAddress}}', deployInfo.protocolModuleAddress);
-  subgraphYaml = subgraphYaml.replace('{{startBlock}}', deployInfo.startBlock.toString());
+  subgraphYaml = subgraphYaml.replace('{{wrappedSongFactoryAddress}}', deployInfo.wrappedSongFactoryAddress);
+  subgraphYaml = subgraphYaml.replace(/{{startBlock}}/g, deployInfo.startBlock.toString());
 
   // Write updated subgraph.yaml
   writeFileSync(subgraphYamlPath, subgraphYaml);
