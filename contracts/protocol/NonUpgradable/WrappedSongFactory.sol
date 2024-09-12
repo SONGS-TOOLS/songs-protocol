@@ -11,7 +11,16 @@ contract WrappedSongFactory {
 
   event WrappedSongCreated(
     address indexed owner,
-    address wrappedSongSmartAccount
+    address wrappedSongSmartAccount,
+    address stablecoin
+  );
+
+  event WrappedSongCreatedWithMetadata(
+    address indexed owner,
+    address wrappedSongSmartAccount,
+    string songURI,
+    uint256 sharesAmount,
+    string sharesURI
   );
 
   constructor(address _protocolModule) {
@@ -40,7 +49,7 @@ contract WrappedSongFactory {
 
     ownerWrappedSongs[msg.sender].push(address(newWrappedSongSmartAccount));
 
-    emit WrappedSongCreated(msg.sender, address(newWrappedSongSmartAccount));
+    emit WrappedSongCreated(msg.sender, address(newWrappedSongSmartAccount), _stablecoin);
 
     return address(newWrappedSongSmartAccount);
   }
@@ -66,6 +75,14 @@ contract WrappedSongFactory {
       payable(newWrappedSongSmartAccount)
     );
     wrappedSong.createsWrappedSongTokens(songURI, sharesAmount, sharesURI, msg.sender);
+
+    emit WrappedSongCreatedWithMetadata(
+      msg.sender,
+      newWrappedSongSmartAccount,
+      songURI,
+      sharesAmount,
+      sharesURI
+    );
   }
 
   /**

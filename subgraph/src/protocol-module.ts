@@ -1,15 +1,23 @@
-import { BigInt, store } from "@graphprotocol/graph-ts"
+import { BigInt, json, JSONValue, JSONValueKind, TypedMap } from "@graphprotocol/graph-ts"
 import {
-    MetadataUpdateConfirmed as MetadataUpdateConfirmedEvent,
-    MetadataUpdateRequested as MetadataUpdateRequestedEvent,
-    WrappedSongReleaseConfirmed as WrappedSongReleaseConfirmedEvent,
-    WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
-    WrappedSongRequested as WrappedSongRequestedEvent
+  DistributorAcceptedReview as DistributorAcceptedReviewEvent,
+  MetadataUpdated as MetadataUpdateConfirmedEvent,
+  MetadataUpdateRequested as MetadataUpdateRequestedEvent,
+  ReviewPeriodExpired as ReviewPeriodExpiredEvent,
+  WrappedSongReleased as WrappedSongReleasedEvent,
+  WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
+  WrappedSongReleaseRequested as WrappedSongRequestedEvent
 } from "../generated/ProtocolModule/ProtocolModule"
-import { WrappedSongSmartAccount } from "../generated/ProtocolModule/WrappedSongSmartAccount"
-import { Distributor, MetadataUpdateRequest, WrappedSong } from "../generated/schema"
+import { Distributor, Metadata, MetadataUpdateRequest, ReleaseRequest, WrappedSong } from "../generated/schema"
 
-export function handleWrappedSongRequested(event: WrappedSongRequestedEvent): void {
+export function handleWrappedSongReleaseRequested(event: WrappedSongRequestedEvent): void {
+  let wrappedSong = new WrappedSong(event.params.wrappedSong.toHexString())
+  wrappedSong.creator = event.params.creator
+  wrappedSong.status = "Requested"
+  wrappedSong.address = event.params.wrappedSong
+  wrappedSong.pendingDistributor = event.params.distributor
+  wrappedSong.save()
+
   let distributorId = event.params.distributor.toHexString()
   let distributor = Distributor.load(distributorId)
   if (!distributor) {
@@ -18,76 +26,156 @@ export function handleWrappedSongRequested(event: WrappedSongRequestedEvent): vo
     distributor.save()
   }
 
-  let wrappedSongId = event.params.wrappedSong.toHexString()
-  let wrappedSong = new WrappedSong(wrappedSongId)
-  wrappedSong.address = event.params.wrappedSong
-  wrappedSong.creator = event.params.creator
-  wrappedSong.distributor = distributor.id
-  wrappedSong.status = "Requested"
-  wrappedSong.createdAt = event.block.timestamp
-
-  // Fetch metadata from WrappedSongSmartAccount
-  let wrappedSongContract = WrappedSongSmartAccount.bind(event.params.wrappedSong)
-  let metadataResult = wrappedSongContract.try_getWrappedSongMetadata(BigInt.fromI32(0)) // Using tokenId 0
-  if (!metadataResult.reverted) {
-    wrappedSong.metadata = metadataResult.value
-  }
-
-  wrappedSong.save()
+  let releaseRequestId = event.params.wrappedSong.toHexString() + "-" + distributorId
+  let releaseRequest = new ReleaseRequest(releaseRequestId)
+  releaseRequest.wrappedSong = wrappedSong.id
+  releaseRequest.distributor = distributorId
+  releaseRequest.status = "Pending"
+  releaseRequest.createdAt = event.block.timestamp
+  releaseRequest.save()
 }
 
-export function handleWrappedSongReleaseConfirmed(event: WrappedSongReleaseConfirmedEvent): void {
+export function handleWrappedSongReleased(event: WrappedSongReleasedEvent): void {
   let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
   if (wrappedSong) {
+    let distributorId = event.params.distributor.toHexString()
+    let distributor = Distributor.load(distributorId)
+    if (!distributor) {
+      distributor = new Distributor(distributorId)
+      distributor.address = event.params.distributor
+      distributor.save()
+    }
+    wrappedSong.distributor = distributorId
     wrappedSong.status = "Released"
     wrappedSong.releasedAt = event.block.timestamp
+    wrappedSong.pendingDistributor = null
     wrappedSong.save()
+
+    let releaseRequestId = wrappedSong.id + "-" + distributorId
+    let releaseRequest = ReleaseRequest.load(releaseRequestId)
+    if (releaseRequest) {
+      releaseRequest.status = "Released"
+      releaseRequest.confirmedAt = event.block.timestamp
+      releaseRequest.save()
+    }
+  }
+}
+
+export function handleMetadataUpdateRequested(event: MetadataUpdateRequestedEvent): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
+  if (wrappedSong) {
+    let distributorId = wrappedSong.distributor
+    if (distributorId) {
+      let metadataUpdateRequestId = event.params.wrappedSong.toHexString() + "-" + event.params.tokenId.toString()
+      let metadataUpdateRequest = new MetadataUpdateRequest(metadataUpdateRequestId)
+      metadataUpdateRequest.wrappedSong = wrappedSong.id
+      metadataUpdateRequest.distributor = distributorId
+      metadataUpdateRequest.tokenId = event.params.tokenId
+      
+      let newMetadataId = metadataUpdateRequestId + "-newMetadata"
+      let newMetadata = new Metadata(newMetadataId)
+      
+      let parsedMetadata = parseMetadata(event.params.newMetadata)
+      if (parsedMetadata) {
+        newMetadata.songURI = parsedMetadata.get("songURI")!.toString()
+        newMetadata.sharesAmount = BigInt.fromString(parsedMetadata.get("sharesAmount")!.toString())
+        newMetadata.sharesURI = parsedMetadata.get("sharesURI")!.toString()
+        newMetadata.save()
+      
+        metadataUpdateRequest.newMetadata = newMetadataId
+        metadataUpdateRequest.status = "Pending"
+        metadataUpdateRequest.createdAt = event.block.timestamp
+        metadataUpdateRequest.save()
+
+        wrappedSong.pendingMetadataUpdate = metadataUpdateRequest.id
+        wrappedSong.save()
+      }
+    }
+  }
+}
+
+export function handleMetadataUpdated(event: MetadataUpdateConfirmedEvent): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
+  if (wrappedSong) {
+    let pendingUpdateId = wrappedSong.pendingMetadataUpdate
+    if (pendingUpdateId) {
+      let metadataUpdateRequest = MetadataUpdateRequest.load(pendingUpdateId)
+      if (metadataUpdateRequest) {
+        metadataUpdateRequest.status = "Confirmed"
+        metadataUpdateRequest.confirmedAt = event.block.timestamp
+        metadataUpdateRequest.save()
+
+        if (metadataUpdateRequest.newMetadata) {
+          wrappedSong.metadata = metadataUpdateRequest.newMetadata
+        }
+        wrappedSong.pendingMetadataUpdate = null
+        wrappedSong.save()
+      }
+    }
+  }
+}
+
+export function handleDistributorAcceptedReview(event: DistributorAcceptedReviewEvent): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
+  if (wrappedSong) {
+    wrappedSong.status = "InReview"
+    wrappedSong.reviewStartedAt = event.block.timestamp
+    wrappedSong.reviewEndTime = event.block.timestamp.plus(BigInt.fromI32(7 * 86400)) // Assuming 7 days review period
+    wrappedSong.reviewingDistributor = event.params.distributor
+    wrappedSong.save()
+
+    let releaseRequestId = event.params.wrappedSong.toHexString() + "-" + event.params.distributor.toHexString()
+    let releaseRequest = ReleaseRequest.load(releaseRequestId)
+    if (releaseRequest) {
+      releaseRequest.status = "InReview"
+      releaseRequest.reviewStartedAt = event.block.timestamp
+      releaseRequest.save()
+    }
+  }
+}
+
+export function handleReviewPeriodExpired(event: ReviewPeriodExpiredEvent): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
+  if (wrappedSong) {
+    wrappedSong.status = "Requested"
+    wrappedSong.reviewStartedAt = null
+    wrappedSong.reviewEndTime = null
+    wrappedSong.reviewingDistributor = null
+    wrappedSong.save()
+
+    let releaseRequestId = wrappedSong.id + "-" + event.params.distributor.toHexString()
+    let releaseRequest = ReleaseRequest.load(releaseRequestId)
+    if (releaseRequest) {
+      releaseRequest.status = "Pending"
+      releaseRequest.save()
+    }
   }
 }
 
 export function handleWrappedSongReleaseRejected(event: WrappedSongReleaseRejectedEvent): void {
   let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
   if (wrappedSong) {
-    wrappedSong.status = "Rejected"
+    wrappedSong.status = "Requested"
+    wrappedSong.reviewStartedAt = null
+    wrappedSong.reviewEndTime = null
+    wrappedSong.reviewingDistributor = null
     wrappedSong.save()
-  }
-}
 
-export function handleMetadataUpdateRequested(event: MetadataUpdateRequestedEvent): void {
-  let id = event.params.wrappedSong.toHexString() + "-" + event.params.tokenId.toString()
-  let metadataUpdateRequest = new MetadataUpdateRequest(id)
-  metadataUpdateRequest.wrappedSong = event.params.wrappedSong.toHexString()
-  metadataUpdateRequest.tokenId = event.params.tokenId
-  metadataUpdateRequest.newMetadata = event.params.newMetadata
-  metadataUpdateRequest.status = "Requested"
-  metadataUpdateRequest.createdAt = event.block.timestamp
-  metadataUpdateRequest.save()
-
-  // Update the WrappedSong with the new metadata
-  let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
-  if (wrappedSong) {
-    wrappedSong.newMetadata = event.params.newMetadata
-    wrappedSong.save()
-  }
-}
-
-export function handleMetadataUpdateConfirmed(event: MetadataUpdateConfirmedEvent): void {
-  let id = event.params.wrappedSong.toHexString() + "-" + event.params.tokenId.toString()
-  let metadataUpdateRequest = MetadataUpdateRequest.load(id)
-  if (metadataUpdateRequest) {
-    // Remove the MetadataUpdateRequest entity
-    store.remove('MetadataUpdateRequest', id)
-
-    // Update the WrappedSong metadata
-    let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
-    if (wrappedSong) {
-      let wrappedSongContract = WrappedSongSmartAccount.bind(event.params.wrappedSong)
-      let metadataResult = wrappedSongContract.try_getWrappedSongMetadata(event.params.tokenId)
-      if (!metadataResult.reverted) {
-        wrappedSong.metadata = metadataResult.value
-        wrappedSong.newMetadata = null // Clear the newMetadata field after confirmation
-        wrappedSong.save()
-      }
+    let releaseRequestId = wrappedSong.id + "-" + event.params.distributor.toHexString()
+    let releaseRequest = ReleaseRequest.load(releaseRequestId)
+    if (releaseRequest) {
+      releaseRequest.status = "Rejected"
+      releaseRequest.save()
     }
   }
 }
+
+// Helper function to parse metadata
+function parseMetadata(metadataString: string): TypedMap<string, JSONValue> | null {
+  let jsonResult = json.fromString(metadataString)
+  if (jsonResult.kind == JSONValueKind.OBJECT) {
+    return jsonResult.toObject()
+  }
+  return null
+}
+

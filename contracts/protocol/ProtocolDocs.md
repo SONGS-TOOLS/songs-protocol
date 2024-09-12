@@ -42,12 +42,13 @@ The `ProtocolModule` contract serves as the central hub for managing the protoco
     - The caller must be a valid distributor.
 
 - **rejectWrappedSongRelease(address wrappedSong)**
-  - Rejects the release request of a wrapped song by the pending distributor.
+  - Rejects the release of a wrapped song by the reviewing distributor.
   - **Parameters:**
     - `wrappedSong`: The address of the wrapped song.
   - **Requirements:**
-    - There must be a pending release request.
-    - The caller must be a valid distributor.
+    - The caller must be the reviewing distributor.
+    - The review period must not have expired.
+    - The distributor must exist.
 
 - **getWrappedSongDistributor(address wrappedSong)**
   - Returns the distributor address for a given wrapped song.
@@ -163,3 +164,8 @@ The `ProtocolModule` contract serves as the central hub for managing the protoco
   - **Parameters:**
     - `wrappedSong`: The address of the wrapped song.
   - **Returns:** `bool`
+
+### New Events
+
+- **WrappedSongReleaseRejected(address indexed wrappedSong, address indexed distributor)**
+  - Emitted when a distributor rejects the release of a wrapped song.

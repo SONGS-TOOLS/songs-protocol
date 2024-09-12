@@ -119,6 +119,42 @@ async function main() {
     }
   }
 
+  console.log('...');
+  console.log('Creating one more Wrapped Song and setting it to review state...');
+  console.log('...');
+
+  const additionalSongURI = "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmNewSongMetadataHash";
+  
+  try {
+    const createAdditionalSongTx = await WrappedSongFactory.createWrappedSongWithMetadata(
+      USDC_ADDRESS,
+      additionalSongURI,
+      sharesAmount,
+      additionalSongURI
+    );
+    await createAdditionalSongTx.wait();
+
+    const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(deployer.address);
+    const additionalSongAddress = ownerWrappedSongs[ownerWrappedSongs.length - 1];
+    console.log(`Additional Wrapped Song created at:`, additionalSongAddress);
+
+    // Request release for the additional song
+    const requestReleaseTx = await ProtocolModule.requestWrappedSongRelease(
+      additionalSongAddress,
+      distributorWalletAddress
+    );
+    await requestReleaseTx.wait();
+    console.log(`Release requested for Additional Wrapped Song at:`, additionalSongAddress);
+
+    // Accept the wrapped song for review
+    const acceptForReviewTx = await DistributorWallet.acceptWrappedSongForReview(additionalSongAddress);
+    await acceptForReviewTx.wait();
+    console.log(`Additional Wrapped Song accepted for review at:`, additionalSongAddress);
+
+  } catch (error) {
+    console.error(`Failed to create and set Additional Wrapped Song to review state:`, error);
+  }
+
   //
   // RELEASE WRAPPED SONGS 0 - 3
   //

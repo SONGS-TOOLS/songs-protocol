@@ -33,6 +33,7 @@ contract DistributorWallet is Ownable {
     address indexed wrappedSong,
     uint256 indexed tokenId
   );
+  event WrappedSongAcceptedForReview(address indexed wrappedSong);
 
   /**
    * @dev Constructor to initialize the contract with the given parameters.
@@ -145,23 +146,6 @@ contract DistributorWallet is Ownable {
   }
 
   /**
-   * @dev Rejects the release of a wrapped song.
-   * @param wrappedSong The address of the wrapped song to be rejected.
-   */
-  function rejectWrappedSongRelease(address wrappedSong) external onlyOwner {
-    console.log('Start Rejecting release for wrapped song:', wrappedSong);
-    require(
-      protocolModule.getPendingDistributorRequests(wrappedSong) ==
-        address(this),
-      'Not the pending distributor for this wrapped song'
-    );
-    console.log('Rejecting release for wrapped song:', wrappedSong);
-
-    protocolModule.rejectWrappedSongRelease(wrappedSong);
-    emit WrappedSongReleaseRejected(wrappedSong);
-  }
-
-  /**
    * @dev Confirms the release of a wrapped song and adds it to the managed wrapped songs.
    * @param wrappedSong The address of the wrapped song to be released.
    */
@@ -238,5 +222,15 @@ contract DistributorWallet is Ownable {
    */
   fallback() external payable {
     // Handle other calls
+  }
+
+  function acceptWrappedSongForReview(address wrappedSong) external onlyOwner {
+    protocolModule.acceptWrappedSongForReview(wrappedSong);
+    emit WrappedSongAcceptedForReview(wrappedSong);
+  }
+
+  function rejectWrappedSongRelease(address wrappedSong) external onlyOwner {
+    protocolModule.rejectWrappedSongRelease(wrappedSong);
+    emit WrappedSongReleaseRejected(wrappedSong);
   }
 }

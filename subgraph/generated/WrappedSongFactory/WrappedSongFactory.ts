@@ -30,6 +30,44 @@ export class WrappedSongCreated__Params {
   get wrappedSongSmartAccount(): Address {
     return this._event.parameters[1].value.toAddress();
   }
+
+  get stablecoin(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+}
+
+export class WrappedSongCreatedWithMetadata extends ethereum.Event {
+  get params(): WrappedSongCreatedWithMetadata__Params {
+    return new WrappedSongCreatedWithMetadata__Params(this);
+  }
+}
+
+export class WrappedSongCreatedWithMetadata__Params {
+  _event: WrappedSongCreatedWithMetadata;
+
+  constructor(event: WrappedSongCreatedWithMetadata) {
+    this._event = event;
+  }
+
+  get owner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get wrappedSongSmartAccount(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get songURI(): string {
+    return this._event.parameters[2].value.toString();
+  }
+
+  get sharesAmount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get sharesURI(): string {
+    return this._event.parameters[4].value.toString();
+  }
 }
 
 export class WrappedSongFactory extends ethereum.SmartContract {

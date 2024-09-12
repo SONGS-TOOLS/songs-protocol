@@ -62,7 +62,7 @@ async function main() {
     await distributorWalletFactory.getAddress(),
     await whitelistingManager.getAddress()
   );
-  await protocolModule.waitForDeployment();
+  const deploymentReceipt = await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
 
@@ -89,6 +89,20 @@ async function main() {
 
   fs.writeFileSync(addressesFile2, JSON.stringify(contractAddresses, null, 2));
   console.log(`Contract addresses saved to ${addressesFile2}`);
+
+  // Update deployment-info.json
+  const deploymentInfo = {
+    network: network.name,
+    protocolModuleAddress: protocolModule.address,
+    protocolModuleStartBlock: deploymentReceipt?.blockNumber || 0,
+    wrappedSongFactoryAddress: wrappedSongFactory.address,
+    wrappedSongFactoryStartBlock: (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0,
+  };
+
+  fs.writeFileSync(
+    path.join(__dirname, '../subgraph/deployment-info.json'),
+    JSON.stringify(deploymentInfo, null, 2)
+  );
 
   // Save deployment info for subgraph
   const deploymentBlockNumber = await ethers.provider.getBlockNumber();

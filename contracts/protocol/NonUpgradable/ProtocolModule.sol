@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
-import "hardhat/console.sol";
 
 
 contract ProtocolModule is Ownable {
@@ -29,17 +28,27 @@ contract ProtocolModule is Ownable {
 
     mapping(address => bool) public wrappedSongAuthenticity;
 
-    event WrappedSongReleaseRequested(address indexed wrappedSong, address indexed distributor);
-    event WrappedSongReleased(address indexed wrappedSong, address indexed distributor);
-    event MetadataUpdateRequested(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
-    event MetadataUpdateConfirmed(address indexed wrappedSong, uint256 indexed tokenId);
-    event MetadataUpdated(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
+    // Add this struct and mapping
+    struct ReviewPeriod {
+        uint256 startTime;
+        uint256 endTime;
+        address distributor;
+    }
+    mapping(address => ReviewPeriod) public reviewPeriods;
+
+    uint256 public reviewPeriodDays = 7; // Default to 7 days, can be changed by owner
+
     event Paused(bool isPaused); // Add event for pausing
 
-    // Add new events
-    event WrappedSongRequested(address indexed wrappedSong, address indexed distributor, address indexed creator);
-    event WrappedSongReleaseConfirmed(address indexed wrappedSong, address indexed distributor);
+    // Metadata Update Events
+    event MetadataUpdated(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
+    event MetadataUpdateRequested(address indexed wrappedSong, uint256 indexed tokenId, string newMetadata);
+    // Release Events
+    event WrappedSongReleased(address indexed wrappedSong, address indexed distributor);
+    event WrappedSongReleaseRequested(address indexed wrappedSong, address indexed distributor, address indexed creator);
     event WrappedSongReleaseRejected(address indexed wrappedSong, address indexed distributor);
+    event DistributorAcceptedReview(address indexed wrappedSong, address indexed distributor);
+    event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
 
     /**
      * @dev Initializes the contract with the given parameters.
@@ -77,8 +86,7 @@ contract ProtocolModule is Ownable {
         require(wrappedSongToDistributor[wrappedSong] == address(0), "Wrapped song already released");
         require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Distributor does not exist"); // Check if distributor exists
         pendingDistributorRequests[wrappedSong] = distributor;
-        emit WrappedSongReleaseRequested(wrappedSong, distributor);
-        emit WrappedSongRequested(wrappedSong, distributor, msg.sender);
+        emit WrappedSongReleaseRequested(wrappedSong, distributor, msg.sender);
     }
 
     /**
@@ -96,27 +104,50 @@ contract ProtocolModule is Ownable {
      * @dev Confirms the release of a wrapped song by the pending distributor.
      * @param wrappedSong The address of the wrapped song.
      */
-    function confirmWrappedSongRelease(address wrappedSong) external {
-        address distributor = pendingDistributorRequests[wrappedSong];
-        require(distributor != address(0), "No pending release request");
+    function acceptWrappedSongForReview(address wrappedSong) external {
+        require(pendingDistributorRequests[wrappedSong] == msg.sender, "Only pending distributor can accept for review");
         require(distributorWalletFactory.checkIsDistributorWallet(msg.sender), "Distributor does not exist");
-
-        wrappedSongToDistributor[wrappedSong] = distributor;
+        
         delete pendingDistributorRequests[wrappedSong];
-        emit WrappedSongReleased(wrappedSong, distributor);
-        emit WrappedSongReleaseConfirmed(wrappedSong, distributor);
+        
+        reviewPeriods[wrappedSong] = ReviewPeriod({
+            startTime: block.timestamp,
+            endTime: block.timestamp + (reviewPeriodDays * 1 days),
+            distributor: msg.sender
+        });
+        
+        emit DistributorAcceptedReview(wrappedSong, msg.sender);
     }
 
-    /**
-     * @dev Rejects the release request of a wrapped song by the pending distributor.
-     * @param wrappedSong The address of the wrapped song.
-     */
-    function rejectWrappedSongRelease(address wrappedSong) external {
-        address distributor = pendingDistributorRequests[wrappedSong];
-        require(distributor != address(0), "No pending release request");
+    function confirmWrappedSongRelease(address wrappedSong) external {
+        address pendingDistributor = pendingDistributorRequests[wrappedSong];
+        require(pendingDistributor == msg.sender, "Not the pending distributor");
         require(distributorWalletFactory.checkIsDistributorWallet(msg.sender), "Distributor does not exist");
+
+        wrappedSongToDistributor[wrappedSong] = msg.sender;
         delete pendingDistributorRequests[wrappedSong];
-        emit WrappedSongReleaseRejected(wrappedSong, distributor);
+        delete reviewPeriods[wrappedSong]; // Clear any existing review period
+
+        emit WrappedSongReleased(wrappedSong, msg.sender);
+    }
+
+    function rejectWrappedSongRelease(address wrappedSong) external {
+        address pendingDistributor = pendingDistributorRequests[wrappedSong];
+        require(pendingDistributor == msg.sender, "Not the pending distributor");
+        require(distributorWalletFactory.checkIsDistributorWallet(msg.sender), "Distributor does not exist");
+
+        delete pendingDistributorRequests[wrappedSong];
+        delete reviewPeriods[wrappedSong]; // Clear any existing review period
+
+        emit WrappedSongReleaseRejected(wrappedSong, msg.sender);
+    }
+
+    function handleExpiredReviewPeriod(address wrappedSong) external {
+        ReviewPeriod memory review = reviewPeriods[wrappedSong];
+        require(block.timestamp > review.endTime, "Review period has not expired");
+        
+        delete reviewPeriods[wrappedSong];
+        emit ReviewPeriodExpired(wrappedSong, review.distributor);
     }
 
     /**
@@ -125,13 +156,7 @@ contract ProtocolModule is Ownable {
      * @return The address of the distributor.
      */
     function getWrappedSongDistributor(address wrappedSong) external view returns (address) {
-        console.log("ProtocolModule: getWrappedSongDistributor called");
-        console.log("wrappedSong:", wrappedSong);
-
-        address distributor = wrappedSongToDistributor[wrappedSong];
-        console.log("Distributor:", distributor);
-        
-        return distributor;
+        return wrappedSongToDistributor[wrappedSong];
     }
 
     /**
@@ -231,26 +256,15 @@ contract ProtocolModule is Ownable {
      * @param tokenId The ID of the token to update.
      */
     function confirmUpdateMetadata(address wrappedSong, uint256 tokenId) external {
-        console.log("ProtocolModule: confirmUpdateMetadata called");
-        console.log("wrappedSong:", wrappedSong);
-        console.log("tokenId:", tokenId);
-
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can confirm metadata update");
-        console.log("Distributor verified");
-
         require(bytes(pendingMetadataUpdates[wrappedSong][tokenId]).length > 0, "No pending metadata update");
-        console.log("Pending metadata update found");
 
         metadataUpdateConfirmed[wrappedSong][tokenId] = true;
-        console.log("Metadata update confirmed");
         
         // Call the WrappedSongSmartAccount to update the metadata
-        console.log("Calling WrappedSongSmartAccount to execute confirmed update");
         IWrappedSongSmartAccount(wrappedSong).executeConfirmedMetadataUpdate(tokenId);
         
-        console.log("Metadata update executed");
-        emit MetadataUpdateConfirmed(wrappedSong, tokenId);
-        console.log("MetadataUpdateConfirmed event emitted");
+        emit MetadataUpdated(wrappedSong, tokenId, pendingMetadataUpdates[wrappedSong][tokenId]);
     }
 
     /**
@@ -271,10 +285,6 @@ contract ProtocolModule is Ownable {
      * @return The pending metadata update.
      */
     function getPendingMetadataUpdate(address wrappedSong, uint256 tokenId) external view returns (string memory) {
-        console.log("ProtocolModule: getPendingMetadataUpdate called");
-        console.log("wrappedSong:", wrappedSong);
-        console.log("tokenId:", tokenId);
-        console.log("Pending metadata:", pendingMetadataUpdates[wrappedSong][tokenId]);
         return pendingMetadataUpdates[wrappedSong][tokenId];
     }
 
@@ -285,10 +295,6 @@ contract ProtocolModule is Ownable {
      * @return True if the metadata update is confirmed, false otherwise.
      */
     function isMetadataUpdateConfirmed(address wrappedSong, uint256 tokenId) external view returns (bool) {
-        console.log("ProtocolModule: isMetadataUpdateConfirmed called");
-        console.log("wrappedSong:", wrappedSong);
-        console.log("tokenId:", tokenId);
-        console.log("Is confirmed:", metadataUpdateConfirmed[wrappedSong][tokenId]);
         return metadataUpdateConfirmed[wrappedSong][tokenId];
     }
 
@@ -330,12 +336,12 @@ contract ProtocolModule is Ownable {
 
     // Add this new function
     function clearPendingMetadataUpdate(address wrappedSong, uint256 tokenId) external {
-        console.log("ProtocolModule: clearPendingMetadataUpdate called");
-        console.log("wrappedSong:", wrappedSong);
-        console.log("tokenId:", tokenId);
         require(msg.sender == wrappedSong, "Only WrappedSongSmartAccount can clear pending updates");
         delete pendingMetadataUpdates[wrappedSong][tokenId];
         delete metadataUpdateConfirmed[wrappedSong][tokenId];
-        console.log("Pending metadata update cleared");
+    }
+
+    function setReviewPeriodDays(uint256 _days) external onlyOwner {
+        reviewPeriodDays = _days;
     }
 }

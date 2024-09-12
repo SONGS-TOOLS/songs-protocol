@@ -10,16 +10,16 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
-export class MetadataUpdateConfirmed extends ethereum.Event {
-  get params(): MetadataUpdateConfirmed__Params {
-    return new MetadataUpdateConfirmed__Params(this);
+export class DistributorAcceptedReview extends ethereum.Event {
+  get params(): DistributorAcceptedReview__Params {
+    return new DistributorAcceptedReview__Params(this);
   }
 }
 
-export class MetadataUpdateConfirmed__Params {
-  _event: MetadataUpdateConfirmed;
+export class DistributorAcceptedReview__Params {
+  _event: DistributorAcceptedReview;
 
-  constructor(event: MetadataUpdateConfirmed) {
+  constructor(event: DistributorAcceptedReview) {
     this._event = event;
   }
 
@@ -27,8 +27,8 @@ export class MetadataUpdateConfirmed__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get tokenId(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+  get distributor(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -124,16 +124,16 @@ export class Paused__Params {
   }
 }
 
-export class WrappedSongReleaseConfirmed extends ethereum.Event {
-  get params(): WrappedSongReleaseConfirmed__Params {
-    return new WrappedSongReleaseConfirmed__Params(this);
+export class ReviewPeriodExpired extends ethereum.Event {
+  get params(): ReviewPeriodExpired__Params {
+    return new ReviewPeriodExpired__Params(this);
   }
 }
 
-export class WrappedSongReleaseConfirmed__Params {
-  _event: WrappedSongReleaseConfirmed;
+export class ReviewPeriodExpired__Params {
+  _event: ReviewPeriodExpired;
 
-  constructor(event: WrappedSongReleaseConfirmed) {
+  constructor(event: ReviewPeriodExpired) {
     this._event = event;
   }
 
@@ -188,6 +188,10 @@ export class WrappedSongReleaseRequested__Params {
   get distributor(): Address {
     return this._event.parameters[1].value.toAddress();
   }
+
+  get creator(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
 }
 
 export class WrappedSongReleased extends ethereum.Event {
@@ -212,29 +216,35 @@ export class WrappedSongReleased__Params {
   }
 }
 
-export class WrappedSongRequested extends ethereum.Event {
-  get params(): WrappedSongRequested__Params {
-    return new WrappedSongRequested__Params(this);
-  }
-}
+export class ProtocolModule__reviewPeriodsResult {
+  value0: BigInt;
+  value1: BigInt;
+  value2: Address;
 
-export class WrappedSongRequested__Params {
-  _event: WrappedSongRequested;
-
-  constructor(event: WrappedSongRequested) {
-    this._event = event;
+  constructor(value0: BigInt, value1: BigInt, value2: Address) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
   }
 
-  get wrappedSong(): Address {
-    return this._event.parameters[0].value.toAddress();
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromAddress(this.value2));
+    return map;
   }
 
-  get distributor(): Address {
-    return this._event.parameters[1].value.toAddress();
+  getStartTime(): BigInt {
+    return this.value0;
   }
 
-  get creator(): Address {
-    return this._event.parameters[2].value.toAddress();
+  getEndTime(): BigInt {
+    return this.value1;
+  }
+
+  getDistributor(): Address {
+    return this.value2;
   }
 }
 
@@ -640,6 +650,64 @@ export class ProtocolModule extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  reviewPeriodDays(): BigInt {
+    let result = super.call(
+      "reviewPeriodDays",
+      "reviewPeriodDays():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_reviewPeriodDays(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "reviewPeriodDays",
+      "reviewPeriodDays():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  reviewPeriods(param0: Address): ProtocolModule__reviewPeriodsResult {
+    let result = super.call(
+      "reviewPeriods",
+      "reviewPeriods(address):(uint256,uint256,address)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return new ProtocolModule__reviewPeriodsResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+      result[2].toAddress(),
+    );
+  }
+
+  try_reviewPeriods(
+    param0: Address,
+  ): ethereum.CallResult<ProtocolModule__reviewPeriodsResult> {
+    let result = super.tryCall(
+      "reviewPeriods",
+      "reviewPeriods(address):(uint256,uint256,address)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new ProtocolModule__reviewPeriodsResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+        value[2].toAddress(),
+      ),
+    );
+  }
+
   upcRegistry(param0: Address): string {
     let result = super.call("upcRegistry", "upcRegistry(address):(string)", [
       ethereum.Value.fromAddress(param0),
@@ -782,6 +850,36 @@ export class ConstructorCall__Outputs {
   _call: ConstructorCall;
 
   constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+}
+
+export class AcceptWrappedSongForReviewCall extends ethereum.Call {
+  get inputs(): AcceptWrappedSongForReviewCall__Inputs {
+    return new AcceptWrappedSongForReviewCall__Inputs(this);
+  }
+
+  get outputs(): AcceptWrappedSongForReviewCall__Outputs {
+    return new AcceptWrappedSongForReviewCall__Outputs(this);
+  }
+}
+
+export class AcceptWrappedSongForReviewCall__Inputs {
+  _call: AcceptWrappedSongForReviewCall;
+
+  constructor(call: AcceptWrappedSongForReviewCall) {
+    this._call = call;
+  }
+
+  get wrappedSong(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class AcceptWrappedSongForReviewCall__Outputs {
+  _call: AcceptWrappedSongForReviewCall;
+
+  constructor(call: AcceptWrappedSongForReviewCall) {
     this._call = call;
   }
 }
@@ -1016,6 +1114,36 @@ export class ConfirmWrappedSongReleaseCall__Outputs {
   _call: ConfirmWrappedSongReleaseCall;
 
   constructor(call: ConfirmWrappedSongReleaseCall) {
+    this._call = call;
+  }
+}
+
+export class HandleExpiredReviewPeriodCall extends ethereum.Call {
+  get inputs(): HandleExpiredReviewPeriodCall__Inputs {
+    return new HandleExpiredReviewPeriodCall__Inputs(this);
+  }
+
+  get outputs(): HandleExpiredReviewPeriodCall__Outputs {
+    return new HandleExpiredReviewPeriodCall__Outputs(this);
+  }
+}
+
+export class HandleExpiredReviewPeriodCall__Inputs {
+  _call: HandleExpiredReviewPeriodCall;
+
+  constructor(call: HandleExpiredReviewPeriodCall) {
+    this._call = call;
+  }
+
+  get wrappedSong(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class HandleExpiredReviewPeriodCall__Outputs {
+  _call: HandleExpiredReviewPeriodCall;
+
+  constructor(call: HandleExpiredReviewPeriodCall) {
     this._call = call;
   }
 }
@@ -1268,6 +1396,36 @@ export class SetReleaseFeeCall__Outputs {
   _call: SetReleaseFeeCall;
 
   constructor(call: SetReleaseFeeCall) {
+    this._call = call;
+  }
+}
+
+export class SetReviewPeriodDaysCall extends ethereum.Call {
+  get inputs(): SetReviewPeriodDaysCall__Inputs {
+    return new SetReviewPeriodDaysCall__Inputs(this);
+  }
+
+  get outputs(): SetReviewPeriodDaysCall__Outputs {
+    return new SetReviewPeriodDaysCall__Outputs(this);
+  }
+}
+
+export class SetReviewPeriodDaysCall__Inputs {
+  _call: SetReviewPeriodDaysCall;
+
+  constructor(call: SetReviewPeriodDaysCall) {
+    this._call = call;
+  }
+
+  get _days(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetReviewPeriodDaysCall__Outputs {
+  _call: SetReviewPeriodDaysCall;
+
+  constructor(call: SetReviewPeriodDaysCall) {
     this._call = call;
   }
 }

@@ -39,10 +39,10 @@
     "size": "yarn run hardhat size-contracts",
     "console": "npx hardhat console --network localhost",
     "remix": "remixd -s ./ --remix-ide https://remix.ethereum.org",
-    "subgraph:codegen": "cd subgraph && yarn codegen",
+    "subgraph:codegen": "yarn subgraph:prepare && cd subgraph && graph codegen",
     "subgraph:build": "cd subgraph && yarn build",
     "subgraph:deploy": "cd subgraph && yarn deploy",
-    "subgraph:prepare": "cd subgraph && ts-node ../scripts/update-subgraph-config.ts"
+    "subgraph:prepare": "ts-node scripts/update-subgraph-config.ts"
   },
   "repository": {
     "type": "git",

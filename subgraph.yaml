@@ -1,0 +1,9 @@
+dataSources:
+  - kind: ethereum/contract
+    name: WrappedSongFactory
+    // ... other configurations ...
+    eventHandlers:
+      - event: WrappedSongCreated(indexed address,address,address)
+        handler: handleWrappedSongCreated
+      - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
+        handler: handleWrappedSongCreatedWithMetadata

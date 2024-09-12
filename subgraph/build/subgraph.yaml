@@ -6,7 +6,7 @@ dataSources:
     name: ProtocolModule
     network: base-sepolia
     source:
-      address: "0x1Dc815A4Fd95DA2d28D3814F8C554d79212E7c79"
+      address: "0xef3426473C2D70670Af4920f5101A3a176798768"
       abi: ProtocolModule
       startBlock: 15149755
     mapping:
@@ -23,22 +23,26 @@ dataSources:
         - name: WrappedSongSmartAccount
           file: artifacts/contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol/WrappedSongSmartAccount.json
       eventHandlers:
-        - event: WrappedSongRequested(indexed address,indexed address,indexed address)
-          handler: handleWrappedSongRequested
-        - event: WrappedSongReleaseConfirmed(indexed address,indexed address)
-          handler: handleWrappedSongReleaseConfirmed
+        - event: WrappedSongReleaseRequested(indexed address,indexed address,indexed address)
+          handler: handleWrappedSongReleaseRequested
+        - event: WrappedSongReleased(indexed address,indexed address)
+          handler: handleWrappedSongReleased
         - event: WrappedSongReleaseRejected(indexed address,indexed address)
           handler: handleWrappedSongReleaseRejected
         - event: MetadataUpdateRequested(indexed address,indexed uint256,string)
           handler: handleMetadataUpdateRequested
-        - event: MetadataUpdateConfirmed(indexed address,indexed uint256)
-          handler: handleMetadataUpdateConfirmed
+        - event: MetadataUpdated(indexed address,indexed uint256,string)
+          handler: handleMetadataUpdated
+        - event: DistributorAcceptedReview(indexed address,indexed address)
+          handler: handleDistributorAcceptedReview
+        - event: ReviewPeriodExpired(indexed address,indexed address)
+          handler: handleReviewPeriodExpired
       file: ProtocolModule/ProtocolModule.wasm
   - kind: ethereum
     name: WrappedSongFactory
     network: base-sepolia
     source:
-      address: "0x92F5BB26B7c050D23C47BdBDd112b608aCfFB0A3"
+      address: "0x5D78A2e708BC307376493FE0fD145981A1150a5E"
       abi: WrappedSongFactory
       startBlock: 15149755
     mapping:
@@ -47,10 +51,13 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - WrappedSong
+        - Metadata
       abis:
         - name: WrappedSongFactory
           file: artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address)
+        - event: WrappedSongCreated(indexed address,address,address)
           handler: handleWrappedSongCreated
+        - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
+          handler: handleWrappedSongCreatedWithMetadata
       file: WrappedSongFactory/WrappedSongFactory.wasm

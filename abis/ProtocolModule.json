@@ -48,12 +48,12 @@
       },
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "distributor",
+        "type": "address"
       }
     ],
-    "name": "MetadataUpdateConfirmed",
+    "name": "DistributorAcceptedReview",
     "type": "event"
   },
   {
@@ -154,7 +154,7 @@
         "type": "address"
       }
     ],
-    "name": "WrappedSongReleaseConfirmed",
+    "name": "ReviewPeriodExpired",
     "type": "event"
   },
   {
@@ -190,6 +190,12 @@
         "internalType": "address",
         "name": "distributor",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
       }
     ],
     "name": "WrappedSongReleaseRequested",
@@ -215,29 +221,17 @@
     "type": "event"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
         "internalType": "address",
         "name": "wrappedSong",
         "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
       }
     ],
-    "name": "WrappedSongRequested",
-    "type": "event"
+    "name": "acceptWrappedSongForReview",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -433,6 +427,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
+    ],
+    "name": "handleExpiredReviewPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -772,6 +779,48 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "reviewPeriodDays",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "reviewPeriods",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "distributor",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bool",
@@ -793,6 +842,19 @@
       }
     ],
     "name": "setReleaseFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_days",
+        "type": "uint256"
+      }
+    ],
+    "name": "setReviewPeriodDays",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
