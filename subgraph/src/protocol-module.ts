@@ -97,20 +97,35 @@ export function handleMetadataUpdateRequested(event: MetadataUpdateRequestedEven
 export function handleMetadataUpdated(event: MetadataUpdateConfirmedEvent): void {
   let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
   if (wrappedSong) {
-    let pendingUpdateId = wrappedSong.pendingMetadataUpdate
-    if (pendingUpdateId) {
-      let metadataUpdateRequest = MetadataUpdateRequest.load(pendingUpdateId)
-      if (metadataUpdateRequest) {
-        metadataUpdateRequest.status = "Confirmed"
-        metadataUpdateRequest.confirmedAt = event.block.timestamp
-        metadataUpdateRequest.save()
+    let metadataUpdateRequestId = event.params.wrappedSong.toHexString() + "-" + event.params.tokenId.toString()
+    let metadataUpdateRequest = MetadataUpdateRequest.load(metadataUpdateRequestId)
+    
+    if (metadataUpdateRequest) {
+      metadataUpdateRequest.status = "Confirmed"
+      metadataUpdateRequest.confirmedAt = event.block.timestamp
+      metadataUpdateRequest.save()
 
-        if (metadataUpdateRequest.newMetadata) {
-          wrappedSong.metadata = metadataUpdateRequest.newMetadata
+      if (metadataUpdateRequest.newMetadata) {
+        let newMetadata = Metadata.load(metadataUpdateRequest.newMetadata)
+        if (newMetadata) {
+          // Update the existing Metadata entity or create a new one if it doesn't exist
+          let metadataId = wrappedSong.id + "-metadata"
+          let metadata = Metadata.load(metadataId)
+          if (!metadata) {
+            metadata = new Metadata(metadataId)
+          }
+          metadata.songURI = newMetadata.songURI
+          metadata.sharesAmount = newMetadata.sharesAmount
+          metadata.sharesURI = newMetadata.sharesURI
+          metadata.save()
+
+          // Update the WrappedSong with the updated metadata
+          wrappedSong.metadata = metadataId
         }
-        wrappedSong.pendingMetadataUpdate = null
-        wrappedSong.save()
       }
+      
+      wrappedSong.pendingMetadataUpdate = null
+      wrappedSong.save()
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "networkName": "baseSepolia",
-  "protocolModuleAddress": "0xef3426473C2D70670Af4920f5101A3a176798768",
-  "wrappedSongFactoryAddress": "0x5D78A2e708BC307376493FE0fD145981A1150a5E",
-  "startBlock": 15181304
+  "protocolModuleAddress": "0x4Ce74dFEABa567A3cEd3Fb7af8FE8437cBA7B3c3",
+  "wrappedSongFactoryAddress": "0xD160520C1BedD095bcD31dcC47F070F61eA6D911",
+  "startBlock": 15222868
 }

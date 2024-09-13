@@ -197,23 +197,6 @@ export class WrappedSong extends Entity {
     }
   }
 
-  get newMetadata(): string | null {
-    let value = this.get("newMetadata");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set newMetadata(value: string | null) {
-    if (!value) {
-      this.unset("newMetadata");
-    } else {
-      this.set("newMetadata", Value.fromString(<string>value));
-    }
-  }
-
   get pendingMetadataUpdate(): string | null {
     let value = this.get("pendingMetadataUpdate");
     if (!value || value.kind == ValueKind.NULL) {

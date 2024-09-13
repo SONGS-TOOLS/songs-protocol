@@ -26,6 +26,8 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
 
   mapping(uint256 => SaleInfo) public sharesForSale;
 
+  event MetadataUpdated(uint256 indexed tokenId, string newMetadata);
+
   /**
    * @dev Initializes the contract with the given parameters.
    * @param _stablecoinAddress The address of the stablecoin contract.

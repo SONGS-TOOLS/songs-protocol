@@ -112,7 +112,6 @@ async function main() {
       const wrappedSongAddress =
         ownerWrappedSongs[ownerWrappedSongs.length - 1];
       console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
-      console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
     } catch (error) {
       console.error(`Failed to create Wrapped Song ${i}:`, error);
       return; // Exit if creation fails
@@ -123,7 +122,7 @@ async function main() {
   console.log('Creating one more Wrapped Song and setting it to review state...');
   console.log('...');
 
-  const additionalSongURI = "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmNewSongMetadataHash";
+  const additionalSongURI = "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv";
   
   try {
     const createAdditionalSongTx = await WrappedSongFactory.createWrappedSongWithMetadata(
