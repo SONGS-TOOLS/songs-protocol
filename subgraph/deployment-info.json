@@ -1,6 +1,12 @@
 {
   "networkName": "localhost",
+<<<<<<< HEAD
   "protocolModuleAddress": "0x5f58879Fe3a4330B6D85c1015971Ea6e5175AeDD",
   "wrappedSongFactoryAddress": "0x582957C7a35CDfeAAD1Ca4b87AE03913eAAd0Be0",
   "startBlock": 20768680
+=======
+  "protocolModuleAddress": "0x408F924BAEC71cC3968614Cb2c58E155A35e6890",
+  "wrappedSongFactoryAddress": "0x773330693cb7d5D233348E25809770A32483A940",
+  "startBlock": 43364
+>>>>>>> 0862127 (songshares sale management)
 }

@@ -87,12 +87,32 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "wrappedSongAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "sharesId",
+        "name": "percentage",
         "type": "uint256"
       },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "pricePerShare",
+        "type": "uint256"
+      }
+    ],
+    "name": "SharesSetForSale",
+    "type": "event"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256[]",
         "name": "amounts",
@@ -261,6 +281,25 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getSongSharesBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -304,7 +343,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getTotalSupplyOfShares",
+    "name": "getTokenTotalSupply",
     "outputs": [
       {
         "internalType": "uint256",
@@ -660,11 +699,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       },
@@ -693,6 +727,19 @@
       }
     ],
     "name": "updateMetadata",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "withdrawSaleFunds",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

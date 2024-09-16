@@ -52,5 +52,26 @@ type ReleaseRequest @entity {
   status: String!
   createdAt: BigInt!
   reviewStartedAt: BigInt
-  reviewEndTime: BigInt
+  confirmedAt: BigInt
+}
+
+type Sale @entity {
+  id: ID!
+  wrappedSong: WrappedSong!
+  seller: Bytes!
+  buyer: Bytes!
+  amount: BigInt!
+  pricePerShare: BigInt!
+  timestamp: BigInt!
+}
+
+type SaleOffer @entity {
+  id: ID!
+  wrappedSong: WrappedSong!
+  seller: Bytes!
+  amount: BigInt!
+  pricePerShare: BigInt!
+  isActive: Boolean!
+  createdAt: BigInt!
+  updatedAt: BigInt!
 }

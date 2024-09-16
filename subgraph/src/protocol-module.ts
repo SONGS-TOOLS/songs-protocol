@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 import { BigInt, store } from '@graphprotocol/graph-ts';
+=======
+import {
+  BigInt,
+  log,
+  store
+} from '@graphprotocol/graph-ts';
+>>>>>>> 0862127 (songshares sale management)
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,

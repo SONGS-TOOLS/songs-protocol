@@ -27,6 +27,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   mapping(uint256 => SaleInfo) public sharesForSale;
 
   event MetadataUpdated(uint256 indexed tokenId, string newMetadata, address implementationAccount);
+  event SharesSetForSale(address indexed wrappedSongAddress, uint256 percentage, uint256 pricePerShare);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -156,15 +157,18 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
       pricePerShare: pricePerShare,
       percentageForSale: percentage
     });
-  }
 
+    // Emit the event with the contract's address as the wrapped song address
+    emit SharesSetForSale(address(this), percentage, pricePerShare);
+  }
+  
   /**
-   * @dev Returns the token balance of the specified token ID.
+   * @dev Returns the token balance of the specified token ID for the contract owner.
    * @param tokenId The ID of the token.
-   * @return The balance of the token.
+   * @return The balance of the token for the contract owner.
    */
   function getTokenBalance(uint256 tokenId) public view returns (uint256) {
-    return newWSTokenManagement.balanceOf(address(this), tokenId);
+    return newWSTokenManagement.balanceOf(owner(), tokenId);
   }
 
   /**
@@ -177,23 +181,21 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   }
 
   /**
-   * @dev Transfers tokens to a recipient.
-   * @param tokenId The ID of the token.
-   * @param amount The amount of tokens to be transferred.
+   * @dev Transfers song shares to a recipient.
+   * @param amount The amount of shares to be transferred.
    * @param to The address of the recipient.
    */
   function transferSongShares(
-    uint256 tokenId,
     uint256 amount,
     address to
   ) public onlyOwner {
-    // Ensure the SmartWallet has enough of the token to transfer
-    require(getTokenBalance(tokenId) >= amount, 'Insufficient token balance');
-    // Perform the safe transfer
+    // Ensure the owner has enough shares to transfer
+    require(getSongSharesBalance(owner()) >= amount, 'Insufficient shares balance');
+    // Perform the safe transfer from the owner
     newWSTokenManagement.safeTransferFrom(
-      msg.sender,
+      owner(),
       to,
-      tokenId,
+      songSharesId,
       amount,
       ''
     );
@@ -201,12 +203,10 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
 
   /**
    * @dev Batch transfers shares to multiple recipients.
-   * @param sharesId The ID of the shares.
    * @param amounts The amounts of shares to be transferred.
    * @param recipients The addresses of the recipients.
    */
   function batchTransferShares(
-    uint256 sharesId,
     uint256[] memory amounts,
     address[] memory recipients
   ) public onlyOwner {
@@ -218,16 +218,16 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     }
     
     require(
-      newWSTokenManagement.balanceOf(msg.sender, sharesId) >= totalAmount,
+      getSongSharesBalance(owner()) >= totalAmount,
       'Not enough shares to transfer'
     );
 
     // Perform individual transfers
     for (uint256 i = 0; i < recipients.length; i++) {
       newWSTokenManagement.safeTransferFrom(
-        msg.sender,
+        owner(),
         recipients[i],
-        sharesId,
+        songSharesId,
         amounts[i],
         ''
       );
@@ -239,8 +239,17 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param id The ID of the shares token.
    * @return The total supply of shares for the given ID.
    */
-  function getTotalSupplyOfShares(uint256 id) public view returns (uint256) {
+  function getTokenTotalSupply(uint256 id) public view returns (uint256) {
     return newWSTokenManagement.totalSupply(id);
+  }
+
+  /**
+   * @dev Returns the song shares balance of the specified address.
+   * @param account The address to check the balance for.
+   * @return The balance of song shares for the specified address.
+   */
+  function getSongSharesBalance(address account) public view returns (uint256) {
+    return newWSTokenManagement.balanceOf(account, songSharesId);
   }
 
   /**
@@ -381,4 +390,14 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   function checkAuthenticity() public view returns (bool) {
     return protocolModule.isAuthentic(address(this));
   }
+
+  /**
+   * @dev Withdraws funds from the WSTokenManagement contract to a specified address.
+   * @param to The address to receive the withdrawn funds.
+   */
+  function withdrawSaleFunds(address payable to) external onlyOwner {
+    require(address(newWSTokenManagement) != address(0), "WSTokenManagement not set");
+    newWSTokenManagement.withdrawFunds(to);
+  }
+
 }

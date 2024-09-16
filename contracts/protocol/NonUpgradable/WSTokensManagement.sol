@@ -5,8 +5,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import '@openzeppelin/contracts/access/Ownable.sol';
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract WSTokenManagement is ERC1155Supply, Ownable {
+contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 private _currentTokenId;
   address private _minter;
 
@@ -15,6 +16,17 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
   mapping(uint256 => uint256) private songToConceptNFT;
   mapping(uint256 => uint256) public fungibleTokenShares;
   mapping(uint256 => address[]) private _shareholders;
+
+  uint256 public constant SONG_SHARES_ID = 1;
+  uint256 public sharesForSale;
+  uint256 public pricePerShare;
+  bool public saleActive;
+  uint256 public totalShares;
+
+  event SharesSaleStarted(uint256 amount, uint256 price);
+  event SharesSold(address buyer, uint256 amount);
+  event SharesSaleEnded();
+  event FundsWithdrawn(address indexed to, uint256 amount);
 
   /**
    * @dev Initializes the contract with the given initial owner.
@@ -142,12 +154,13 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
       'Shares already created for this song'
     );
 
-    // _currentTokenId++;
-    sharesId = 1;
+    sharesId = SONG_SHARES_ID;
     _mint(creator, sharesId, sharesAmount, '');
     setTokenURI(sharesId, sharesURI);
     songToFungibleShares[songId] = sharesId;
     fungibleTokenShares[sharesId] = sharesAmount;
+    totalShares = sharesAmount;
+    return sharesId;
   }
 
   /**
@@ -172,5 +185,70 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
       "Invalid song ID, concept NFT doesn't exist"
     );
     return songToFungibleShares[songId];
+  }
+
+  /**
+   * @dev Starts a sale of song shares.
+   * @param amount The amount of shares to put up for sale.
+   * @param price The price per share in wei.
+   */
+  function startSharesSale(uint256 amount, uint256 price) external onlyOwner {
+    require(!saleActive, "Sale is already active");
+    require(amount > 0, "Amount must be greater than 0");
+    require(price > 0, "Price must be greater than 0");
+    require(balanceOf(owner(), SONG_SHARES_ID) >= amount, "Insufficient shares");
+    require(amount <= totalShares, "Amount exceeds total shares");
+
+    sharesForSale = amount;
+    pricePerShare = price;
+    saleActive = true;
+
+    emit SharesSaleStarted(amount, price);
+  }
+
+  /**
+   * @dev Allows users to buy shares during an active sale.
+   * @param amount The amount of shares to buy.
+   */
+  function buyShares(uint256 amount) external payable nonReentrant {
+    require(saleActive, "No active sale");
+    require(amount > 0, "Amount must be greater than 0");
+    require(amount <= sharesForSale, "Not enough shares available");
+    require(msg.value == amount * pricePerShare, "Incorrect payment amount");
+
+    sharesForSale -= amount;
+    _safeTransferFrom(owner(), msg.sender, SONG_SHARES_ID, amount, "");
+
+    if (sharesForSale == 0) {
+      saleActive = false;
+      emit SharesSaleEnded();
+    }
+
+    emit SharesSold(msg.sender, amount);
+  }
+
+  /**
+   * @dev Ends the current share sale.
+   */
+  function endSharesSale() external onlyOwner {
+    require(saleActive, "No active sale");
+    saleActive = false;
+    sharesForSale = 0;
+    emit SharesSaleEnded();
+  }
+
+  /**
+   * @dev Withdraws the contract's balance to the specified address.
+   * @param to The address to send the funds to.
+   */
+  function withdrawFunds(address payable to) external onlyOwner nonReentrant {
+    uint256 balance = address(this).balance;
+    require(balance > 0, "No funds to withdraw");
+    require(to != address(0), "Invalid withdrawal address");
+
+    (bool success, ) = to.call{value: balance}("");
+    require(success, "Transfer failed");
+
+    emit FundsWithdrawn(to, balance);
   }
 }

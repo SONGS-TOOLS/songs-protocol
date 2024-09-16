@@ -10,9 +10,10 @@ interface IWrappedSongSmartAccount {
   function setSharesForSale(uint256 sharesId, uint256 percentage, uint256 pricePerShare) external;
   function getTokenBalance(uint256 tokenId) external view returns (uint256);
   function getWrappedSongMetadata(uint256 tokenId) external view returns (string memory);
-  function transferSongShares(uint256 tokenId, uint256 amount, address to) external;
-  function batchTransferShares(uint256 sharesId, uint256[] memory amounts, address[] memory recipients) external;
-  function getTotalSupplyOfShares(uint256 id) external view returns (uint256);
+  function transferSongShares(uint256 amount, address to) external;
+  function batchTransferShares(uint256[] memory amounts, address[] memory recipients) external;
+  function getTokenTotalSupply(uint256 id) external view returns (uint256);
+  function getSongSharesBalance(address account) external view returns (uint256);
   function getWSTokenManagementAddress() external view returns (address);
   function canReceiveERC20() external pure returns (bool);
   function receiveERC20(address token, uint256 amount) external;
@@ -22,4 +23,5 @@ interface IWrappedSongSmartAccount {
   function updateMetadata(uint256 tokenId, string memory newMetadata) external;
   function executeConfirmedMetadataUpdate(uint256 tokenId) external;
   function checkAuthenticity() external view returns (bool);
+  function withdrawSaleFunds(address payable to) external;
 }
