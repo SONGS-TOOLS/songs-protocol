@@ -26,7 +26,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
 
   mapping(uint256 => SaleInfo) public sharesForSale;
 
-  event MetadataUpdated(uint256 indexed tokenId, string newMetadata);
+  event MetadataUpdated(uint256 indexed tokenId, string newMetadata, address implementationAccount);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -357,6 +357,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   function updateMetadata(uint256 tokenId, string memory newMetadata) public onlyOwner {
     require(!protocolModule.isReleased(address(this)), "Cannot update metadata directly after release, request update instead");
     newWSTokenManagement.setTokenURI(tokenId, newMetadata);
+    emit MetadataUpdated(tokenId, newMetadata, address(this));
   }
 
   /**
@@ -364,25 +365,16 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to update.
    */
   function executeConfirmedMetadataUpdate(uint256 tokenId) external {
-    console.log("WrappedSongSmartAccount: executeConfirmedMetadataUpdate called");
-    console.log("tokenId:", tokenId);
-
     require(msg.sender == address(protocolModule), "Only ProtocolModule can execute confirmed updates");
-    console.log("Caller verified as ProtocolModule");
-
     require(protocolModule.isMetadataUpdateConfirmed(address(this), tokenId), "Metadata update not confirmed");
-    console.log("Metadata update confirmed");
     
     string memory newMetadata = protocolModule.getPendingMetadataUpdate(address(this), tokenId);
-    console.log("New metadata:", newMetadata);
 
-    console.log("Updating metadata in WSTokenManagement");
     newWSTokenManagement.setTokenURI(tokenId, newMetadata);
     
-    console.log("Clearing pending update in ProtocolModule");
     protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
     
-    console.log("Metadata update executed successfully");
+    emit MetadataUpdated(tokenId, newMetadata, address(this));
   }
 
   // New function to check authenticity

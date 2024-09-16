@@ -1,36 +1,35 @@
-import { BigInt, json, JSONValue, JSONValueKind, TypedMap } from "@graphprotocol/graph-ts"
-import { MetadataUpdated as MetadataUpdatedEvent } from "../generated/WrappedSongSmartAccount/WrappedSongSmartAccount"
-import { Metadata, WrappedSong } from "../generated/schema"
+import { BigInt } from '@graphprotocol/graph-ts'
+import { Metadata, WrappedSong } from '../generated/schema'
+import { MetadataUpdated as MetadataUpdatedEvent } from '../generated/templates/WrappedSongSmartAccount/WrappedSongSmartAccount'
 
 export function handleMetadataUpdatedDirectly(event: MetadataUpdatedEvent): void {
-  let wrappedSongAddress = event.address.toHexString()
-  let wrappedSong = WrappedSong.load(wrappedSongAddress)
-
-  if (wrappedSong) {
-    let metadataId = wrappedSongAddress + "-metadata"
-    let metadata = Metadata.load(metadataId)
-    
-    if (!metadata) {
-      metadata = new Metadata(metadataId)
-    }
-
-    let parsedMetadata = parseMetadata(event.params.newMetadata)
-    if (parsedMetadata) {
-      metadata.songURI = parsedMetadata.get("songURI")!.toString()
-      metadata.sharesAmount = BigInt.fromString(parsedMetadata.get("sharesAmount")!.toString())
-      metadata.sharesURI = parsedMetadata.get("sharesURI")!.toString()
-      metadata.save()
-
-      wrappedSong.metadata = metadataId
-      wrappedSong.save()
-    }
+  let wrappedSongId = event.address.toHexString()
+  let wrappedSong = WrappedSong.load(wrappedSongId)
+  
+  if (wrappedSong == null) {
+    // If the WrappedSong doesn't exist, we can't update its metadata
+    return
   }
-}
 
-function parseMetadata(metadataString: string): TypedMap<string, JSONValue> | null {
-  let jsonResult = json.fromString(metadataString)
-  if (jsonResult.kind == JSONValueKind.OBJECT) {
-    return jsonResult.toObject()
+  let metadataId = wrappedSongId + "-metadata"
+  let metadata = Metadata.load(metadataId)
+  if (metadata == null) {
+    metadata = new Metadata(metadataId)
+    // Initialize non-nullable fields with default values
+    metadata.sharesAmount = BigInt.fromI32(0)
+    metadata.songURI = ""
+    metadata.sharesURI = ""
   }
-  return null
+  
+  if (event.params.tokenId.equals(BigInt.fromI32(0))) {
+    metadata.songURI = event.params.newMetadata
+  } else if (event.params.tokenId.equals(BigInt.fromI32(1))) {
+    metadata.sharesURI = event.params.newMetadata
+  }
+  
+  metadata.save()
+
+  // Update the WrappedSong entity to point to the new metadata
+  wrappedSong.metadata = metadataId
+  wrappedSong.save()
 }

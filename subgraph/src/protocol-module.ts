@@ -1,4 +1,4 @@
-import { BigInt, json, JSONValue, JSONValueKind, TypedMap } from "@graphprotocol/graph-ts"
+import { BigInt, json, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,
@@ -11,13 +11,26 @@ import {
 import { Distributor, Metadata, MetadataUpdateRequest, ReleaseRequest, WrappedSong } from "../generated/schema"
 
 export function handleWrappedSongReleaseRequested(event: WrappedSongRequestedEvent): void {
-  let wrappedSong = new WrappedSong(event.params.wrappedSong.toHexString())
-  wrappedSong.creator = event.params.creator
+  log.info('Handling WrappedSongReleaseRequested for song: {}', [event.params.wrappedSong.toHexString()])
+  
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong.toHexString())
+  if (!wrappedSong) {
+    wrappedSong = new WrappedSong(event.params.wrappedSong.toHexString())
+  }
+  // Preserve existing data
+  let creator = wrappedSong.creator || event.params.creator
+  let address = wrappedSong.address || event.params.wrappedSong
+  
+  wrappedSong.creator = creator
   wrappedSong.status = "Requested"
-  wrappedSong.address = event.params.wrappedSong
+  wrappedSong.address = address
   wrappedSong.pendingDistributor = event.params.distributor
+  // Remove the distributor assignment
+  // wrappedSong.distributor = event.params.distributor.toHexString()
   wrappedSong.save()
 
+  log.info('WrappedSong saved with status: {} and pendingDistributor: {}', [wrappedSong.status, event.params.distributor.toHexString()])
+  
   let distributorId = event.params.distributor.toHexString()
   let distributor = Distributor.load(distributorId)
   if (!distributor) {
@@ -51,6 +64,8 @@ export function handleWrappedSongReleased(event: WrappedSongReleasedEvent): void
     wrappedSong.pendingDistributor = null
     wrappedSong.save()
 
+    log.info('WrappedSong released with distributor: {}', [distributorId])
+
     let releaseRequestId = wrappedSong.id + "-" + distributorId
     let releaseRequest = ReleaseRequest.load(releaseRequestId)
     if (releaseRequest) {
@@ -75,21 +90,35 @@ export function handleMetadataUpdateRequested(event: MetadataUpdateRequestedEven
       let newMetadataId = metadataUpdateRequestId + "-newMetadata"
       let newMetadata = new Metadata(newMetadataId)
       
-      let parsedMetadata = parseMetadata(event.params.newMetadata)
-      if (parsedMetadata) {
-        newMetadata.songURI = parsedMetadata.get("songURI")!.toString()
-        newMetadata.sharesAmount = BigInt.fromString(parsedMetadata.get("sharesAmount")!.toString())
-        newMetadata.sharesURI = parsedMetadata.get("sharesURI")!.toString()
-        newMetadata.save()
-      
-        metadataUpdateRequest.newMetadata = newMetadataId
-        metadataUpdateRequest.status = "Pending"
-        metadataUpdateRequest.createdAt = event.block.timestamp
-        metadataUpdateRequest.save()
-
-        wrappedSong.pendingMetadataUpdate = metadataUpdateRequest.id
-        wrappedSong.save()
+      // Handle the case where newMetadata might be a URL instead of JSON
+      let newMetadataString = event.params.newMetadata
+      if (newMetadataString.startsWith("http")) {
+        // If it's a URL, store it directly in the songURI field
+        newMetadata.songURI = newMetadataString
+        newMetadata.sharesAmount = BigInt.fromI32(0) // Default value
+        newMetadata.sharesURI = "" // Empty string as default
+      } else {
+        // Try to parse as JSON
+        let parsedMetadata = parseMetadata(newMetadataString)
+        if (parsedMetadata) {
+          newMetadata.songURI = parsedMetadata.get("songURI") ? parsedMetadata.get("songURI")!.toString() : ""
+          newMetadata.sharesAmount = parsedMetadata.get("sharesAmount") ? BigInt.fromString(parsedMetadata.get("sharesAmount")!.toString()) : BigInt.fromI32(0)
+          newMetadata.sharesURI = parsedMetadata.get("sharesURI") ? parsedMetadata.get("sharesURI")!.toString() : ""
+        } else {
+          log.warning("Failed to parse metadata: {}", [newMetadataString])
+          return // Exit the function if we can't parse the metadata
+        }
       }
+      
+      newMetadata.save()
+    
+      metadataUpdateRequest.newMetadata = newMetadataId
+      metadataUpdateRequest.status = "Pending"
+      metadataUpdateRequest.createdAt = event.block.timestamp
+      metadataUpdateRequest.save()
+
+      wrappedSong.pendingMetadataUpdate = metadataUpdateRequest.id
+      wrappedSong.save()
     }
   }
 }
@@ -187,9 +216,9 @@ export function handleWrappedSongReleaseRejected(event: WrappedSongReleaseReject
 
 // Helper function to parse metadata
 function parseMetadata(metadataString: string): TypedMap<string, JSONValue> | null {
-  let jsonResult = json.fromString(metadataString)
-  if (jsonResult.kind == JSONValueKind.OBJECT) {
-    return jsonResult.toObject()
+  let jsonResult = json.try_fromString(metadataString)
+  if (jsonResult.isOk && jsonResult.value.kind == JSONValueKind.OBJECT) {
+    return jsonResult.value.toObject()
   }
   return null
 }

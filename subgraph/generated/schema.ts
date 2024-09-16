@@ -107,23 +107,6 @@ export class WrappedSong extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get distributor(): string | null {
-    let value = this.get("distributor");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set distributor(value: string | null) {
-    if (!value) {
-      this.unset("distributor");
-    } else {
-      this.set("distributor", Value.fromString(<string>value));
-    }
-  }
-
   get creator(): Bytes {
     let value = this.get("creator");
     if (!value || value.kind == ValueKind.NULL) {
@@ -163,8 +146,8 @@ export class WrappedSong extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
-  get pendingDistributor(): Bytes | null {
-    let value = this.get("pendingDistributor");
+  get stablecoinAddress(): Bytes | null {
+    let value = this.get("stablecoinAddress");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -172,12 +155,25 @@ export class WrappedSong extends Entity {
     }
   }
 
-  set pendingDistributor(value: Bytes | null) {
+  set stablecoinAddress(value: Bytes | null) {
     if (!value) {
-      this.unset("pendingDistributor");
+      this.unset("stablecoinAddress");
     } else {
-      this.set("pendingDistributor", Value.fromBytes(<Bytes>value));
+      this.set("stablecoinAddress", Value.fromBytes(<Bytes>value));
     }
+  }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
   }
 
   get metadata(): string | null {
@@ -197,6 +193,40 @@ export class WrappedSong extends Entity {
     }
   }
 
+  get distributor(): string | null {
+    let value = this.get("distributor");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set distributor(value: string | null) {
+    if (!value) {
+      this.unset("distributor");
+    } else {
+      this.set("distributor", Value.fromString(<string>value));
+    }
+  }
+
+  get pendingDistributor(): Bytes | null {
+    let value = this.get("pendingDistributor");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set pendingDistributor(value: Bytes | null) {
+    if (!value) {
+      this.unset("pendingDistributor");
+    } else {
+      this.set("pendingDistributor", Value.fromBytes(<Bytes>value));
+    }
+  }
+
   get pendingMetadataUpdate(): string | null {
     let value = this.get("pendingMetadataUpdate");
     if (!value || value.kind == ValueKind.NULL) {
@@ -212,27 +242,6 @@ export class WrappedSong extends Entity {
     } else {
       this.set("pendingMetadataUpdate", Value.fromString(<string>value));
     }
-  }
-
-  get stablecoinAddress(): Bytes {
-    let value = this.get("stablecoinAddress");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set stablecoinAddress(value: Bytes) {
-    this.set("stablecoinAddress", Value.fromBytes(value));
-  }
-
-  get releaseRequests(): ReleaseRequestLoader {
-    return new ReleaseRequestLoader(
-      "WrappedSong",
-      this.get("id")!.toString(),
-      "releaseRequests",
-    );
   }
 
   get reviewStartedAt(): BigInt | null {
@@ -302,23 +311,6 @@ export class WrappedSong extends Entity {
       this.set("releasedAt", Value.fromBigInt(<BigInt>value));
     }
   }
-
-  get createdAt(): BigInt | null {
-    let value = this.get("createdAt");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set createdAt(value: BigInt | null) {
-    if (!value) {
-      this.unset("createdAt");
-    } else {
-      this.set("createdAt", Value.fromBigInt(<BigInt>value));
-    }
-  }
 }
 
 export class Metadata extends Entity {
@@ -358,6 +350,14 @@ export class Metadata extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get wrappedSong(): WrappedSongLoader {
+    return new WrappedSongLoader(
+      "Metadata",
+      this.get("id")!.toString(),
+      "wrappedSong",
+    );
   }
 
   get songURI(): string {
@@ -757,24 +757,6 @@ export class ReleaseRequest extends Entity {
   }
 }
 
-export class ReleaseRequestLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): ReleaseRequest[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<ReleaseRequest[]>(value);
-  }
-}
-
 export class WrappedSongLoader extends Entity {
   _entity: string;
   _field: string;
@@ -790,6 +772,24 @@ export class WrappedSongLoader extends Entity {
   load(): WrappedSong[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<WrappedSong[]>(value);
+  }
+}
+
+export class ReleaseRequestLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ReleaseRequest[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ReleaseRequest[]>(value);
   }
 }
 

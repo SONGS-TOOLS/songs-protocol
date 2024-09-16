@@ -56,6 +56,12 @@
         "internalType": "string",
         "name": "newMetadata",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "implementationAccount",
+        "type": "address"
       }
     ],
     "name": "MetadataUpdated",
