@@ -58,10 +58,11 @@
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@openzeppelin/hardhat-upgrades": "^3.2.0",
     "@types/chai": "^4.3.11",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.19",
     "@types/react-color": "^3.0.5",
-    "chai": "^5.1.0",
+    "chai": "4.5.0",
     "env-cmd": "^10.1.0",
     "eth-gas-reporter": "^0.2.27",
     "ethereum-waffle": "^4.0.10",
@@ -70,16 +71,16 @@
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-gas-reporter": "^1.0.10",
     "husky": "^9.0.11",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3",
     "js-yaml": "^4.1.0",
-    "@types/js-yaml": "^4.1.0"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@graphprotocol/graph-cli": "^0.68.0",
+    "@graphprotocol/graph-ts": "^0.32.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
     "@openzeppelin/contracts": "^5.0.2",
     "@remix-project/remixd": "^0.6.33",
-    "dotenv": "^16.4.5",
-    "@graphprotocol/graph-cli": "^0.68.0",
-    "@graphprotocol/graph-ts": "^0.32.0"
+    "dotenv": "^16.4.5"
   }
 }
