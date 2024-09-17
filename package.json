@@ -50,13 +50,16 @@
   },
   "homepage": "https://songs-tools.com",
   "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.7",
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
     "@nomicfoundation/hardhat-verify": "^2.0.8",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@openzeppelin/hardhat-upgrades": "^3.2.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.11",
     "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
@@ -73,12 +76,12 @@
     "husky": "^9.0.11",
     "js-yaml": "^4.1.0",
     "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.68.0",
     "@graphprotocol/graph-ts": "^0.32.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
     "@openzeppelin/contracts": "^5.0.2",
     "@remix-project/remixd": "^0.6.33",
     "dotenv": "^16.4.5"
