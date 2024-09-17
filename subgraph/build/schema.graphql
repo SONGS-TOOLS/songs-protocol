@@ -12,10 +12,7 @@ type WrappedSong @entity {
   createdAt: BigInt!
   metadata: Metadata
   distributor: Distributor
-  # pendingDistributor: Bytes
   pendingMetadataUpdate: MetadataUpdateRequest
-  # reviewStartedAt: BigInt
-  # reviewingDistributor: Bytes
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
   sharesAmount: BigInt
@@ -23,49 +20,37 @@ type WrappedSong @entity {
 
 type TokenMetadata @entity {
   id: ID!
-  image: String!
-  externalURL: String!
-  name: String!
-  description: String!
+  image: String
+  externalURL: String
+  name: String
+  description: String
+  attributes: String
 }
 
 type Metadata @entity {
   id: ID!
-  # wrappedSong: WrappedSong! @derivedFrom(field: "metadata")
-  songURI: TokenMetadata!
-  # sharesAmount: BigInt!
-  sharesURI: TokenMetadata!
+  songURI: TokenMetadata
+  sharesURI: TokenMetadata
 }
 
 type MetadataUpdateRequest @entity {
   id: Bytes!
-  # wrappedSong: WrappedSong!
-  # distributor: Distributor! # This should always have a distributor
-  # tokenId: BigInt!
   newMetadata: Metadata!
   status: String!
   createdAt: BigInt!
   confirmedAt: BigInt
-  # ipfsURI: TokenMetadata
 }
 
 type Distributor @entity {
   id: Bytes!
   address: Bytes!
   wrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
-  # releasedWrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
-  # releaseRequests: [ReleaseRequest!]! @derivedFrom(field: "distributor")
-  # metadataUpdateRequests: [MetadataUpdateRequest!]!
-  # @derivedFrom(field: "distributor")
 }
 
 type ReleaseRequest @entity {
   id: Bytes!
-  # wrappedSong: WrappedSong!
-  # distributor: Distributor! # This should always have a distributor
   status: String!
   createdAt: BigInt!
   reviewStartedAt: BigInt
   reviewEndTime: BigInt
-  # confirmedAt: BigInt
 }

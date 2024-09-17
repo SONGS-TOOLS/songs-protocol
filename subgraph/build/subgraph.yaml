@@ -6,7 +6,7 @@ dataSources:
     name: ProtocolModule
     network: localhost
     source:
-      address: "0xE634d83f8E016B04e51F2516e6086b5f238675C7"
+      address: "0x5f58879Fe3a4330B6D85c1015971Ea6e5175AeDD"
       abi: ProtocolModule
       startBlock: 20762913
     mapping:
@@ -42,7 +42,7 @@ dataSources:
     name: WrappedSongFactory
     network: localhost
     source:
-      address: "0x86c64cB21f88fA9E2c46b61c35889E75f08FDce1"
+      address: "0x582957C7a35CDfeAAD1Ca4b87AE03913eAAd0Be0"
       abi: WrappedSongFactory
       startBlock: 20762913
     mapping:
@@ -65,7 +65,7 @@ dataSources:
     name: distributorWalletFactory
     network: localhost
     source:
-      address: "0xd8E4Af8145A8288537B85878bb2371fa070Aa5eF"
+      address: "0x1966dc8ff30Bc4AeDEd27178642253b3cCC9AA3f"
       abi: DistributorWalletFactory
       startBlock: 20762913
     mapping:

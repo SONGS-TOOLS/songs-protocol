@@ -1,12 +1,4 @@
-import {
-  BigInt,
-  json,
-  JSONValue,
-  JSONValueKind,
-  log,
-  store,
-  TypedMap,
-} from '@graphprotocol/graph-ts';
+import { BigInt, store } from '@graphprotocol/graph-ts';
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,
@@ -28,9 +20,6 @@ import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
 export function handleWrappedSongReleaseRequested(
   event: WrappedSongRequestedEvent
 ): void {
-  log.info('Handling WrappedSongReleaseRequested for song: {}', [
-    event.params.wrappedSong.toHexString(),
-  ]);
   // GET IDs FROM ALL TOPICS IN EVENT (wrappedSong, distributor, releaseRequest)
   const wrappedSongId = event.params.wrappedSong;
   const distributorId = event.params.distributor;
@@ -39,60 +28,21 @@ export function handleWrappedSongReleaseRequested(
   // GET ENTITIES FROM SCHEMA
   let distributor = Distributor.load(distributorId);
   let wrappedSong = WrappedSong.load(wrappedSongId);
-
   // CREATE NEW RELEASE REQUEST ONLY IF WRAPPEDSONG AND DISTRIBUTOR EXIST
-  if (wrappedSong && distributor) {
-    wrappedSong.status = 'Requested';
-
-    const releaseRequest = new ReleaseRequest(releaseRequestId);
-    releaseRequest.status = 'Pending';
-    releaseRequest.createdAt = event.block.timestamp;
-    releaseRequest.save();
-    // ASSIGN DISTRIBUTOR AND RELEASE REQUEST TO WRAPPEDSONG
-    wrappedSong.distributor = distributorId;
-    wrappedSong.releaseRequest = releaseRequestId;
-    wrappedSong.save();
+  if (!wrappedSong || !distributor) {
+    return;
   }
 
-  // Preserve existing data
-  // let creatorAddress = wrappedSong.creator || event.params.creator.toHexString();
-  // let address = wrappedSong.address || event.params.wrappedSong.toHexString();
-  // let distributorAddress = wrappedSong.distributor || event.params.distributor.toHexString();
+  wrappedSong.status = 'Requested';
 
-  // wrappedSong.creator = creatorAddress;
-  // wrappedSong.status = 'Requested';
-  // wrappedSong.address = address;
-  // wrappedSong.pendingDistributor = event.params.distributor;
-  // Remove the distributor assignment
-  // wrappedSong.distributor = event.params.distributor.toHexString()
-
-  // log.info('WrappedSong saved with status: {} and pendingDistributor: {}', [
-  //   wrappedSong.status,
-  //   event.params.distributor.toHexString(),
-  // ]);
-
-  // let distributorId = event.params.distributor;
-  // let distributor = Distributor.load(distributorId);
-  // if (!distributor) {
-  //   distributor = new Distributor(distributorId);
-  // }
-
-  // distributor.address = event.params.distributor;
-  // distributor.save();
-
-  // wrappedSong.distributor = distributorId;
-
-  // let releaseRequestId = event.transaction.hash;
-
-  // event.params.wrappedSong.toHexString() + '-' + distributorId;
-  // const releaseRequest = new ReleaseRequest(releaseRequestId);
-  // releaseRequest.wrappedSong = wrappedSong.id;
-  // releaseRequest.distributor = distributorId;
-  // releaseRequest.status = 'Pending';
-  // releaseRequest.createdAt = event.block.timestamp;
-  // releaseRequest.save();
-  // wrappedSong.releaseRequest = releaseRequestId;
-  // wrappedSong.save();
+  const releaseRequest = new ReleaseRequest(releaseRequestId);
+  releaseRequest.status = 'Pending';
+  releaseRequest.createdAt = event.block.timestamp;
+  releaseRequest.save();
+  // ASSIGN DISTRIBUTOR AND RELEASE REQUEST TO WRAPPEDSONG
+  wrappedSong.distributor = distributorId;
+  wrappedSong.releaseRequest = releaseRequestId;
+  wrappedSong.save();
 }
 
 export function handleWrappedSongReleased(
@@ -103,19 +53,21 @@ export function handleWrappedSongReleased(
 
   const wrappedSong = WrappedSong.load(wrappedSongId);
   const distributor = Distributor.load(distributorId);
-  if (wrappedSong && distributor) {
-    const releaseRequestId = wrappedSong.releaseRequest;
-
-    if (!releaseRequestId) {
-      return;
-    }
-
-    wrappedSong.status = 'Released';
-    wrappedSong.releasedAt = event.block.timestamp;
-    wrappedSong.releaseRequest = null;
-    wrappedSong.save();
-    store.remove('ReleaseRequest', releaseRequestId.toHexString());
+  if (!wrappedSong || !distributor) {
+    return;
   }
+
+  const releaseRequestId = wrappedSong.releaseRequest;
+
+  if (!releaseRequestId) {
+    return;
+  }
+
+  wrappedSong.status = 'Released';
+  wrappedSong.releasedAt = event.block.timestamp;
+  wrappedSong.releaseRequest = null;
+  wrappedSong.save();
+  store.remove('ReleaseRequest', releaseRequestId.toHexString());
 }
 
 export function handleMetadataUpdateRequested(
@@ -143,16 +95,14 @@ export function handleMetadataUpdateRequested(
   let newMetadata = new Metadata(newMetadataId);
 
   const newMetadataUrl = event.params.newMetadata;
+  const songIpfsURI = newMetadataUrl.split('/ipfs/')[1];
 
-  if (newMetadataUrl.startsWith('http')) {
-    const songIpfsURI = newMetadataUrl.split('/ipfs/')[1];
-    if (songIpfsURI) {
-      newMetadata.songURI = songIpfsURI;
-      TokenMetadataTemplate.create(songIpfsURI);
+  if (songIpfsURI) {
+    newMetadata.songURI = songIpfsURI;
+    TokenMetadataTemplate.create(songIpfsURI);
 
-      //TODO: handle metadata update for shares
-      newMetadata.sharesURI = '';
-    }
+    //TODO: handle metadata update for shares
+    newMetadata.sharesURI = '';
   } else if (newMetadataUrl.startsWith('Qm')) {
     newMetadata.songURI = newMetadataUrl;
     TokenMetadataTemplate.create(newMetadataUrl);
@@ -292,14 +242,3 @@ export function handleWrappedSongReleaseRejected(
 
   store.remove('ReleaseRequest', releaseRequestId.toHexString());
 }
-
-// Helper function to parse metadata
-// function parseMetadata(
-//   metadataString: string
-// ): TypedMap<string, JSONValue> | null {
-//   let jsonResult = json.try_fromString(metadataString);
-//   if (jsonResult.isOk && jsonResult.value.kind == JSONValueKind.OBJECT) {
-//     return jsonResult.value.toObject();
-//   }
-//   return null;
-// }

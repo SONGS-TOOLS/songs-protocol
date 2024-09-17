@@ -322,56 +322,89 @@ export class TokenMetadata extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get image(): string {
+  get image(): string | null {
     let value = this.get("image");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set image(value: string) {
-    this.set("image", Value.fromString(value));
+  set image(value: string | null) {
+    if (!value) {
+      this.unset("image");
+    } else {
+      this.set("image", Value.fromString(<string>value));
+    }
   }
 
-  get externalURL(): string {
+  get externalURL(): string | null {
     let value = this.get("externalURL");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set externalURL(value: string) {
-    this.set("externalURL", Value.fromString(value));
+  set externalURL(value: string | null) {
+    if (!value) {
+      this.unset("externalURL");
+    } else {
+      this.set("externalURL", Value.fromString(<string>value));
+    }
   }
 
-  get name(): string {
+  get name(): string | null {
     let value = this.get("name");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set name(value: string) {
-    this.set("name", Value.fromString(value));
+  set name(value: string | null) {
+    if (!value) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(<string>value));
+    }
   }
 
-  get description(): string {
+  get description(): string | null {
     let value = this.get("description");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set description(value: string) {
-    this.set("description", Value.fromString(value));
+  set description(value: string | null) {
+    if (!value) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(<string>value));
+    }
+  }
+
+  get attributes(): string | null {
+    let value = this.get("attributes");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set attributes(value: string | null) {
+    if (!value) {
+      this.unset("attributes");
+    } else {
+      this.set("attributes", Value.fromString(<string>value));
+    }
   }
 }
 
@@ -414,30 +447,38 @@ export class Metadata extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get songURI(): string {
+  get songURI(): string | null {
     let value = this.get("songURI");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set songURI(value: string) {
-    this.set("songURI", Value.fromString(value));
+  set songURI(value: string | null) {
+    if (!value) {
+      this.unset("songURI");
+    } else {
+      this.set("songURI", Value.fromString(<string>value));
+    }
   }
 
-  get sharesURI(): string {
+  get sharesURI(): string | null {
     let value = this.get("sharesURI");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
       return value.toString();
     }
   }
 
-  set sharesURI(value: string) {
-    this.set("sharesURI", Value.fromString(value));
+  set sharesURI(value: string | null) {
+    if (!value) {
+      this.unset("sharesURI");
+    } else {
+      this.set("sharesURI", Value.fromString(<string>value));
+    }
   }
 }
 

@@ -4,7 +4,7 @@ import { Distributor } from '../generated/schema';
 export function handleDistributorWalletCreated(
   event: DistributorWalletCreated
 ): void {
-  let distributor = new Distributor(event.params.distributor);
-  distributor.address = event.params.distributor;
+  let distributor = new Distributor(event.params.wallet);
+  distributor.address = event.params.wallet;
   distributor.save();
 }

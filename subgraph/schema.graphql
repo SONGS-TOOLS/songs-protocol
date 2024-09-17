@@ -20,16 +20,17 @@ type WrappedSong @entity {
 
 type TokenMetadata @entity {
   id: ID!
-  image: String!
-  externalURL: String!
-  name: String!
-  description: String!
+  image: String
+  externalURL: String
+  name: String
+  description: String
+  attributes: String
 }
 
 type Metadata @entity {
   id: ID!
-  songURI: TokenMetadata!
-  sharesURI: TokenMetadata!
+  songURI: TokenMetadata
+  sharesURI: TokenMetadata
 }
 
 type MetadataUpdateRequest @entity {

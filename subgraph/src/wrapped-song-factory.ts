@@ -1,4 +1,3 @@
-import { Address, BigInt } from '@graphprotocol/graph-ts';
 import {
   WrappedSongCreated as WrappedSongCreatedEvent,
   WrappedSongCreatedWithMetadata as WrappedSongCreatedWithMetadataEvent,
