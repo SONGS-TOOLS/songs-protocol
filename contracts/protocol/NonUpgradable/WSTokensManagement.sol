@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 private _currentTokenId;
@@ -40,18 +40,18 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @dev Burns tokens and transfers them back to the minter if balance is zero.
+   * @dev Transfers tokens back to the main owner instead of burning.
    * @param account The address of the account to transfer tokens from.
    * @param id The ID of the token to transfer.
    * @param amount The amount of tokens to transfer.
    */
   function burn(address account, uint256 id, uint256 amount) external {
-      require(_minter != address(0), "Minter address not set");
-      require(balanceOf(account, id) >= amount, "Insufficient token balance");
-      require(msg.sender == account, "Caller is not the token owner");
+    require(balanceOf(account, id) >= amount, 'Insufficient token balance');
+    require(msg.sender == account, 'Caller is not the token owner');
 
-      _safeTransferFrom(account, _minter, id, amount, "");
-      _removeShareholder(id, account);
+    address mainOwner = owner();
+    _safeTransferFrom(account, mainOwner, id, amount, '');
+    _removeShareholder(id, account);
   }
 
   /**
@@ -59,7 +59,10 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @param tokenId The ID of the token to set the URI for.
    * @param tokenURI The URI to be set for the token.
    */
-  function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
+  function setTokenURI(
+    uint256 tokenId,
+    string memory tokenURI
+  ) public onlyOwner {
     _tokenURIs[tokenId] = tokenURI;
   }
 
@@ -79,7 +82,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     songToConceptNFT[songId] = songId;
     return songId;
   }
-  
+
   /**
    * @dev Creates fungible shares for a specific song.
    * @param songId The ID of the song to create shares for.
@@ -94,8 +97,14 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     string memory sharesURI,
     address creator
   ) public onlyOwner returns (uint256 sharesId) {
-    require(songToConceptNFT[songId] == 0, "Invalid song ID, concept NFT doesn't exist");
-    require(songToFungibleShares[songId] == 0, 'Shares already created for this song');
+    require(
+      songToConceptNFT[songId] == 0,
+      "Invalid song ID, concept NFT doesn't exist"
+    );
+    require(
+      songToFungibleShares[songId] == 0,
+      'Shares already created for this song'
+    );
 
     sharesId = SONG_SHARES_ID;
     _mint(creator, sharesId, sharesAmount, '');
@@ -112,11 +121,14 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @param price The price per share in wei.
    */
   function startSharesSale(uint256 amount, uint256 price) external onlyOwner {
-    require(!saleActive, "Sale is already active");
-    require(amount > 0, "Amount must be greater than 0");
-    require(price > 0, "Price must be greater than 0");
-    require(balanceOf(owner(), SONG_SHARES_ID) >= amount, "Insufficient shares");
-    require(amount <= totalShares, "Amount exceeds total shares");
+    require(!saleActive, 'Sale is already active');
+    require(amount > 0, 'Amount must be greater than 0');
+    require(price > 0, 'Price must be greater than 0');
+    require(
+      balanceOf(owner(), SONG_SHARES_ID) >= amount,
+      'Insufficient shares'
+    );
+    require(amount <= totalShares, 'Amount exceeds total shares');
 
     sharesForSale = amount;
     pricePerShare = price;
@@ -130,13 +142,13 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @param amount The amount of shares to buy.
    */
   function buyShares(uint256 amount) external payable nonReentrant {
-    require(saleActive, "No active sale");
-    require(amount > 0, "Amount must be greater than 0");
-    require(amount <= sharesForSale, "Not enough shares available");
-    require(msg.value == amount * pricePerShare, "Incorrect payment amount");
+    require(saleActive, 'No active sale');
+    require(amount > 0, 'Amount must be greater than 0');
+    require(amount <= sharesForSale, 'Not enough shares available');
+    require(msg.value == amount * pricePerShare, 'Incorrect payment amount');
 
     sharesForSale -= amount;
-    _safeTransferFrom(owner(), msg.sender, SONG_SHARES_ID, amount, "");
+    _safeTransferFrom(owner(), msg.sender, SONG_SHARES_ID, amount, '');
 
     if (sharesForSale == 0) {
       saleActive = false;
@@ -150,7 +162,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @dev Ends the current share sale.
    */
   function endSharesSale() external onlyOwner {
-    require(saleActive, "No active sale");
+    require(saleActive, 'No active sale');
     saleActive = false;
     sharesForSale = 0;
     emit SharesSaleEnded();
@@ -161,11 +173,11 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    */
   function withdrawFunds() external onlyOwner nonReentrant {
     uint256 balance = address(this).balance;
-    require(balance > 0, "No funds to withdraw");
+    require(balance > 0, 'No funds to withdraw');
 
     address payable smartAccount = payable(owner());
-    (bool success, ) = smartAccount.call{value: balance}("");
-    require(success, "Transfer failed");
+    (bool success, ) = smartAccount.call{value: balance}('');
+    require(success, 'Transfer failed');
 
     emit FundsWithdrawn(smartAccount, balance);
   }
@@ -184,7 +196,9 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @param sharesId The ID of the shares.
    * @return An array of shareholder addresses.
    */
-  function getShareholderAddresses(uint256 sharesId) public view returns (address[] memory) {
+  function getShareholderAddresses(
+    uint256 sharesId
+  ) public view returns (address[] memory) {
     return _shareholders[sharesId];
   }
 
@@ -193,7 +207,9 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @param sharesId The ID of the shares to query.
    * @return The total amount of shares for the specified ID.
    */
-  function getFungibleTokenShares(uint256 sharesId) public view returns (uint256) {
+  function getFungibleTokenShares(
+    uint256 sharesId
+  ) public view returns (uint256) {
     return fungibleTokenShares[sharesId];
   }
 
@@ -203,7 +219,10 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @return The ID of the fungible shares associated with the specified song.
    */
   function getSharesIdForSong(uint256 songId) public view returns (uint256) {
-    require(songToConceptNFT[songId] != 0, "Invalid song ID, concept NFT doesn't exist");
+    require(
+      songToConceptNFT[songId] != 0,
+      "Invalid song ID, concept NFT doesn't exist"
+    );
     return songToFungibleShares[songId];
   }
 
@@ -215,9 +234,12 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   function _removeShareholder(uint256 sharesId, address shareholder) internal {
     if (balanceOf(shareholder, sharesId) == 0) {
       address[] storage shareholders = _shareholders[sharesId];
+      uint256 lastIndex = shareholders.length - 1;
       for (uint i = 0; i < shareholders.length; i++) {
         if (shareholders[i] == shareholder) {
-          shareholders[i] = shareholders[shareholders.length - 1];
+          if (i != lastIndex) {
+            shareholders[i] = shareholders[lastIndex];
+          }
           shareholders.pop();
           break;
         }

@@ -12,6 +12,7 @@ contract DistributorWallet is Ownable {
   IProtocolModule public protocolModule;
   mapping(address => uint256) public wrappedSongTreasury;
   address[] public managedWrappedSongs;
+  // TODO: CHECK THIS and the function
   uint256 public currentBatchIndex; // Added this line to declare currentBatchIndex
 
   event WrappedSongReleaseRequested(address indexed wrappedSong);
@@ -133,6 +134,16 @@ contract DistributorWallet is Ownable {
     emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
+  /**
+   * @dev Distributes earnings to the specified wrapped song.
+   * @param _wrappedSong The address of the wrapped song.
+   */
+  function distributeEarnings(address payable _wrappedSong) external onlyOwner {
+    uint256 amount = wrappedSongTreasury[_wrappedSong];
+    require(amount > 0, 'No earnings to distribute');
+    wrappedSongTreasury[_wrappedSong] = 0;
+    WrappedSongSmartAccount(_wrappedSong).receiveEarnings();
+  }
 
   /**
    * @dev Confirms the release of a wrapped song and adds it to the managed wrapped songs.

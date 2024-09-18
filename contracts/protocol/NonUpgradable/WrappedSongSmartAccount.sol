@@ -34,16 +34,21 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
 
   mapping(uint256 => SaleInfo) public sharesForSale;
 
+  mapping(address => uint256) public totalEarnings;
+  mapping(address => uint256) public redeemedEarnings;
+
   // Events
   event MetadataUpdated(uint256 indexed tokenId, string newMetadata, address implementationAccount);
   event SharesSetForSale(address indexed wrappedSongAddress, uint256 percentage, uint256 pricePerShare);
   event EarningsReceived(address indexed token, uint256 amount, uint256 earningsPerShare);
   event EarningsClaimed(address indexed account, address indexed token, uint256 amount);
-  event EarningsUpdated(address indexed account, uint256 newEarnings);
+  event EarningsUpdated(address indexed account, uint256 newEarnings, uint256 totalEarnings);
+  event EarningsRedeemed(address indexed account, uint256 amount);
   event AllEarningsClaimed(address indexed account, address[] tokens, uint256[] amounts);
   event TokenReceived(address indexed token);
   event SaleFundsReceived(uint256 amount);
   event SaleFundsWithdrawn(address indexed to, uint256 amount);
+  event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -58,7 +63,10 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   ) Ownable(_owner) {
     require(_stablecoinAddress != address(0), 'Invalid stablecoin address');
     require(_owner != address(0), 'Invalid owner address');
-    require(_protocolModuleAddress != address(0), 'Invalid protocol module address');
+    require(
+      _protocolModuleAddress != address(0),
+      'Invalid protocol module address'
+    );
 
     newWSTokenManagement = new WSTokenManagement(address(this), _owner);
     stablecoin = IERC20(_stablecoinAddress);
@@ -84,7 +92,9 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @dev Requests the release of the wrapped song.
    * @param _distributorWallet The address of the distributor wallet.
    */
-  function requestWrappedSongRelease(address _distributorWallet) external onlyOwner {
+  function requestWrappedSongRelease(
+    address _distributorWallet
+  ) external onlyOwner {
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
@@ -115,8 +125,17 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param to The address of the recipient.
    */
   function transferSongShares(uint256 amount, address to) external onlyOwner {
-    require(getSongSharesBalance(owner()) >= amount, 'Insufficient shares balance');
-    newWSTokenManagement.safeTransferFrom(owner(), to, songSharesId, amount, '');
+    require(
+      getSongSharesBalance(owner()) >= amount,
+      'Insufficient shares balance'
+    );
+    newWSTokenManagement.safeTransferFrom(
+      owner(),
+      to,
+      songSharesId,
+      amount,
+      ''
+    );
   }
 
   /**
@@ -128,17 +147,29 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     uint256[] memory amounts,
     address[] memory recipients
   ) external onlyOwner {
-    require(amounts.length == recipients.length, 'Arrays must be the same length');
-    
+    require(
+      amounts.length == recipients.length,
+      'Arrays must be the same length'
+    );
+
     uint256 totalAmount = 0;
     for (uint256 i = 0; i < amounts.length; i++) {
       totalAmount += amounts[i];
     }
-    
-    require(getSongSharesBalance(owner()) >= totalAmount, 'Not enough shares to transfer');
+
+    require(
+      getSongSharesBalance(owner()) >= totalAmount,
+      'Not enough shares to transfer'
+    );
 
     for (uint256 i = 0; i < recipients.length; i++) {
-      newWSTokenManagement.safeTransferFrom(owner(), recipients[i], songSharesId, amounts[i], '');
+      newWSTokenManagement.safeTransferFrom(
+        owner(),
+        recipients[i],
+        songSharesId,
+        amounts[i],
+        ''
+      );
     }
   }
 
@@ -148,57 +179,113 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param amount The amount of tokens being received.
    */
   function receiveERC20(address token, uint256 amount) external {
-    require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Transfer failed");
+    require(
+      IERC20(token).transferFrom(msg.sender, address(this), amount),
+      'Transfer failed'
+    );
     _processEarnings(amount, token);
   }
 
   /**
-   * @dev Receives earnings in the form of ETH or the selected stablecoin.
+   * @dev Receives earnings in the form of the wrapped song's stablecoin.
    * @notice This function can be called by anyone to add earnings to the contract.
    */
   function receiveEarnings() external payable {
-    uint256 ethAmount = msg.value;
-    uint256 stablecoinAmount = stablecoin.balanceOf(address(this)) - totalDistributedEarnings;
-    
-    require(ethAmount > 0 || stablecoinAmount > 0, "No new earnings received");
-    
-    if (ethAmount > 0) {
-        _processEarnings(ethAmount, address(0));
-    }
-    
-    if (stablecoinAmount > 0) {
-        require(stablecoin.transferFrom(msg.sender, address(this), stablecoinAmount), "Stablecoin transfer failed");
-        _processEarnings(stablecoinAmount, address(stablecoin));
-    }
+    uint256 previousBalance = stablecoin.balanceOf(address(this));
+    require(
+      stablecoin.transferFrom(msg.sender, address(this), msg.value),
+      'Stablecoin transfer failed'
+    );
+    uint256 newBalance = stablecoin.balanceOf(address(this));
+    uint256 receivedAmount = newBalance - previousBalance;
+
+    require(receivedAmount > 0, 'No new earnings received');
+
+    _processEarnings(receivedAmount, address(stablecoin));
   }
 
   /**
-   * @dev Allows a shareholder to claim their earnings in all received tokens.
+   * @dev Allows a shareholder to claim their earnings in the wrapped song's stablecoin.
    */
   function claimEarnings() external {
     updateEarnings();
     uint256 totalAmount = unclaimedEarnings[msg.sender];
-    require(totalAmount > 0, "No earnings to claim");
-    
+    require(totalAmount > 0, 'No earnings to claim');
+
     unclaimedEarnings[msg.sender] = 0;
-    
+    redeemedEarnings[msg.sender] += totalAmount;
+
+    uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
+    uint256 stablecoinShare = (stablecoinBalance * totalAmount) /
+      totalDistributedEarnings;
+
+    require(stablecoinShare > 0, 'No stablecoin earnings to claim');
+    require(
+      stablecoin.transfer(msg.sender, stablecoinShare),
+      'Stablecoin transfer failed'
+    );
+
+    emit EarningsClaimed(msg.sender, address(stablecoin), stablecoinShare);
+    emit EarningsRedeemed(msg.sender, totalAmount);
+  }
+
+  /**
+   * @dev Allows a shareholder to claim their earnings in ETH.
+   */
+  function claimEthEarnings() external {
+    updateEarnings();
+    uint256 totalAmount = unclaimedEarnings[msg.sender];
+    require(totalAmount > 0, 'No earnings to claim');
+
+    uint256 ethShare = (ethBalance * totalAmount) / totalDistributedEarnings;
+    require(ethShare > 0, 'No ETH earnings to claim');
+
+    unclaimedEarnings[msg.sender] = 0;
+    redeemedEarnings[msg.sender] += totalAmount;
+    ethBalance -= ethShare;
+
+    (bool success, ) = msg.sender.call{value: ethShare}('');
+    require(success, 'ETH transfer failed');
+    emit EarningsClaimed(msg.sender, address(0), ethShare);
+    emit EarningsRedeemed(msg.sender, totalAmount);
+  }
+
+  /**
+   * @dev Allows a shareholder to claim all their earnings in all tokens including ETH.
+   */
+  function claimAllEarnings() external {
+    updateEarnings();
+    uint256 totalAmount = unclaimedEarnings[msg.sender];
+    require(totalAmount > 0, 'No earnings to claim');
+
+    unclaimedEarnings[msg.sender] = 0;
+    redeemedEarnings[msg.sender] += totalAmount;
+
     uint256 ethShare = (ethBalance * totalAmount) / totalDistributedEarnings;
     if (ethShare > 0) {
-        ethBalance -= ethShare;
-        (bool success, ) = msg.sender.call{value: ethShare}("");
-        require(success, "ETH transfer failed");
-        emit EarningsClaimed(msg.sender, address(0), ethShare);
+      ethBalance -= ethShare;
+      (bool success, ) = msg.sender.call{value: ethShare}('');
+      require(success, 'ETH transfer failed');
+      emit EarningsClaimed(msg.sender, address(0), ethShare);
     }
-    
+
     for (uint i = 0; i < receivedTokens.length; i++) {
-        address token = receivedTokens[i];
+      address token = receivedTokens[i];
+      if (token != address(0)) {
         uint256 tokenBalance = IERC20(token).balanceOf(address(this));
-        uint256 tokenShare = (tokenBalance * totalAmount) / totalDistributedEarnings;
+        uint256 tokenShare = (tokenBalance * totalAmount) /
+          totalDistributedEarnings;
         if (tokenShare > 0) {
-            require(IERC20(token).transfer(msg.sender, tokenShare), "Token transfer failed");
-            emit EarningsClaimed(msg.sender, token, tokenShare);
+          require(
+            IERC20(token).transfer(msg.sender, tokenShare),
+            'Token transfer failed'
+          );
+          emit EarningsClaimed(msg.sender, token, tokenShare);
         }
+      }
     }
+
+    emit EarningsRedeemed(msg.sender, totalAmount);
   }
 
   /**
@@ -206,11 +293,14 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function updateEarnings() public {
     uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
-    uint256 newEarnings = (shares * accumulatedEarningsPerShare) / 1e18 - lastClaimedEarningsPerShare[msg.sender];
+    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
+      1e18 -
+      lastClaimedEarningsPerShare[msg.sender];
     if (newEarnings > 0) {
-        unclaimedEarnings[msg.sender] += newEarnings;
-        lastClaimedEarningsPerShare[msg.sender] = accumulatedEarningsPerShare;
-        emit EarningsUpdated(msg.sender, newEarnings);
+      unclaimedEarnings[msg.sender] += newEarnings;
+      lastClaimedEarningsPerShare[msg.sender] = accumulatedEarningsPerShare;
+      totalEarnings[msg.sender] += newEarnings;
+      emit EarningsUpdated(msg.sender, newEarnings, totalEarnings[msg.sender]);
     }
   }
 
@@ -219,8 +309,14 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to update.
    * @param newMetadata The new metadata to be set.
    */
-  function requestUpdateMetadata(uint256 tokenId, string memory newMetadata) external onlyOwner {
-    require(protocolModule.isReleased(address(this)), "Song not released, update metadata directly");
+  function requestUpdateMetadata(
+    uint256 tokenId,
+    string memory newMetadata
+  ) external onlyOwner {
+    require(
+      protocolModule.isReleased(address(this)),
+      'Song not released, update metadata directly'
+    );
     protocolModule.requestUpdateMetadata(address(this), tokenId, newMetadata);
   }
 
@@ -229,8 +325,14 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to update.
    * @param newMetadata The new metadata to be set.
    */
-  function updateMetadata(uint256 tokenId, string memory newMetadata) public onlyOwner {
-    require(!protocolModule.isReleased(address(this)), "Cannot update metadata directly after release, request update instead");
+  function updateMetadata(
+    uint256 tokenId,
+    string memory newMetadata
+  ) public onlyOwner {
+    require(
+      !protocolModule.isReleased(address(this)),
+      'Cannot update metadata directly after release, request update instead'
+    );
     newWSTokenManagement.setTokenURI(tokenId, newMetadata);
     emit MetadataUpdated(tokenId, newMetadata, address(this));
   }
@@ -240,15 +342,24 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to update.
    */
   function executeConfirmedMetadataUpdate(uint256 tokenId) external {
-    require(msg.sender == address(protocolModule), "Only ProtocolModule can execute confirmed updates");
-    require(protocolModule.isMetadataUpdateConfirmed(address(this), tokenId), "Metadata update not confirmed");
-    
-    string memory newMetadata = protocolModule.getPendingMetadataUpdate(address(this), tokenId);
+    require(
+      msg.sender == address(protocolModule),
+      'Only ProtocolModule can execute confirmed updates'
+    );
+    require(
+      protocolModule.isMetadataUpdateConfirmed(address(this), tokenId),
+      'Metadata update not confirmed'
+    );
+
+    string memory newMetadata = protocolModule.getPendingMetadataUpdate(
+      address(this),
+      tokenId
+    );
 
     newWSTokenManagement.setTokenURI(tokenId, newMetadata);
-    
+
     protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
-    
+
     emit MetadataUpdated(tokenId, newMetadata, address(this));
   }
 
@@ -343,7 +454,9 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to get the metadata for.
    * @return The metadata of the specified token.
    */
-  function getWrappedSongMetadata(uint256 tokenId) public view returns (string memory) {
+  function getWrappedSongMetadata(
+    uint256 tokenId
+  ) public view returns (string memory) {
     return newWSTokenManagement.uri(tokenId);
   }
 
@@ -388,7 +501,9 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function getUnclaimedEarnings(address account) public view returns (uint256) {
     uint256 shares = newWSTokenManagement.balanceOf(account, songSharesId);
-    uint256 newEarnings = (shares * accumulatedEarningsPerShare) / 1e18 - lastClaimedEarningsPerShare[account];
+    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
+      1e18 -
+      lastClaimedEarningsPerShare[account];
     return unclaimedEarnings[account] + newEarnings;
   }
 
@@ -397,7 +512,9 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @param tokenId The ID of the token to get the metadata for.
    * @return The metadata of the specified token.
    */
-  function getTokenMetadata(uint256 tokenId) public view returns (string memory) {
+  function getTokenMetadata(
+    uint256 tokenId
+  ) public view returns (string memory) {
     return newWSTokenManagement.uri(tokenId);
   }
 
@@ -415,6 +532,22 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function getReceivedTokens() public view returns (address[] memory) {
     return receivedTokens;
+  }
+
+  function getRemainingEarnings(address account) public view returns (uint256) {
+    uint256 shares = newWSTokenManagement.balanceOf(account, songSharesId);
+    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
+      1e18 -
+      lastClaimedEarningsPerShare[account];
+    return unclaimedEarnings[account] + newEarnings;
+  }
+
+  function getTotalEarnings(address account) public view returns (uint256) {
+    return totalEarnings[account];
+  }
+
+  function getRedeemedEarnings(address account) public view returns (uint256) {
+    return redeemedEarnings[account];
   }
 
   // ERC1155Receiver functions
@@ -471,30 +604,22 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   }
 
   // Internal functions
-
-  /**
-   * @dev Internal function to process received earnings.
-   * @param amount The amount of tokens or ETH received.
-   * @param token The address of the token received, or address(0) for ETH.
-   */
   function _processEarnings(uint256 amount, address token) private {
     uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
-    require(totalShares > 0, "No shares exist");
-    
+    require(totalShares > 0, 'No shares exist');
+
     uint256 earningsPerShare = (amount * 1e18) / totalShares;
     accumulatedEarningsPerShare += earningsPerShare;
     totalDistributedEarnings += amount;
-    
-    if (token == address(0)) {
-        ethBalance += amount;
-    } else {
-        if (!isTokenReceived[token]) {
-            receivedTokens.push(token);
-            isTokenReceived[token] = true;
-            emit TokenReceived(token);
-        }
+
+    if (token != address(stablecoin) && token != address(0)) {
+      if (!isTokenReceived[token]) {
+        receivedTokens.push(token);
+        isTokenReceived[token] = true;
+        emit TokenReceived(token);
+      }
     }
-    
+
     emit EarningsReceived(token, amount, earningsPerShare);
   }
 

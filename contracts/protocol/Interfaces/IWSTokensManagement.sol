@@ -29,5 +29,3 @@ interface IWSTokensManagement is IERC1155 {
   function saleActive() external view returns (bool);
   function totalShares() external view returns (uint256);
 }
-
-

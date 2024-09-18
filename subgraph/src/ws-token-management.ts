@@ -1,18 +1,18 @@
 import { BigInt } from '@graphprotocol/graph-ts'
-import { Sale, SaleOffer, WrappedSong } from '../generated/schema'
+import { FundWithdrawal, Sale, SaleOffer, WrappedSong } from '../generated/schema'
 import {
-    FundsWithdrawn,
-    SharesSaleEnded,
-    SharesSaleStarted,
-    SharesSold
+  FundsWithdrawn,
+  SharesSaleEnded,
+  SharesSaleStarted,
+  SharesSold
 } from '../generated/templates/WSTokenManagement/WSTokenManagement'
 
 export function handleSharesSaleStarted(event: SharesSaleStarted): void {
-  let wsTokenManagementAddress = event.address
-  let wrappedSong = WrappedSong.load(wsTokenManagementAddress.toHexString())
+  let wsTokenManagementAddress = event.address.toHexString()
+  let wrappedSong = WrappedSong.load(wsTokenManagementAddress)
   
   if (wrappedSong) {
-    let saleOfferId = wsTokenManagementAddress.toHexString() + '-' + event.params.amount.toString()
+    let saleOfferId = wsTokenManagementAddress + '-' + event.params.amount.toString()
     let saleOffer = new SaleOffer(saleOfferId)
     
     saleOffer.wrappedSong = wrappedSong.id
@@ -28,11 +28,11 @@ export function handleSharesSaleStarted(event: SharesSaleStarted): void {
 }
 
 export function handleSharesSold(event: SharesSold): void {
-  let wsTokenManagementAddress = event.address
-  let wrappedSong = WrappedSong.load(wsTokenManagementAddress.toHexString())
+  let wsTokenManagementAddress = event.address.toHexString()
+  let wrappedSong = WrappedSong.load(wsTokenManagementAddress)
   
   if (wrappedSong) {
-    let saleId = wsTokenManagementAddress.toHexString() + '-' + event.transaction.hash.toHexString()
+    let saleId = wsTokenManagementAddress + '-' + event.transaction.hash.toHexString()
     let sale = new Sale(saleId)
     
     sale.wrappedSong = wrappedSong.id
@@ -43,26 +43,46 @@ export function handleSharesSold(event: SharesSold): void {
     sale.timestamp = event.block.timestamp
     
     sale.save()
-  }
-}
 
-export function handleSharesSaleEnded(event: SharesSaleEnded): void {
-  let wsTokenManagementAddress = event.address
-  let wrappedSong = WrappedSong.load(wsTokenManagementAddress.toHexString())
-  
-  if (wrappedSong) {
-    let saleOffers = wrappedSong.saleOffers
-    for (let i = 0; i < saleOffers.length; i++) {
-      let saleOffer = SaleOffer.load(saleOffers[i])
-      if (saleOffer && saleOffer.isActive) {
-        saleOffer.isActive = false
-        saleOffer.updatedAt = event.block.timestamp
-        saleOffer.save()
+    // Update the active sale offer
+    let activeSaleOfferId = wsTokenManagementAddress + '-active'
+    let activeSaleOffer = SaleOffer.load(activeSaleOfferId)
+    if (activeSaleOffer) {
+      activeSaleOffer.amount = activeSaleOffer.amount.minus(event.params.amount)
+      if (activeSaleOffer.amount.equals(BigInt.fromI32(0))) {
+        activeSaleOffer.isActive = false
       }
+      activeSaleOffer.updatedAt = event.block.timestamp
+      activeSaleOffer.save()
     }
   }
 }
 
+export function handleSharesSaleEnded(event: SharesSaleEnded): void {
+  let wsTokenManagementAddress = event.address.toHexString()
+  let activeSaleOfferId = wsTokenManagementAddress + '-active'
+  let activeSaleOffer = SaleOffer.load(activeSaleOfferId)
+  
+  if (activeSaleOffer) {
+    activeSaleOffer.isActive = false
+    activeSaleOffer.updatedAt = event.block.timestamp
+    activeSaleOffer.save()
+  }
+}
+
 export function handleFundsWithdrawn(event: FundsWithdrawn): void {
-  // You can implement this if you want to track fund withdrawals
+  let wsTokenManagementAddress = event.address.toHexString()
+  let wrappedSong = WrappedSong.load(wsTokenManagementAddress)
+
+  if (wrappedSong) {
+    let withdrawalId = wsTokenManagementAddress + '-' + event.transaction.hash.toHexString()
+    let withdrawal = new FundWithdrawal(withdrawalId)
+
+    withdrawal.wrappedSong = wrappedSong.id
+    withdrawal.to = event.params.to
+    withdrawal.amount = event.params.amount
+    withdrawal.timestamp = event.block.timestamp
+
+    withdrawal.save()
+  }
 }

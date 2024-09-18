@@ -111,7 +111,7 @@ contract DistributorWalletUpgradeable is Initializable, UUPSUpgradeable, Ownable
     uint256 amount = wrappedSongTreasury[_wrappedSong];
     require(amount > 0, 'No earnings to distribute');
     wrappedSongTreasury[_wrappedSong] = 0;
-    IWrappedSongSmartAccount(_wrappedSong).receiveEarnings(amount);
+    IWrappedSongSmartAccount(_wrappedSong).receiveEarnings();
   }
 
   /**

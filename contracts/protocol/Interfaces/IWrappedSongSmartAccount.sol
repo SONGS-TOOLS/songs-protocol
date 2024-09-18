@@ -10,6 +10,8 @@ interface IWrappedSongSmartAccount {
   function receiveERC20(address token, uint256 amount) external;
   function receiveEarnings() external payable;
   function claimEarnings() external;
+  function claimEthEarnings() external;
+  function claimAllEarnings() external;
   function updateEarnings() external;
   function requestUpdateMetadata(uint256 tokenId, string memory newMetadata) external;
   function updateMetadata(uint256 tokenId, string memory newMetadata) external;
@@ -28,4 +30,7 @@ interface IWrappedSongSmartAccount {
   function getTokenMetadata(uint256 tokenId) external view returns (string memory);
   function checkAuthenticity() external view returns (bool);
   function getReceivedTokens() external view returns (address[] memory);
+  function getRemainingEarnings(address account) external view returns (uint256);
+  function getTotalEarnings(address account) external view returns (uint256);
+  function getRedeemedEarnings(address account) external view returns (uint256);
 }

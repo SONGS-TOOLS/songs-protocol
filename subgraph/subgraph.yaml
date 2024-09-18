@@ -37,6 +37,8 @@ dataSources:
           handler: handleDistributorAcceptedReview
         - event: ReviewPeriodExpired(indexed address,indexed address)
           handler: handleReviewPeriodExpired
+        - event: WrappedSongAuthenticitySet(indexed address,bool)
+          handler: handleWrappedSongAuthenticitySet
       file: ./src/protocol-module.ts
   - kind: ethereum
     name: WrappedSongFactory
@@ -81,6 +83,8 @@ dataSources:
         - event: DistributorWalletCreated(indexed address,address)
           handler: handleDistributorWalletCreated
       file: ./src/distributor-wallet-factory.ts
+
+
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract

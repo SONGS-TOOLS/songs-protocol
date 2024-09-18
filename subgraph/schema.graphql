@@ -15,7 +15,9 @@ type WrappedSong @entity {
   pendingMetadataUpdate: MetadataUpdateRequest
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
-  sharesAmount: BigInt
+  totalShares: BigInt! # We'll keep this and remove sharesAmount
+  shareholders: [ShareHolder!]! @derivedFrom(field: "wrappedSong")
+  isAuthentic: Boolean!
 }
 
 type TokenMetadata @entity {
@@ -74,4 +76,15 @@ type SaleOffer @entity {
   isActive: Boolean!
   createdAt: BigInt!
   updatedAt: BigInt!
+}
+
+type ShareHolder @entity {
+  id: ID! # Composite key: wrappedSongAddress-holderAddress
+  wrappedSong: WrappedSong!
+  holder: Bytes!
+  shares: BigInt!
+  lastUpdated: BigInt!
+  totalEarnings: BigInt!
+  unclaimedEarnings: BigInt!
+  redeemedEarnings: BigInt!
 }

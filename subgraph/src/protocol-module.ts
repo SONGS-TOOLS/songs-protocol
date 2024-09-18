@@ -1,20 +1,16 @@
-<<<<<<< HEAD
-import { BigInt, store } from '@graphprotocol/graph-ts';
-=======
 import {
   BigInt,
-  log,
   store
 } from '@graphprotocol/graph-ts';
->>>>>>> 0862127 (songshares sale management)
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,
   MetadataUpdateRequested as MetadataUpdateRequestedEvent,
   ReviewPeriodExpired as ReviewPeriodExpiredEvent,
+  WrappedSongAuthenticitySet as WrappedSongAuthenticitySetEvent,
   WrappedSongReleased as WrappedSongReleasedEvent,
   WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
-  WrappedSongReleaseRequested as WrappedSongRequestedEvent,
+  WrappedSongReleaseRequested as WrappedSongRequestedEvent
 } from '../generated/ProtocolModule/ProtocolModule';
 import {
   Distributor,
@@ -249,4 +245,12 @@ export function handleWrappedSongReleaseRejected(
   wrappedSong.save();
 
   store.remove('ReleaseRequest', releaseRequestId.toHexString());
+}
+
+export function handleWrappedSongAuthenticitySet(event: WrappedSongAuthenticitySetEvent): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong)
+  if (wrappedSong) {
+    wrappedSong.isAuthentic = event.params.isAuthentic
+    wrappedSong.save()
+  }
 }
