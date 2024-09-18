@@ -1,4 +1,4 @@
-import { BigInt } from '@graphprotocol/graph-ts';
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import { Metadata, WrappedSong } from '../generated/schema';
 import { MetadataUpdated as MetadataUpdatedEvent } from '../generated/templates/WrappedSongSmartAccount/WrappedSongSmartAccount';
 import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
@@ -6,6 +6,8 @@ import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
 export function handleMetadataUpdatedDirectly(
   event: MetadataUpdatedEvent
 ): void {
+  log.info('TRYING TO HANDLE METADATA UPDATED DIRECTLY', []);
+
   const wrappedSongId = event.address;
   const wrappedSong = WrappedSong.load(wrappedSongId);
 
@@ -39,21 +41,33 @@ export function handleMetadataUpdatedDirectly(
   }
 
   //TODO change protocol so that handleMetadataUpdate will take both uris like in create
+
+  log.info('tokenId: {}', [event.params.tokenId.toString()]);
   if (event.params.tokenId.equals(BigInt.fromI32(0))) {
     const songMetadataUrl = event.params.newMetadata;
-    const songIpfsURI = songMetadataUrl.split('/ipfs/')[1];
+
+    const songIpfsURI =
+      songMetadataUrl.split('/ipfs/').length > 1
+        ? songMetadataUrl.split('/ipfs/')[1]
+        : null;
     if (songIpfsURI) {
+      log.info('songIpfsURI (NO IPFS FOUND ON URL): {}', [songIpfsURI]);
       metadata.songURI = songIpfsURI;
       TokenMetadataTemplate.create(songIpfsURI);
     } else if (songMetadataUrl.startsWith('Qm')) {
+      log.info('songMetadataUrl (IPFS FOUND ON URL): {}', [songMetadataUrl]);
       metadata.songURI = songMetadataUrl;
       TokenMetadataTemplate.create(songMetadataUrl);
     } else {
+      log.info('songMetadataUrl (ELSE): {}', [songMetadataUrl]);
       metadata.songURI = songMetadataUrl;
     }
   } else if (event.params.tokenId.equals(BigInt.fromI32(1))) {
     const sharesMetadataUrl = event.params.newMetadata;
-    const sharesIpfsURI = sharesMetadataUrl.split('/ipfs/')[1];
+    const sharesIpfsURI =
+      sharesMetadataUrl.split('/ipfs/').length > 1
+        ? sharesMetadataUrl.split('/ipfs/')[1]
+        : null;
     if (sharesIpfsURI) {
       metadata.sharesURI = sharesIpfsURI;
       TokenMetadataTemplate.create(sharesIpfsURI);
@@ -64,8 +78,9 @@ export function handleMetadataUpdatedDirectly(
       metadata.sharesURI = sharesMetadataUrl;
     }
   }
+  log.info('SAVING', []);
 
-  wrappedSong.metadata = metadataId;
   metadata.save();
+  wrappedSong.metadata = metadataId;
   wrappedSong.save();
 }

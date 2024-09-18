@@ -1,4 +1,4 @@
-import { BigInt, store } from '@graphprotocol/graph-ts';
+import { BigInt, log, store } from '@graphprotocol/graph-ts';
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,
@@ -78,7 +78,6 @@ export function handleMetadataUpdateRequested(
   if (!wrappedSong) {
     return;
   }
-
   let distributorId = wrappedSong.distributor;
 
   if (!distributorId) {
@@ -95,8 +94,10 @@ export function handleMetadataUpdateRequested(
   let newMetadata = new Metadata(newMetadataId);
 
   const newMetadataUrl = event.params.newMetadata;
-  const songIpfsURI = newMetadataUrl.split('/ipfs/')[1];
-
+  const songIpfsURI =
+    newMetadataUrl.split('/ipfs/').length > 1
+      ? newMetadataUrl.split('/ipfs/')[1]
+      : null;
   if (songIpfsURI) {
     newMetadata.songURI = songIpfsURI;
     TokenMetadataTemplate.create(songIpfsURI);
