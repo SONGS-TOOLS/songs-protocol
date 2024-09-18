@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { MockNFT__factory } from "./MockNFT__factory";
+export { MockToken__factory } from "./MockToken__factory";
