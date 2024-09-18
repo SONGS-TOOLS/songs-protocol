@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import '@openzeppelin/contracts/access/Ownable.sol';
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 private _currentTokenId;
-  address private _minter;
+  address private immutable _minter;
 
   mapping(uint256 => string) private _tokenURIs;
   mapping(uint256 => uint256) public songToFungibleShares;
@@ -52,40 +50,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
       require(balanceOf(account, id) >= amount, "Insufficient token balance");
       require(msg.sender == account, "Caller is not the token owner");
 
-      // Transfer tokens back to the minter instead of burning
       _safeTransferFrom(account, _minter, id, amount, "");
-
-      // Remove shareholder if balance is zero
       _removeShareholder(id, account);
-  }
-
-  /**
-   * @dev Removes a shareholder from the list if they no longer hold tokens.
-   * @param sharesId The ID of the shares.
-   * @param shareholder The address of the shareholder.
-   */
-  function _removeShareholder(uint256 sharesId, address shareholder) internal {
-    if (balanceOf(shareholder, sharesId) == 0) {
-      address[] storage shareholders = _shareholders[sharesId];
-      for (uint i = 0; i < shareholders.length; i++) {
-        if (shareholders[i] == shareholder) {
-          shareholders[i] = shareholders[shareholders.length - 1];
-          shareholders.pop();
-          break;
-        }
-      }
-    }
-  }
-
-  /**
-   * @dev Returns the list of shareholder addresses for a given shares ID.
-   * @param sharesId The ID of the shares.
-   * @return An array of shareholder addresses.
-   */
-  function getShareholderAddresses(
-    uint256 sharesId
-  ) public view returns (address[] memory) {
-    return _shareholders[sharesId];
   }
 
   /**
@@ -94,23 +60,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @param tokenURI The URI to be set for the token.
    */
   function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
-    console.log("WSTokenManagement: setTokenURI called");
-    console.log("tokenId:", tokenId);
-    console.log("new tokenURI:", tokenURI);
     _tokenURIs[tokenId] = tokenURI;
-    console.log("TokenURI updated successfully");
-  }
-
-  /**
-   * @dev Retrieves the URI for a specific token ID.
-   * @param tokenId The ID of the token to get the URI for.
-   * @return The URI of the specified token.
-   */
-  function uri(uint256 tokenId) public view override returns (string memory) {
-    console.log("WSTokenManagement: uri called");
-    console.log("tokenId:", tokenId);
-    console.log("Returning URI:", _tokenURIs[tokenId]);
-    return _tokenURIs[tokenId];
   }
 
   /**
@@ -123,7 +73,6 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     string memory songURI,
     address smartWallet
   ) public onlyOwner returns (uint256 songId) {
-    // _currentTokenId++;
     songId = 0;
     _mint(smartWallet, songId, 1, '');
     setTokenURI(songId, songURI);
@@ -145,14 +94,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     string memory sharesURI,
     address creator
   ) public onlyOwner returns (uint256 sharesId) {
-    require(
-      songToConceptNFT[songId] == 0,
-      "Invalid song ID, concept NFT doesn't exist"
-    );
-    require(
-      songToFungibleShares[songId] == 0,
-      'Shares already created for this song'
-    );
+    require(songToConceptNFT[songId] == 0, "Invalid song ID, concept NFT doesn't exist");
+    require(songToFungibleShares[songId] == 0, 'Shares already created for this song');
 
     sharesId = SONG_SHARES_ID;
     _mint(creator, sharesId, sharesAmount, '');
@@ -161,30 +104,6 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     fungibleTokenShares[sharesId] = sharesAmount;
     totalShares = sharesAmount;
     return sharesId;
-  }
-
-  /**
-   * @dev Retrieves the total amount of fungible shares for a specific shares ID.
-   * @param sharesId The ID of the shares to query.
-   * @return The total amount of shares for the specified ID.
-   */
-  function getFungibleTokenShares(
-    uint256 sharesId
-  ) public view returns (uint256) {
-    return fungibleTokenShares[sharesId];
-  }
-
-  /**
-   * @dev Retrieves the fungible shares ID associated with a specific song.
-   * @param songId The ID of the song to query.
-   * @return The ID of the fungible shares associated with the specified song.
-   */
-  function getSharesIdForSong(uint256 songId) public view returns (uint256) {
-    require(
-      songToConceptNFT[songId] != 0,
-      "Invalid song ID, concept NFT doesn't exist"
-    );
-    return songToFungibleShares[songId];
   }
 
   /**
@@ -238,17 +157,71 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @dev Withdraws the contract's balance to the specified address.
-   * @param to The address to send the funds to.
+   * @dev Withdraws the contract's balance to the smart account contract.
    */
-  function withdrawFunds(address payable to) external onlyOwner nonReentrant {
+  function withdrawFunds() external onlyOwner nonReentrant {
     uint256 balance = address(this).balance;
     require(balance > 0, "No funds to withdraw");
-    require(to != address(0), "Invalid withdrawal address");
 
-    (bool success, ) = to.call{value: balance}("");
+    address payable smartAccount = payable(owner());
+    (bool success, ) = smartAccount.call{value: balance}("");
     require(success, "Transfer failed");
 
-    emit FundsWithdrawn(to, balance);
+    emit FundsWithdrawn(smartAccount, balance);
+  }
+
+  /**
+   * @dev Retrieves the URI for a specific token ID.
+   * @param tokenId The ID of the token to get the URI for.
+   * @return The URI of the specified token.
+   */
+  function uri(uint256 tokenId) public view override returns (string memory) {
+    return _tokenURIs[tokenId];
+  }
+
+  /**
+   * @dev Returns the list of shareholder addresses for a given shares ID.
+   * @param sharesId The ID of the shares.
+   * @return An array of shareholder addresses.
+   */
+  function getShareholderAddresses(uint256 sharesId) public view returns (address[] memory) {
+    return _shareholders[sharesId];
+  }
+
+  /**
+   * @dev Retrieves the total amount of fungible shares for a specific shares ID.
+   * @param sharesId The ID of the shares to query.
+   * @return The total amount of shares for the specified ID.
+   */
+  function getFungibleTokenShares(uint256 sharesId) public view returns (uint256) {
+    return fungibleTokenShares[sharesId];
+  }
+
+  /**
+   * @dev Retrieves the fungible shares ID associated with a specific song.
+   * @param songId The ID of the song to query.
+   * @return The ID of the fungible shares associated with the specified song.
+   */
+  function getSharesIdForSong(uint256 songId) public view returns (uint256) {
+    require(songToConceptNFT[songId] != 0, "Invalid song ID, concept NFT doesn't exist");
+    return songToFungibleShares[songId];
+  }
+
+  /**
+   * @dev Removes a shareholder from the list if they no longer hold tokens.
+   * @param sharesId The ID of the shares.
+   * @param shareholder The address of the shareholder.
+   */
+  function _removeShareholder(uint256 sharesId, address shareholder) internal {
+    if (balanceOf(shareholder, sharesId) == 0) {
+      address[] storage shareholders = _shareholders[sharesId];
+      for (uint i = 0; i < shareholders.length; i++) {
+        if (shareholders[i] == shareholder) {
+          shareholders[i] = shareholders[shareholders.length - 1];
+          shareholders.pop();
+          break;
+        }
+      }
+    }
   }
 }
