@@ -1,7 +1,4 @@
-import {
-  BigInt,
-  store
-} from '@graphprotocol/graph-ts';
+import { BigInt, log, store } from '@graphprotocol/graph-ts';
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,
@@ -10,7 +7,7 @@ import {
   WrappedSongAuthenticitySet as WrappedSongAuthenticitySetEvent,
   WrappedSongReleased as WrappedSongReleasedEvent,
   WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
-  WrappedSongReleaseRequested as WrappedSongRequestedEvent
+  WrappedSongReleaseRequested as WrappedSongRequestedEvent,
 } from '../generated/ProtocolModule/ProtocolModule';
 import {
   Distributor,
@@ -82,7 +79,6 @@ export function handleMetadataUpdateRequested(
   if (!wrappedSong) {
     return;
   }
-
   let distributorId = wrappedSong.distributor;
 
   if (!distributorId) {
@@ -99,8 +95,10 @@ export function handleMetadataUpdateRequested(
   let newMetadata = new Metadata(newMetadataId);
 
   const newMetadataUrl = event.params.newMetadata;
-  const songIpfsURI = newMetadataUrl.split('/ipfs/')[1];
-
+  const songIpfsURI =
+    newMetadataUrl.split('/ipfs/').length > 1
+      ? newMetadataUrl.split('/ipfs/')[1]
+      : null;
   if (songIpfsURI) {
     newMetadata.songURI = songIpfsURI;
     TokenMetadataTemplate.create(songIpfsURI);
@@ -245,12 +243,4 @@ export function handleWrappedSongReleaseRejected(
   wrappedSong.save();
 
   store.remove('ReleaseRequest', releaseRequestId.toHexString());
-}
-
-export function handleWrappedSongAuthenticitySet(event: WrappedSongAuthenticitySetEvent): void {
-  let wrappedSong = WrappedSong.load(event.params.wrappedSong)
-  if (wrappedSong) {
-    wrappedSong.isAuthentic = event.params.isAuthentic
-    wrappedSong.save()
-  }
 }

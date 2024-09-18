@@ -1,3 +1,4 @@
+import { log } from '@graphprotocol/graph-ts';
 import {
   WrappedSongCreated as WrappedSongCreatedEvent,
   WrappedSongCreatedWithMetadata as WrappedSongCreatedWithMetadataEvent,
@@ -7,6 +8,8 @@ import { WrappedSongSmartAccount } from '../generated/templates';
 import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
 
 export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
+  log.info('TRYING TO handleWrappedSongCreated', []);
+
   const wrappedSongId = event.params.wrappedSongSmartAccount;
   let wrappedSong = new WrappedSong(wrappedSongId);
   wrappedSong.creator = event.params.owner;
@@ -24,6 +27,8 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
 export function handleWrappedSongCreatedWithMetadata(
   event: WrappedSongCreatedWithMetadataEvent
 ): void {
+  log.info('TRYING TO handleWrappedSongCreatedWithMetadata', []);
+
   //IN THE CURRENT LOGIC, THE WRAPPED SONG WILL EXIST ALREADY AND THE WRAPPED SONG CREATED EVENT WILL HAVE BEEN TRIGGERED
   const wrappedSongId = event.params.wrappedSongSmartAccount;
   const wrappedSong = WrappedSong.load(wrappedSongId);
@@ -41,7 +46,10 @@ export function handleWrappedSongCreatedWithMetadata(
 
   //Check if the songURI is a URL and if it is, extract CID from it, otherwise, it's a CID
 
-  const songIpfsURI = songMetadataUrl.split('/ipfs/')[1];
+  const songIpfsURI =
+    songMetadataUrl.split('/ipfs/').length > 1
+      ? songMetadataUrl.split('/ipfs/')[1]
+      : null;
   if (songIpfsURI) {
     metadata.songURI = songIpfsURI;
     TokenMetadataTemplate.create(songIpfsURI);
@@ -52,7 +60,10 @@ export function handleWrappedSongCreatedWithMetadata(
     metadata.songURI = songMetadataUrl;
   }
 
-  const sharesIpfsURI = sharesMetadataUrl.split('/ipfs/')[1];
+  const sharesIpfsURI =
+    sharesMetadataUrl.split('/ipfs/').length > 1
+      ? sharesMetadataUrl.split('/ipfs/')[1]
+      : null;
   if (sharesIpfsURI) {
     metadata.sharesURI = sharesIpfsURI;
     TokenMetadataTemplate.create(sharesIpfsURI);
