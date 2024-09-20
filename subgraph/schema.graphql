@@ -32,6 +32,8 @@ type TokenMetadata @entity {
 
 type Metadata @entity {
   id: ID!
+  songCID: String
+  sharesCID: String
   songURI: TokenMetadata
   sharesURI: TokenMetadata
 }
