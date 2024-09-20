@@ -52,12 +52,15 @@ export function handleWrappedSongCreatedWithMetadata(
       : null;
   if (songIpfsURI) {
     metadata.songURI = songIpfsURI;
+    metadata.songCID = songIpfsURI;
     TokenMetadataTemplate.create(songIpfsURI);
   } else if (songMetadataUrl.startsWith('Qm')) {
     metadata.songURI = songMetadataUrl;
+    metadata.songCID = songMetadataUrl;
     TokenMetadataTemplate.create(songMetadataUrl);
   } else {
     metadata.songURI = songMetadataUrl;
+    metadata.songCID = songMetadataUrl;
   }
 
   const sharesIpfsURI =
@@ -66,12 +69,15 @@ export function handleWrappedSongCreatedWithMetadata(
       : null;
   if (sharesIpfsURI) {
     metadata.sharesURI = sharesIpfsURI;
+    metadata.sharesCID = sharesIpfsURI;
     TokenMetadataTemplate.create(sharesIpfsURI);
   } else if (sharesMetadataUrl.startsWith('Qm')) {
     metadata.sharesURI = sharesMetadataUrl;
+    metadata.sharesCID = sharesMetadataUrl;
     TokenMetadataTemplate.create(sharesMetadataUrl);
   } else {
     metadata.sharesURI = sharesMetadataUrl;
+    metadata.sharesCID = sharesMetadataUrl;
   }
 
   metadata.save();

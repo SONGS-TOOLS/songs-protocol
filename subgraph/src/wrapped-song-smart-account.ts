@@ -1,4 +1,4 @@
-import { BigInt, log } from '@graphprotocol/graph-ts';
+import { BigInt, log, store } from '@graphprotocol/graph-ts';
 import { Metadata, WrappedSong } from '../generated/schema';
 import { MetadataUpdated as MetadataUpdatedEvent } from '../generated/templates/WrappedSongSmartAccount/WrappedSongSmartAccount';
 import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
@@ -19,6 +19,7 @@ export function handleMetadataUpdatedDirectly(
   //TODO: Review this. Since in handleWrappedSongCreated there is no metadata, we could have a wrapped song
   //with no metadata and should be created here.
   let metadataId = wrappedSong.metadata;
+
   let metadata: Metadata | null;
   if (!metadataId) {
     metadataId = wrappedSongId.toHexString() + '-metadata';
@@ -50,17 +51,26 @@ export function handleMetadataUpdatedDirectly(
       songMetadataUrl.split('/ipfs/').length > 1
         ? songMetadataUrl.split('/ipfs/')[1]
         : null;
+
+    const oldSongUri = metadata.songCID;
+    if (oldSongUri) {
+      log.debug(
+        'METADATA UPDATED DIRECTLY: REMOVING OLD METADATA SONG URI:{}',
+        [oldSongUri]
+      );
+      store.remove('TokenMetadata', oldSongUri);
+    }
     if (songIpfsURI) {
-      log.info('songIpfsURI (NO IPFS FOUND ON URL): {}', [songIpfsURI]);
       metadata.songURI = songIpfsURI;
+      metadata.songCID = songIpfsURI;
       TokenMetadataTemplate.create(songIpfsURI);
     } else if (songMetadataUrl.startsWith('Qm')) {
-      log.info('songMetadataUrl (IPFS FOUND ON URL): {}', [songMetadataUrl]);
       metadata.songURI = songMetadataUrl;
+      metadata.songCID = songMetadataUrl;
       TokenMetadataTemplate.create(songMetadataUrl);
     } else {
-      log.info('songMetadataUrl (ELSE): {}', [songMetadataUrl]);
       metadata.songURI = songMetadataUrl;
+      metadata.songCID = songMetadataUrl;
     }
   } else if (event.params.tokenId.equals(BigInt.fromI32(1))) {
     const sharesMetadataUrl = event.params.newMetadata;
@@ -68,14 +78,26 @@ export function handleMetadataUpdatedDirectly(
       sharesMetadataUrl.split('/ipfs/').length > 1
         ? sharesMetadataUrl.split('/ipfs/')[1]
         : null;
+
+    const oldSharesUri = metadata.sharesCID;
+    if (oldSharesUri) {
+      log.debug(
+        'METADATA UPDATED DIRECTLY: REMOVING OLD METADATA SHARES URI:{}',
+        [oldSharesUri]
+      );
+      store.remove('TokenMetadata', oldSharesUri);
+    }
     if (sharesIpfsURI) {
       metadata.sharesURI = sharesIpfsURI;
+      metadata.sharesCID = sharesIpfsURI;
       TokenMetadataTemplate.create(sharesIpfsURI);
     } else if (sharesMetadataUrl.startsWith('Qm')) {
-      metadata.songURI = sharesMetadataUrl;
+      metadata.sharesURI = sharesMetadataUrl;
+      metadata.sharesCID = sharesMetadataUrl;
       TokenMetadataTemplate.create(sharesMetadataUrl);
     } else {
       metadata.sharesURI = sharesMetadataUrl;
+      metadata.sharesCID = sharesMetadataUrl;
     }
   }
   log.info('SAVING', []);

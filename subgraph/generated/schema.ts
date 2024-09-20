@@ -339,8 +339,8 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  get externalURL(): string | null {
-    let value = this.get("externalURL");
+  get external_url(): string | null {
+    let value = this.get("external_url");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -348,11 +348,11 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  set externalURL(value: string | null) {
+  set external_url(value: string | null) {
     if (!value) {
-      this.unset("externalURL");
+      this.unset("external_url");
     } else {
-      this.set("externalURL", Value.fromString(<string>value));
+      this.set("external_url", Value.fromString(<string>value));
     }
   }
 
@@ -406,6 +406,23 @@ export class TokenMetadata extends Entity {
       this.set("attributes", Value.fromString(<string>value));
     }
   }
+
+  get animation_url(): string | null {
+    let value = this.get("animation_url");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set animation_url(value: string | null) {
+    if (!value) {
+      this.unset("animation_url");
+    } else {
+      this.set("animation_url", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class Metadata extends Entity {
@@ -445,6 +462,40 @@ export class Metadata extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get songCID(): string | null {
+    let value = this.get("songCID");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set songCID(value: string | null) {
+    if (!value) {
+      this.unset("songCID");
+    } else {
+      this.set("songCID", Value.fromString(<string>value));
+    }
+  }
+
+  get sharesCID(): string | null {
+    let value = this.get("sharesCID");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set sharesCID(value: string | null) {
+    if (!value) {
+      this.unset("sharesCID");
+    } else {
+      this.set("sharesCID", Value.fromString(<string>value));
+    }
   }
 
   get songURI(): string | null {
