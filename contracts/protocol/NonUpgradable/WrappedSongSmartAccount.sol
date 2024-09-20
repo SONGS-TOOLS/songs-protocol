@@ -126,7 +126,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    */
   function transferSongShares(uint256 amount, address to) external onlyOwner {
     require(
-      getSongSharesBalance(owner()) >= amount,
+      newWSTokenManagement.balanceOf(owner(), songSharesId) >= amount,
       'Insufficient shares balance'
     );
     newWSTokenManagement.safeTransferFrom(
@@ -158,7 +158,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     }
 
     require(
-      getSongSharesBalance(owner()) >= totalAmount,
+      newWSTokenManagement.balanceOf(owner(), songSharesId) >= totalAmount,
       'Not enough shares to transfer'
     );
 
@@ -436,118 +436,6 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     );
     songSharesId = sharesId;
     return sharesId;
-  }
-
-  // View functions
-
-  /**
-   * @dev Returns the token balance of the specified token ID for the contract owner.
-   * @param tokenId The ID of the token.
-   * @return The balance of the token for the contract owner.
-   */
-  function getTokenBalance(uint256 tokenId) public view returns (uint256) {
-    return newWSTokenManagement.balanceOf(owner(), tokenId);
-  }
-
-  /**
-   * @dev Retrieves the metadata for a specific token ID from the WSTokenManagement contract.
-   * @param tokenId The ID of the token to get the metadata for.
-   * @return The metadata of the specified token.
-   */
-  function getWrappedSongMetadata(
-    uint256 tokenId
-  ) public view returns (string memory) {
-    return newWSTokenManagement.uri(tokenId);
-  }
-
-  /**
-   * @dev Returns the total supply of shares for a given song.
-   * @param id The ID of the shares token.
-   * @return The total supply of shares for the given ID.
-   */
-  function getTokenTotalSupply(uint256 id) public view returns (uint256) {
-    return newWSTokenManagement.totalSupply(id);
-  }
-
-  /**
-   * @dev Returns the song shares balance of the specified address.
-   * @param account The address to check the balance for.
-   * @return The balance of song shares for the specified address.
-   */
-  function getSongSharesBalance(address account) public view returns (uint256) {
-    return newWSTokenManagement.balanceOf(account, songSharesId);
-  }
-
-  /**
-   * @dev Returns the address of the associated WSTokenManagement contract.
-   * @return The address of the newWSTokenManagement contract.
-   */
-  function getWSTokenManagementAddress() public view returns (address) {
-    return address(newWSTokenManagement);
-  }
-
-  /**
-   * @dev Indicates whether the contract can receive ERC20 tokens.
-   * @return A boolean indicating if the contract can receive ERC20 tokens.
-   */
-  function canReceiveERC20() external pure returns (bool) {
-    return true;
-  }
-
-  /**
-   * @dev Returns the unclaimed earnings for a given account.
-   * @param account The address to check unclaimed earnings for.
-   * @return The amount of unclaimed earnings.
-   */
-  function getUnclaimedEarnings(address account) public view returns (uint256) {
-    uint256 shares = newWSTokenManagement.balanceOf(account, songSharesId);
-    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
-      1e18 -
-      lastClaimedEarningsPerShare[account];
-    return unclaimedEarnings[account] + newEarnings;
-  }
-
-  /**
-   * @dev Retrieves the metadata for a specific token ID from the WSTokenManagement contract.
-   * @param tokenId The ID of the token to get the metadata for.
-   * @return The metadata of the specified token.
-   */
-  function getTokenMetadata(
-    uint256 tokenId
-  ) public view returns (string memory) {
-    return newWSTokenManagement.uri(tokenId);
-  }
-
-  /**
-   * @dev Checks the authenticity of the contract.
-   * @return A boolean indicating if the contract is authentic.
-   */
-  function checkAuthenticity() public view returns (bool) {
-    return protocolModule.isAuthentic(address(this));
-  }
-
-  /**
-   * @dev Returns an array of all ERC20 token addresses received by the contract.
-   * @return An array of token addresses.
-   */
-  function getReceivedTokens() public view returns (address[] memory) {
-    return receivedTokens;
-  }
-
-  function getRemainingEarnings(address account) public view returns (uint256) {
-    uint256 shares = newWSTokenManagement.balanceOf(account, songSharesId);
-    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
-      1e18 -
-      lastClaimedEarningsPerShare[account];
-    return unclaimedEarnings[account] + newEarnings;
-  }
-
-  function getTotalEarnings(address account) public view returns (uint256) {
-    return totalEarnings[account];
-  }
-
-  function getRedeemedEarnings(address account) public view returns (uint256) {
-    return redeemedEarnings[account];
   }
 
   // ERC1155Receiver functions

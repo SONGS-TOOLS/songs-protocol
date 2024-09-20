@@ -920,13 +920,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "to",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "name": "withdrawFunds",
     "outputs": [],
     "stateMutability": "nonpayable",

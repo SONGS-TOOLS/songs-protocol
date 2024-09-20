@@ -1,6 +1,6 @@
 {
   "networkName": "localhost",
-  "protocolModuleAddress": "0x5f58879Fe3a4330B6D85c1015971Ea6e5175AeDD",
-  "wrappedSongFactoryAddress": "0x582957C7a35CDfeAAD1Ca4b87AE03913eAAd0Be0",
-  "startBlock": 20768680
+  "protocolModuleAddress": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "wrappedSongFactoryAddress": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+  "startBlock": 15493
 }

@@ -313,7 +313,8 @@ contract ProtocolModule is Ownable {
      * @param wrappedSong The address of the wrapped song.
      * @param _isAuthentic The authenticity status to be set.
      */
-    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external onlyOwner {
+    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external {
+        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set authenticity status");
         wrappedSongAuthenticity[wrappedSong] = _isAuthentic;
         emit WrappedSongAuthenticitySet(wrappedSong, _isAuthentic);
     }
