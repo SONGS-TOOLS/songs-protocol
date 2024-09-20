@@ -85,49 +85,118 @@ export function handleMetadataUpdateRequested(
     return;
   }
 
-  let metadataUpdateRequestId = event.block.hash;
+  let previousMetadataUpdateRequestId = wrappedSong.pendingMetadataUpdate;
+  if (previousMetadataUpdateRequestId) {
+    log.debug(
+      'WE HAVE A WRAPPED SONG THAT HAS MORE THAN ONE METADATA UPDATE REQUEST, previousmetadataupdaterequestid: {}',
+      [previousMetadataUpdateRequestId.toHexString()]
+    );
+    let previousMetadataUpdateRequest = MetadataUpdateRequest.load(
+      previousMetadataUpdateRequestId
+    );
 
-  let metadataUpdateRequest = new MetadataUpdateRequest(
-    metadataUpdateRequestId
-  );
+    if (previousMetadataUpdateRequest) {
+      const previousMetadataUpdateRequestMetadataId =
+        previousMetadataUpdateRequest.newMetadata;
+      const previousMetadataUpdateRequestMetadata = Metadata.load(
+        previousMetadataUpdateRequestMetadataId
+      );
+      if (previousMetadataUpdateRequestMetadata) {
+        const newMetadataUrl = event.params.newMetadata;
+        const songIpfsURI =
+          newMetadataUrl.split('/ipfs/').length > 1
+            ? newMetadataUrl.split('/ipfs/')[1]
+            : null;
+        if (songIpfsURI) {
+          const oldSongURI = previousMetadataUpdateRequestMetadata.songCID;
+          if (oldSongURI) {
+            store.remove('TokenMetadata', oldSongURI);
+          }
+          previousMetadataUpdateRequestMetadata.songURI = songIpfsURI;
+          previousMetadataUpdateRequestMetadata.songCID = songIpfsURI;
+          TokenMetadataTemplate.create(songIpfsURI);
+        } else if (newMetadataUrl.startsWith('Qm')) {
+          const oldSongURI = previousMetadataUpdateRequestMetadata.songCID;
+          if (oldSongURI) {
+            store.remove('TokenMetadata', oldSongURI);
+          }
+          previousMetadataUpdateRequestMetadata.songURI = newMetadataUrl;
+          previousMetadataUpdateRequestMetadata.songCID = newMetadataUrl;
+          TokenMetadataTemplate.create(newMetadataUrl);
+        }
 
-  let newMetadataId = metadataUpdateRequestId.toHexString() + '-newMetadata';
-  let newMetadata = new Metadata(newMetadataId);
+        //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
+        const currentMetadataId = wrappedSong.metadata;
+        if (currentMetadataId) {
+          const currentMetadata = Metadata.load(currentMetadataId);
+          if (currentMetadata) {
+            previousMetadataUpdateRequestMetadata.sharesURI =
+              currentMetadata.sharesURI;
+            previousMetadataUpdateRequestMetadata.sharesCID =
+              currentMetadata.sharesCID;
+          }
+        }
 
-  const newMetadataUrl = event.params.newMetadata;
-  const songIpfsURI =
-    newMetadataUrl.split('/ipfs/').length > 1
-      ? newMetadataUrl.split('/ipfs/')[1]
-      : null;
-  if (songIpfsURI) {
-    newMetadata.songURI = songIpfsURI;
-    newMetadata.songCID = songIpfsURI;
-    TokenMetadataTemplate.create(songIpfsURI);
-  } else if (newMetadataUrl.startsWith('Qm')) {
-    newMetadata.songURI = newMetadataUrl;
-    newMetadata.songCID = newMetadataUrl;
-    TokenMetadataTemplate.create(newMetadataUrl);
-  }
+        previousMetadataUpdateRequestMetadata.save();
 
-  //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
-  const currentMetadataId = wrappedSong.metadata;
-  if (currentMetadataId) {
-    const currentMetadata = Metadata.load(currentMetadataId);
-    if (currentMetadata) {
-      newMetadata.sharesURI = currentMetadata.sharesURI;
-      newMetadata.sharesCID = currentMetadata.sharesCID;
+        // metadataUpdateRequest.newMetadata = newMetadataId;
+        previousMetadataUpdateRequest.status = 'Pending';
+        previousMetadataUpdateRequest.createdAt = event.block.timestamp;
+        previousMetadataUpdateRequest.save();
+
+        wrappedSong.pendingMetadataUpdate = previousMetadataUpdateRequestId;
+        wrappedSong.save();
+      }
     }
+  } else {
+    log.debug(
+      'WE HAVE A WRAPPED SONG THAT HAS THE FIRST UPDATE REQUEST, previousmetadataupdaterequestid',
+      []
+    );
+    let metadataUpdateRequestId = event.block.hash;
+
+    let metadataUpdateRequest = new MetadataUpdateRequest(
+      metadataUpdateRequestId
+    );
+
+    let newMetadataId = metadataUpdateRequestId.toHexString() + '-newMetadata';
+    let newMetadata = new Metadata(newMetadataId);
+
+    const newMetadataUrl = event.params.newMetadata;
+    const songIpfsURI =
+      newMetadataUrl.split('/ipfs/').length > 1
+        ? newMetadataUrl.split('/ipfs/')[1]
+        : null;
+    if (songIpfsURI) {
+      newMetadata.songURI = songIpfsURI;
+      newMetadata.songCID = songIpfsURI;
+      TokenMetadataTemplate.create(songIpfsURI);
+    } else if (newMetadataUrl.startsWith('Qm')) {
+      newMetadata.songURI = newMetadataUrl;
+      newMetadata.songCID = newMetadataUrl;
+      TokenMetadataTemplate.create(newMetadataUrl);
+    }
+
+    //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
+    const currentMetadataId = wrappedSong.metadata;
+    if (currentMetadataId) {
+      const currentMetadata = Metadata.load(currentMetadataId);
+      if (currentMetadata) {
+        newMetadata.sharesURI = currentMetadata.sharesURI;
+        newMetadata.sharesCID = currentMetadata.sharesCID;
+      }
+    }
+
+    newMetadata.save();
+
+    metadataUpdateRequest.newMetadata = newMetadataId;
+    metadataUpdateRequest.status = 'Pending';
+    metadataUpdateRequest.createdAt = event.block.timestamp;
+    metadataUpdateRequest.save();
+
+    wrappedSong.pendingMetadataUpdate = metadataUpdateRequestId;
+    wrappedSong.save();
   }
-
-  newMetadata.save();
-
-  metadataUpdateRequest.newMetadata = newMetadataId;
-  metadataUpdateRequest.status = 'Pending';
-  metadataUpdateRequest.createdAt = event.block.timestamp;
-  metadataUpdateRequest.save();
-
-  wrappedSong.pendingMetadataUpdate = metadataUpdateRequestId;
-  wrappedSong.save();
 }
 
 export function handleMetadataUpdated(
@@ -246,8 +315,6 @@ export function handleReviewPeriodExpired(
   releaseRequest.reviewStartedAt = null;
   releaseRequest.reviewEndTime = null;
   releaseRequest.save();
-
-  //What happens when the review period expires? Do we remove the release request?
 }
 
 export function handleWrappedSongReleaseRejected(
