@@ -49,6 +49,7 @@ type MetadataUpdateRequest @entity {
 type Distributor @entity {
   id: Bytes!
   address: Bytes!
+  owner: Bytes!
   wrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
 }
 
