@@ -23,7 +23,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
   uint256 public maxSharesPerWallet;
 
-  event SharesSaleStarted(uint256 amount, uint256 price);
+  event WSTokensCreated(address indexed smartAccount, address indexed minter);
+  event SharesSaleStarted(uint256 amount, uint256 price, address indexed owner, uint256 maxSharesPerWallet);
   event SharesSold(address buyer, uint256 amount);
   event SharesSaleEnded();
   event FundsWithdrawn(address indexed to, uint256 amount);
@@ -43,6 +44,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   ) ERC1155('') Ownable(_smartAccountAddress) {
     _minter = _minterAddress;
     _currentTokenId = 0;
+    emit WSTokensCreated(_smartAccountAddress, _minterAddress);
   }
 
   /**
@@ -144,7 +146,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     maxSharesPerWallet = maxShares;
     saleActive = true;
 
-    emit SharesSaleStarted(amount, price);
+    emit SharesSaleStarted(amount, price, owner(), maxSharesPerWallet);
   }
 
   /**
@@ -187,7 +189,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   /**
    * @dev Withdraws the contract's balance to the smart account contract.
    */
-  function withdrawFunds() external onlyOwner nonReentrant {
+  function withdrawFunds() external onlyMinter nonReentrant {
     uint256 balance = address(this).balance;
     require(balance > 0, 'No funds to withdraw');
 

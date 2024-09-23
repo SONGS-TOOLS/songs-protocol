@@ -56,14 +56,14 @@ contract WrappedSongSmartAccount is
   event EarningsClaimed(
     address indexed account,
     address indexed token,
-    uint256 amount
+    uint256 amount,
+    uint256 totalAmount
   );
   event EarningsUpdated(
     address indexed account,
     uint256 newEarnings,
     uint256 totalEarnings
   );
-  event EarningsRedeemed(address indexed account, uint256 amount);
   event AllEarningsClaimed(
     address indexed account,
     address[] tokens,
@@ -255,8 +255,7 @@ contract WrappedSongSmartAccount is
     );
 
     // Emit events
-    emit EarningsClaimed(msg.sender, address(stablecoin), stablecoinShare);
-    emit EarningsRedeemed(msg.sender, totalAmount);
+    emit EarningsClaimed(msg.sender, address(stablecoin), stablecoinShare, totalAmount);
   }
 
   /**
@@ -276,52 +275,7 @@ contract WrappedSongSmartAccount is
 
     (bool success, ) = msg.sender.call{value: ethShare}('');
     require(success, 'ETH transfer failed');
-    emit EarningsClaimed(msg.sender, address(0), ethShare);
-    emit EarningsRedeemed(msg.sender, totalAmount);
-  }
-
-  /**
-   * @dev Allows a shareholder to claim all their earnings in all tokens including ETH.
-   */
-  function claimAllEarnings() external {
-    // Ensure the caller owns song shares
-    require(
-      newWSTokenManagement.balanceOf(msg.sender, songSharesId) > 0,
-      'Caller does not own any song shares'
-    );
-
-    updateEarnings();
-    uint256 totalAmount = unclaimedEarnings[msg.sender];
-    require(totalAmount > 0, 'No earnings to claim');
-
-    unclaimedEarnings[msg.sender] = 0;
-    redeemedEarnings[msg.sender] += totalAmount;
-
-    uint256 ethShare = (ethBalance * totalAmount) / totalDistributedEarnings;
-    if (ethShare > 0) {
-      ethBalance -= ethShare;
-      (bool success, ) = msg.sender.call{value: ethShare}('');
-      require(success, 'ETH transfer failed');
-      emit EarningsClaimed(msg.sender, address(0), ethShare);
-    }
-
-    for (uint i = 0; i < receivedTokens.length; i++) {
-      address token = receivedTokens[i];
-      if (token != address(0)) {
-        uint256 tokenBalance = IERC20(token).balanceOf(address(this));
-        uint256 tokenShare = (tokenBalance * totalAmount) /
-          totalDistributedEarnings;
-        if (tokenShare > 0) {
-          require(
-            IERC20(token).transfer(msg.sender, tokenShare),
-            'Token transfer failed'
-          );
-          emit EarningsClaimed(msg.sender, token, tokenShare);
-        }
-      }
-    }
-
-    emit EarningsRedeemed(msg.sender, totalAmount);
+    emit EarningsClaimed(msg.sender, address(0), ethShare, totalAmount);
   }
 
   /**
@@ -553,6 +507,9 @@ contract WrappedSongSmartAccount is
    * @dev Function to receive ETH. It automatically processes it as earnings.
    */
   receive() external payable {
+    
+    // TODO: Change sale token funds to WSManagement.
+    
     if (msg.sender == address(newWSTokenManagement)) {
       saleFunds += msg.value;
       emit SaleFundsReceived(msg.value);

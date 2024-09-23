@@ -53,19 +53,6 @@ contract DistributorWallet is Ownable {
   // Payment Functions
 
   /**
-   * @dev Receives payment in stablecoin and updates the treasury for the specified wrapped song.
-   * @param _wrappedSong The address of the wrapped song.
-   * @param _amount The amount of stablecoin to be received.
-   */
-  function receivePayment(address _wrappedSong, uint256 _amount) external {
-    require(
-      stablecoin.transferFrom(msg.sender, address(this), _amount),
-      'Transfer failed'
-    );
-    wrappedSongTreasury[_wrappedSong] += _amount;
-  }
-
-  /**
    * @dev Receives ETH and updates the treasury for the specified wrapped song.
    * @param _wrappedSong The address of the wrapped song.
    */
@@ -95,6 +82,7 @@ contract DistributorWallet is Ownable {
    * @param _amounts The amounts of ETH to be received for each wrapped song.
    */
   function receiveBatchPaymentETH(address[] calldata _wrappedSongs, uint256[] calldata _amounts) external payable onlyOwner {
+    // TODO : Gas controlling on the loop
     require(_wrappedSongs.length == _amounts.length, "Mismatched input lengths");
 
     uint256 totalAmount = msg.value;
@@ -135,64 +123,6 @@ contract DistributorWallet is Ownable {
     emit FundsReceived(msg.sender, _totalAmount, "Stablecoin");
   }
 
-  // Accounting Functions
-  /**
-   * @dev Sets the accounting for a single wrapped song and transfers the specified amount of stablecoin.
-   * @param _wrappedSong The address of the wrapped song.
-   * @param _amount The amount of stablecoin to be set and transferred.
-   */
-  function setAccounting(
-    address _wrappedSong,
-    uint256 _amount
-  ) external onlyOwner {
-    wrappedSongTreasury[_wrappedSong] = _amount;
-    require(stablecoin.transferFrom(msg.sender, address(this), _amount), "Stablecoin transfer failed");
-    emit FundsReceived(msg.sender, _amount, "Stablecoin");
-  }
-
-  /**
-   * @dev Sets the accounting for multiple wrapped songs in a batch.
-   * @param _wrappedSongs The addresses of the wrapped songs.
-   * @param _amounts The amounts of stablecoin to be set for each wrapped song.
-   * @param _totalAmount The total amount of stablecoin received.
-   * @param _batchSize The number of items to process per call.
-   */
-  function setAccountingBatch(
-    address[] calldata _wrappedSongs,
-    uint256[] calldata _amounts,
-    uint256 _totalAmount,
-    uint256 _batchSize
-  ) external onlyOwner {
-    require(
-      _wrappedSongs.length == _amounts.length,
-      'Mismatched input lengths'
-    );
-
-    uint256 sum = 0;
-    for (uint256 i = 0; i < _wrappedSongs.length; i++) {
-      sum += _amounts[i];
-    }
-    require(
-      sum == _totalAmount,
-      'Total amount does not match sum of individual amounts'
-    );
-
-    uint256 endIndex = currentBatchIndex + _batchSize;
-    if (endIndex > _wrappedSongs.length) {
-      endIndex = _wrappedSongs.length;
-    }
-
-    for (uint256 i = currentBatchIndex; i < endIndex; i++) {
-      wrappedSongTreasury[_wrappedSongs[i]] = _amounts[i];
-    }
-
-    currentBatchIndex = endIndex;
-
-    if (currentBatchIndex == _wrappedSongs.length) {
-      currentBatchIndex = 0; // Reset for the next batch
-    }
-  }
-
   // Redemption Functions
 
   /**
@@ -211,6 +141,8 @@ contract DistributorWallet is Ownable {
    * @dev Redeems the amount for the owner of the wrapped song in ETH.
    * @param _wrappedSong The address of the wrapped song.
    */
+  
+  // TODO : Add nonReentrant
   function redeemETH(address payable _wrappedSong) external {
     require(
       msg.sender == Ownable(_wrappedSong).owner(),
@@ -224,19 +156,8 @@ contract DistributorWallet is Ownable {
     emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
-  // Distribution Functions
+  // TODO : add Redeem Stable Coin
 
-  /**
-   * @dev Distributes earnings to the specified wrapped song.
-   * @param _wrappedSong The address of the wrapped song.
-   */
-  function distributeEarnings(address payable _wrappedSong) external onlyOwner {
-    uint256 amount = wrappedSongTreasury[_wrappedSong];
-    require(amount > 0, 'No earnings to distribute');
-    wrappedSongTreasury[_wrappedSong] = 0;
-    WrappedSongSmartAccount(_wrappedSong).receiveEarnings();
-    emit WrappedSongRedeemed(_wrappedSong, amount);
-  }
 
   // Metadata Functions
 
