@@ -67,6 +67,17 @@ async function main() {
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
 
   /* ////////////////////////////////////////////
+  ////////  WSUtils contract  ////////
+  //////////////////////////////////////////// */
+
+  console.log('Deploying WSUtils...');
+  const WSUtils = await ethers.getContractFactory('WSUtils');
+  const wsUtils = await WSUtils.deploy(await protocolModule.getAddress(), deployer.address);
+  await wsUtils.waitForDeployment();
+  console.log('WSUtils deployed to:', await wsUtils.getAddress());
+  await saveAbi('WSUtils', await wsUtils.getAddress());
+
+  /* ////////////////////////////////////////////
   ////////  WrappedSongFactory contract  ////////
   //////////////////////////////////////////// */
 

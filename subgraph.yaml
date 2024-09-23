@@ -7,3 +7,36 @@ dataSources:
         handler: handleWrappedSongCreated
       - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
         handler: handleWrappedSongCreatedWithMetadata
+
+templates:
+  - name: WrappedSongSmartAccount
+    kind: ethereum/contract
+    # ... other configurations ...
+    eventHandlers:
+      # ... (keep existing event handlers)
+      - event: Transfer(indexed address,indexed address,uint256)
+        handler: handleTransfer
+      - event: MetadataUpdated(indexed uint256,string,address)
+        handler: handleMetadataUpdated
+      - event: SharesSetForSale(indexed address,uint256,uint256)
+        handler: handleSharesSetForSale
+      - event: EarningsReceived(indexed address,uint256,uint256)
+        handler: handleEarningsReceived
+      - event: EarningsClaimed(indexed address,indexed address,uint256)
+        handler: handleEarningsClaimed
+      - event: EarningsUpdated(indexed address,uint256,uint256)
+        handler: handleEarningsUpdated
+      - event: EarningsRedeemed(indexed address,uint256)
+        handler: handleEarningsRedeemed
+  - name: WSTokenManagement
+    kind: ethereum/contract
+    # ... other configurations ...
+    eventHandlers:
+      - event: SharesSaleStarted(uint256,uint256)
+        handler: handleSharesSaleStarted
+      - event: SharesSold(address,uint256)
+        handler: handleSharesSold
+      - event: SharesSaleEnded()
+        handler: handleSharesSaleEnded
+      - event: FundsWithdrawn(indexed address,uint256)
+        handler: handleFundsWithdrawn

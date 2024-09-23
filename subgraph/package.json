@@ -5,9 +5,12 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "node ../scripts/deploy-subgraph.js",
+    "codegen-local": "graph codegen ./subgraph-local.yaml",
+    "build-local": "graph build ./subgraph-local.yaml",
     "create-local": "graph create --node http://localhost:8020/ songs-protocol",
     "remove-local": "graph remove --node http://localhost:8020/ songs-protocol",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 songs-protocol"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 --version-label 0.1.0 songs-protocol  ./subgraph-local.yaml",
+    "prepare-and-deploy-local": "yarn codegen-local && yarn build-local && yarn deploy-local"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.68.0",

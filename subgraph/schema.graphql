@@ -4,35 +4,39 @@ type ProtocolConfig @entity {
 }
 
 type WrappedSong @entity {
-  id: ID!
+  id: Bytes!
+  address: Bytes!
   creator: Bytes!
   status: String!
-  address: Bytes!
   stablecoinAddress: Bytes
   createdAt: BigInt!
   metadata: Metadata
   distributor: Distributor
-  pendingDistributor: Bytes
   pendingMetadataUpdate: MetadataUpdateRequest
-  reviewStartedAt: BigInt
-  reviewEndTime: BigInt
-  reviewingDistributor: Bytes
   releasedAt: BigInt
+  releaseRequest: ReleaseRequest
+  totalShares: BigInt! # We'll keep this and remove sharesAmount
+  shareholders: [ShareHolder!]! @derivedFrom(field: "wrappedSong")
+  isAuthentic: Boolean!
+}
+
+type TokenMetadata @entity {
+  id: ID!
+  image: String
+  externalURL: String
+  name: String
+  description: String
+  attributes: String
 }
 
 type Metadata @entity {
   id: ID!
-  wrappedSong: WrappedSong! @derivedFrom(field: "metadata")
-  songURI: String!
-  sharesAmount: BigInt!
-  sharesURI: String!
+  songURI: TokenMetadata
+  sharesURI: TokenMetadata
 }
 
 type MetadataUpdateRequest @entity {
-  id: ID!
-  wrappedSong: WrappedSong!
-  distributor: Distributor!  # This should always have a distributor
-  tokenId: BigInt!
+  id: Bytes!
   newMetadata: Metadata!
   status: String!
   createdAt: BigInt!
@@ -40,20 +44,47 @@ type MetadataUpdateRequest @entity {
 }
 
 type Distributor @entity {
-  id: ID!
+  id: Bytes!
   address: Bytes!
   wrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
-  releasedWrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
-  releaseRequests: [ReleaseRequest!]! @derivedFrom(field: "distributor")
-  metadataUpdateRequests: [MetadataUpdateRequest!]! @derivedFrom(field: "distributor")
 }
 
 type ReleaseRequest @entity {
-  id: ID!
-  wrappedSong: WrappedSong!
-  distributor: Distributor!  # This should always have a distributor
+  id: Bytes!
   status: String!
   createdAt: BigInt!
   reviewStartedAt: BigInt
   confirmedAt: BigInt
+}
+
+type Sale @entity {
+  id: ID!
+  wrappedSong: WrappedSong!
+  seller: Bytes!
+  buyer: Bytes!
+  amount: BigInt!
+  pricePerShare: BigInt!
+  timestamp: BigInt!
+}
+
+type SaleOffer @entity {
+  id: ID!
+  wrappedSong: WrappedSong!
+  seller: Bytes!
+  amount: BigInt!
+  pricePerShare: BigInt!
+  isActive: Boolean!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type ShareHolder @entity {
+  id: ID! # Composite key: wrappedSongAddress-holderAddress
+  wrappedSong: WrappedSong!
+  holder: Bytes!
+  shares: BigInt!
+  lastUpdated: BigInt!
+  totalEarnings: BigInt!
+  unclaimedEarnings: BigInt!
+  redeemedEarnings: BigInt!
 }

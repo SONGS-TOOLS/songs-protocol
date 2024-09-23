@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-// import '@openzeppelin/contracts/token/ERC1155/ERC1155.sol';
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import "hardhat/console.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
-contract WSTokenManagement is ERC1155Supply, Ownable {
+contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 private _currentTokenId;
-  address private _minter;
+  address private immutable _minter;
 
   mapping(uint256 => string) private _tokenURIs;
   mapping(uint256 => uint256) public songToFungibleShares;
@@ -16,6 +15,24 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
   mapping(uint256 => uint256) public fungibleTokenShares;
   mapping(uint256 => address[]) private _shareholders;
 
+  uint256 public constant SONG_SHARES_ID = 1;
+  uint256 public sharesForSale;
+  uint256 public pricePerShare;
+  bool public saleActive;
+  uint256 public totalShares;
+
+  uint256 public maxSharesPerWallet;
+
+  event WSTokensCreated(address indexed smartAccount, address indexed minter);
+  event SharesSaleStarted(uint256 amount, uint256 price, address indexed owner, uint256 maxSharesPerWallet);
+  event SharesSold(address buyer, uint256 amount);
+  event SharesSaleEnded();
+  event FundsWithdrawn(address indexed to, uint256 amount);
+  
+  modifier onlyMinter() {
+    require(msg.sender == _minter, 'Caller is not the minter');
+    _;
+  }
   /**
    * @dev Initializes the contract with the given initial owner.
    * @param _smartAccountAddress Wrapped Song smartAccount address.
@@ -27,53 +44,22 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
   ) ERC1155('') Ownable(_smartAccountAddress) {
     _minter = _minterAddress;
     _currentTokenId = 0;
+    emit WSTokensCreated(_smartAccountAddress, _minterAddress);
   }
 
   /**
-   * @dev Burns tokens and transfers them back to the minter if balance is zero.
+   * @dev Transfers tokens back to the main owner instead of burning.
    * @param account The address of the account to transfer tokens from.
    * @param id The ID of the token to transfer.
    * @param amount The amount of tokens to transfer.
    */
   function burn(address account, uint256 id, uint256 amount) external {
-      require(_minter != address(0), "Minter address not set");
-      require(balanceOf(account, id) >= amount, "Insufficient token balance");
-      require(msg.sender == account, "Caller is not the token owner");
+    require(balanceOf(account, id) >= amount, 'Insufficient token balance');
+    require(msg.sender == account, 'Caller is not the token owner');
 
-      // Transfer tokens back to the minter instead of burning
-      _safeTransferFrom(account, _minter, id, amount, "");
-
-      // Remove shareholder if balance is zero
-      _removeShareholder(id, account);
-  }
-
-  /**
-   * @dev Removes a shareholder from the list if they no longer hold tokens.
-   * @param sharesId The ID of the shares.
-   * @param shareholder The address of the shareholder.
-   */
-  function _removeShareholder(uint256 sharesId, address shareholder) internal {
-    if (balanceOf(shareholder, sharesId) == 0) {
-      address[] storage shareholders = _shareholders[sharesId];
-      for (uint i = 0; i < shareholders.length; i++) {
-        if (shareholders[i] == shareholder) {
-          shareholders[i] = shareholders[shareholders.length - 1];
-          shareholders.pop();
-          break;
-        }
-      }
-    }
-  }
-
-  /**
-   * @dev Returns the list of shareholder addresses for a given shares ID.
-   * @param sharesId The ID of the shares.
-   * @return An array of shareholder addresses.
-   */
-  function getShareholderAddresses(
-    uint256 sharesId
-  ) public view returns (address[] memory) {
-    return _shareholders[sharesId];
+    address mainOwner = owner();
+    _safeTransferFrom(account, mainOwner, id, amount, '');
+    _removeShareholder(id, account);
   }
 
   /**
@@ -81,24 +67,11 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
    * @param tokenId The ID of the token to set the URI for.
    * @param tokenURI The URI to be set for the token.
    */
-  function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
-    console.log("WSTokenManagement: setTokenURI called");
-    console.log("tokenId:", tokenId);
-    console.log("new tokenURI:", tokenURI);
+  function setTokenURI(
+    uint256 tokenId,
+    string memory tokenURI
+  ) public onlyOwner {
     _tokenURIs[tokenId] = tokenURI;
-    console.log("TokenURI updated successfully");
-  }
-
-  /**
-   * @dev Retrieves the URI for a specific token ID.
-   * @param tokenId The ID of the token to get the URI for.
-   * @return The URI of the specified token.
-   */
-  function uri(uint256 tokenId) public view override returns (string memory) {
-    console.log("WSTokenManagement: uri called");
-    console.log("tokenId:", tokenId);
-    console.log("Returning URI:", _tokenURIs[tokenId]);
-    return _tokenURIs[tokenId];
   }
 
   /**
@@ -111,14 +84,13 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
     string memory songURI,
     address smartWallet
   ) public onlyOwner returns (uint256 songId) {
-    // _currentTokenId++;
     songId = 0;
     _mint(smartWallet, songId, 1, '');
     setTokenURI(songId, songURI);
     songToConceptNFT[songId] = songId;
     return songId;
   }
-  
+
   /**
    * @dev Creates fungible shares for a specific song.
    * @param songId The ID of the song to create shares for.
@@ -142,12 +114,110 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
       'Shares already created for this song'
     );
 
-    // _currentTokenId++;
-    sharesId = 1;
+    sharesId = SONG_SHARES_ID;
     _mint(creator, sharesId, sharesAmount, '');
     setTokenURI(sharesId, sharesURI);
     songToFungibleShares[songId] = sharesId;
     fungibleTokenShares[sharesId] = sharesAmount;
+    totalShares = sharesAmount;
+    return sharesId;
+  }
+
+  /**
+   * @dev Starts a sale of song shares.
+   * @param amount The amount of shares to put up for sale.
+   * @param price The price per share in wei.
+   * @param maxShares The maximum shares a wallet can buy. If 0, no restriction.
+   */
+
+
+  function startSharesSale(uint256 amount, uint256 price, uint256 maxShares) external onlyMinter {
+    require(!saleActive, 'Sale is already active');
+    require(amount > 0, 'Amount must be greater than 0');
+    require(price > 0, 'Price must be greater than 0');
+    require(
+      balanceOf(_minter, SONG_SHARES_ID) >= amount,
+      'Insufficient shares'
+    );
+    require(amount <= totalShares, 'Amount exceeds total shares');
+
+    sharesForSale = amount;
+    pricePerShare = price;
+    maxSharesPerWallet = maxShares;
+    saleActive = true;
+
+    emit SharesSaleStarted(amount, price, owner(), maxSharesPerWallet);
+  }
+
+  /**
+   * @dev Allows users to buy shares during an active sale.
+   * @param amount The amount of shares to buy.
+   */
+  function buyShares(uint256 amount) external payable nonReentrant {
+    require(saleActive, 'No active sale');
+    require(amount > 0, 'Amount must be greater than 0');
+    require(amount <= sharesForSale, 'Not enough shares available');
+    require(msg.value == amount * pricePerShare, 'Incorrect payment amount');
+    if (maxSharesPerWallet > 0) {
+      require(
+        balanceOf(msg.sender, SONG_SHARES_ID) + amount <= maxSharesPerWallet,
+        'Exceeds maximum shares per wallet'
+      );
+    }
+
+    sharesForSale -= amount;
+    _safeTransferFrom(_minter, msg.sender, SONG_SHARES_ID, amount, '');
+
+    if (sharesForSale == 0) {
+      saleActive = false;
+      emit SharesSaleEnded();
+    }
+
+    emit SharesSold(msg.sender, amount);
+  }
+
+  /**
+   * @dev Ends the current share sale.
+   */
+  function endSharesSale() external onlyMinter {
+    require(saleActive, 'No active sale');
+    saleActive = false;
+    sharesForSale = 0;
+    emit SharesSaleEnded();
+  }
+
+  /**
+   * @dev Withdraws the contract's balance to the smart account contract.
+   */
+  function withdrawFunds() external onlyMinter nonReentrant {
+    uint256 balance = address(this).balance;
+    require(balance > 0, 'No funds to withdraw');
+
+    address payable smartAccount = payable(owner());
+    (bool success, ) = smartAccount.call{value: balance}('');
+    require(success, 'Transfer failed');
+
+    emit FundsWithdrawn(smartAccount, balance);
+  }
+
+  /**
+   * @dev Retrieves the URI for a specific token ID.
+   * @param tokenId The ID of the token to get the URI for.
+   * @return The URI of the specified token.
+   */
+  function uri(uint256 tokenId) public view override returns (string memory) {
+    return _tokenURIs[tokenId];
+  }
+
+  /**
+   * @dev Returns the list of shareholder addresses for a given shares ID.
+   * @param sharesId The ID of the shares.
+   * @return An array of shareholder addresses.
+   */
+  function getShareholderAddresses(
+    uint256 sharesId
+  ) public view returns (address[] memory) {
+    return _shareholders[sharesId];
   }
 
   /**
@@ -172,5 +242,34 @@ contract WSTokenManagement is ERC1155Supply, Ownable {
       "Invalid song ID, concept NFT doesn't exist"
     );
     return songToFungibleShares[songId];
+  }
+
+  /**
+   * @dev Removes a shareholder from the list if they no longer hold tokens.
+   * @param sharesId The ID of the shares.
+   * @param shareholder The address of the shareholder.
+   */
+  function _removeShareholder(uint256 sharesId, address shareholder) internal {
+    if (balanceOf(shareholder, sharesId) == 0) {
+      address[] storage shareholders = _shareholders[sharesId];
+      uint256 lastIndex = shareholders.length - 1;
+      for (uint i = 0; i < shareholders.length; i++) {
+        if (shareholders[i] == shareholder) {
+          if (i != lastIndex) {
+            shareholders[i] = shareholders[lastIndex];
+          }
+          shareholders.pop();
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * @dev Sets the maximum shares a wallet can buy.
+   * @param maxShares The maximum shares per wallet.
+   */
+  function setMaxSharesPerWallet(uint256 maxShares) external onlyOwner {
+    maxSharesPerWallet = maxShares;
   }
 }

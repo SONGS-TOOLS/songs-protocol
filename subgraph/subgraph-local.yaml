@@ -1,0 +1,116 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ProtocolModule
+    network: 'localhost'
+    source:
+      address: '0x5f58879Fe3a4330B6D85c1015971Ea6e5175AeDD'
+      abi: ProtocolModule
+      startBlock: 20762913
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - WrappedSong
+        - MetadataUpdateRequest
+        - Distributor
+      abis:
+        - name: ProtocolModule
+          file: ../artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
+        - name: WrappedSongSmartAccount
+          file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol/WrappedSongSmartAccount.json
+      eventHandlers:
+        - event: WrappedSongReleaseRequested(indexed address,indexed address,indexed address)
+          handler: handleWrappedSongReleaseRequested
+        - event: WrappedSongReleased(indexed address,indexed address)
+          handler: handleWrappedSongReleased
+        - event: WrappedSongReleaseRejected(indexed address,indexed address)
+          handler: handleWrappedSongReleaseRejected
+        - event: MetadataUpdateRequested(indexed address,indexed uint256,string)
+          handler: handleMetadataUpdateRequested
+        - event: MetadataUpdated(indexed address,indexed uint256,string)
+          handler: handleMetadataUpdated
+        - event: DistributorAcceptedReview(indexed address,indexed address)
+          handler: handleDistributorAcceptedReview
+        - event: ReviewPeriodExpired(indexed address,indexed address)
+          handler: handleReviewPeriodExpired
+      file: ./src/protocol-module.ts
+  - kind: ethereum
+    name: WrappedSongFactory
+    network: 'localhost'
+    source:
+      address: '0x582957C7a35CDfeAAD1Ca4b87AE03913eAAd0Be0'
+      abi: WrappedSongFactory
+      startBlock: 20762913
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - WrappedSong
+        - Metadata
+      abis:
+        - name: WrappedSongFactory
+          file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
+      eventHandlers:
+        - event: WrappedSongCreated(indexed address,address,address)
+          handler: handleWrappedSongCreated
+        - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
+          handler: handleWrappedSongCreatedWithMetadata
+      file: ./src/wrapped-song-factory.ts
+  - kind: ethereum
+    name: distributorWalletFactory
+    network: 'localhost'
+    source:
+      address: '0x1966dc8ff30Bc4AeDEd27178642253b3cCC9AA3f'
+      abi: DistributorWalletFactory
+      startBlock: 20762913
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Distributor
+      abis:
+        - name: DistributorWalletFactory
+          file: ../artifacts/contracts/protocol/NonUpgradable/DistributorWalletFactory.sol/DistributorWalletFactory.json
+      eventHandlers:
+        - event: DistributorWalletCreated(indexed address,address)
+          handler: handleDistributorWalletCreated
+      file: ./src/distributor-wallet-factory.ts
+templates:
+  - name: WrappedSongSmartAccount
+    kind: ethereum/contract
+    network: 'localhost'
+    source:
+      abi: WrappedSongSmartAccount
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/wrapped-song-smart-account.ts
+      entities:
+        - WrappedSong
+        - Metadata
+      abis:
+        - name: WrappedSongSmartAccount
+          file: ../abis/WrappedSongSmartAccount.json
+      eventHandlers:
+        - event: MetadataUpdated(indexed uint256,string,address)
+          handler: handleMetadataUpdatedDirectly
+  - name: TokenMetadata
+    kind: file/ipfs
+    network: 'localhost'
+    mapping:
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/ipfs-mappings.ts
+      handler: handleTokenMetadata
+      entities:
+        - TokenMetadata
+      abis:
+        - name: WrappedSongSmartAccount
+          file: ../abis/WrappedSongSmartAccount.json

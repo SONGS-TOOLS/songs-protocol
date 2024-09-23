@@ -1,0 +1,70 @@
+# Cursor Rules for Hardhat Project with Subgraph
+
+## Solidity (Smart Contracts)
+- Prioritize gas efficiency and security in all Solidity code
+- Use latest stable Solidity version (^0.8.0 or higher)
+- Follow OpenZeppelin's best practices and use their contracts when applicable
+- Always include NatSpec comments (@dev, @param, @return) for functions and state variables
+- Use explicit function visibility (public, external, internal, private)
+- Implement access control mechanisms (e.g., Ownable, Role-based)
+- Use SafeMath for arithmetic operations in versions < 0.8.0
+- Emit events for all state changes
+- Implement reentrancy guards where necessary
+- Use require statements with clear error messages
+- Avoid using tx.origin for authorization
+- Implement upgradability patterns when appropriate (e.g., proxy patterns)
+
+## TypeScript (Tests, Scripts, Subgraph)
+- Prioritize readability and maintainability in all TypeScript code
+- Use async/await for asynchronous operations
+- Implement comprehensive unit tests for all smart contract functions
+- Use descriptive variable and function names
+- Include comments for complex logic or non-obvious code
+- Implement proper error handling and logging
+- Use TypeScript's type system effectively (interfaces, types, generics)
+- Follow consistent code formatting (use Prettier)
+- Implement integration tests that simulate real-world scenarios
+- Use environment variables for configuration (dotenv)
+
+## Hardhat Configuration
+- Use Hardhat's TypeScript configuration
+- Implement custom tasks for common operations
+- Configure multiple networks (local, testnet, mainnet)
+- Use Hardhat's built-in Solidity optimizer
+- Implement gas reporting for contract deployments and function calls
+- Use Hardhat's built-in testing framework
+
+## Subgraph
+- Keep schema.graphql up-to-date with smart contract events
+- Implement efficient event handlers in AssemblyScript
+- Use appropriate data types in schema and mappings
+- Implement proper error handling in mappings
+- Keep subgraph.yaml in sync with smart contract ABIs and addresses
+- Use templates for dynamically created contracts
+- Implement unit tests for subgraph mappings
+
+## Documentation
+- Maintain a comprehensive README.md with project overview, setup instructions, and usage examples
+- Document all smart contract functions and their purposes
+- Keep inline comments up-to-date with code changes
+- Document deployment procedures and addresses for different networks
+- Maintain a CHANGELOG.md for version history
+
+## Version Control
+- Use semantic versioning for releases
+- Write clear and descriptive commit messages
+- Use feature branches and pull requests for new features or major changes
+- Regularly update dependencies and document any breaking changes
+
+## Security
+- Regularly run static analysis tools (e.g., Slither, MythX)
+- Conduct thorough code reviews before merging new features
+- Implement a bug bounty program for mainnet deployments
+- Consider professional audits for critical contracts before mainnet deployment
+
+## Continuous Integration/Deployment
+- Implement CI/CD pipelines for automated testing and deployment
+- Run linters (Solhint for Solidity, ESLint for TypeScript) in CI pipeline
+- Automate subgraph deployment on contract updates
+
+Remember to adapt these rules as needed for your specific project requirements and team preferences.
