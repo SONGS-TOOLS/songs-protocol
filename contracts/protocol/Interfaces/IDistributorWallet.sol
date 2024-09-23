@@ -20,7 +20,7 @@ interface IDistributorWallet {
     function setAccounting(address _wrappedSong, uint256 _amount) external;
     function setAccountingBatch(address[] calldata _wrappedSongs, uint256[] calldata _amounts, uint256 _totalAmount, uint256 _batchSize) external;
 
-    function redeem(address _wrappedSong) external;
+    function redeemWrappedSongEarnings(address _wrappedSong) external;
     function redeemETH(address payable _wrappedSong) external;
 
     function distributeEarnings(address payable _wrappedSong) external;

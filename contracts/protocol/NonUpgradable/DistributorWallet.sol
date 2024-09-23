@@ -199,15 +199,11 @@ contract DistributorWallet is Ownable {
    * @dev Redeems the amount for the owner of the wrapped song.
    * @param _wrappedSong The address of the wrapped song.
    */
-  function redeem(address _wrappedSong) external {
-    require(
-      msg.sender == Ownable(_wrappedSong).owner(),
-      'Only wrapped song owner can redeem'
-    );
+  function redeemWrappedSongEarnings(address _wrappedSong) external {
     uint256 amount = wrappedSongTreasury[_wrappedSong];
     require(amount > 0, 'No earnings to redeem');
     wrappedSongTreasury[_wrappedSong] = 0;
-    require(stablecoin.transfer(msg.sender, amount), 'Transfer failed');
+    require(stablecoin.transfer(_wrappedSong, amount), 'Transfer failed');
     emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
@@ -239,6 +235,7 @@ contract DistributorWallet is Ownable {
     require(amount > 0, 'No earnings to distribute');
     wrappedSongTreasury[_wrappedSong] = 0;
     WrappedSongSmartAccount(_wrappedSong).receiveEarnings();
+    emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
   // Metadata Functions

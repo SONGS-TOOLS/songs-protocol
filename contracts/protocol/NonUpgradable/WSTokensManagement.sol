@@ -21,11 +21,17 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   bool public saleActive;
   uint256 public totalShares;
 
+  uint256 public maxSharesPerWallet;
+
   event SharesSaleStarted(uint256 amount, uint256 price);
   event SharesSold(address buyer, uint256 amount);
   event SharesSaleEnded();
   event FundsWithdrawn(address indexed to, uint256 amount);
-
+  
+  modifier onlyMinter() {
+    require(msg.sender == _minter, 'Caller is not the minter');
+    _;
+  }
   /**
    * @dev Initializes the contract with the given initial owner.
    * @param _smartAccountAddress Wrapped Song smartAccount address.
@@ -119,19 +125,23 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @dev Starts a sale of song shares.
    * @param amount The amount of shares to put up for sale.
    * @param price The price per share in wei.
+   * @param maxShares The maximum shares a wallet can buy. If 0, no restriction.
    */
-  function startSharesSale(uint256 amount, uint256 price) external onlyOwner {
+
+
+  function startSharesSale(uint256 amount, uint256 price, uint256 maxShares) external onlyMinter {
     require(!saleActive, 'Sale is already active');
     require(amount > 0, 'Amount must be greater than 0');
     require(price > 0, 'Price must be greater than 0');
     require(
-      balanceOf(owner(), SONG_SHARES_ID) >= amount,
+      balanceOf(_minter, SONG_SHARES_ID) >= amount,
       'Insufficient shares'
     );
     require(amount <= totalShares, 'Amount exceeds total shares');
 
     sharesForSale = amount;
     pricePerShare = price;
+    maxSharesPerWallet = maxShares;
     saleActive = true;
 
     emit SharesSaleStarted(amount, price);
@@ -146,9 +156,15 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     require(amount > 0, 'Amount must be greater than 0');
     require(amount <= sharesForSale, 'Not enough shares available');
     require(msg.value == amount * pricePerShare, 'Incorrect payment amount');
+    if (maxSharesPerWallet > 0) {
+      require(
+        balanceOf(msg.sender, SONG_SHARES_ID) + amount <= maxSharesPerWallet,
+        'Exceeds maximum shares per wallet'
+      );
+    }
 
     sharesForSale -= amount;
-    _safeTransferFrom(owner(), msg.sender, SONG_SHARES_ID, amount, '');
+    _safeTransferFrom(_minter, msg.sender, SONG_SHARES_ID, amount, '');
 
     if (sharesForSale == 0) {
       saleActive = false;
@@ -161,7 +177,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   /**
    * @dev Ends the current share sale.
    */
-  function endSharesSale() external onlyOwner {
+  function endSharesSale() external onlyMinter {
     require(saleActive, 'No active sale');
     saleActive = false;
     sharesForSale = 0;
@@ -245,5 +261,13 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
         }
       }
     }
+  }
+
+  /**
+   * @dev Sets the maximum shares a wallet can buy.
+   * @param maxShares The maximum shares per wallet.
+   */
+  function setMaxSharesPerWallet(uint256 maxShares) external onlyOwner {
+    maxSharesPerWallet = maxShares;
   }
 }

@@ -5,10 +5,17 @@ import '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
+import './../Interfaces/IDistributorWallet.sol';
 
-contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
+contract WrappedSongSmartAccount is
+  Ownable,
+  IERC1155Receiver,
+  ERC165,
+  ReentrancyGuard
+{
   // State variables
   WSTokenManagement public immutable newWSTokenManagement;
   IERC20 public immutable stablecoin;
@@ -27,28 +34,48 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   address[] public receivedTokens;
   mapping(address => bool) public isTokenReceived;
 
-  struct SaleInfo {
-    uint256 pricePerShare;
-    uint256 percentageForSale;
-  }
-
-  mapping(uint256 => SaleInfo) public sharesForSale;
-
   mapping(address => uint256) public totalEarnings;
   mapping(address => uint256) public redeemedEarnings;
 
   // Events
-  event MetadataUpdated(uint256 indexed tokenId, string newMetadata, address implementationAccount);
-  event SharesSetForSale(address indexed wrappedSongAddress, uint256 percentage, uint256 pricePerShare);
-  event EarningsReceived(address indexed token, uint256 amount, uint256 earningsPerShare);
-  event EarningsClaimed(address indexed account, address indexed token, uint256 amount);
-  event EarningsUpdated(address indexed account, uint256 newEarnings, uint256 totalEarnings);
+  event MetadataUpdated(
+    uint256 indexed tokenId,
+    string newMetadata,
+    address implementationAccount
+  );
+  event SharesSetForSale(
+    address indexed wrappedSongAddress,
+    uint256 percentage,
+    uint256 pricePerShare
+  );
+  event EarningsReceived(
+    address indexed token,
+    uint256 amount,
+    uint256 earningsPerShare
+  );
+  event EarningsClaimed(
+    address indexed account,
+    address indexed token,
+    uint256 amount
+  );
+  event EarningsUpdated(
+    address indexed account,
+    uint256 newEarnings,
+    uint256 totalEarnings
+  );
   event EarningsRedeemed(address indexed account, uint256 amount);
-  event AllEarningsClaimed(address indexed account, address[] tokens, uint256[] amounts);
+  event AllEarningsClaimed(
+    address indexed account,
+    address[] tokens,
+    uint256[] amounts
+  );
   event TokenReceived(address indexed token);
   event SaleFundsReceived(uint256 amount);
   event SaleFundsWithdrawn(address indexed to, uint256 amount);
-  event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
+  event WrappedSongAuthenticitySet(
+    address indexed wrappedSong,
+    bool isAuthentic
+  );
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -96,27 +123,6 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     address _distributorWallet
   ) external onlyOwner {
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
-  }
-
-  /**
-   * @dev Sets the price and percentage of shares available for sale.
-   * @param sharesId The ID of the shares.
-   * @param percentage The percentage of shares to be sold.
-   * @param pricePerShare The price per share.
-   */
-  function setSharesForSale(
-    uint256 sharesId,
-    uint256 percentage,
-    uint256 pricePerShare
-  ) external onlyOwner {
-    require(percentage > 0 && percentage <= 100, 'Invalid percentage');
-
-    sharesForSale[sharesId] = SaleInfo({
-      pricePerShare: pricePerShare,
-      percentageForSale: percentage
-    });
-
-    emit SharesSetForSale(address(this), percentage, pricePerShare);
   }
 
   /**
@@ -187,6 +193,20 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
   }
 
   /**
+   * @dev Redeems the shares for the WrappedSong as established by the Distributor.
+   */
+  function redeemShares() external nonReentrant {
+    address distributor = protocolModule.getWrappedSongDistributor(
+      address(this)
+    );
+    require(
+      distributor != address(0),
+      'No distributor set for this wrapped song'
+    );
+    IDistributorWallet(distributor).redeemWrappedSongEarnings(address(this));
+  }
+
+  /**
    * @dev Receives earnings in the form of the wrapped song's stablecoin.
    * @notice This function can be called by anyone to add earnings to the contract.
    */
@@ -206,25 +226,35 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
 
   /**
    * @dev Allows a shareholder to claim their earnings in the wrapped song's stablecoin.
+   * @notice This function allows shareholders to claim their earnings.
+   * @dev Uses a reentrancy guard to prevent reentrancy attacks.
    */
-  function claimEarnings() external {
+  function claimEarnings() external nonReentrant {
     updateEarnings();
+
     uint256 totalAmount = unclaimedEarnings[msg.sender];
     require(totalAmount > 0, 'No earnings to claim');
 
+    // Cache state variables in local variables
+    uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
+    uint256 totalDistributed = totalDistributedEarnings;
+
+    // Calculate stablecoin share
+    uint256 stablecoinShare = (stablecoinBalance * totalAmount) /
+      totalDistributed;
+    require(stablecoinShare > 0, 'No stablecoin earnings to claim');
+
+    // Update state variables
     unclaimedEarnings[msg.sender] = 0;
     redeemedEarnings[msg.sender] += totalAmount;
 
-    uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
-    uint256 stablecoinShare = (stablecoinBalance * totalAmount) /
-      totalDistributedEarnings;
-
-    require(stablecoinShare > 0, 'No stablecoin earnings to claim');
+    // Transfer stablecoins
     require(
       stablecoin.transfer(msg.sender, stablecoinShare),
       'Stablecoin transfer failed'
     );
 
+    // Emit events
     emit EarningsClaimed(msg.sender, address(stablecoin), stablecoinShare);
     emit EarningsRedeemed(msg.sender, totalAmount);
   }
@@ -254,6 +284,12 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @dev Allows a shareholder to claim all their earnings in all tokens including ETH.
    */
   function claimAllEarnings() external {
+    // Ensure the caller owns song shares
+    require(
+      newWSTokenManagement.balanceOf(msg.sender, songSharesId) > 0,
+      'Caller does not own any song shares'
+    );
+
     updateEarnings();
     uint256 totalAmount = unclaimedEarnings[msg.sender];
     require(totalAmount > 0, 'No earnings to claim');
