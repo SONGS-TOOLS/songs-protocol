@@ -6,5 +6,6 @@ export function handleDistributorWalletCreated(
 ): void {
   let distributor = new Distributor(event.params.wallet);
   distributor.address = event.params.wallet;
+  distributor.owner = event.params.distributor;
   distributor.save();
 }
