@@ -84,118 +84,49 @@ export function handleMetadataUpdateRequested(
     return;
   }
 
-  let previousMetadataUpdateRequestId = wrappedSong.pendingMetadataUpdate;
-  if (previousMetadataUpdateRequestId) {
-    log.debug(
-      'WE HAVE A WRAPPED SONG THAT HAS MORE THAN ONE METADATA UPDATE REQUEST, previousmetadataupdaterequestid: {}',
-      [previousMetadataUpdateRequestId.toHexString()]
-    );
-    let previousMetadataUpdateRequest = MetadataUpdateRequest.load(
-      previousMetadataUpdateRequestId
-    );
+  let metadataUpdateRequestId = event.block.hash;
 
-    if (previousMetadataUpdateRequest) {
-      const previousMetadataUpdateRequestMetadataId =
-        previousMetadataUpdateRequest.newMetadata;
-      const previousMetadataUpdateRequestMetadata = Metadata.load(
-        previousMetadataUpdateRequestMetadataId
-      );
-      if (previousMetadataUpdateRequestMetadata) {
-        const newMetadataUrl = event.params.newMetadata;
-        const songIpfsURI =
-          newMetadataUrl.split('/ipfs/').length > 1
-            ? newMetadataUrl.split('/ipfs/')[1]
-            : null;
-        if (songIpfsURI) {
-          const oldSongURI = previousMetadataUpdateRequestMetadata.songCID;
-          if (oldSongURI) {
-            store.remove('TokenMetadata', oldSongURI);
-          }
-          previousMetadataUpdateRequestMetadata.songURI = songIpfsURI;
-          previousMetadataUpdateRequestMetadata.songCID = songIpfsURI;
-          TokenMetadataTemplate.create(songIpfsURI);
-        } else if (newMetadataUrl.startsWith('Qm')) {
-          const oldSongURI = previousMetadataUpdateRequestMetadata.songCID;
-          if (oldSongURI) {
-            store.remove('TokenMetadata', oldSongURI);
-          }
-          previousMetadataUpdateRequestMetadata.songURI = newMetadataUrl;
-          previousMetadataUpdateRequestMetadata.songCID = newMetadataUrl;
-          TokenMetadataTemplate.create(newMetadataUrl);
-        }
+  let metadataUpdateRequest = new MetadataUpdateRequest(
+    metadataUpdateRequestId
+  );
 
-        //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
-        const currentMetadataId = wrappedSong.metadata;
-        if (currentMetadataId) {
-          const currentMetadata = Metadata.load(currentMetadataId);
-          if (currentMetadata) {
-            previousMetadataUpdateRequestMetadata.sharesURI =
-              currentMetadata.sharesURI;
-            previousMetadataUpdateRequestMetadata.sharesCID =
-              currentMetadata.sharesCID;
-          }
-        }
+  let newMetadataId = metadataUpdateRequestId.toHexString() + '-newMetadata';
+  let newMetadata = new Metadata(newMetadataId);
 
-        previousMetadataUpdateRequestMetadata.save();
-
-        // metadataUpdateRequest.newMetadata = newMetadataId;
-        previousMetadataUpdateRequest.status = 'Pending';
-        previousMetadataUpdateRequest.createdAt = event.block.timestamp;
-        previousMetadataUpdateRequest.save();
-
-        wrappedSong.pendingMetadataUpdate = previousMetadataUpdateRequestId;
-        wrappedSong.save();
-      }
-    }
-  } else {
-    log.debug(
-      'WE HAVE A WRAPPED SONG THAT HAS THE FIRST UPDATE REQUEST, previousmetadataupdaterequestid',
-      []
-    );
-    let metadataUpdateRequestId = event.block.hash;
-
-    let metadataUpdateRequest = new MetadataUpdateRequest(
-      metadataUpdateRequestId
-    );
-
-    let newMetadataId = metadataUpdateRequestId.toHexString() + '-newMetadata';
-    let newMetadata = new Metadata(newMetadataId);
-
-    const newMetadataUrl = event.params.newMetadata;
-    const songIpfsURI =
-      newMetadataUrl.split('/ipfs/').length > 1
-        ? newMetadataUrl.split('/ipfs/')[1]
-        : null;
-    if (songIpfsURI) {
-      newMetadata.songURI = songIpfsURI;
-      newMetadata.songCID = songIpfsURI;
-      TokenMetadataTemplate.create(songIpfsURI);
-    } else if (newMetadataUrl.startsWith('Qm')) {
-      newMetadata.songURI = newMetadataUrl;
-      newMetadata.songCID = newMetadataUrl;
-      TokenMetadataTemplate.create(newMetadataUrl);
-    }
-
-    //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
-    const currentMetadataId = wrappedSong.metadata;
-    if (currentMetadataId) {
-      const currentMetadata = Metadata.load(currentMetadataId);
-      if (currentMetadata) {
-        newMetadata.sharesURI = currentMetadata.sharesURI;
-        newMetadata.sharesCID = currentMetadata.sharesCID;
-      }
-    }
-
-    newMetadata.save();
-
-    metadataUpdateRequest.newMetadata = newMetadataId;
-    metadataUpdateRequest.status = 'Pending';
-    metadataUpdateRequest.createdAt = event.block.timestamp;
-    metadataUpdateRequest.save();
-
-    wrappedSong.pendingMetadataUpdate = metadataUpdateRequestId;
-    wrappedSong.save();
+  const newMetadataUrl = event.params.newMetadata;
+  const songIpfsURI =
+    newMetadataUrl.split('/ipfs/').length > 1
+      ? newMetadataUrl.split('/ipfs/')[1]
+      : null;
+  if (songIpfsURI) {
+    newMetadata.songURI = songIpfsURI;
+    newMetadata.songCID = songIpfsURI;
+    TokenMetadataTemplate.create(songIpfsURI);
+  } else if (newMetadataUrl.startsWith('Qm')) {
+    newMetadata.songURI = newMetadataUrl;
+    newMetadata.songCID = newMetadataUrl;
+    TokenMetadataTemplate.create(newMetadataUrl);
   }
+
+  //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
+  const currentMetadataId = wrappedSong.metadata;
+  if (currentMetadataId) {
+    const currentMetadata = Metadata.load(currentMetadataId);
+    if (currentMetadata) {
+      newMetadata.sharesURI = currentMetadata.sharesURI;
+      newMetadata.sharesCID = currentMetadata.sharesCID;
+    }
+  }
+
+  newMetadata.save();
+
+  metadataUpdateRequest.newMetadata = newMetadataId;
+  metadataUpdateRequest.status = 'Pending';
+  metadataUpdateRequest.createdAt = event.block.timestamp;
+  metadataUpdateRequest.save();
+
+  wrappedSong.pendingMetadataUpdate = metadataUpdateRequestId;
+  wrappedSong.save();
 }
 
 export function handleMetadataUpdated(
