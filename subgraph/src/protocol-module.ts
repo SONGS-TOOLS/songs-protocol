@@ -264,7 +264,7 @@ export function handleWrappedSongReleaseRejected(
     return;
   }
 
-  wrappedSong.status = 'Requested';
+  wrappedSong.status = 'Created';
   wrappedSong.releaseRequest = null;
   wrappedSong.save();
 
