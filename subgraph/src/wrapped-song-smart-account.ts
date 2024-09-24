@@ -11,8 +11,6 @@ import {
 export function handleMetadataUpdatedDirectly(
   event: MetadataUpdatedEvent
 ): void {
-  log.info('TRYING TO HANDLE METADATA UPDATED DIRECTLY', []);
-
   const wrappedSongId = event.address;
   const wrappedSong = WrappedSong.load(wrappedSongId);
 
