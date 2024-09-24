@@ -12,11 +12,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "sharesId",
-        type: "uint256",
-      },
-      {
         internalType: "uint256[]",
         name: "amounts",
         type: "uint256[]",
@@ -56,6 +51,27 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimAllEarnings",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimEarnings",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimEthEarnings",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -169,6 +185,76 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getReceivedTokens",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getRedeemedEarnings",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getRemainingEarnings",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getSongSharesBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -214,7 +300,45 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "getTotalSupplyOfShares",
+    name: "getTokenTotalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getTotalEarnings",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getUnclaimedEarnings",
     outputs: [
       {
         internalType: "uint256",
@@ -276,16 +400,10 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
+    inputs: [],
     name: "receiveEarnings",
     outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -364,11 +482,6 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "amount",
         type: "uint256",
       },
@@ -379,6 +492,13 @@ const _abi = [
       },
     ],
     name: "transferSongShares",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "updateEarnings",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -397,6 +517,13 @@ const _abi = [
       },
     ],
     name: "updateMetadata",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdrawSaleFundsFromWSTokenManagement",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

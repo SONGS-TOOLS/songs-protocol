@@ -26,40 +26,60 @@ import type {
 export interface WSTokenManagementInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "SONG_SHARES_ID"
       | "balanceOf"
       | "balanceOfBatch"
       | "burn"
+      | "buyShares"
       | "createFungibleSongShares"
       | "createSongConcept"
+      | "endSharesSale"
       | "exists"
       | "fungibleTokenShares"
       | "getFungibleTokenShares"
       | "getShareholderAddresses"
       | "getSharesIdForSong"
       | "isApprovedForAll"
+      | "maxSharesPerWallet"
       | "owner"
+      | "pricePerShare"
       | "renounceOwnership"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
+      | "saleActive"
       | "setApprovalForAll"
+      | "setMaxSharesPerWallet"
       | "setTokenURI"
+      | "sharesForSale"
       | "songToFungibleShares"
+      | "startSharesSale"
       | "supportsInterface"
+      | "totalShares"
       | "totalSupply()"
       | "totalSupply(uint256)"
       | "transferOwnership"
       | "uri"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
       | "ApprovalForAll"
+      | "FundsWithdrawn"
       | "OwnershipTransferred"
+      | "SharesSaleEnded"
+      | "SharesSaleStarted"
+      | "SharesSold"
       | "TransferBatch"
       | "TransferSingle"
       | "URI"
+      | "WSTokensCreated"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "SONG_SHARES_ID",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "balanceOf",
     values: [AddressLike, BigNumberish]
@@ -73,12 +93,20 @@ export interface WSTokenManagementInterface extends Interface {
     values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "buyShares",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "createFungibleSongShares",
     values: [BigNumberish, BigNumberish, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "createSongConcept",
     values: [string, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "endSharesSale",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "exists",
@@ -104,7 +132,15 @@ export interface WSTokenManagementInterface extends Interface {
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "maxSharesPerWallet",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pricePerShare",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -124,20 +160,40 @@ export interface WSTokenManagementInterface extends Interface {
     values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "saleActive",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setApprovalForAll",
     values: [AddressLike, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxSharesPerWallet",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setTokenURI",
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "sharesForSale",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "songToFungibleShares",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "startSharesSale",
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalShares",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "totalSupply()",
@@ -152,19 +208,32 @@ export interface WSTokenManagementInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "SONG_SHARES_ID",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "balanceOfBatch",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "buyShares", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createFungibleSongShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "createSongConcept",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "endSharesSale",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "exists", data: BytesLike): Result;
@@ -188,7 +257,15 @@ export interface WSTokenManagementInterface extends Interface {
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxSharesPerWallet",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pricePerShare",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -201,8 +278,13 @@ export interface WSTokenManagementInterface extends Interface {
     functionFragment: "safeTransferFrom",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "saleActive", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setApprovalForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxSharesPerWallet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -210,11 +292,23 @@ export interface WSTokenManagementInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "sharesForSale",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "songToFungibleShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "startSharesSale",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -230,6 +324,10 @@ export interface WSTokenManagementInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace ApprovalForAllEvent {
@@ -254,12 +352,73 @@ export namespace ApprovalForAllEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace FundsWithdrawnEvent {
+  export type InputTuple = [to: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [to: string, amount: bigint];
+  export interface OutputObject {
+    to: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace OwnershipTransferredEvent {
   export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
   export type OutputTuple = [previousOwner: string, newOwner: string];
   export interface OutputObject {
     previousOwner: string;
     newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace SharesSaleEndedEvent {
+  export type InputTuple = [];
+  export type OutputTuple = [];
+  export interface OutputObject {}
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace SharesSaleStartedEvent {
+  export type InputTuple = [
+    amount: BigNumberish,
+    price: BigNumberish,
+    owner: AddressLike,
+    maxSharesPerWallet: BigNumberish
+  ];
+  export type OutputTuple = [
+    amount: bigint,
+    price: bigint,
+    owner: string,
+    maxSharesPerWallet: bigint
+  ];
+  export interface OutputObject {
+    amount: bigint;
+    price: bigint;
+    owner: string;
+    maxSharesPerWallet: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace SharesSoldEvent {
+  export type InputTuple = [buyer: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [buyer: string, amount: bigint];
+  export interface OutputObject {
+    buyer: string;
+    amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -336,6 +495,19 @@ export namespace URIEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace WSTokensCreatedEvent {
+  export type InputTuple = [smartAccount: AddressLike, minter: AddressLike];
+  export type OutputTuple = [smartAccount: string, minter: string];
+  export interface OutputObject {
+    smartAccount: string;
+    minter: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export interface WSTokenManagement extends BaseContract {
   connect(runner?: ContractRunner | null): WSTokenManagement;
   waitForDeployment(): Promise<this>;
@@ -379,6 +551,8 @@ export interface WSTokenManagement extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  SONG_SHARES_ID: TypedContractMethod<[], [bigint], "view">;
+
   balanceOf: TypedContractMethod<
     [account: AddressLike, id: BigNumberish],
     [bigint],
@@ -397,6 +571,8 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
 
+  buyShares: TypedContractMethod<[amount: BigNumberish], [void], "payable">;
+
   createFungibleSongShares: TypedContractMethod<
     [
       songId: BigNumberish,
@@ -413,6 +589,8 @@ export interface WSTokenManagement extends BaseContract {
     [bigint],
     "nonpayable"
   >;
+
+  endSharesSale: TypedContractMethod<[], [void], "nonpayable">;
 
   exists: TypedContractMethod<[id: BigNumberish], [boolean], "view">;
 
@@ -446,7 +624,11 @@ export interface WSTokenManagement extends BaseContract {
     "view"
   >;
 
+  maxSharesPerWallet: TypedContractMethod<[], [bigint], "view">;
+
   owner: TypedContractMethod<[], [string], "view">;
+
+  pricePerShare: TypedContractMethod<[], [bigint], "view">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -474,8 +656,16 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
 
+  saleActive: TypedContractMethod<[], [boolean], "view">;
+
   setApprovalForAll: TypedContractMethod<
     [operator: AddressLike, approved: boolean],
+    [void],
+    "nonpayable"
+  >;
+
+  setMaxSharesPerWallet: TypedContractMethod<
+    [maxShares: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -486,10 +676,18 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
 
+  sharesForSale: TypedContractMethod<[], [bigint], "view">;
+
   songToFungibleShares: TypedContractMethod<
     [arg0: BigNumberish],
     [bigint],
     "view"
+  >;
+
+  startSharesSale: TypedContractMethod<
+    [amount: BigNumberish, price: BigNumberish, maxShares: BigNumberish],
+    [void],
+    "nonpayable"
   >;
 
   supportsInterface: TypedContractMethod<
@@ -497,6 +695,8 @@ export interface WSTokenManagement extends BaseContract {
     [boolean],
     "view"
   >;
+
+  totalShares: TypedContractMethod<[], [bigint], "view">;
 
   "totalSupply()": TypedContractMethod<[], [bigint], "view">;
 
@@ -514,10 +714,15 @@ export interface WSTokenManagement extends BaseContract {
 
   uri: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
+  withdrawFunds: TypedContractMethod<[], [void], "nonpayable">;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "SONG_SHARES_ID"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<
@@ -540,6 +745,9 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "buyShares"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "payable">;
+  getFunction(
     nameOrSignature: "createFungibleSongShares"
   ): TypedContractMethod<
     [
@@ -558,6 +766,9 @@ export interface WSTokenManagement extends BaseContract {
     [bigint],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "endSharesSale"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "exists"
   ): TypedContractMethod<[id: BigNumberish], [boolean], "view">;
@@ -581,8 +792,14 @@ export interface WSTokenManagement extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "maxSharesPerWallet"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "pricePerShare"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -613,12 +830,18 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "saleActive"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
     nameOrSignature: "setApprovalForAll"
   ): TypedContractMethod<
     [operator: AddressLike, approved: boolean],
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "setMaxSharesPerWallet"
+  ): TypedContractMethod<[maxShares: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setTokenURI"
   ): TypedContractMethod<
@@ -627,11 +850,24 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "sharesForSale"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "songToFungibleShares"
   ): TypedContractMethod<[arg0: BigNumberish], [bigint], "view">;
   getFunction(
+    nameOrSignature: "startSharesSale"
+  ): TypedContractMethod<
+    [amount: BigNumberish, price: BigNumberish, maxShares: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "supportsInterface"
   ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "totalShares"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "totalSupply()"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -644,6 +880,9 @@ export interface WSTokenManagement extends BaseContract {
   getFunction(
     nameOrSignature: "uri"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "withdrawFunds"
+  ): TypedContractMethod<[], [void], "nonpayable">;
 
   getEvent(
     key: "ApprovalForAll"
@@ -653,11 +892,39 @@ export interface WSTokenManagement extends BaseContract {
     ApprovalForAllEvent.OutputObject
   >;
   getEvent(
+    key: "FundsWithdrawn"
+  ): TypedContractEvent<
+    FundsWithdrawnEvent.InputTuple,
+    FundsWithdrawnEvent.OutputTuple,
+    FundsWithdrawnEvent.OutputObject
+  >;
+  getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
+  >;
+  getEvent(
+    key: "SharesSaleEnded"
+  ): TypedContractEvent<
+    SharesSaleEndedEvent.InputTuple,
+    SharesSaleEndedEvent.OutputTuple,
+    SharesSaleEndedEvent.OutputObject
+  >;
+  getEvent(
+    key: "SharesSaleStarted"
+  ): TypedContractEvent<
+    SharesSaleStartedEvent.InputTuple,
+    SharesSaleStartedEvent.OutputTuple,
+    SharesSaleStartedEvent.OutputObject
+  >;
+  getEvent(
+    key: "SharesSold"
+  ): TypedContractEvent<
+    SharesSoldEvent.InputTuple,
+    SharesSoldEvent.OutputTuple,
+    SharesSoldEvent.OutputObject
   >;
   getEvent(
     key: "TransferBatch"
@@ -680,6 +947,13 @@ export interface WSTokenManagement extends BaseContract {
     URIEvent.OutputTuple,
     URIEvent.OutputObject
   >;
+  getEvent(
+    key: "WSTokensCreated"
+  ): TypedContractEvent<
+    WSTokensCreatedEvent.InputTuple,
+    WSTokensCreatedEvent.OutputTuple,
+    WSTokensCreatedEvent.OutputObject
+  >;
 
   filters: {
     "ApprovalForAll(address,address,bool)": TypedContractEvent<
@@ -693,6 +967,17 @@ export interface WSTokenManagement extends BaseContract {
       ApprovalForAllEvent.OutputObject
     >;
 
+    "FundsWithdrawn(address,uint256)": TypedContractEvent<
+      FundsWithdrawnEvent.InputTuple,
+      FundsWithdrawnEvent.OutputTuple,
+      FundsWithdrawnEvent.OutputObject
+    >;
+    FundsWithdrawn: TypedContractEvent<
+      FundsWithdrawnEvent.InputTuple,
+      FundsWithdrawnEvent.OutputTuple,
+      FundsWithdrawnEvent.OutputObject
+    >;
+
     "OwnershipTransferred(address,address)": TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
@@ -702,6 +987,39 @@ export interface WSTokenManagement extends BaseContract {
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
+    >;
+
+    "SharesSaleEnded()": TypedContractEvent<
+      SharesSaleEndedEvent.InputTuple,
+      SharesSaleEndedEvent.OutputTuple,
+      SharesSaleEndedEvent.OutputObject
+    >;
+    SharesSaleEnded: TypedContractEvent<
+      SharesSaleEndedEvent.InputTuple,
+      SharesSaleEndedEvent.OutputTuple,
+      SharesSaleEndedEvent.OutputObject
+    >;
+
+    "SharesSaleStarted(uint256,uint256,address,uint256)": TypedContractEvent<
+      SharesSaleStartedEvent.InputTuple,
+      SharesSaleStartedEvent.OutputTuple,
+      SharesSaleStartedEvent.OutputObject
+    >;
+    SharesSaleStarted: TypedContractEvent<
+      SharesSaleStartedEvent.InputTuple,
+      SharesSaleStartedEvent.OutputTuple,
+      SharesSaleStartedEvent.OutputObject
+    >;
+
+    "SharesSold(address,uint256)": TypedContractEvent<
+      SharesSoldEvent.InputTuple,
+      SharesSoldEvent.OutputTuple,
+      SharesSoldEvent.OutputObject
+    >;
+    SharesSold: TypedContractEvent<
+      SharesSoldEvent.InputTuple,
+      SharesSoldEvent.OutputTuple,
+      SharesSoldEvent.OutputObject
     >;
 
     "TransferBatch(address,address,address,uint256[],uint256[])": TypedContractEvent<
@@ -735,6 +1053,17 @@ export interface WSTokenManagement extends BaseContract {
       URIEvent.InputTuple,
       URIEvent.OutputTuple,
       URIEvent.OutputObject
+    >;
+
+    "WSTokensCreated(address,address)": TypedContractEvent<
+      WSTokensCreatedEvent.InputTuple,
+      WSTokensCreatedEvent.OutputTuple,
+      WSTokensCreatedEvent.OutputObject
+    >;
+    WSTokensCreated: TypedContractEvent<
+      WSTokensCreatedEvent.InputTuple,
+      WSTokensCreatedEvent.OutputTuple,
+      WSTokensCreatedEvent.OutputObject
     >;
   };
 }

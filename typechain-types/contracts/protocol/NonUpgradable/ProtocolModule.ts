@@ -83,6 +83,7 @@ export interface ProtocolModuleInterface extends Interface {
       | "OwnershipTransferred"
       | "Paused"
       | "ReviewPeriodExpired"
+      | "WrappedSongAuthenticitySet"
       | "WrappedSongReleaseRejected"
       | "WrappedSongReleaseRequested"
       | "WrappedSongReleased"
@@ -526,6 +527,19 @@ export namespace ReviewPeriodExpiredEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace WrappedSongAuthenticitySetEvent {
+  export type InputTuple = [wrappedSong: AddressLike, isAuthentic: boolean];
+  export type OutputTuple = [wrappedSong: string, isAuthentic: boolean];
+  export interface OutputObject {
+    wrappedSong: string;
+    isAuthentic: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace WrappedSongReleaseRejectedEvent {
   export type InputTuple = [wrappedSong: AddressLike, distributor: AddressLike];
   export type OutputTuple = [wrappedSong: string, distributor: string];
@@ -812,7 +826,7 @@ export interface ProtocolModule extends BaseContract {
   >;
 
   setWrappedSongAuthenticity: TypedContractMethod<
-    [wrappedSong: AddressLike, isAuthentic: boolean],
+    [wrappedSong: AddressLike, _isAuthentic: boolean],
     [void],
     "nonpayable"
   >;
@@ -1040,7 +1054,7 @@ export interface ProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "setWrappedSongAuthenticity"
   ): TypedContractMethod<
-    [wrappedSong: AddressLike, isAuthentic: boolean],
+    [wrappedSong: AddressLike, _isAuthentic: boolean],
     [void],
     "nonpayable"
   >;
@@ -1110,6 +1124,13 @@ export interface ProtocolModule extends BaseContract {
     ReviewPeriodExpiredEvent.InputTuple,
     ReviewPeriodExpiredEvent.OutputTuple,
     ReviewPeriodExpiredEvent.OutputObject
+  >;
+  getEvent(
+    key: "WrappedSongAuthenticitySet"
+  ): TypedContractEvent<
+    WrappedSongAuthenticitySetEvent.InputTuple,
+    WrappedSongAuthenticitySetEvent.OutputTuple,
+    WrappedSongAuthenticitySetEvent.OutputObject
   >;
   getEvent(
     key: "WrappedSongReleaseRejected"
@@ -1198,6 +1219,17 @@ export interface ProtocolModule extends BaseContract {
       ReviewPeriodExpiredEvent.InputTuple,
       ReviewPeriodExpiredEvent.OutputTuple,
       ReviewPeriodExpiredEvent.OutputObject
+    >;
+
+    "WrappedSongAuthenticitySet(address,bool)": TypedContractEvent<
+      WrappedSongAuthenticitySetEvent.InputTuple,
+      WrappedSongAuthenticitySetEvent.OutputTuple,
+      WrappedSongAuthenticitySetEvent.OutputObject
+    >;
+    WrappedSongAuthenticitySet: TypedContractEvent<
+      WrappedSongAuthenticitySetEvent.InputTuple,
+      WrappedSongAuthenticitySetEvent.OutputTuple,
+      WrappedSongAuthenticitySetEvent.OutputObject
     >;
 
     "WrappedSongReleaseRejected(address,address)": TypedContractEvent<

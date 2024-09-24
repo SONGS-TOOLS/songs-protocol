@@ -90,6 +90,8 @@ export type { MockNFT } from "./contracts/Mock/MockNFT";
 export { MockNFT__factory } from "./factories/contracts/Mock/MockNFT__factory";
 export type { MockToken } from "./contracts/Mock/MockToken";
 export { MockToken__factory } from "./factories/contracts/Mock/MockToken__factory";
+export type { IDistributorWallet } from "./contracts/protocol/Interfaces/IDistributorWallet";
+export { IDistributorWallet__factory } from "./factories/contracts/protocol/Interfaces/IDistributorWallet__factory";
 export type { IDistributorWalletFactory } from "./contracts/protocol/Interfaces/IDistributorWalletFactory";
 export { IDistributorWalletFactory__factory } from "./factories/contracts/protocol/Interfaces/IDistributorWalletFactory__factory";
 export type { IProtocolModule } from "./contracts/protocol/Interfaces/IProtocolModule";
@@ -100,6 +102,8 @@ export type { IWrappedSongSmartAccount } from "./contracts/protocol/Interfaces/I
 export { IWrappedSongSmartAccount__factory } from "./factories/contracts/protocol/Interfaces/IWrappedSongSmartAccount__factory";
 export type { IWSTokensManagement } from "./contracts/protocol/Interfaces/IWSTokensManagement";
 export { IWSTokensManagement__factory } from "./factories/contracts/protocol/Interfaces/IWSTokensManagement__factory";
+export type { IWSUtils } from "./contracts/protocol/Interfaces/IWSUtils";
+export { IWSUtils__factory } from "./factories/contracts/protocol/Interfaces/IWSUtils__factory";
 export type { DistributorWallet } from "./contracts/protocol/NonUpgradable/DistributorWallet";
 export { DistributorWallet__factory } from "./factories/contracts/protocol/NonUpgradable/DistributorWallet__factory";
 export type { DistributorWalletFactory } from "./contracts/protocol/NonUpgradable/DistributorWalletFactory";
@@ -114,6 +118,8 @@ export type { WrappedSongSmartAccount } from "./contracts/protocol/NonUpgradable
 export { WrappedSongSmartAccount__factory } from "./factories/contracts/protocol/NonUpgradable/WrappedSongSmartAccount__factory";
 export type { WSTokenManagement } from "./contracts/protocol/NonUpgradable/WSTokensManagement.sol/WSTokenManagement";
 export { WSTokenManagement__factory } from "./factories/contracts/protocol/NonUpgradable/WSTokensManagement.sol/WSTokenManagement__factory";
+export type { WSUtils } from "./contracts/protocol/NonUpgradable/WSUtils";
+export { WSUtils__factory } from "./factories/contracts/protocol/NonUpgradable/WSUtils__factory";
 export type { DistributorWalletFactoryUpgradeable } from "./contracts/protocol/Upgradable/DistributorWalletFactoryUpgradeable";
 export { DistributorWalletFactoryUpgradeable__factory } from "./factories/contracts/protocol/Upgradable/DistributorWalletFactoryUpgradeable__factory";
 export type { DistributorWalletUpgradeable } from "./contracts/protocol/Upgradable/DistributorWalletUpgradeable";

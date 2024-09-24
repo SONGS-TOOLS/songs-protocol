@@ -6,6 +6,7 @@ export type { wsTokensManagementSol };
 export type { DistributorWallet } from "./DistributorWallet";
 export type { DistributorWalletFactory } from "./DistributorWalletFactory";
 export type { ProtocolModule } from "./ProtocolModule";
+export type { WSUtils } from "./WSUtils";
 export type { WhitelistingManager } from "./WhitelistingManager";
 export type { WrappedSongFactory } from "./WrappedSongFactory";
 export type { WrappedSongSmartAccount } from "./WrappedSongSmartAccount";

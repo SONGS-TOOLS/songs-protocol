@@ -8,6 +8,7 @@ import type {
   FunctionFragment,
   Result,
   Interface,
+  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -17,6 +18,7 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
+  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "../../../common";
@@ -24,24 +26,80 @@ import type {
 export interface IWSTokensManagementInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "SONG_SHARES_ID"
+      | "balanceOf"
+      | "balanceOfBatch"
+      | "burn"
+      | "buyShares"
       | "createFungibleSongShares"
       | "createSongConcept"
+      | "endSharesSale"
+      | "fungibleTokenShares"
       | "getFungibleTokenShares"
       | "getShareholderAddresses"
       | "getSharesIdForSong"
+      | "isApprovedForAll"
+      | "pricePerShare"
+      | "safeBatchTransferFrom"
+      | "safeTransferFrom"
+      | "saleActive"
+      | "setApprovalForAll"
       | "setTokenURI"
+      | "sharesForSale"
+      | "songToFungibleShares"
+      | "startSharesSale"
+      | "supportsInterface"
+      | "totalShares"
+      | "totalSupply"
       | "uri"
+      | "withdrawFunds"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "ApprovalForAll"
+      | "TransferBatch"
+      | "TransferSingle"
+      | "URI"
+  ): EventFragment;
+
+  encodeFunctionData(
+    functionFragment: "SONG_SHARES_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "balanceOf",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "balanceOfBatch",
+    values: [AddressLike[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "burn",
+    values: [AddressLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "buyShares",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "createFungibleSongShares",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "createSongConcept",
     values: [string, AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "endSharesSale",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fungibleTokenShares",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getFungibleTokenShares",
     values: [BigNumberish]
   ): string;
@@ -54,11 +112,80 @@ export interface IWSTokensManagementInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "isApprovedForAll",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pricePerShare",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "safeBatchTransferFrom",
+    values: [
+      AddressLike,
+      AddressLike,
+      BigNumberish[],
+      BigNumberish[],
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "safeTransferFrom",
+    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "saleActive",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setApprovalForAll",
+    values: [AddressLike, boolean]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setTokenURI",
     values: [BigNumberish, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "sharesForSale",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "songToFungibleShares",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "startSharesSale",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalShares",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalSupply",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "SONG_SHARES_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "balanceOfBatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "buyShares", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createFungibleSongShares",
     data: BytesLike
@@ -68,6 +195,14 @@ export interface IWSTokensManagementInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "endSharesSale",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fungibleTokenShares",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getFungibleTokenShares",
     data: BytesLike
   ): Result;
@@ -80,10 +215,150 @@ export interface IWSTokensManagementInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isApprovedForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pricePerShare",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "safeBatchTransferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "safeTransferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "saleActive", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setApprovalForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setTokenURI",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "sharesForSale",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "songToFungibleShares",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "startSharesSale",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalShares",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
+}
+
+export namespace ApprovalForAllEvent {
+  export type InputTuple = [
+    account: AddressLike,
+    operator: AddressLike,
+    approved: boolean
+  ];
+  export type OutputTuple = [
+    account: string,
+    operator: string,
+    approved: boolean
+  ];
+  export interface OutputObject {
+    account: string;
+    operator: string;
+    approved: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace TransferBatchEvent {
+  export type InputTuple = [
+    operator: AddressLike,
+    from: AddressLike,
+    to: AddressLike,
+    ids: BigNumberish[],
+    values: BigNumberish[]
+  ];
+  export type OutputTuple = [
+    operator: string,
+    from: string,
+    to: string,
+    ids: bigint[],
+    values: bigint[]
+  ];
+  export interface OutputObject {
+    operator: string;
+    from: string;
+    to: string;
+    ids: bigint[];
+    values: bigint[];
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace TransferSingleEvent {
+  export type InputTuple = [
+    operator: AddressLike,
+    from: AddressLike,
+    to: AddressLike,
+    id: BigNumberish,
+    value: BigNumberish
+  ];
+  export type OutputTuple = [
+    operator: string,
+    from: string,
+    to: string,
+    id: bigint,
+    value: bigint
+  ];
+  export interface OutputObject {
+    operator: string;
+    from: string;
+    to: string;
+    id: bigint;
+    value: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace URIEvent {
+  export type InputTuple = [value: string, id: BigNumberish];
+  export type OutputTuple = [value: string, id: bigint];
+  export interface OutputObject {
+    value: string;
+    id: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export interface IWSTokensManagement extends BaseContract {
@@ -129,8 +404,35 @@ export interface IWSTokensManagement extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  SONG_SHARES_ID: TypedContractMethod<[], [bigint], "view">;
+
+  balanceOf: TypedContractMethod<
+    [account: AddressLike, id: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  balanceOfBatch: TypedContractMethod<
+    [accounts: AddressLike[], ids: BigNumberish[]],
+    [bigint[]],
+    "view"
+  >;
+
+  burn: TypedContractMethod<
+    [account: AddressLike, id: BigNumberish, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  buyShares: TypedContractMethod<[amount: BigNumberish], [void], "payable">;
+
   createFungibleSongShares: TypedContractMethod<
-    [songId: BigNumberish, sharesAmount: BigNumberish],
+    [
+      songId: BigNumberish,
+      sharesAmount: BigNumberish,
+      sharesURI: string,
+      creator: AddressLike
+    ],
     [bigint],
     "nonpayable"
   >;
@@ -139,6 +441,14 @@ export interface IWSTokensManagement extends BaseContract {
     [songURI: string, smartWallet: AddressLike],
     [bigint],
     "nonpayable"
+  >;
+
+  endSharesSale: TypedContractMethod<[], [void], "nonpayable">;
+
+  fungibleTokenShares: TypedContractMethod<
+    [sharesId: BigNumberish],
+    [bigint],
+    "view"
   >;
 
   getFungibleTokenShares: TypedContractMethod<
@@ -159,22 +469,120 @@ export interface IWSTokensManagement extends BaseContract {
     "view"
   >;
 
+  isApprovedForAll: TypedContractMethod<
+    [account: AddressLike, operator: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  pricePerShare: TypedContractMethod<[], [bigint], "view">;
+
+  safeBatchTransferFrom: TypedContractMethod<
+    [
+      from: AddressLike,
+      to: AddressLike,
+      ids: BigNumberish[],
+      values: BigNumberish[],
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  safeTransferFrom: TypedContractMethod<
+    [
+      from: AddressLike,
+      to: AddressLike,
+      id: BigNumberish,
+      value: BigNumberish,
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  saleActive: TypedContractMethod<[], [boolean], "view">;
+
+  setApprovalForAll: TypedContractMethod<
+    [operator: AddressLike, approved: boolean],
+    [void],
+    "nonpayable"
+  >;
+
   setTokenURI: TypedContractMethod<
     [tokenId: BigNumberish, tokenURI: string],
     [void],
     "nonpayable"
   >;
 
+  sharesForSale: TypedContractMethod<[], [bigint], "view">;
+
+  songToFungibleShares: TypedContractMethod<
+    [songId: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  startSharesSale: TypedContractMethod<
+    [amount: BigNumberish, price: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  supportsInterface: TypedContractMethod<
+    [interfaceId: BytesLike],
+    [boolean],
+    "view"
+  >;
+
+  totalShares: TypedContractMethod<[], [bigint], "view">;
+
+  totalSupply: TypedContractMethod<[id: BigNumberish], [bigint], "view">;
+
   uri: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+
+  withdrawFunds: TypedContractMethod<[], [void], "nonpayable">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
+    nameOrSignature: "SONG_SHARES_ID"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "balanceOf"
+  ): TypedContractMethod<
+    [account: AddressLike, id: BigNumberish],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "balanceOfBatch"
+  ): TypedContractMethod<
+    [accounts: AddressLike[], ids: BigNumberish[]],
+    [bigint[]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "burn"
+  ): TypedContractMethod<
+    [account: AddressLike, id: BigNumberish, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "buyShares"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "payable">;
+  getFunction(
     nameOrSignature: "createFungibleSongShares"
   ): TypedContractMethod<
-    [songId: BigNumberish, sharesAmount: BigNumberish],
+    [
+      songId: BigNumberish,
+      sharesAmount: BigNumberish,
+      sharesURI: string,
+      creator: AddressLike
+    ],
     [bigint],
     "nonpayable"
   >;
@@ -186,6 +594,12 @@ export interface IWSTokensManagement extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "endSharesSale"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "fungibleTokenShares"
+  ): TypedContractMethod<[sharesId: BigNumberish], [bigint], "view">;
+  getFunction(
     nameOrSignature: "getFungibleTokenShares"
   ): TypedContractMethod<[sharesId: BigNumberish], [bigint], "view">;
   getFunction(
@@ -195,6 +609,52 @@ export interface IWSTokensManagement extends BaseContract {
     nameOrSignature: "getSharesIdForSong"
   ): TypedContractMethod<[songId: BigNumberish], [bigint], "view">;
   getFunction(
+    nameOrSignature: "isApprovedForAll"
+  ): TypedContractMethod<
+    [account: AddressLike, operator: AddressLike],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "pricePerShare"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "safeBatchTransferFrom"
+  ): TypedContractMethod<
+    [
+      from: AddressLike,
+      to: AddressLike,
+      ids: BigNumberish[],
+      values: BigNumberish[],
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "safeTransferFrom"
+  ): TypedContractMethod<
+    [
+      from: AddressLike,
+      to: AddressLike,
+      id: BigNumberish,
+      value: BigNumberish,
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "saleActive"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "setApprovalForAll"
+  ): TypedContractMethod<
+    [operator: AddressLike, approved: boolean],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "setTokenURI"
   ): TypedContractMethod<
     [tokenId: BigNumberish, tokenURI: string],
@@ -202,8 +662,106 @@ export interface IWSTokensManagement extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "sharesForSale"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "songToFungibleShares"
+  ): TypedContractMethod<[songId: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "startSharesSale"
+  ): TypedContractMethod<
+    [amount: BigNumberish, price: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "supportsInterface"
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "totalShares"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "totalSupply"
+  ): TypedContractMethod<[id: BigNumberish], [bigint], "view">;
+  getFunction(
     nameOrSignature: "uri"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "withdrawFunds"
+  ): TypedContractMethod<[], [void], "nonpayable">;
 
-  filters: {};
+  getEvent(
+    key: "ApprovalForAll"
+  ): TypedContractEvent<
+    ApprovalForAllEvent.InputTuple,
+    ApprovalForAllEvent.OutputTuple,
+    ApprovalForAllEvent.OutputObject
+  >;
+  getEvent(
+    key: "TransferBatch"
+  ): TypedContractEvent<
+    TransferBatchEvent.InputTuple,
+    TransferBatchEvent.OutputTuple,
+    TransferBatchEvent.OutputObject
+  >;
+  getEvent(
+    key: "TransferSingle"
+  ): TypedContractEvent<
+    TransferSingleEvent.InputTuple,
+    TransferSingleEvent.OutputTuple,
+    TransferSingleEvent.OutputObject
+  >;
+  getEvent(
+    key: "URI"
+  ): TypedContractEvent<
+    URIEvent.InputTuple,
+    URIEvent.OutputTuple,
+    URIEvent.OutputObject
+  >;
+
+  filters: {
+    "ApprovalForAll(address,address,bool)": TypedContractEvent<
+      ApprovalForAllEvent.InputTuple,
+      ApprovalForAllEvent.OutputTuple,
+      ApprovalForAllEvent.OutputObject
+    >;
+    ApprovalForAll: TypedContractEvent<
+      ApprovalForAllEvent.InputTuple,
+      ApprovalForAllEvent.OutputTuple,
+      ApprovalForAllEvent.OutputObject
+    >;
+
+    "TransferBatch(address,address,address,uint256[],uint256[])": TypedContractEvent<
+      TransferBatchEvent.InputTuple,
+      TransferBatchEvent.OutputTuple,
+      TransferBatchEvent.OutputObject
+    >;
+    TransferBatch: TypedContractEvent<
+      TransferBatchEvent.InputTuple,
+      TransferBatchEvent.OutputTuple,
+      TransferBatchEvent.OutputObject
+    >;
+
+    "TransferSingle(address,address,address,uint256,uint256)": TypedContractEvent<
+      TransferSingleEvent.InputTuple,
+      TransferSingleEvent.OutputTuple,
+      TransferSingleEvent.OutputObject
+    >;
+    TransferSingle: TypedContractEvent<
+      TransferSingleEvent.InputTuple,
+      TransferSingleEvent.OutputTuple,
+      TransferSingleEvent.OutputObject
+    >;
+
+    "URI(string,uint256)": TypedContractEvent<
+      URIEvent.InputTuple,
+      URIEvent.OutputTuple,
+      URIEvent.OutputObject
+    >;
+    URI: TypedContractEvent<
+      URIEvent.InputTuple,
+      URIEvent.OutputTuple,
+      URIEvent.OutputObject
+    >;
+  };
 }

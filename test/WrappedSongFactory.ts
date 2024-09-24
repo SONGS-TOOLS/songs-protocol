@@ -58,5 +58,39 @@ describe("WrappedSongFactory", function () {
             await expect(wrappedSongFactory.connect(user).createWrappedSong(mockStablecoin.target, { value: 0 }))
                 .to.be.revertedWith("Insufficient creation fee");
         });
+
+        it("should create a wrapped song with metadata and 10000 song shares", async function () {
+            const { user, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
+            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const songURI = "ipfs://song-metadata";
+            const sharesAmount = 10000;
+            const sharesURI = "ipfs://shares-metadata";
+
+            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+                mockStablecoin.target,
+                songURI,
+                sharesAmount,
+                sharesURI,
+                { value: creationFee }
+            )).to.emit(wrappedSongFactory, "WrappedSongCreatedWithMetadata");
+
+            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            expect(userWrappedSongs.length).to.equal(1);
+
+            const wrappedSongAddress = userWrappedSongs[0];
+            const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
+
+            const songId = await wrappedSong.wrappedSongTokenId();
+            const songSharesId = await wrappedSong.songSharesId();
+
+            expect(songId).to.not.equal(0);
+            expect(songSharesId).to.not.equal(0);
+
+            //const songMetadata = await wrappedSong.newWSTokenManagement.uri(songId);
+            //const sharesMetadata = await wrappedSong.newWSTokenManagement.uri(songSharesId);
+
+            //expect(songMetadata).to.equal(songURI);
+            //expect(sharesMetadata).to.equal(sharesURI);
+        });
     });
 });
