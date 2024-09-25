@@ -268,3 +268,13 @@ export function handleWrappedSongReleaseRejected(
 
   store.remove('ReleaseRequest', releaseRequestId.toHexString());
 }
+
+export function handleWrappedSongAuthenticitySet(
+  event: WrappedSongAuthenticitySetEvent
+): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong);
+  if (wrappedSong) {
+    wrappedSong.isAuthentic = event.params.isAuthentic;
+    wrappedSong.save();
+  }
+}

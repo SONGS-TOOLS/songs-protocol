@@ -84,7 +84,6 @@ dataSources:
           handler: handleDistributorWalletCreated
       file: ./src/distributor-wallet-factory.ts
 
-
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
@@ -120,7 +119,7 @@ templates:
           file: ../abis/WrappedSongSmartAccount.json
   - name: WSTokenManagement
     kind: ethereum/contract
-    network: "base-sepolia"
+    network: 'base-sepolia'
     source:
       abi: WSTokenManagement
     mapping:

@@ -1,15 +1,16 @@
-import { log } from '@graphprotocol/graph-ts';
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import {
   WrappedSongCreated as WrappedSongCreatedEvent,
   WrappedSongCreatedWithMetadata as WrappedSongCreatedWithMetadataEvent,
 } from '../generated/WrappedSongFactory/WrappedSongFactory';
-import { Metadata, WrappedSong } from '../generated/schema';
-import { WrappedSongSmartAccount } from '../generated/templates';
+import { Metadata, WrappedSong, WSTokenManagement } from '../generated/schema';
+import {
+  WrappedSongSmartAccount,
+  WSTokenManagement as WSTokenManagementTemplate,
+} from '../generated/templates';
 import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
 
 export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
-  log.info('TRYING TO handleWrappedSongCreated', []);
-
   const wrappedSongId = event.params.wrappedSongSmartAccount;
   let wrappedSong = new WrappedSong(wrappedSongId);
   wrappedSong.creator = event.params.owner;
@@ -18,6 +19,24 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   wrappedSong.stablecoinAddress = event.params.stablecoin;
   wrappedSong.createdAt = event.block.timestamp;
   wrappedSong.releasedAt = null;
+  wrappedSong.totalShares = BigInt.fromI32(10000);
+  wrappedSong.ownerShares = BigInt.fromI32(10000);
+  wrappedSong.isAuthentic = false;
+
+  const wsTokenManagement = new WSTokenManagement(
+    event.params.wsTokenManagement
+  );
+  log.info('wrappedSongId, {}', [wrappedSongId.toHexString()]);
+  log.info('wsTokenManagement, {}', [
+    event.params.wsTokenManagement.toHexString(),
+  ]);
+  log.info('stablecoin, {}', [event.params.stablecoin.toHexString()]);
+
+  wsTokenManagement.wrappedSong = wrappedSongId;
+  wsTokenManagement.saleActive = false;
+  wsTokenManagement.save();
+  WSTokenManagementTemplate.create(event.params.wsTokenManagement);
+  wrappedSong.wsTokenManagement = event.params.wsTokenManagement;
   wrappedSong.save();
 
   // Create a new instance of the WrappedSongSmartAccount template
@@ -39,7 +58,7 @@ export function handleWrappedSongCreatedWithMetadata(
   let metadataId = wrappedSongId.toHexString() + '-metadata';
   let metadata = new Metadata(metadataId);
 
-  wrappedSong.sharesAmount = event.params.sharesAmount;
+  // wrappedSong.sharesAmount = event.params.sharesAmount;
 
   const songMetadataUrl = event.params.songURI;
   const sharesMetadataUrl = event.params.sharesURI;

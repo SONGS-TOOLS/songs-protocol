@@ -12,7 +12,8 @@ contract WrappedSongFactory {
   event WrappedSongCreated(
     address indexed owner,
     address wrappedSongSmartAccount,
-    address stablecoin
+    address stablecoin,
+    address wsTokenManagement
   );
 
   event WrappedSongCreatedWithMetadata(
@@ -35,9 +36,12 @@ contract WrappedSongFactory {
   function createWrappedSong(
     address _stablecoin
   ) public payable returns (address) {
-    require(!protocolModule.paused(), "Protocol is paused"); // Check if protocol is paused
+    require(!protocolModule.paused(), 'Protocol is paused'); // Check if protocol is paused
     //TODO: Pay fee in stablecoins
-    require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
+    require(
+      msg.value >= protocolModule.wrappedSongCreationFee(),
+      'Insufficient creation fee'
+    );
     // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
 
     // Create WrappedSongSmartAccount instance
@@ -46,14 +50,17 @@ contract WrappedSongFactory {
         msg.sender,
         address(protocolModule)
       );
-
     ownerWrappedSongs[msg.sender].push(address(newWrappedSongSmartAccount));
-
-    emit WrappedSongCreated(msg.sender, address(newWrappedSongSmartAccount), _stablecoin);
+    // newWrappedSongSmartAccount.newWSTokenManagement
+    emit WrappedSongCreated(
+      msg.sender,
+      address(newWrappedSongSmartAccount),
+      _stablecoin,
+      address(newWrappedSongSmartAccount.newWSTokenManagement())
+    );
 
     return address(newWrappedSongSmartAccount);
   }
-
 
   /**
    * @dev Creates a new wrapped song with metadata.
@@ -68,13 +75,18 @@ contract WrappedSongFactory {
     uint256 sharesAmount,
     string memory sharesURI
   ) public payable {
-    require(!protocolModule.paused(), "Protocol is paused"); // Check if protocol is paused
+    require(!protocolModule.paused(), 'Protocol is paused'); // Check if protocol is paused
     address newWrappedSongSmartAccount = createWrappedSong(_stablecoin);
 
     WrappedSongSmartAccount wrappedSong = WrappedSongSmartAccount(
       payable(newWrappedSongSmartAccount)
     );
-    wrappedSong.createsWrappedSongTokens(songURI, sharesAmount, sharesURI, msg.sender);
+    wrappedSong.createsWrappedSongTokens(
+      songURI,
+      sharesAmount,
+      sharesURI,
+      msg.sender
+    );
 
     emit WrappedSongCreatedWithMetadata(
       msg.sender,

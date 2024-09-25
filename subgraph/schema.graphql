@@ -16,7 +16,9 @@ type WrappedSong @entity {
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
   totalShares: BigInt! # We'll keep this and remove sharesAmount
-  shareholders: [ShareHolder!]! @derivedFrom(field: "wrappedSong")
+  ownerShares: BigInt!
+  shareholders: [WrappedSongShareHolder!]! @derivedFrom(field: "wrappedSong")
+  wsTokenManagement: WSTokenManagement!
   isAuthentic: Boolean!
 }
 
@@ -58,37 +60,51 @@ type ReleaseRequest @entity {
   status: String!
   createdAt: BigInt!
   reviewStartedAt: BigInt
-  confirmedAt: BigInt
+  reviewEndTime: BigInt
+}
+
+type WSTokenManagement @entity {
+  id: Bytes!
+  wrappedSong: WrappedSong!
+  saleActive: Boolean!
+  saleOffer: SaleOffer
+  sales: [Sale!]! @derivedFrom(field: "wsTokenManagement")
+  shareHolders: [ShareHolder!]! @derivedFrom(field: "wsTokenManagement")
 }
 
 type Sale @entity {
-  id: ID!
-  wrappedSong: WrappedSong!
-  seller: Bytes!
+  id: Bytes!
   buyer: Bytes!
   amount: BigInt!
   pricePerShare: BigInt!
   timestamp: BigInt!
+  wsTokenManagement: WSTokenManagement!
 }
 
 type SaleOffer @entity {
-  id: ID!
-  wrappedSong: WrappedSong!
-  seller: Bytes!
+  id: Bytes!
+  initialAmount: BigInt!
+  maxPerWallet: BigInt!
   amount: BigInt!
   pricePerShare: BigInt!
-  isActive: Boolean!
   createdAt: BigInt!
-  updatedAt: BigInt!
 }
 
 type ShareHolder @entity {
-  id: ID! # Composite key: wrappedSongAddress-holderAddress
-  wrappedSong: WrappedSong!
-  holder: Bytes!
+  id: Bytes! # Composite key: wrappedSongAddress-holderAddress
+  wrappedSongs: [WrappedSongShareHolder!]! @derivedFrom(field: "shareHolder")
+  # holder: Bytes!
   shares: BigInt!
   lastUpdated: BigInt!
   totalEarnings: BigInt!
   unclaimedEarnings: BigInt!
   redeemedEarnings: BigInt!
+  wsTokenManagement: WSTokenManagement!
+}
+
+type WrappedSongShareHolder @entity {
+  id: Bytes!
+  wrappedSong: WrappedSong!
+  shareHolder: ShareHolder!
+  shares: BigInt!
 }
