@@ -12,8 +12,7 @@ contract WrappedSongFactory {
   event WrappedSongCreated(
     address indexed owner,
     address wrappedSongSmartAccount,
-    address stablecoin,
-    address wsTokenManagement
+    address stablecoin
   );
 
   event WrappedSongCreatedWithMetadata(
@@ -56,8 +55,7 @@ contract WrappedSongFactory {
     emit WrappedSongCreated(
       msg.sender,
       address(newWrappedSongSmartAccount),
-      _stablecoin,
-      newWrappedSongSmartAccount.newWSTokenManagement.address
+      _stablecoin
     );
 
     return address(newWrappedSongSmartAccount);

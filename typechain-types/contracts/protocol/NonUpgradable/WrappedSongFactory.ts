@@ -86,20 +86,17 @@ export namespace WrappedSongCreatedEvent {
   export type InputTuple = [
     owner: AddressLike,
     wrappedSongSmartAccount: AddressLike,
-    stablecoin: AddressLike,
-    wsTokenManagement: AddressLike
+    stablecoin: AddressLike
   ];
   export type OutputTuple = [
     owner: string,
     wrappedSongSmartAccount: string,
-    stablecoin: string,
-    wsTokenManagement: string
+    stablecoin: string
   ];
   export interface OutputObject {
     owner: string;
     wrappedSongSmartAccount: string;
     stablecoin: string;
-    wsTokenManagement: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -258,7 +255,7 @@ export interface WrappedSongFactory extends BaseContract {
   >;
 
   filters: {
-    "WrappedSongCreated(address,address,address,address)": TypedContractEvent<
+    "WrappedSongCreated(address,address,address)": TypedContractEvent<
       WrappedSongCreatedEvent.InputTuple,
       WrappedSongCreatedEvent.OutputTuple,
       WrappedSongCreatedEvent.OutputObject

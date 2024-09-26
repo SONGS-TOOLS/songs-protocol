@@ -83,14 +83,18 @@ describe("WrappedSongFactory", function () {
             const songId = await wrappedSong.wrappedSongTokenId();
             const songSharesId = await wrappedSong.songSharesId();
 
-            expect(songId).to.not.equal(0);
-            expect(songSharesId).to.not.equal(0);
+            expect(songId).to.equal(0);
+            expect(songSharesId).to.equal(1);
 
-            //const songMetadata = await wrappedSong.newWSTokenManagement.uri(songId);
-            //const sharesMetadata = await wrappedSong.newWSTokenManagement.uri(songSharesId);
+            const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
+            const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
 
-            //expect(songMetadata).to.equal(songURI);
-            //expect(sharesMetadata).to.equal(sharesURI);
+            // Example usage of the newWSTokenManagementContract
+            const songMetadata = await newWSTokenManagementContract.uri(songId);
+            const sharesMetadata = await newWSTokenManagementContract.uri(songSharesId);
+
+            expect(songMetadata).to.equal(songURI);
+            expect(sharesMetadata).to.equal(sharesURI);
         });
     });
 });
