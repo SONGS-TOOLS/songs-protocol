@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import './WrappedSongSmartAccount.sol';
-import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 
 contract WrappedSongFactory {

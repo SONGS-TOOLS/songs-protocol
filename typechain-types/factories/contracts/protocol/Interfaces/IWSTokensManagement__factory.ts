@@ -191,29 +191,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "burn",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -391,6 +368,43 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "maxSharesPerWallet",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "onERC20Received",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "",
+        type: "bytes4",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "pricePerShare",
     outputs: [
       {
@@ -503,6 +517,19 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
+        name: "maxShares",
+        type: "uint256",
+      },
+    ],
+    name: "setMaxSharesPerWallet",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
       },
@@ -550,6 +577,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "stableCoin",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -560,6 +600,16 @@ const _abi = [
         internalType: "uint256",
         name: "price",
         type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maxShares",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_stableCoin",
+        type: "address",
       },
     ],
     name: "startSharesSale",

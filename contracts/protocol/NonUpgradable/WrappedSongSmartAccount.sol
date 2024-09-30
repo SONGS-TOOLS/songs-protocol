@@ -43,11 +43,6 @@ contract WrappedSongSmartAccount is
     string newMetadata,
     address implementationAccount
   );
-  event SharesSetForSale(
-    address indexed wrappedSongAddress,
-    uint256 percentage,
-    uint256 pricePerShare
-  );
   event EarningsReceived(
     address indexed token,
     uint256 amount,
@@ -64,20 +59,10 @@ contract WrappedSongSmartAccount is
     uint256 newEarnings,
     uint256 totalEarnings
   );
-  event AllEarningsClaimed(
-    address indexed account,
-    address[] tokens,
-    uint256[] amounts
-  );
-  event TokenReceived(address indexed token);
   event SaleFundsReceived(uint256 amount);
   event SaleFundsWithdrawn(address indexed to, uint256 amount);
-  event WrappedSongAuthenticitySet(
-    address indexed wrappedSong,
-    bool isAuthentic
-  );
   event SongSharesTransferred(address indexed from, address indexed to, uint256 amount);
-  event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
+  // event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -147,41 +132,41 @@ contract WrappedSongSmartAccount is
     emit SongSharesTransferred(owner(), to, amount);
   }
 
-  /**
-   * @dev Batch transfers shares to multiple recipients.
-   * @param amounts The amounts of shares to be transferred.
-   * @param recipients The addresses of the recipients.
-   */
-  function batchTransferShares(
-    uint256[] memory amounts,
-    address[] memory recipients
-  ) external onlyOwner {
-    require(
-      amounts.length == recipients.length,
-      'Arrays must be the same length'
-    );
+  // /**
+  //  * @dev Batch transfers shares to multiple recipients.
+  //  * @param amounts The amounts of shares to be transferred.
+  //  * @param recipients The addresses of the recipients.
+  //  */
+  // function batchTransferShares(
+  //   uint256[] memory amounts,
+  //   address[] memory recipients
+  // ) external onlyOwner {
+  //   require(
+  //     amounts.length == recipients.length,
+  //     'Arrays must be the same length'
+  //   );
 
-    uint256 totalAmount = 0;
-    for (uint256 i = 0; i < amounts.length; i++) {
-      totalAmount += amounts[i];
-    }
+  //   uint256 totalAmount = 0;
+  //   for (uint256 i = 0; i < amounts.length; i++) {
+  //     totalAmount += amounts[i];
+  //   }
 
-    require(
-      newWSTokenManagement.balanceOf(owner(), songSharesId) >= totalAmount,
-      'Not enough shares to transfer'
-    );
+  //   require(
+  //     newWSTokenManagement.balanceOf(owner(), songSharesId) >= totalAmount,
+  //     'Not enough shares to transfer'
+  //   );
 
-    for (uint256 i = 0; i < recipients.length; i++) {
-      newWSTokenManagement.safeTransferFrom(
-        owner(),
-        recipients[i],
-        songSharesId,
-        amounts[i],
-        ''
-      );
-    }
-    emit BatchSongSharesTransferred(owner(), recipients, amounts);
-  }
+  //   for (uint256 i = 0; i < recipients.length; i++) {
+  //     newWSTokenManagement.safeTransferFrom(
+  //       owner(),
+  //       recipients[i],
+  //       songSharesId,
+  //       amounts[i],
+  //       ''
+  //     );
+  //   }
+  //   emit BatchSongSharesTransferred(owner(), recipients, amounts);
+  // }
 
   /**
    * @dev Receives ERC20 tokens and processes them as earnings.
@@ -498,7 +483,6 @@ contract WrappedSongSmartAccount is
       if (!isTokenReceived[token]) {
         receivedTokens.push(token);
         isTokenReceived[token] = true;
-        emit TokenReceived(token);
       }
     }
 

@@ -27,7 +27,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "accumulatedEarningsPerShare"
-      | "batchTransferShares"
       | "claimEarnings"
       | "claimEthEarnings"
       | "createFungibleSongShares"
@@ -68,7 +67,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AllEarningsClaimed"
       | "EarningsClaimed"
       | "EarningsReceived"
       | "EarningsUpdated"
@@ -76,18 +74,12 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "OwnershipTransferred"
       | "SaleFundsReceived"
       | "SaleFundsWithdrawn"
-      | "SharesSetForSale"
-      | "TokenReceived"
-      | "WrappedSongAuthenticitySet"
+      | "SongSharesTransferred"
   ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "accumulatedEarningsPerShare",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "batchTransferShares",
-    values: [BigNumberish[], AddressLike[]]
   ): string;
   encodeFunctionData(
     functionFragment: "claimEarnings",
@@ -239,10 +231,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "batchTransferShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "claimEarnings",
     data: BytesLike
   ): Result;
@@ -376,28 +364,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
   ): Result;
 }
 
-export namespace AllEarningsClaimedEvent {
-  export type InputTuple = [
-    account: AddressLike,
-    tokens: AddressLike[],
-    amounts: BigNumberish[]
-  ];
-  export type OutputTuple = [
-    account: string,
-    tokens: string[],
-    amounts: bigint[]
-  ];
-  export interface OutputObject {
-    account: string;
-    tokens: string[];
-    amounts: bigint[];
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace EarningsClaimedEvent {
   export type InputTuple = [
     account: AddressLike,
@@ -527,46 +493,17 @@ export namespace SaleFundsWithdrawnEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace SharesSetForSaleEvent {
+export namespace SongSharesTransferredEvent {
   export type InputTuple = [
-    wrappedSongAddress: AddressLike,
-    percentage: BigNumberish,
-    pricePerShare: BigNumberish
+    from: AddressLike,
+    to: AddressLike,
+    amount: BigNumberish
   ];
-  export type OutputTuple = [
-    wrappedSongAddress: string,
-    percentage: bigint,
-    pricePerShare: bigint
-  ];
+  export type OutputTuple = [from: string, to: string, amount: bigint];
   export interface OutputObject {
-    wrappedSongAddress: string;
-    percentage: bigint;
-    pricePerShare: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TokenReceivedEvent {
-  export type InputTuple = [token: AddressLike];
-  export type OutputTuple = [token: string];
-  export interface OutputObject {
-    token: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace WrappedSongAuthenticitySetEvent {
-  export type InputTuple = [wrappedSong: AddressLike, isAuthentic: boolean];
-  export type OutputTuple = [wrappedSong: string, isAuthentic: boolean];
-  export interface OutputObject {
-    wrappedSong: string;
-    isAuthentic: boolean;
+    from: string;
+    to: string;
+    amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -618,12 +555,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
   ): Promise<this>;
 
   accumulatedEarningsPerShare: TypedContractMethod<[], [bigint], "view">;
-
-  batchTransferShares: TypedContractMethod<
-    [amounts: BigNumberish[], recipients: AddressLike[]],
-    [void],
-    "nonpayable"
-  >;
 
   claimEarnings: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -790,13 +721,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
   getFunction(
     nameOrSignature: "accumulatedEarningsPerShare"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "batchTransferShares"
-  ): TypedContractMethod<
-    [amounts: BigNumberish[], recipients: AddressLike[]],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "claimEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -973,13 +897,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
   ): TypedContractMethod<[], [bigint], "view">;
 
   getEvent(
-    key: "AllEarningsClaimed"
-  ): TypedContractEvent<
-    AllEarningsClaimedEvent.InputTuple,
-    AllEarningsClaimedEvent.OutputTuple,
-    AllEarningsClaimedEvent.OutputObject
-  >;
-  getEvent(
     key: "EarningsClaimed"
   ): TypedContractEvent<
     EarningsClaimedEvent.InputTuple,
@@ -1029,39 +946,14 @@ export interface WrappedSongSmartAccount extends BaseContract {
     SaleFundsWithdrawnEvent.OutputObject
   >;
   getEvent(
-    key: "SharesSetForSale"
+    key: "SongSharesTransferred"
   ): TypedContractEvent<
-    SharesSetForSaleEvent.InputTuple,
-    SharesSetForSaleEvent.OutputTuple,
-    SharesSetForSaleEvent.OutputObject
-  >;
-  getEvent(
-    key: "TokenReceived"
-  ): TypedContractEvent<
-    TokenReceivedEvent.InputTuple,
-    TokenReceivedEvent.OutputTuple,
-    TokenReceivedEvent.OutputObject
-  >;
-  getEvent(
-    key: "WrappedSongAuthenticitySet"
-  ): TypedContractEvent<
-    WrappedSongAuthenticitySetEvent.InputTuple,
-    WrappedSongAuthenticitySetEvent.OutputTuple,
-    WrappedSongAuthenticitySetEvent.OutputObject
+    SongSharesTransferredEvent.InputTuple,
+    SongSharesTransferredEvent.OutputTuple,
+    SongSharesTransferredEvent.OutputObject
   >;
 
   filters: {
-    "AllEarningsClaimed(address,address[],uint256[])": TypedContractEvent<
-      AllEarningsClaimedEvent.InputTuple,
-      AllEarningsClaimedEvent.OutputTuple,
-      AllEarningsClaimedEvent.OutputObject
-    >;
-    AllEarningsClaimed: TypedContractEvent<
-      AllEarningsClaimedEvent.InputTuple,
-      AllEarningsClaimedEvent.OutputTuple,
-      AllEarningsClaimedEvent.OutputObject
-    >;
-
     "EarningsClaimed(address,address,uint256,uint256)": TypedContractEvent<
       EarningsClaimedEvent.InputTuple,
       EarningsClaimedEvent.OutputTuple,
@@ -1139,37 +1031,15 @@ export interface WrappedSongSmartAccount extends BaseContract {
       SaleFundsWithdrawnEvent.OutputObject
     >;
 
-    "SharesSetForSale(address,uint256,uint256)": TypedContractEvent<
-      SharesSetForSaleEvent.InputTuple,
-      SharesSetForSaleEvent.OutputTuple,
-      SharesSetForSaleEvent.OutputObject
+    "SongSharesTransferred(address,address,uint256)": TypedContractEvent<
+      SongSharesTransferredEvent.InputTuple,
+      SongSharesTransferredEvent.OutputTuple,
+      SongSharesTransferredEvent.OutputObject
     >;
-    SharesSetForSale: TypedContractEvent<
-      SharesSetForSaleEvent.InputTuple,
-      SharesSetForSaleEvent.OutputTuple,
-      SharesSetForSaleEvent.OutputObject
-    >;
-
-    "TokenReceived(address)": TypedContractEvent<
-      TokenReceivedEvent.InputTuple,
-      TokenReceivedEvent.OutputTuple,
-      TokenReceivedEvent.OutputObject
-    >;
-    TokenReceived: TypedContractEvent<
-      TokenReceivedEvent.InputTuple,
-      TokenReceivedEvent.OutputTuple,
-      TokenReceivedEvent.OutputObject
-    >;
-
-    "WrappedSongAuthenticitySet(address,bool)": TypedContractEvent<
-      WrappedSongAuthenticitySetEvent.InputTuple,
-      WrappedSongAuthenticitySetEvent.OutputTuple,
-      WrappedSongAuthenticitySetEvent.OutputObject
-    >;
-    WrappedSongAuthenticitySet: TypedContractEvent<
-      WrappedSongAuthenticitySetEvent.InputTuple,
-      WrappedSongAuthenticitySetEvent.OutputTuple,
-      WrappedSongAuthenticitySetEvent.OutputObject
+    SongSharesTransferred: TypedContractEvent<
+      SongSharesTransferredEvent.InputTuple,
+      SongSharesTransferredEvent.OutputTuple,
+      SongSharesTransferredEvent.OutputObject
     >;
   };
 }

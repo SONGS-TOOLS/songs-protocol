@@ -50,21 +50,6 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @dev Transfers tokens back to the main owner instead of burning.
-   * @param account The address of the account to transfer tokens from.
-   * @param id The ID of the token to transfer.
-   * @param amount The amount of tokens to transfer.
-   */
-  function burn(address account, uint256 id, uint256 amount) external {
-    require(balanceOf(account, id) >= amount, 'Insufficient token balance');
-    require(msg.sender == account, 'Caller is not the token owner');
-
-    address mainOwner = owner();
-    _safeTransferFrom(account, mainOwner, id, amount, '');
-    _removeShareholder(id, account);
-  }
-
-  /**
    * @dev Sets the token URI for a specific token ID.
    * @param tokenId The ID of the token to set the URI for.
    * @param tokenURI The URI to be set for the token.
@@ -146,6 +131,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     maxSharesPerWallet = maxShares;
     saleActive = true;
 
+
+
     emit SharesSaleStarted(amount, price, owner(), maxSharesPerWallet, _stableCoin);
   }
 
@@ -210,50 +197,6 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
       require(success, 'ETH transfer failed');
       emit FundsWithdrawn(_minter, balance);
     }
-  }
-
-  /**
-   * @dev Retrieves the URI for a specific token ID.
-   * @param tokenId The ID of the token to get the URI for.
-   * @return The URI of the specified token.
-   */
-  function uri(uint256 tokenId) public view override returns (string memory) {
-    return _tokenURIs[tokenId];
-  }
-
-  /**
-   * @dev Returns the list of shareholder addresses for a given shares ID.
-   * @param sharesId The ID of the shares.
-   * @return An array of shareholder addresses.
-   */
-  function getShareholderAddresses(
-    uint256 sharesId
-  ) public view returns (address[] memory) {
-    return _shareholders[sharesId];
-  }
-
-  /**
-   * @dev Retrieves the total amount of fungible shares for a specific shares ID.
-   * @param sharesId The ID of the shares to query.
-   * @return The total amount of shares for the specified ID.
-   */
-  function getFungibleTokenShares(
-    uint256 sharesId
-  ) public view returns (uint256) {
-    return fungibleTokenShares[sharesId];
-  }
-
-  /**
-   * @dev Retrieves the fungible shares ID associated with a specific song.
-   * @param songId The ID of the song to query.
-   * @return The ID of the fungible shares associated with the specified song.
-   */
-  function getSharesIdForSong(uint256 songId) public view returns (uint256) {
-    require(
-      songToConceptNFT[songId] != 0,
-      "Invalid song ID, concept NFT doesn't exist"
-    );
-    return songToFungibleShares[songId];
   }
 
   /**

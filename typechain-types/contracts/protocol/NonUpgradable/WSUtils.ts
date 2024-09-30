@@ -35,6 +35,7 @@ export interface WSUtilsInterface extends Interface {
       | "getTokenBalance"
       | "getTokenMetadata"
       | "getTokenTotalSupply"
+      | "getTokenURI"
       | "getTotalShares"
       | "getWrappedSongMetadata"
       | "isSaleActive"
@@ -81,6 +82,10 @@ export interface WSUtilsInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getTokenTotalSupply",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTokenURI",
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -147,6 +152,10 @@ export interface WSUtilsInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTokenTotalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTokenURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -294,6 +303,12 @@ export interface WSUtils extends BaseContract {
     "view"
   >;
 
+  getTokenURI: TypedContractMethod<
+    [_wsTokensManagement: AddressLike, tokenId: BigNumberish],
+    [string],
+    "view"
+  >;
+
   getTotalShares: TypedContractMethod<
     [_wsTokensManagement: AddressLike],
     [bigint],
@@ -391,6 +406,13 @@ export interface WSUtils extends BaseContract {
   ): TypedContractMethod<
     [_wsTokensManagement: AddressLike, id: BigNumberish],
     [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getTokenURI"
+  ): TypedContractMethod<
+    [_wsTokensManagement: AddressLike, tokenId: BigNumberish],
+    [string],
     "view"
   >;
   getFunction(

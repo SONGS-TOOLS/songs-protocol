@@ -136,6 +136,16 @@ contract WSUtils is Ownable, ERC165 {
     }
 
     /**
+     * @dev Retrieves the URI for a specific token ID.
+     * @param _wsTokensManagement The address of the IWSTokensManagement.
+     * @param tokenId The ID of the token to get the URI for.
+     * @return The URI of the specified token.
+     */
+    function getTokenURI(address _wsTokensManagement, uint256 tokenId) public view returns (string memory) {
+        return IWSTokensManagement(_wsTokensManagement).uri(tokenId);
+    }
+
+    /**
      * @dev Checks if this contract supports a given interface.
      * @param interfaceId The interface identifier to check.
      * @return A boolean indicating whether the contract supports the interface.
