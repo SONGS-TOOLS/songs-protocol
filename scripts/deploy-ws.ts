@@ -70,7 +70,6 @@ async function main() {
     distributorWalletAddress
   );
 
-
   //
   // CREATE WRAPPED SONGS
   //
@@ -79,15 +78,15 @@ async function main() {
   console.log('...');
   console.log('Creating Wrapped Songs with metadata...');
   console.log('...');
-  
+
   const songURIs = [
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmYokwEwRiSHtfukgtZ5LTBSnTQfp1JALYXhK7uASk9Y88",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmXmNYqFmqCseAE2PLoK9is4A68Vg8QGFy1Se3kL94xYf7",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmbEyaQCsc1ggzzAKLwHqspBCjUCbpKrXkSmDL8SLtd7xH",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmRMwtdxLkkAVtKanXNv9sPrF8ycfAakxUGnfvHAREkSHv"
-  ]
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmY2AeeDSP3vyAnCDzoUan5QU7JRcztex2KPvuEmQVx1E5',
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmW1UHTG4iQFaEUNZc81oryzqTxcoroqvcBa8TwAaHb2c5',
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmaQ5m4PB7YAfPdxjFxBXPg3awcz1NSzANCb6zBwpC1yV3',
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmWCtrjd1WkKEENLRvyeYTUmRKXuoaomtF2wdC8v6PNLDd',
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmTsmmLtXThJV8C5beHfrMGb5ETUbPKE5QPWFJ61DUQZJL',
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmRfHELv6XGJ8h2gqJZcgbyy9BohSD1aaM1NZjUeZf5wQk',
+  ];
 
   const sharesAmount = 10000; // Example shares amount
 
@@ -102,7 +101,7 @@ async function main() {
           USDC_ADDRESS,
           songURI, // SONG URI
           sharesAmount,
-          songURI // SONG SHARES URI 
+          songURI // SONG SHARES URI
         );
       await createWrappedSongTx.wait();
 
@@ -119,22 +118,29 @@ async function main() {
   }
 
   console.log('...');
-  console.log('Creating one more Wrapped Song and setting it to review state...');
+  console.log(
+    'Creating one more Wrapped Song and setting it to review state...'
+  );
   console.log('...');
 
-  const additionalSongURI = "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv";
-  
+  const additionalSongURI =
+    'https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv';
+
   try {
-    const createAdditionalSongTx = await WrappedSongFactory.createWrappedSongWithMetadata(
-      USDC_ADDRESS,
-      additionalSongURI,
-      sharesAmount,
-      additionalSongURI
-    );
+    const createAdditionalSongTx =
+      await WrappedSongFactory.createWrappedSongWithMetadata(
+        USDC_ADDRESS,
+        additionalSongURI,
+        sharesAmount,
+        additionalSongURI
+      );
     await createAdditionalSongTx.wait();
 
-    const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(deployer.address);
-    const additionalSongAddress = ownerWrappedSongs[ownerWrappedSongs.length - 1];
+    const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+      deployer.address
+    );
+    const additionalSongAddress =
+      ownerWrappedSongs[ownerWrappedSongs.length - 1];
     console.log(`Additional Wrapped Song created at:`, additionalSongAddress);
 
     // Request release for the additional song
@@ -143,15 +149,24 @@ async function main() {
       distributorWalletAddress
     );
     await requestReleaseTx.wait();
-    console.log(`Release requested for Additional Wrapped Song at:`, additionalSongAddress);
+    console.log(
+      `Release requested for Additional Wrapped Song at:`,
+      additionalSongAddress
+    );
 
     // Accept the wrapped song for review
-    const acceptForReviewTx = await DistributorWallet.acceptWrappedSongForReview(additionalSongAddress);
+    const acceptForReviewTx =
+      await DistributorWallet.acceptWrappedSongForReview(additionalSongAddress);
     await acceptForReviewTx.wait();
-    console.log(`Additional Wrapped Song accepted for review at:`, additionalSongAddress);
-
+    console.log(
+      `Additional Wrapped Song accepted for review at:`,
+      additionalSongAddress
+    );
   } catch (error) {
-    console.error(`Failed to create and set Additional Wrapped Song to review state:`, error);
+    console.error(
+      `Failed to create and set Additional Wrapped Song to review state:`,
+      error
+    );
   }
 
   //
@@ -160,7 +175,6 @@ async function main() {
   console.log('...');
   console.log('Requesting release for Wrapped Songs...');
   console.log('...');
-
 
   for (let i = 0; i < 5; i++) {
     // Request release for the first five songs
@@ -179,10 +193,7 @@ async function main() {
         wrappedSongAddress
       );
     } catch (error) {
-      console.error(
-        `Failed to request release for Wrapped Song ${i}:`,
-        error
-      );
+      console.error(`Failed to request release for Wrapped Song ${i}:`, error);
     }
   }
 

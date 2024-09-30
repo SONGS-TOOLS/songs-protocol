@@ -113,10 +113,10 @@ export function handleSharesSold(event: SharesSold): void {
 
     // Update the active sale offer
 
-    log.info('updating ownershares with {}', [
+    log.info('updating creatorShares with {}', [
       event.params.amount.toHexString(),
     ]);
-    wrappedSong.ownerShares = wrappedSong.ownerShares.minus(
+    wrappedSong.creatorShares = wrappedSong.creatorShares.minus(
       event.params.amount
     );
     wrappedSong.save();

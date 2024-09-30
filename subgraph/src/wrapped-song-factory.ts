@@ -20,7 +20,7 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   wrappedSong.createdAt = event.block.timestamp;
   wrappedSong.releasedAt = null;
   wrappedSong.totalShares = BigInt.fromI32(10000);
-  wrappedSong.ownerShares = BigInt.fromI32(10000);
+  wrappedSong.creatorShares = BigInt.fromI32(10000);
   wrappedSong.isAuthentic = false;
 
   const wsTokenManagement = new WSTokenManagement(
