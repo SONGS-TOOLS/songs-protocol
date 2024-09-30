@@ -9,10 +9,13 @@ contract WrappedSongFactory {
   IProtocolModule public protocolModule;
   mapping(address => address[]) public ownerWrappedSongs;
 
+  // TODO: make sure to find another way for the frontend to get the 
+  // wsTokenManagement address, to remove the wsTokenManagement parameter from the event
   event WrappedSongCreated(
     address indexed owner,
     address wrappedSongSmartAccount,
-    address stablecoin
+    address stablecoin,
+    address wsTokenManagement
   );
 
   event WrappedSongCreatedWithMetadata(
@@ -49,13 +52,13 @@ contract WrappedSongFactory {
         msg.sender,
         address(protocolModule)
       );
-
     ownerWrappedSongs[msg.sender].push(address(newWrappedSongSmartAccount));
-
+    // newWrappedSongSmartAccount.newWSTokenManagement
     emit WrappedSongCreated(
       msg.sender,
       address(newWrappedSongSmartAccount),
-      _stablecoin
+      _stablecoin,
+      address(newWrappedSongSmartAccount.newWSTokenManagement())
     );
 
     return address(newWrappedSongSmartAccount);

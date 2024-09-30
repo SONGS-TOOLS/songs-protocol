@@ -10,6 +10,114 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
+export class AllEarningsClaimed extends ethereum.Event {
+  get params(): AllEarningsClaimed__Params {
+    return new AllEarningsClaimed__Params(this);
+  }
+}
+
+export class AllEarningsClaimed__Params {
+  _event: AllEarningsClaimed;
+
+  constructor(event: AllEarningsClaimed) {
+    this._event = event;
+  }
+
+  get account(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get tokens(): Array<Address> {
+    return this._event.parameters[1].value.toAddressArray();
+  }
+
+  get amounts(): Array<BigInt> {
+    return this._event.parameters[2].value.toBigIntArray();
+  }
+}
+
+export class EarningsClaimed extends ethereum.Event {
+  get params(): EarningsClaimed__Params {
+    return new EarningsClaimed__Params(this);
+  }
+}
+
+export class EarningsClaimed__Params {
+  _event: EarningsClaimed;
+
+  constructor(event: EarningsClaimed) {
+    this._event = event;
+  }
+
+  get account(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get token(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get totalAmount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class EarningsReceived extends ethereum.Event {
+  get params(): EarningsReceived__Params {
+    return new EarningsReceived__Params(this);
+  }
+}
+
+export class EarningsReceived__Params {
+  _event: EarningsReceived;
+
+  constructor(event: EarningsReceived) {
+    this._event = event;
+  }
+
+  get token(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get earningsPerShare(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class EarningsUpdated extends ethereum.Event {
+  get params(): EarningsUpdated__Params {
+    return new EarningsUpdated__Params(this);
+  }
+}
+
+export class EarningsUpdated__Params {
+  _event: EarningsUpdated;
+
+  constructor(event: EarningsUpdated) {
+    this._event = event;
+  }
+
+  get account(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newEarnings(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get totalEarnings(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class MetadataUpdated extends ethereum.Event {
   get params(): MetadataUpdated__Params {
     return new MetadataUpdated__Params(this);
@@ -58,6 +166,112 @@ export class OwnershipTransferred__Params {
   }
 }
 
+export class SaleFundsReceived extends ethereum.Event {
+  get params(): SaleFundsReceived__Params {
+    return new SaleFundsReceived__Params(this);
+  }
+}
+
+export class SaleFundsReceived__Params {
+  _event: SaleFundsReceived;
+
+  constructor(event: SaleFundsReceived) {
+    this._event = event;
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class SaleFundsWithdrawn extends ethereum.Event {
+  get params(): SaleFundsWithdrawn__Params {
+    return new SaleFundsWithdrawn__Params(this);
+  }
+}
+
+export class SaleFundsWithdrawn__Params {
+  _event: SaleFundsWithdrawn;
+
+  constructor(event: SaleFundsWithdrawn) {
+    this._event = event;
+  }
+
+  get to(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class SharesSetForSale extends ethereum.Event {
+  get params(): SharesSetForSale__Params {
+    return new SharesSetForSale__Params(this);
+  }
+}
+
+export class SharesSetForSale__Params {
+  _event: SharesSetForSale;
+
+  constructor(event: SharesSetForSale) {
+    this._event = event;
+  }
+
+  get wrappedSongAddress(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get percentage(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get pricePerShare(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class TokenReceived extends ethereum.Event {
+  get params(): TokenReceived__Params {
+    return new TokenReceived__Params(this);
+  }
+}
+
+export class TokenReceived__Params {
+  _event: TokenReceived;
+
+  constructor(event: TokenReceived) {
+    this._event = event;
+  }
+
+  get token(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class WrappedSongAuthenticitySet extends ethereum.Event {
+  get params(): WrappedSongAuthenticitySet__Params {
+    return new WrappedSongAuthenticitySet__Params(this);
+  }
+}
+
+export class WrappedSongAuthenticitySet__Params {
+  _event: WrappedSongAuthenticitySet;
+
+  constructor(event: WrappedSongAuthenticitySet) {
+    this._event = event;
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get isAuthentic(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+}
+
 export class WrappedSongSmartAccount__createsWrappedSongTokensResult {
   value0: BigInt;
   value1: BigInt;
@@ -83,76 +297,32 @@ export class WrappedSongSmartAccount__createsWrappedSongTokensResult {
   }
 }
 
-export class WrappedSongSmartAccount__sharesForSaleResult {
-  value0: BigInt;
-  value1: BigInt;
-
-  constructor(value0: BigInt, value1: BigInt) {
-    this.value0 = value0;
-    this.value1 = value1;
-  }
-
-  toMap(): TypedMap<string, ethereum.Value> {
-    let map = new TypedMap<string, ethereum.Value>();
-    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
-    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
-    return map;
-  }
-
-  getPricePerShare(): BigInt {
-    return this.value0;
-  }
-
-  getPercentageForSale(): BigInt {
-    return this.value1;
-  }
-}
-
 export class WrappedSongSmartAccount extends ethereum.SmartContract {
   static bind(address: Address): WrappedSongSmartAccount {
     return new WrappedSongSmartAccount("WrappedSongSmartAccount", address);
   }
 
-  canReceiveERC20(): boolean {
-    let result = super.call("canReceiveERC20", "canReceiveERC20():(bool)", []);
-
-    return result[0].toBoolean();
-  }
-
-  try_canReceiveERC20(): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "canReceiveERC20",
-      "canReceiveERC20():(bool)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  checkAuthenticity(): boolean {
+  accumulatedEarningsPerShare(): BigInt {
     let result = super.call(
-      "checkAuthenticity",
-      "checkAuthenticity():(bool)",
+      "accumulatedEarningsPerShare",
+      "accumulatedEarningsPerShare():(uint256)",
       [],
     );
 
-    return result[0].toBoolean();
+    return result[0].toBigInt();
   }
 
-  try_checkAuthenticity(): ethereum.CallResult<boolean> {
+  try_accumulatedEarningsPerShare(): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "checkAuthenticity",
-      "checkAuthenticity():(bool)",
+      "accumulatedEarningsPerShare",
+      "accumulatedEarningsPerShare():(uint256)",
       [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   createFungibleSongShares(
@@ -281,45 +451,14 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     );
   }
 
-  distributorWallet(): Address {
-    let result = super.call(
-      "distributorWallet",
-      "distributorWallet():(address)",
-      [],
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_distributorWallet(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "distributorWallet",
-      "distributorWallet():(address)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getTokenBalance(tokenId: BigInt): BigInt {
-    let result = super.call(
-      "getTokenBalance",
-      "getTokenBalance(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)],
-    );
+  ethBalance(): BigInt {
+    let result = super.call("ethBalance", "ethBalance():(uint256)", []);
 
     return result[0].toBigInt();
   }
 
-  try_getTokenBalance(tokenId: BigInt): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "getTokenBalance",
-      "getTokenBalance(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)],
-    );
+  try_ethBalance(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("ethBalance", "ethBalance():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -327,96 +466,52 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getTokenMetadata(tokenId: BigInt): string {
+  isTokenReceived(param0: Address): boolean {
     let result = super.call(
-      "getTokenMetadata",
-      "getTokenMetadata(uint256):(string)",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)],
+      "isTokenReceived",
+      "isTokenReceived(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
     );
 
-    return result[0].toString();
+    return result[0].toBoolean();
   }
 
-  try_getTokenMetadata(tokenId: BigInt): ethereum.CallResult<string> {
+  try_isTokenReceived(param0: Address): ethereum.CallResult<boolean> {
     let result = super.tryCall(
-      "getTokenMetadata",
-      "getTokenMetadata(uint256):(string)",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)],
+      "isTokenReceived",
+      "isTokenReceived(address):(bool)",
+      [ethereum.Value.fromAddress(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  getTotalSupplyOfShares(id: BigInt): BigInt {
+  lastClaimedEarningsPerShare(param0: Address): BigInt {
     let result = super.call(
-      "getTotalSupplyOfShares",
-      "getTotalSupplyOfShares(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(id)],
+      "lastClaimedEarningsPerShare",
+      "lastClaimedEarningsPerShare(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
     );
 
     return result[0].toBigInt();
   }
 
-  try_getTotalSupplyOfShares(id: BigInt): ethereum.CallResult<BigInt> {
+  try_lastClaimedEarningsPerShare(
+    param0: Address,
+  ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "getTotalSupplyOfShares",
-      "getTotalSupplyOfShares(uint256):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(id)],
+      "lastClaimedEarningsPerShare",
+      "lastClaimedEarningsPerShare(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  getWSTokenManagementAddress(): Address {
-    let result = super.call(
-      "getWSTokenManagementAddress",
-      "getWSTokenManagementAddress():(address)",
-      [],
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_getWSTokenManagementAddress(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "getWSTokenManagementAddress",
-      "getWSTokenManagementAddress():(address)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getWrappedSongMetadata(tokenId: BigInt): string {
-    let result = super.call(
-      "getWrappedSongMetadata",
-      "getWrappedSongMetadata(uint256):(string)",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)],
-    );
-
-    return result[0].toString();
-  }
-
-  try_getWrappedSongMetadata(tokenId: BigInt): ethereum.CallResult<string> {
-    let result = super.tryCall(
-      "getWrappedSongMetadata",
-      "getWrappedSongMetadata(uint256):(string)",
-      [ethereum.Value.fromUnsignedBigInt(tokenId)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   newWSTokenManagement(): Address {
@@ -570,37 +665,65 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  sharesForSale(param0: BigInt): WrappedSongSmartAccount__sharesForSaleResult {
+  receivedTokens(param0: BigInt): Address {
     let result = super.call(
-      "sharesForSale",
-      "sharesForSale(uint256):(uint256,uint256)",
+      "receivedTokens",
+      "receivedTokens(uint256):(address)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
-    return new WrappedSongSmartAccount__sharesForSaleResult(
-      result[0].toBigInt(),
-      result[1].toBigInt(),
-    );
+    return result[0].toAddress();
   }
 
-  try_sharesForSale(
-    param0: BigInt,
-  ): ethereum.CallResult<WrappedSongSmartAccount__sharesForSaleResult> {
+  try_receivedTokens(param0: BigInt): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "sharesForSale",
-      "sharesForSale(uint256):(uint256,uint256)",
+      "receivedTokens",
+      "receivedTokens(uint256):(address)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(
-      new WrappedSongSmartAccount__sharesForSaleResult(
-        value[0].toBigInt(),
-        value[1].toBigInt(),
-      ),
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  redeemedEarnings(param0: Address): BigInt {
+    let result = super.call(
+      "redeemedEarnings",
+      "redeemedEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
     );
+
+    return result[0].toBigInt();
+  }
+
+  try_redeemedEarnings(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "redeemedEarnings",
+      "redeemedEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  saleFunds(): BigInt {
+    let result = super.call("saleFunds", "saleFunds():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_saleFunds(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("saleFunds", "saleFunds():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   songSharesId(): BigInt {
@@ -654,6 +777,75 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  totalDistributedEarnings(): BigInt {
+    let result = super.call(
+      "totalDistributedEarnings",
+      "totalDistributedEarnings():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalDistributedEarnings(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalDistributedEarnings",
+      "totalDistributedEarnings():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  totalEarnings(param0: Address): BigInt {
+    let result = super.call(
+      "totalEarnings",
+      "totalEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalEarnings(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalEarnings",
+      "totalEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  unclaimedEarnings(param0: Address): BigInt {
+    let result = super.call(
+      "unclaimedEarnings",
+      "unclaimedEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_unclaimedEarnings(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "unclaimedEarnings",
+      "unclaimedEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   wrappedSongTokenId(): BigInt {
@@ -735,16 +927,12 @@ export class BatchTransferSharesCall__Inputs {
     this._call = call;
   }
 
-  get sharesId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
   get amounts(): Array<BigInt> {
-    return this._call.inputValues[1].value.toBigIntArray();
+    return this._call.inputValues[0].value.toBigIntArray();
   }
 
   get recipients(): Array<Address> {
-    return this._call.inputValues[2].value.toAddressArray();
+    return this._call.inputValues[1].value.toAddressArray();
   }
 }
 
@@ -752,6 +940,58 @@ export class BatchTransferSharesCall__Outputs {
   _call: BatchTransferSharesCall;
 
   constructor(call: BatchTransferSharesCall) {
+    this._call = call;
+  }
+}
+
+export class ClaimEarningsCall extends ethereum.Call {
+  get inputs(): ClaimEarningsCall__Inputs {
+    return new ClaimEarningsCall__Inputs(this);
+  }
+
+  get outputs(): ClaimEarningsCall__Outputs {
+    return new ClaimEarningsCall__Outputs(this);
+  }
+}
+
+export class ClaimEarningsCall__Inputs {
+  _call: ClaimEarningsCall;
+
+  constructor(call: ClaimEarningsCall) {
+    this._call = call;
+  }
+}
+
+export class ClaimEarningsCall__Outputs {
+  _call: ClaimEarningsCall;
+
+  constructor(call: ClaimEarningsCall) {
+    this._call = call;
+  }
+}
+
+export class ClaimEthEarningsCall extends ethereum.Call {
+  get inputs(): ClaimEthEarningsCall__Inputs {
+    return new ClaimEthEarningsCall__Inputs(this);
+  }
+
+  get outputs(): ClaimEthEarningsCall__Outputs {
+    return new ClaimEthEarningsCall__Outputs(this);
+  }
+}
+
+export class ClaimEthEarningsCall__Inputs {
+  _call: ClaimEthEarningsCall;
+
+  constructor(call: ClaimEthEarningsCall) {
+    this._call = call;
+  }
+}
+
+export class ClaimEthEarningsCall__Outputs {
+  _call: ClaimEthEarningsCall;
+
+  constructor(call: ClaimEthEarningsCall) {
     this._call = call;
   }
 }
@@ -1070,16 +1310,38 @@ export class ReceiveEarningsCall__Inputs {
   constructor(call: ReceiveEarningsCall) {
     this._call = call;
   }
-
-  get amount(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
 }
 
 export class ReceiveEarningsCall__Outputs {
   _call: ReceiveEarningsCall;
 
   constructor(call: ReceiveEarningsCall) {
+    this._call = call;
+  }
+}
+
+export class RedeemSharesCall extends ethereum.Call {
+  get inputs(): RedeemSharesCall__Inputs {
+    return new RedeemSharesCall__Inputs(this);
+  }
+
+  get outputs(): RedeemSharesCall__Outputs {
+    return new RedeemSharesCall__Outputs(this);
+  }
+}
+
+export class RedeemSharesCall__Inputs {
+  _call: RedeemSharesCall;
+
+  constructor(call: RedeemSharesCall) {
+    this._call = call;
+  }
+}
+
+export class RedeemSharesCall__Outputs {
+  _call: RedeemSharesCall;
+
+  constructor(call: RedeemSharesCall) {
     this._call = call;
   }
 }
@@ -1208,44 +1470,6 @@ export class RequestWrappedSongReleaseWithMetadataCall__Outputs {
   }
 }
 
-export class SetSharesForSaleCall extends ethereum.Call {
-  get inputs(): SetSharesForSaleCall__Inputs {
-    return new SetSharesForSaleCall__Inputs(this);
-  }
-
-  get outputs(): SetSharesForSaleCall__Outputs {
-    return new SetSharesForSaleCall__Outputs(this);
-  }
-}
-
-export class SetSharesForSaleCall__Inputs {
-  _call: SetSharesForSaleCall;
-
-  constructor(call: SetSharesForSaleCall) {
-    this._call = call;
-  }
-
-  get sharesId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get percentage(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get pricePerShare(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-}
-
-export class SetSharesForSaleCall__Outputs {
-  _call: SetSharesForSaleCall;
-
-  constructor(call: SetSharesForSaleCall) {
-    this._call = call;
-  }
-}
-
 export class TransferOwnershipCall extends ethereum.Call {
   get inputs(): TransferOwnershipCall__Inputs {
     return new TransferOwnershipCall__Inputs(this);
@@ -1293,16 +1517,12 @@ export class TransferSongSharesCall__Inputs {
     this._call = call;
   }
 
-  get tokenId(): BigInt {
+  get amount(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get amount(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
   get to(): Address {
-    return this._call.inputValues[2].value.toAddress();
+    return this._call.inputValues[1].value.toAddress();
   }
 }
 
@@ -1310,6 +1530,32 @@ export class TransferSongSharesCall__Outputs {
   _call: TransferSongSharesCall;
 
   constructor(call: TransferSongSharesCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateEarningsCall extends ethereum.Call {
+  get inputs(): UpdateEarningsCall__Inputs {
+    return new UpdateEarningsCall__Inputs(this);
+  }
+
+  get outputs(): UpdateEarningsCall__Outputs {
+    return new UpdateEarningsCall__Outputs(this);
+  }
+}
+
+export class UpdateEarningsCall__Inputs {
+  _call: UpdateEarningsCall;
+
+  constructor(call: UpdateEarningsCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateEarningsCall__Outputs {
+  _call: UpdateEarningsCall;
+
+  constructor(call: UpdateEarningsCall) {
     this._call = call;
   }
 }
@@ -1344,6 +1590,32 @@ export class UpdateMetadataCall__Outputs {
   _call: UpdateMetadataCall;
 
   constructor(call: UpdateMetadataCall) {
+    this._call = call;
+  }
+}
+
+export class WithdrawSaleFundsFromWSTokenManagementCall extends ethereum.Call {
+  get inputs(): WithdrawSaleFundsFromWSTokenManagementCall__Inputs {
+    return new WithdrawSaleFundsFromWSTokenManagementCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawSaleFundsFromWSTokenManagementCall__Outputs {
+    return new WithdrawSaleFundsFromWSTokenManagementCall__Outputs(this);
+  }
+}
+
+export class WithdrawSaleFundsFromWSTokenManagementCall__Inputs {
+  _call: WithdrawSaleFundsFromWSTokenManagementCall;
+
+  constructor(call: WithdrawSaleFundsFromWSTokenManagementCall) {
+    this._call = call;
+  }
+}
+
+export class WithdrawSaleFundsFromWSTokenManagementCall__Outputs {
+  _call: WithdrawSaleFundsFromWSTokenManagementCall;
+
+  constructor(call: WithdrawSaleFundsFromWSTokenManagementCall) {
     this._call = call;
   }
 }

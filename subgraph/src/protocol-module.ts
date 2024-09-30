@@ -1,7 +1,4 @@
-import {
-  BigInt,
-  store
-} from '@graphprotocol/graph-ts';
+import { BigInt, log, store } from '@graphprotocol/graph-ts';
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   MetadataUpdated as MetadataUpdateConfirmedEvent,
@@ -10,7 +7,7 @@ import {
   WrappedSongAuthenticitySet as WrappedSongAuthenticitySetEvent,
   WrappedSongReleased as WrappedSongReleasedEvent,
   WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
-  WrappedSongReleaseRequested as WrappedSongRequestedEvent
+  WrappedSongReleaseRequested as WrappedSongRequestedEvent,
 } from '../generated/ProtocolModule/ProtocolModule';
 import {
   Distributor,
@@ -82,7 +79,6 @@ export function handleMetadataUpdateRequested(
   if (!wrappedSong) {
     return;
   }
-
   let distributorId = wrappedSong.distributor;
 
   if (!distributorId) {
@@ -99,20 +95,28 @@ export function handleMetadataUpdateRequested(
   let newMetadata = new Metadata(newMetadataId);
 
   const newMetadataUrl = event.params.newMetadata;
-  const songIpfsURI = newMetadataUrl.split('/ipfs/')[1];
-
+  const songIpfsURI =
+    newMetadataUrl.split('/ipfs/').length > 1
+      ? newMetadataUrl.split('/ipfs/')[1]
+      : null;
   if (songIpfsURI) {
     newMetadata.songURI = songIpfsURI;
+    newMetadata.songCID = songIpfsURI;
     TokenMetadataTemplate.create(songIpfsURI);
-
-    //TODO: handle metadata update for shares
-    newMetadata.sharesURI = '';
   } else if (newMetadataUrl.startsWith('Qm')) {
     newMetadata.songURI = newMetadataUrl;
+    newMetadata.songCID = newMetadataUrl;
     TokenMetadataTemplate.create(newMetadataUrl);
-    //TODO: handle metadata update for shares
+  }
 
-    newMetadata.sharesURI = '';
+  //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
+  const currentMetadataId = wrappedSong.metadata;
+  if (currentMetadataId) {
+    const currentMetadata = Metadata.load(currentMetadataId);
+    if (currentMetadata) {
+      newMetadata.sharesURI = currentMetadata.sharesURI;
+      newMetadata.sharesCID = currentMetadata.sharesCID;
+    }
   }
 
   newMetadata.save();
@@ -159,7 +163,25 @@ export function handleMetadataUpdated(
   wrappedSong.metadata = newMetadataId;
 
   if (oldMetadataId) {
-    store.remove('Metadata', oldMetadataId);
+    const oldMetadata = Metadata.load(oldMetadataId);
+    if (oldMetadata) {
+      const songURI = oldMetadata.songCID;
+      if (songURI) {
+        log.debug('METADATA UPDATED: REMOVING OLD METADATA SONG URI : {}', [
+          songURI,
+        ]);
+        store.remove('TokenMetadata', songURI);
+      }
+
+      const sharesURI = oldMetadata.sharesCID;
+      if (sharesURI) {
+        log.debug('METADATA UPDATED: REMOVING OLD METADATA SHARES URI : {}', [
+          sharesURI,
+        ]);
+        store.remove('TokenMetadata', sharesURI);
+      }
+      store.remove('Metadata', oldMetadataId);
+    }
   }
 
   wrappedSong.pendingMetadataUpdate = null;
@@ -240,17 +262,19 @@ export function handleWrappedSongReleaseRejected(
     return;
   }
 
-  wrappedSong.status = 'Requested';
+  wrappedSong.status = 'Created';
   wrappedSong.releaseRequest = null;
   wrappedSong.save();
 
   store.remove('ReleaseRequest', releaseRequestId.toHexString());
 }
 
-export function handleWrappedSongAuthenticitySet(event: WrappedSongAuthenticitySetEvent): void {
-  let wrappedSong = WrappedSong.load(event.params.wrappedSong)
+export function handleWrappedSongAuthenticitySet(
+  event: WrappedSongAuthenticitySetEvent
+): void {
+  let wrappedSong = WrappedSong.load(event.params.wrappedSong);
   if (wrappedSong) {
-    wrappedSong.isAuthentic = event.params.isAuthentic
-    wrappedSong.save()
+    wrappedSong.isAuthentic = event.params.isAuthentic;
+    wrappedSong.save();
   }
 }

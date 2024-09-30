@@ -132,7 +132,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
 
   function startSharesSale(uint256 amount, uint256 price, uint256 maxShares) external onlyMinter {
-    require(!saleActive, 'Sale is already active');
+    // require(!saleActive, 'Sale is already active');
     require(amount > 0, 'Amount must be greater than 0');
     require(price > 0, 'Price must be greater than 0');
     require(

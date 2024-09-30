@@ -263,21 +263,64 @@ export class WrappedSong extends Entity {
     }
   }
 
-  get sharesAmount(): BigInt | null {
-    let value = this.get("sharesAmount");
+  get totalShares(): BigInt {
+    let value = this.get("totalShares");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set sharesAmount(value: BigInt | null) {
-    if (!value) {
-      this.unset("sharesAmount");
+  set totalShares(value: BigInt) {
+    this.set("totalShares", Value.fromBigInt(value));
+  }
+
+  get ownerShares(): BigInt {
+    let value = this.get("ownerShares");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
     } else {
-      this.set("sharesAmount", Value.fromBigInt(<BigInt>value));
+      return value.toBigInt();
     }
+  }
+
+  set ownerShares(value: BigInt) {
+    this.set("ownerShares", Value.fromBigInt(value));
+  }
+
+  get shareholders(): WrappedSongShareHolderLoader {
+    return new WrappedSongShareHolderLoader(
+      "WrappedSong",
+      this.get("id")!.toBytes().toHexString(),
+      "shareholders",
+    );
+  }
+
+  get wsTokenManagement(): Bytes {
+    let value = this.get("wsTokenManagement");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wsTokenManagement(value: Bytes) {
+    this.set("wsTokenManagement", Value.fromBytes(value));
+  }
+
+  get isAuthentic(): boolean {
+    let value = this.get("isAuthentic");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isAuthentic(value: boolean) {
+    this.set("isAuthentic", Value.fromBoolean(value));
   }
 }
 
@@ -339,8 +382,8 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  get externalURL(): string | null {
-    let value = this.get("externalURL");
+  get external_url(): string | null {
+    let value = this.get("external_url");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -348,11 +391,11 @@ export class TokenMetadata extends Entity {
     }
   }
 
-  set externalURL(value: string | null) {
+  set external_url(value: string | null) {
     if (!value) {
-      this.unset("externalURL");
+      this.unset("external_url");
     } else {
-      this.set("externalURL", Value.fromString(<string>value));
+      this.set("external_url", Value.fromString(<string>value));
     }
   }
 
@@ -406,6 +449,23 @@ export class TokenMetadata extends Entity {
       this.set("attributes", Value.fromString(<string>value));
     }
   }
+
+  get animation_url(): string | null {
+    let value = this.get("animation_url");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set animation_url(value: string | null) {
+    if (!value) {
+      this.unset("animation_url");
+    } else {
+      this.set("animation_url", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class Metadata extends Entity {
@@ -445,6 +505,40 @@ export class Metadata extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get songCID(): string | null {
+    let value = this.get("songCID");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set songCID(value: string | null) {
+    if (!value) {
+      this.unset("songCID");
+    } else {
+      this.set("songCID", Value.fromString(<string>value));
+    }
+  }
+
+  get sharesCID(): string | null {
+    let value = this.get("sharesCID");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set sharesCID(value: string | null) {
+    if (!value) {
+      this.unset("sharesCID");
+    } else {
+      this.set("sharesCID", Value.fromString(<string>value));
+    }
   }
 
   get songURI(): string | null {
@@ -641,6 +735,19 @@ export class Distributor extends Entity {
     this.set("address", Value.fromBytes(value));
   }
 
+  get owner(): Bytes {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set owner(value: Bytes) {
+    this.set("owner", Value.fromBytes(value));
+  }
+
   get wrappedSongs(): WrappedSongLoader {
     return new WrappedSongLoader(
       "Distributor",
@@ -754,6 +861,559 @@ export class ReleaseRequest extends Entity {
   }
 }
 
+export class WSTokenManagement extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save WSTokenManagement entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type WSTokenManagement must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("WSTokenManagement", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): WSTokenManagement | null {
+    return changetype<WSTokenManagement | null>(
+      store.get_in_block("WSTokenManagement", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): WSTokenManagement | null {
+    return changetype<WSTokenManagement | null>(
+      store.get("WSTokenManagement", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get wrappedSong(): Bytes {
+    let value = this.get("wrappedSong");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wrappedSong(value: Bytes) {
+    this.set("wrappedSong", Value.fromBytes(value));
+  }
+
+  get saleActive(): boolean {
+    let value = this.get("saleActive");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set saleActive(value: boolean) {
+    this.set("saleActive", Value.fromBoolean(value));
+  }
+
+  get saleOffer(): Bytes | null {
+    let value = this.get("saleOffer");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set saleOffer(value: Bytes | null) {
+    if (!value) {
+      this.unset("saleOffer");
+    } else {
+      this.set("saleOffer", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get sales(): SaleLoader {
+    return new SaleLoader(
+      "WSTokenManagement",
+      this.get("id")!.toBytes().toHexString(),
+      "sales",
+    );
+  }
+
+  get shareHolders(): ShareHolderLoader {
+    return new ShareHolderLoader(
+      "WSTokenManagement",
+      this.get("id")!.toBytes().toHexString(),
+      "shareHolders",
+    );
+  }
+}
+
+export class Sale extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Sale entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type Sale must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("Sale", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): Sale | null {
+    return changetype<Sale | null>(
+      store.get_in_block("Sale", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): Sale | null {
+    return changetype<Sale | null>(store.get("Sale", id.toHexString()));
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get buyer(): Bytes {
+    let value = this.get("buyer");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set buyer(value: Bytes) {
+    this.set("buyer", Value.fromBytes(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get pricePerShare(): BigInt {
+    let value = this.get("pricePerShare");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set pricePerShare(value: BigInt) {
+    this.set("pricePerShare", Value.fromBigInt(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get wsTokenManagement(): Bytes {
+    let value = this.get("wsTokenManagement");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wsTokenManagement(value: Bytes) {
+    this.set("wsTokenManagement", Value.fromBytes(value));
+  }
+}
+
+export class SaleOffer extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SaleOffer entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type SaleOffer must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("SaleOffer", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): SaleOffer | null {
+    return changetype<SaleOffer | null>(
+      store.get_in_block("SaleOffer", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): SaleOffer | null {
+    return changetype<SaleOffer | null>(
+      store.get("SaleOffer", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get initialAmount(): BigInt {
+    let value = this.get("initialAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set initialAmount(value: BigInt) {
+    this.set("initialAmount", Value.fromBigInt(value));
+  }
+
+  get maxPerWallet(): BigInt {
+    let value = this.get("maxPerWallet");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set maxPerWallet(value: BigInt) {
+    this.set("maxPerWallet", Value.fromBigInt(value));
+  }
+
+  get amount(): BigInt {
+    let value = this.get("amount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amount(value: BigInt) {
+    this.set("amount", Value.fromBigInt(value));
+  }
+
+  get pricePerShare(): BigInt {
+    let value = this.get("pricePerShare");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set pricePerShare(value: BigInt) {
+    this.set("pricePerShare", Value.fromBigInt(value));
+  }
+
+  get createdAt(): BigInt {
+    let value = this.get("createdAt");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAt(value: BigInt) {
+    this.set("createdAt", Value.fromBigInt(value));
+  }
+}
+
+export class ShareHolder extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ShareHolder entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type ShareHolder must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("ShareHolder", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): ShareHolder | null {
+    return changetype<ShareHolder | null>(
+      store.get_in_block("ShareHolder", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): ShareHolder | null {
+    return changetype<ShareHolder | null>(
+      store.get("ShareHolder", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get wrappedSongs(): WrappedSongShareHolderLoader {
+    return new WrappedSongShareHolderLoader(
+      "ShareHolder",
+      this.get("id")!.toBytes().toHexString(),
+      "wrappedSongs",
+    );
+  }
+
+  get shares(): BigInt {
+    let value = this.get("shares");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set shares(value: BigInt) {
+    this.set("shares", Value.fromBigInt(value));
+  }
+
+  get lastUpdated(): BigInt {
+    let value = this.get("lastUpdated");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastUpdated(value: BigInt) {
+    this.set("lastUpdated", Value.fromBigInt(value));
+  }
+
+  get totalEarnings(): BigInt {
+    let value = this.get("totalEarnings");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalEarnings(value: BigInt) {
+    this.set("totalEarnings", Value.fromBigInt(value));
+  }
+
+  get unclaimedEarnings(): BigInt {
+    let value = this.get("unclaimedEarnings");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set unclaimedEarnings(value: BigInt) {
+    this.set("unclaimedEarnings", Value.fromBigInt(value));
+  }
+
+  get redeemedEarnings(): BigInt {
+    let value = this.get("redeemedEarnings");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set redeemedEarnings(value: BigInt) {
+    this.set("redeemedEarnings", Value.fromBigInt(value));
+  }
+
+  get wsTokenManagement(): Bytes {
+    let value = this.get("wsTokenManagement");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wsTokenManagement(value: Bytes) {
+    this.set("wsTokenManagement", Value.fromBytes(value));
+  }
+}
+
+export class WrappedSongShareHolder extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save WrappedSongShareHolder entity without an ID",
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type WrappedSongShareHolder must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("WrappedSongShareHolder", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): WrappedSongShareHolder | null {
+    return changetype<WrappedSongShareHolder | null>(
+      store.get_in_block("WrappedSongShareHolder", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): WrappedSongShareHolder | null {
+    return changetype<WrappedSongShareHolder | null>(
+      store.get("WrappedSongShareHolder", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get wrappedSong(): Bytes {
+    let value = this.get("wrappedSong");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wrappedSong(value: Bytes) {
+    this.set("wrappedSong", Value.fromBytes(value));
+  }
+
+  get shareHolder(): Bytes {
+    let value = this.get("shareHolder");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set shareHolder(value: Bytes) {
+    this.set("shareHolder", Value.fromBytes(value));
+  }
+
+  get shares(): BigInt {
+    let value = this.get("shares");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set shares(value: BigInt) {
+    this.set("shares", Value.fromBigInt(value));
+  }
+}
+
+export class WrappedSongShareHolderLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): WrappedSongShareHolder[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<WrappedSongShareHolder[]>(value);
+  }
+}
+
 export class WrappedSongLoader extends Entity {
   _entity: string;
   _field: string;
@@ -769,5 +1429,41 @@ export class WrappedSongLoader extends Entity {
   load(): WrappedSong[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<WrappedSong[]>(value);
+  }
+}
+
+export class SaleLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Sale[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Sale[]>(value);
+  }
+}
+
+export class ShareHolderLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): ShareHolder[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<ShareHolder[]>(value);
   }
 }

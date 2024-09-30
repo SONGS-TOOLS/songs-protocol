@@ -15,20 +15,27 @@ type WrappedSong @entity {
   pendingMetadataUpdate: MetadataUpdateRequest
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
-  sharesAmount: BigInt
+  totalShares: BigInt! # We'll keep this and remove sharesAmount
+  ownerShares: BigInt!
+  shareholders: [WrappedSongShareHolder!]! @derivedFrom(field: "wrappedSong")
+  wsTokenManagement: WSTokenManagement!
+  isAuthentic: Boolean!
 }
 
 type TokenMetadata @entity {
   id: ID!
   image: String
-  externalURL: String
+  external_url: String
   name: String
   description: String
   attributes: String
+  animation_url: String
 }
 
 type Metadata @entity {
   id: ID!
+  songCID: String
+  sharesCID: String
   songURI: TokenMetadata
   sharesURI: TokenMetadata
 }
@@ -44,6 +51,7 @@ type MetadataUpdateRequest @entity {
 type Distributor @entity {
   id: Bytes!
   address: Bytes!
+  owner: Bytes!
   wrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
 }
 
@@ -53,4 +61,50 @@ type ReleaseRequest @entity {
   createdAt: BigInt!
   reviewStartedAt: BigInt
   reviewEndTime: BigInt
+}
+
+type WSTokenManagement @entity {
+  id: Bytes!
+  wrappedSong: WrappedSong!
+  saleActive: Boolean!
+  saleOffer: SaleOffer
+  sales: [Sale!]! @derivedFrom(field: "wsTokenManagement")
+  shareHolders: [ShareHolder!]! @derivedFrom(field: "wsTokenManagement")
+}
+
+type Sale @entity {
+  id: Bytes!
+  buyer: Bytes!
+  amount: BigInt!
+  pricePerShare: BigInt!
+  timestamp: BigInt!
+  wsTokenManagement: WSTokenManagement!
+}
+
+type SaleOffer @entity {
+  id: Bytes!
+  initialAmount: BigInt!
+  maxPerWallet: BigInt!
+  amount: BigInt!
+  pricePerShare: BigInt!
+  createdAt: BigInt!
+}
+
+type ShareHolder @entity {
+  id: Bytes! # Composite key: wrappedSongAddress-holderAddress
+  wrappedSongs: [WrappedSongShareHolder!]! @derivedFrom(field: "shareHolder")
+  # holder: Bytes!
+  shares: BigInt!
+  lastUpdated: BigInt!
+  totalEarnings: BigInt!
+  unclaimedEarnings: BigInt!
+  redeemedEarnings: BigInt!
+  wsTokenManagement: WSTokenManagement!
+}
+
+type WrappedSongShareHolder @entity {
+  id: Bytes!
+  wrappedSong: WrappedSong!
+  shareHolder: ShareHolder!
+  shares: BigInt!
 }
