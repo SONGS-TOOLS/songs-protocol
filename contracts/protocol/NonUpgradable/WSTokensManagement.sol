@@ -134,18 +134,17 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    */
   function startSharesSale(uint256 amount, uint256 price, uint256 maxShares, address _stableCoin) external onlyMinter {
     require(amount > 0 && price > 0 && balanceOf(_minter, SONG_SHARES_ID) >= amount && amount <= totalShares, 'Invalid sale parameters');
-
-    sharesForSale = amount;
-    pricePerShare = price;
-    maxSharesPerWallet = maxShares;
-    saleActive = true;
-
     if (_stableCoin != address(0)) {
       require(_stableCoin.code.length > 0 && IERC20(_stableCoin).totalSupply() > 0, 'Invalid ERC20 token');
       stableCoin = IERC20(_stableCoin);
     } else {
       stableCoin = IERC20(address(0));
     }
+
+    sharesForSale = amount;
+    pricePerShare = price;
+    maxSharesPerWallet = maxShares;
+    saleActive = true;
 
     emit SharesSaleStarted(amount, price, owner(), maxSharesPerWallet, _stableCoin);
   }
