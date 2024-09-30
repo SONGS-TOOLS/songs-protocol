@@ -76,6 +76,8 @@ contract WrappedSongSmartAccount is
     address indexed wrappedSong,
     bool isAuthentic
   );
+  event SongSharesTransferred(address indexed from, address indexed to, uint256 amount);
+  event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -142,6 +144,7 @@ contract WrappedSongSmartAccount is
       amount,
       ''
     );
+    emit SongSharesTransferred(owner(), to, amount);
   }
 
   /**
@@ -177,6 +180,7 @@ contract WrappedSongSmartAccount is
         ''
       );
     }
+    emit BatchSongSharesTransferred(owner(), recipients, amounts);
   }
 
   /**
@@ -507,8 +511,6 @@ contract WrappedSongSmartAccount is
    * @dev Function to receive ETH. It automatically processes it as earnings.
    */
   receive() external payable {
-    
-    // TODO: Change sale token funds to WSManagement.
     
     if (msg.sender == address(newWSTokenManagement)) {
       saleFunds += msg.value;
