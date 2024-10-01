@@ -276,8 +276,8 @@ export class WrappedSong extends Entity {
     this.set("totalShares", Value.fromBigInt(value));
   }
 
-  get ownerShares(): BigInt {
-    let value = this.get("ownerShares");
+  get creatorShares(): BigInt {
+    let value = this.get("creatorShares");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -285,8 +285,8 @@ export class WrappedSong extends Entity {
     }
   }
 
-  set ownerShares(value: BigInt) {
-    this.set("ownerShares", Value.fromBigInt(value));
+  set creatorShares(value: BigInt) {
+    this.set("creatorShares", Value.fromBigInt(value));
   }
 
   get shareholders(): WrappedSongShareHolderLoader {
@@ -573,6 +573,14 @@ export class Metadata extends Entity {
     } else {
       this.set("sharesURI", Value.fromString(<string>value));
     }
+  }
+
+  get wrappedSong(): WrappedSongLoader {
+    return new WrappedSongLoader(
+      "Metadata",
+      this.get("id")!.toString(),
+      "wrappedSong",
+    );
   }
 }
 
