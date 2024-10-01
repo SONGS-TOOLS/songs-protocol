@@ -112,26 +112,6 @@ contract WrappedSongSmartAccount is
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
-  /**
-   * @dev Transfers song shares to a recipient.
-   * @param amount The amount of shares to be transferred.
-   * @param to The address of the recipient.
-   */
-  function transferSongShares(uint256 amount, address to) external onlyOwner {
-    require(
-      newWSTokenManagement.balanceOf(owner(), songSharesId) >= amount,
-      'Insufficient shares balance'
-    );
-    newWSTokenManagement.safeTransferFrom(
-      owner(),
-      to,
-      songSharesId,
-      amount,
-      ''
-    );
-    emit SongSharesTransferred(owner(), to, amount);
-  }
-
   // /**
   //  * @dev Batch transfers shares to multiple recipients.
   //  * @param amounts The amounts of shares to be transferred.
