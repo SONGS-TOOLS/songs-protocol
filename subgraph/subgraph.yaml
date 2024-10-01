@@ -6,7 +6,7 @@ dataSources:
     name: ProtocolModule
     network: 'base-sepolia'
     source:
-      address: '0xb47B426E5F7b11306D63B62666b97a9537657797'
+      address: '0xA4D2AA1aE7fA6c0ADda7D6262e12A7149044686d'
       abi: ProtocolModule
       startBlock: 15149755
     mapping:
@@ -39,12 +39,13 @@ dataSources:
           handler: handleReviewPeriodExpired
         - event: WrappedSongAuthenticitySet(indexed address,bool)
           handler: handleWrappedSongAuthenticitySet
+
       file: ./src/protocol-module.ts
   - kind: ethereum
     name: WrappedSongFactory
     network: 'base-sepolia'
     source:
-      address: '0xb5f4d2E441968352134F5fE20db1c9Ae618EA988'
+      address: '0xe6F9C8e4581A1164ac45D353A2a9013db087e64c'
       abi: WrappedSongFactory
       startBlock: 15149755
     mapping:
@@ -58,7 +59,7 @@ dataSources:
         - name: WrappedSongFactory
           file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address,address)
+        - event: WrappedSongCreated(indexed address,address,address,address)
           handler: handleWrappedSongCreated
         - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
           handler: handleWrappedSongCreatedWithMetadata
@@ -67,7 +68,7 @@ dataSources:
     name: distributorWalletFactory
     network: 'base-sepolia'
     source:
-      address: '0xDD82B73D6d8A17630bF90545E5CFe0e6bf980509'
+      address: '0x057c3599217840898c73F0D858d45d4F3f61D78e'
       abi: DistributorWalletFactory
       startBlock: 15149755
     mapping:
@@ -83,7 +84,6 @@ dataSources:
         - event: DistributorWalletCreated(indexed address,address)
           handler: handleDistributorWalletCreated
       file: ./src/distributor-wallet-factory.ts
-
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
@@ -131,11 +131,12 @@ templates:
         - WrappedSong
         - SaleOffer
         - Sale
+        - WSTokenManagement
       abis:
         - name: WSTokenManagement
           file: ../abis/WSTokenManagement.json
       eventHandlers:
-        - event: SharesSaleStarted(uint256,uint256)
+        - event: SharesSaleStarted(uint256,uint256,indexed address,uint256)
           handler: handleSharesSaleStarted
         - event: SharesSold(address,uint256)
           handler: handleSharesSold

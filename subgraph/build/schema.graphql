@@ -16,7 +16,7 @@ type WrappedSong @entity {
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
   totalShares: BigInt! # We'll keep this and remove sharesAmount
-  ownerShares: BigInt!
+  creatorShares: BigInt!
   shareholders: [WrappedSongShareHolder!]! @derivedFrom(field: "wrappedSong")
   wsTokenManagement: WSTokenManagement!
   isAuthentic: Boolean!
@@ -38,6 +38,7 @@ type Metadata @entity {
   sharesCID: String
   songURI: TokenMetadata
   sharesURI: TokenMetadata
+  wrappedSong: WrappedSong! @derivedFrom(field: "metadata")
 }
 
 type MetadataUpdateRequest @entity {
