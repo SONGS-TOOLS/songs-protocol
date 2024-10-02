@@ -57,7 +57,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "totalDistributedEarnings"
       | "totalEarnings"
       | "transferOwnership"
-      | "transferSongShares"
       | "unclaimedEarnings"
       | "updateEarnings"
       | "updateMetadata"
@@ -202,10 +201,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferSongShares",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "unclaimedEarnings",
     values: [AddressLike]
   ): string;
@@ -336,10 +331,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferSongShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -690,12 +681,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
     "nonpayable"
   >;
 
-  transferSongShares: TypedContractMethod<
-    [amount: BigNumberish, to: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   unclaimedEarnings: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   updateEarnings: TypedContractMethod<[], [void], "nonpayable">;
@@ -869,13 +854,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferSongShares"
-  ): TypedContractMethod<
-    [amount: BigNumberish, to: AddressLike],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "unclaimedEarnings"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
