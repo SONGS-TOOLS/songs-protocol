@@ -119,9 +119,6 @@ describe("SharesDistribution", function () {
             // connect the user to the contract
             await newWSTokenManagementContract.connect(user).startSharesSale(sharesAmount, pricePerShare, maxSharesPerWallet, mockStablecoin.target);
 
-            // Start the shares sale using the WSTokensManagement contract
-            // await newWSTokenManagementContract.startSharesSale(sharesAmount, pricePerShare, maxSharesPerWallet, mockStablecoin.target);
-
             const sharesForSale = await newWSTokenManagementContract.sharesForSale();
             expect(sharesForSale).to.equal(sharesAmount);
 
@@ -133,6 +130,61 @@ describe("SharesDistribution", function () {
 
             const saleActive = await newWSTokenManagementContract.saleActive();
             expect(saleActive).to.equal(true);
+        });
+
+        it("should buy 30 shares with different wallets", async function () {
+            const { deployer,user, address2, address3, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
+            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const songURI = "ipfs://song-metadata";
+            const totalSharesAmount = 10000;
+            const sharesURI = "ipfs://shares-metadata";
+
+            // Create a wrapped song first
+            await wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+                mockStablecoin.target,
+                songURI,
+                totalSharesAmount,
+                sharesURI,
+                { value: creationFee }
+            );
+
+            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const wrappedSongAddress = userWrappedSongs[0];
+            const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
+
+            const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
+            const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
+
+            const sharesAmount = 50;
+            const pricePerShare = ethers.parseUnits("100", 18); // Assuming 18 decimals for the stablecoin
+            const maxSharesPerWallet = 1000;
+
+            // Connect the user to the contract and start the shares sale
+            await newWSTokenManagementContract.connect(user).startSharesSale(sharesAmount, pricePerShare, maxSharesPerWallet, mockStablecoin.target);
+
+            // Transfer stablecoin to buyers
+            const bigSharesAmount = BigInt(sharesAmount);
+            const totalPrice = bigSharesAmount * pricePerShare;
+            await mockStablecoin.connect(deployer).approve(newWSTokenManagementAddress, totalPrice); // Approve transfer
+            await mockStablecoin.connect(deployer).transfer(address2.address, totalPrice); 
+            await mockStablecoin.connect(deployer).transfer(address3.address, totalPrice); 
+
+            // Three different wallets will buy shares
+            const buyers = [deployer, address2, address3];
+            const sharesToBuy = 10; // Each buyer will buy 10 shares
+
+            for (const buyer of buyers) {
+                const totalPrice = BigInt(sharesToBuy) * pricePerShare;
+                await mockStablecoin.connect(buyer).approve(newWSTokenManagementAddress, totalPrice); // Approve transfer
+
+                await newWSTokenManagementContract.connect(buyer).buyShares(sharesToBuy); // Buy shares without sending ETH
+
+                const buyerBalance = await newWSTokenManagementContract.balanceOf(buyer.address, 1); // Assuming songSharesId is 1
+                expect(buyerBalance).to.equal(BigInt(sharesToBuy));
+            }
+
+            const sharesForSale = await newWSTokenManagementContract.sharesForSale();
+            expect(sharesForSale).to.equal(20);
         });
     });
 });
