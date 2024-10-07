@@ -19,3 +19,27 @@ export class WrappedSongSmartAccount extends DataSourceTemplate {
     );
   }
 }
+
+export class TokenMetadata extends DataSourceTemplate {
+  static create(cid: string): void {
+    DataSourceTemplate.create("TokenMetadata", [cid]);
+  }
+
+  static createWithContext(cid: string, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext("TokenMetadata", [cid], context);
+  }
+}
+
+export class WSTokenManagement extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("WSTokenManagement", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "WSTokenManagement",
+      [address.toHex()],
+      context,
+    );
+  }
+}

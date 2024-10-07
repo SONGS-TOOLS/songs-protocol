@@ -146,6 +146,28 @@ export class ReviewPeriodExpired__Params {
   }
 }
 
+export class WrappedSongAuthenticitySet extends ethereum.Event {
+  get params(): WrappedSongAuthenticitySet__Params {
+    return new WrappedSongAuthenticitySet__Params(this);
+  }
+}
+
+export class WrappedSongAuthenticitySet__Params {
+  _event: WrappedSongAuthenticitySet;
+
+  constructor(event: WrappedSongAuthenticitySet) {
+    this._event = event;
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get isAuthentic(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+}
+
 export class WrappedSongReleaseRejected extends ethereum.Event {
   get params(): WrappedSongReleaseRejected__Params {
     return new WrappedSongReleaseRejected__Params(this);
@@ -1481,7 +1503,7 @@ export class SetWrappedSongAuthenticityCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get isAuthentic(): boolean {
+  get _isAuthentic(): boolean {
     return this._call.inputValues[1].value.toBoolean();
   }
 }

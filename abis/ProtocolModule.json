@@ -167,6 +167,25 @@
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      }
+    ],
+    "name": "WrappedSongAuthenticitySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
         "indexed": true,
         "internalType": "address",
         "name": "distributor",
@@ -881,7 +900,7 @@
       },
       {
         "internalType": "bool",
-        "name": "isAuthentic",
+        "name": "_isAuthentic",
         "type": "bool"
       }
     ],

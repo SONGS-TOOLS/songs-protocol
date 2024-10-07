@@ -34,6 +34,10 @@ export class WrappedSongCreated__Params {
   get stablecoin(): Address {
     return this._event.parameters[2].value.toAddress();
   }
+
+  get wsTokenManagement(): Address {
+    return this._event.parameters[3].value.toAddress();
+  }
 }
 
 export class WrappedSongCreatedWithMetadata extends ethereum.Event {

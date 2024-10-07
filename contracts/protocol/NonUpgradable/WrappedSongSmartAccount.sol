@@ -5,28 +5,64 @@ import '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
-import "hardhat/console.sol";
+import './../Interfaces/IDistributorWallet.sol';
 
-contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
-  WSTokenManagement public newWSTokenManagement;
-  IERC20 public stablecoin;
-  IProtocolModule public protocolModule;
-
-  address public distributorWallet;
+contract WrappedSongSmartAccount is
+  Ownable,
+  IERC1155Receiver,
+  ERC165,
+  ReentrancyGuard
+{
+  // State variables
+  WSTokenManagement public immutable newWSTokenManagement;
+  IERC20 public immutable stablecoin;
+  IProtocolModule public immutable protocolModule;
 
   uint256 public songSharesId;
   uint256 public wrappedSongTokenId;
 
-  struct SaleInfo {
-    uint256 pricePerShare;
-    uint256 percentageForSale;
-  }
+  uint256 public accumulatedEarningsPerShare;
+  mapping(address => uint256) public unclaimedEarnings;
+  mapping(address => uint256) public lastClaimedEarningsPerShare;
+  uint256 public totalDistributedEarnings;
+  uint256 public ethBalance;
+  uint256 public saleFunds;
 
-  mapping(uint256 => SaleInfo) public sharesForSale;
+  address[] public receivedTokens;
+  mapping(address => bool) public isTokenReceived;
 
-  event MetadataUpdated(uint256 indexed tokenId, string newMetadata, address implementationAccount);
+  mapping(address => uint256) public totalEarnings;
+  mapping(address => uint256) public redeemedEarnings;
+
+  // Events
+  event MetadataUpdated(
+    uint256 indexed tokenId,
+    string newMetadata,
+    address implementationAccount
+  );
+  event EarningsReceived(
+    address indexed token,
+    uint256 amount,
+    uint256 earningsPerShare
+  );
+  event EarningsClaimed(
+    address indexed account,
+    address indexed token,
+    uint256 amount,
+    uint256 totalAmount
+  );
+  event EarningsUpdated(
+    address indexed account,
+    uint256 newEarnings,
+    uint256 totalEarnings
+  );
+  event SaleFundsReceived(uint256 amount);
+  event SaleFundsWithdrawn(address indexed to, uint256 amount);
+  event SongSharesTransferred(address indexed from, address indexed to, uint256 amount);
+  // event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -47,10 +83,11 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     );
 
     newWSTokenManagement = new WSTokenManagement(address(this), _owner);
-
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
   }
+
+  // External functions
 
   /**
    * @dev Requests the release of the wrapped song with a metadata update.
@@ -75,10 +112,231 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
+  // /**
+  //  * @dev Batch transfers shares to multiple recipients.
+  //  * @param amounts The amounts of shares to be transferred.
+  //  * @param recipients The addresses of the recipients.
+  //  */
+  // function batchTransferShares(
+  //   uint256[] memory amounts,
+  //   address[] memory recipients
+  // ) external onlyOwner {
+  //   require(
+  //     amounts.length == recipients.length,
+  //     'Arrays must be the same length'
+  //   );
+
+  //   uint256 totalAmount = 0;
+  //   for (uint256 i = 0; i < amounts.length; i++) {
+  //     totalAmount += amounts[i];
+  //   }
+
+  //   require(
+  //     newWSTokenManagement.balanceOf(owner(), songSharesId) >= totalAmount,
+  //     'Not enough shares to transfer'
+  //   );
+
+  //   for (uint256 i = 0; i < recipients.length; i++) {
+  //     newWSTokenManagement.safeTransferFrom(
+  //       owner(),
+  //       recipients[i],
+  //       songSharesId,
+  //       amounts[i],
+  //       ''
+  //     );
+  //   }
+  //   emit BatchSongSharesTransferred(owner(), recipients, amounts);
+  // }
+
+  /**
+   * @dev Receives ERC20 tokens and processes them as earnings.
+   * @param token The address of the ERC20 token being received.
+   * @param amount The amount of tokens being received.
+   */
+  function receiveERC20(address token, uint256 amount) external {
+    require(
+      IERC20(token).transferFrom(msg.sender, address(this), amount),
+      'Transfer failed'
+    );
+    _processEarnings(amount, token);
+  }
+
+  /**
+   * @dev Redeems the shares for the WrappedSong as established by the Distributor.
+   */
+  function redeemShares() external nonReentrant {
+    address distributor = protocolModule.getWrappedSongDistributor(
+      address(this)
+    );
+    require(
+      distributor != address(0),
+      'No distributor set for this wrapped song'
+    );
+    IDistributorWallet(distributor).redeemWrappedSongEarnings(address(this));
+  }
+
+  /**
+   * @dev Receives earnings in the form of the wrapped song's stablecoin.
+   * @notice This function can be called by anyone to add earnings to the contract.
+   */
+  function receiveEarnings() external payable {
+    uint256 previousBalance = stablecoin.balanceOf(address(this));
+    require(
+      stablecoin.transferFrom(msg.sender, address(this), msg.value),
+      'Stablecoin transfer failed'
+    );
+    uint256 newBalance = stablecoin.balanceOf(address(this));
+    uint256 receivedAmount = newBalance - previousBalance;
+
+    require(receivedAmount > 0, 'No new earnings received');
+
+    _processEarnings(receivedAmount, address(stablecoin));
+  }
+
+  /**
+   * @dev Allows a shareholder to claim their earnings in the wrapped song's stablecoin.
+   * @notice This function allows shareholders to claim their earnings.
+   * @dev Uses a reentrancy guard to prevent reentrancy attacks.
+   */
+  function claimEarnings() external nonReentrant {
+    updateEarnings();
+
+    uint256 totalAmount = unclaimedEarnings[msg.sender];
+    require(totalAmount > 0, 'No earnings to claim');
+
+    // Cache state variables in local variables
+    uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
+    uint256 totalDistributed = totalDistributedEarnings;
+
+    // Calculate stablecoin share
+    uint256 stablecoinShare = (stablecoinBalance * totalAmount) /
+      totalDistributed;
+    require(stablecoinShare > 0, 'No stablecoin earnings to claim');
+
+    // Update state variables
+    unclaimedEarnings[msg.sender] = 0;
+    redeemedEarnings[msg.sender] += totalAmount;
+
+    // Transfer stablecoins
+    require(
+      stablecoin.transfer(msg.sender, stablecoinShare),
+      'Stablecoin transfer failed'
+    );
+
+    // Emit events
+    emit EarningsClaimed(msg.sender, address(stablecoin), stablecoinShare, totalAmount);
+  }
+
+  /**
+   * @dev Allows a shareholder to claim their earnings in ETH.
+   */
+  function claimEthEarnings() external {
+    updateEarnings();
+    uint256 totalAmount = unclaimedEarnings[msg.sender];
+    require(totalAmount > 0, 'No earnings to claim');
+
+    uint256 ethShare = (ethBalance * totalAmount) / totalDistributedEarnings;
+    require(ethShare > 0, 'No ETH earnings to claim');
+
+    unclaimedEarnings[msg.sender] = 0;
+    redeemedEarnings[msg.sender] += totalAmount;
+    ethBalance -= ethShare;
+
+    (bool success, ) = msg.sender.call{value: ethShare}('');
+    require(success, 'ETH transfer failed');
+    emit EarningsClaimed(msg.sender, address(0), ethShare, totalAmount);
+  }
+
+  /**
+   * @dev Updates the earnings for the caller.
+   */
+  function updateEarnings() public {
+    uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
+    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
+      1e18 -
+      lastClaimedEarningsPerShare[msg.sender];
+    if (newEarnings > 0) {
+      unclaimedEarnings[msg.sender] += newEarnings;
+      lastClaimedEarningsPerShare[msg.sender] = accumulatedEarningsPerShare;
+      totalEarnings[msg.sender] += newEarnings;
+      emit EarningsUpdated(msg.sender, newEarnings, totalEarnings[msg.sender]);
+    }
+  }
+
+  /**
+   * @dev Requests an update to the metadata if the song has been released.
+   * @param tokenId The ID of the token to update.
+   * @param newMetadata The new metadata to be set.
+   */
+  function requestUpdateMetadata(
+    uint256 tokenId,
+    string memory newMetadata
+  ) external onlyOwner {
+    require(
+      protocolModule.isReleased(address(this)),
+      'Song not released, update metadata directly'
+    );
+    protocolModule.requestUpdateMetadata(address(this), tokenId, newMetadata);
+  }
+
+  /**
+   * @dev Updates the metadata directly if the song has not been released.
+   * @param tokenId The ID of the token to update.
+   * @param newMetadata The new metadata to be set.
+   */
+  function updateMetadata(
+    uint256 tokenId,
+    string memory newMetadata
+  ) public onlyOwner {
+    require(
+      !protocolModule.isReleased(address(this)),
+      'Cannot update metadata directly after release, request update instead'
+    );
+    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
+    emit MetadataUpdated(tokenId, newMetadata, address(this));
+  }
+
+  /**
+   * @dev Executes the confirmed metadata update.
+   * @param tokenId The ID of the token to update.
+   */
+  function executeConfirmedMetadataUpdate(uint256 tokenId) external {
+    require(
+      msg.sender == address(protocolModule),
+      'Only ProtocolModule can execute confirmed updates'
+    );
+    require(
+      protocolModule.isMetadataUpdateConfirmed(address(this), tokenId),
+      'Metadata update not confirmed'
+    );
+
+    string memory newMetadata = protocolModule.getPendingMetadataUpdate(
+      address(this),
+      tokenId
+    );
+
+    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
+
+    protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
+
+    emit MetadataUpdated(tokenId, newMetadata, address(this));
+  }
+
+  /**
+   * @dev Initiates the withdrawal of sale funds from the WSTokenManagement contract.
+   */
+  function withdrawSaleFundsFromWSTokenManagement() external onlyOwner {
+    newWSTokenManagement.withdrawFunds();
+  }
+
+  // Public functions
+
   /**
    * @dev Registers a new song with the given URI and creates fungible shares.
    * @param songURI The URI of the song.
    * @param sharesAmount The amount of shares to be created.
+   * @param sharesURI The URI for the shares.
+   * @param creator The address of the creator.
    * @return songId The ID of the registered song.
    * @return newSongSharesId The ID of the created fungible shares.
    */
@@ -88,8 +346,6 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     string memory sharesURI,
     address creator
   ) public returns (uint256 songId, uint256 newSongSharesId) {
-    // require(sharesAmount == 10000, "Shares amount must be 10,000");
-
     songId = newWSTokenManagement.createSongConcept(songURI, address(this));
     wrappedSongTokenId = songId;
     newSongSharesId = newWSTokenManagement.createFungibleSongShares(
@@ -98,7 +354,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
       sharesURI,
       creator
     );
-    songSharesId = newSongSharesId; // Update the state variable
+    songSharesId = newSongSharesId;
     return (songId, newSongSharesId);
   }
 
@@ -121,6 +377,8 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
    * @dev Creates fungible song shares for the given song ID and shares amount.
    * @param songId The ID of the song.
    * @param sharesAmount The amount of shares to be created.
+   * @param sharesURI The URI for the shares.
+   * @param creator The address of the creator.
    * @return sharesId The ID of the created shares.
    */
   function createFungibleSongShares(
@@ -139,145 +397,7 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
     return sharesId;
   }
 
-  /**
-   * @dev Sets the price and percentage of shares available for sale.
-   * @param sharesId The ID of the shares.
-   * @param percentage The percentage of shares to be sold.
-   * @param pricePerShare The price per share.
-   */
-  function setSharesForSale(
-    uint256 sharesId,
-    uint256 percentage,
-    uint256 pricePerShare
-  ) public onlyOwner {
-    require(percentage > 0 && percentage <= 100, 'Invalid percentage');
-
-    sharesForSale[sharesId] = SaleInfo({
-      pricePerShare: pricePerShare,
-      percentageForSale: percentage
-    });
-  }
-
-  /**
-   * @dev Returns the token balance of the specified token ID.
-   * @param tokenId The ID of the token.
-   * @return The balance of the token.
-   */
-  function getTokenBalance(uint256 tokenId) public view returns (uint256) {
-    return newWSTokenManagement.balanceOf(address(this), tokenId);
-  }
-
-  /**
-   * @dev Retrieves the metadata for a specific token ID from the WSTokenManagement contract.
-   * @param tokenId The ID of the token to get the metadata for.
-   * @return The metadata of the specified token.
-   */
-  function getWrappedSongMetadata(uint256 tokenId) public view returns (string memory) {
-    return newWSTokenManagement.uri(tokenId);
-  }
-
-  /**
-   * @dev Transfers tokens to a recipient.
-   * @param tokenId The ID of the token.
-   * @param amount The amount of tokens to be transferred.
-   * @param to The address of the recipient.
-   */
-  function transferSongShares(
-    uint256 tokenId,
-    uint256 amount,
-    address to
-  ) public onlyOwner {
-    // Ensure the SmartWallet has enough of the token to transfer
-    require(getTokenBalance(tokenId) >= amount, 'Insufficient token balance');
-    // Perform the safe transfer
-    newWSTokenManagement.safeTransferFrom(
-      msg.sender,
-      to,
-      tokenId,
-      amount,
-      ''
-    );
-  }
-
-  /**
-   * @dev Batch transfers shares to multiple recipients.
-   * @param sharesId The ID of the shares.
-   * @param amounts The amounts of shares to be transferred.
-   * @param recipients The addresses of the recipients.
-   */
-  function batchTransferShares(
-    uint256 sharesId,
-    uint256[] memory amounts,
-    address[] memory recipients
-  ) public onlyOwner {
-    require(amounts.length == recipients.length, 'Arrays must be the same length');
-    
-    uint256 totalAmount = 0;
-    for (uint256 i = 0; i < amounts.length; i++) {
-      totalAmount += amounts[i];
-    }
-    
-    require(
-      newWSTokenManagement.balanceOf(msg.sender, sharesId) >= totalAmount,
-      'Not enough shares to transfer'
-    );
-
-    // Perform individual transfers
-    for (uint256 i = 0; i < recipients.length; i++) {
-      newWSTokenManagement.safeTransferFrom(
-        msg.sender,
-        recipients[i],
-        sharesId,
-        amounts[i],
-        ''
-      );
-    }
-  }
-
-  /**
-   * @dev Returns the total supply of shares for a given song.
-   * @param id The ID of the shares token.
-   * @return The total supply of shares for the given ID.
-   */
-  function getTotalSupplyOfShares(uint256 id) public view returns (uint256) {
-    return newWSTokenManagement.totalSupply(id);
-  }
-
-  /**
-   * @dev Returns the address of the associated WSTokenManagement contract.
-   * @return The address of the newWSTokenManagement contract.
-   */
-  function getWSTokenManagementAddress() public view returns (address) {
-    return address(newWSTokenManagement);
-  }
-
-  /**
-   * @dev Indicates whether the contract can receive ERC20 tokens.
-   * @return A boolean indicating if the contract can receive ERC20 tokens.
-   */
-  function canReceiveERC20() external pure returns (bool) {
-    return true;
-  }
-
-  /**
-   * @dev Function to receive ERC20 tokens.
-   * @param token The address of the ERC20 token contract.
-   * @param amount The amount of tokens to be received.
-   */
-  function receiveERC20(address token, uint256 amount) external {
-    require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Transfer failed");
-  }
-
-  /**
-   * @dev Function to receive ETH.
-   */
-  receive() external payable {
-    // Custom logic can be added here if needed
-  }
-
-  function receiveEarnings(uint256 amount) external {
-    // Implementation of receiveEarnings
-  }
+  // ERC1155Receiver functions
 
   /**
    * @dev Handles the receipt of a single ERC1155 token type.
@@ -330,55 +450,37 @@ contract WrappedSongSmartAccount is Ownable, IERC1155Receiver, ERC165 {
       super.supportsInterface(interfaceId);
   }
 
-  /**
-   * @dev Retrieves the metadata for a specific token ID from the WSTokenManagement contract.
-   * @param tokenId The ID of the token to get the metadata for.
-   * @return The metadata of the specified token.
-   */
-  function getTokenMetadata(uint256 tokenId) public view returns (string memory) {
-    return newWSTokenManagement.uri(tokenId);
+  // Internal functions
+  function _processEarnings(uint256 amount, address token) private {
+    uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
+    require(totalShares > 0, 'No shares exist');
+
+    uint256 earningsPerShare = (amount * 1e18) / totalShares;
+    accumulatedEarningsPerShare += earningsPerShare;
+    totalDistributedEarnings += amount;
+
+    if (token != address(stablecoin) && token != address(0)) {
+      if (!isTokenReceived[token]) {
+        receivedTokens.push(token);
+        isTokenReceived[token] = true;
+      }
+    }
+
+    emit EarningsReceived(token, amount, earningsPerShare);
   }
 
-  /**
-   * @dev Requests an update to the metadata if the song has been released.
-   * @param tokenId The ID of the token to update.
-   * @param newMetadata The new metadata to be set.
-   */
-  function requestUpdateMetadata(uint256 tokenId, string memory newMetadata) public onlyOwner {
-    require(protocolModule.isReleased(address(this)), "Song not released, update metadata directly");
-    protocolModule.requestUpdateMetadata(address(this), tokenId, newMetadata);
-  }
+  // Fallback function
 
   /**
-   * @dev Updates the metadata directly if the song has not been released.
-   * @param tokenId The ID of the token to update.
-   * @param newMetadata The new metadata to be set.
+   * @dev Function to receive ETH. It automatically processes it as earnings.
    */
-  function updateMetadata(uint256 tokenId, string memory newMetadata) public onlyOwner {
-    require(!protocolModule.isReleased(address(this)), "Cannot update metadata directly after release, request update instead");
-    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
-    emit MetadataUpdated(tokenId, newMetadata, address(this));
-  }
-
-  /**
-   * @dev Executes the confirmed metadata update.
-   * @param tokenId The ID of the token to update.
-   */
-  function executeConfirmedMetadataUpdate(uint256 tokenId) external {
-    require(msg.sender == address(protocolModule), "Only ProtocolModule can execute confirmed updates");
-    require(protocolModule.isMetadataUpdateConfirmed(address(this), tokenId), "Metadata update not confirmed");
+  receive() external payable {
     
-    string memory newMetadata = protocolModule.getPendingMetadataUpdate(address(this), tokenId);
-
-    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
-    
-    protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
-    
-    emit MetadataUpdated(tokenId, newMetadata, address(this));
-  }
-
-  // New function to check authenticity
-  function checkAuthenticity() public view returns (bool) {
-    return protocolModule.isAuthentic(address(this));
+    if (msg.sender == address(newWSTokenManagement)) {
+      saleFunds += msg.value;
+      emit SaleFundsReceived(msg.value);
+    } else {
+      _processEarnings(msg.value, address(0));
+    }
   }
 }

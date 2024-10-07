@@ -49,6 +49,7 @@ contract ProtocolModule is Ownable {
     event WrappedSongReleaseRejected(address indexed wrappedSong, address indexed distributor);
     event DistributorAcceptedReview(address indexed wrappedSong, address indexed distributor);
     event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
+    event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
     /**
      * @dev Initializes the contract with the given parameters.
@@ -310,10 +311,12 @@ contract ProtocolModule is Ownable {
     /**
      * @dev Sets the authenticity status of a wrapped song.
      * @param wrappedSong The address of the wrapped song.
-     * @param isAuthentic The authenticity status to be set.
+     * @param _isAuthentic The authenticity status to be set.
      */
-    function setWrappedSongAuthenticity(address wrappedSong, bool isAuthentic) external onlyOwner {
-        wrappedSongAuthenticity[wrappedSong] = isAuthentic;
+    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external {
+        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set authenticity status");
+        wrappedSongAuthenticity[wrappedSong] = _isAuthentic;
+        emit WrappedSongAuthenticitySet(wrappedSong, _isAuthentic);
     }
 
     /**
