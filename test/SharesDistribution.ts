@@ -132,8 +132,8 @@ describe("SharesDistribution", function () {
             expect(saleActive).to.equal(true);
         });
 
-        it("should buy 30 shares with different wallets", async function () {
-            const { deployer,user, address2, address3, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
+        it("should buy 30 shares with different wallets and then transfer 20 remaining to distributor wallet", async function () {
+            const { deployer, user, address2, address3, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
             const songURI = "ipfs://song-metadata";
             const totalSharesAmount = 10000;
@@ -166,8 +166,8 @@ describe("SharesDistribution", function () {
             const bigSharesAmount = BigInt(sharesAmount);
             const totalPrice = bigSharesAmount * pricePerShare;
             await mockStablecoin.connect(deployer).approve(newWSTokenManagementAddress, totalPrice); // Approve transfer
-            await mockStablecoin.connect(deployer).transfer(address2.address, totalPrice); 
-            await mockStablecoin.connect(deployer).transfer(address3.address, totalPrice); 
+            await mockStablecoin.connect(deployer).transfer(address2.address, totalPrice);
+            await mockStablecoin.connect(deployer).transfer(address3.address, totalPrice);
 
             // Three different wallets will buy shares
             const buyers = [deployer, address2, address3];
@@ -183,8 +183,25 @@ describe("SharesDistribution", function () {
                 expect(buyerBalance).to.equal(BigInt(sharesToBuy));
             }
 
+            // Verify that 30 shares were sold
             const sharesForSale = await newWSTokenManagementContract.sharesForSale();
             expect(sharesForSale).to.equal(20);
+
+            // Transfer remaining shares to distributor wallet
+            const transferTx = await newWSTokenManagementContract.connect(user).safeTransferFrom(user.address, deployer.address, 1, 20, "0x"); // Save the transaction
+            await transferTx.wait(); // Wait for the transaction to be mined
+
+            // Verify that all shares have been sold or transferred
+            const finalSharesForSale = await newWSTokenManagementContract.sharesForSale();
+            expect(finalSharesForSale).to.equal(20);
+
+            // Verify that the distributor wallet received the remaining shares
+            const distributorBalance = await newWSTokenManagementContract.balanceOf(deployer.address, 1); // Assuming songSharesId is 1
+            expect(distributorBalance).to.equal(30);
+
+            // Verify that the sale is no longer active
+            const saleActive = await newWSTokenManagementContract.saleActive();
+            expect(saleActive).to.equal(true);
         });
     });
 });
