@@ -7,3 +7,5 @@ cache
 artifacts
 
 subgraph/local-graph-node/data
+subgraph/build
+subgraph/generated
