@@ -132,7 +132,7 @@ describe("SharesDistribution", function () {
             expect(saleActive).to.equal(true);
         });
 
-        it("should buy 30 shares with different wallets and then transfer 20 remaining to distributor wallet", async function () {
+        it("should buy 30 shares with different wallets using stablecoin and then transfer 20 remaining to distributor wallet", async function () {
             const { deployer, user, address2, address3, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
             const songURI = "ipfs://song-metadata";
@@ -169,7 +169,7 @@ describe("SharesDistribution", function () {
             await mockStablecoin.connect(deployer).transfer(address2.address, totalPrice);
             await mockStablecoin.connect(deployer).transfer(address3.address, totalPrice);
 
-            // Three different wallets will buy shares
+            // Three different wallets will buy shares using stablecoin
             const buyers = [deployer, address2, address3];
             const sharesToBuy = 10; // Each buyer will buy 10 shares
 
@@ -177,7 +177,7 @@ describe("SharesDistribution", function () {
                 const totalPrice = BigInt(sharesToBuy) * pricePerShare;
                 await mockStablecoin.connect(buyer).approve(newWSTokenManagementAddress, totalPrice); // Approve transfer
 
-                await newWSTokenManagementContract.connect(buyer).buyShares(sharesToBuy); // Buy shares without sending ETH
+                await newWSTokenManagementContract.connect(buyer).buyShares(sharesToBuy); // Buy shares with stablecoin
 
                 const buyerBalance = await newWSTokenManagementContract.balanceOf(buyer.address, 1); // Assuming songSharesId is 1
                 expect(buyerBalance).to.equal(BigInt(sharesToBuy));
@@ -199,9 +199,17 @@ describe("SharesDistribution", function () {
             const distributorBalance = await newWSTokenManagementContract.balanceOf(deployer.address, 1); // Assuming songSharesId is 1
             expect(distributorBalance).to.equal(30);
 
-            // Verify that the sale is no longer active
+            // Verify that the sale is still active
             const saleActive = await newWSTokenManagementContract.saleActive();
             expect(saleActive).to.equal(true);
         });
+
+        // TODO: Add a test for buying shares with ETH
+        // This test should cover:
+        // 1. Starting a sale with ETH as the payment method
+        // 2. Buying shares using ETH from different wallets
+        // 3. Verifying the correct number of shares are transferred
+        // 4. Checking that the contract's ETH balance increases correctly
+        // 5. Ensuring that excess ETH is refunded if sent
     });
 });
