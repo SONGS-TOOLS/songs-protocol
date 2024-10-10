@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { bigInt } from "@graphprotocol/graph-ts";
 
 describe("SharesDistribution", function () {
     async function deployContractFixture() {
@@ -204,12 +205,67 @@ describe("SharesDistribution", function () {
             expect(saleActive).to.equal(true);
         });
 
-        // TODO: Add a test for buying shares with ETH
-        // This test should cover:
-        // 1. Starting a sale with ETH as the payment method
-        // 2. Buying shares using ETH from different wallets
-        // 3. Verifying the correct number of shares are transferred
-        // 4. Checking that the contract's ETH balance increases correctly
-        // 5. Ensuring that excess ETH is refunded if sent
+        it("should buy shares with ETH from different wallets", async function () {
+            const { deployer, user, address2, address3, address4, wrappedSongFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
+            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const songURI = "ipfs://song-metadata";
+            const totalSharesAmount = 10000;
+            const sharesURI = "ipfs://shares-metadata";
+
+            // Create a wrapped song first
+            await wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+                mockStablecoin, // Use mock stablecoin
+                songURI,
+                totalSharesAmount,
+                sharesURI,
+                { value: creationFee }
+            );
+
+            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const wrappedSongAddress = userWrappedSongs[0];
+            const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
+
+            const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
+            const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
+
+            const sharesAmount = 50;
+            const pricePerShare = ethers.parseEther("0.05"); // 0.1 ETH per share
+            const maxSharesPerWallet = 1000;
+
+            // Start the shares sale with ETH as payment method
+            await newWSTokenManagementContract.connect(user).startSharesSale(sharesAmount, pricePerShare, maxSharesPerWallet, ethers.ZeroAddress);
+
+            // Three different wallets will buy shares using ETH
+            const buyers = [deployer, address2, address3, address4];
+            const sharesToBuy = [10, 10, 20, 10]; // Each buyer will buy a different number of shares
+
+            for (let i = 0; i < buyers.length; i++) {
+                const buyer = buyers[i];
+                const amount = sharesToBuy[i];
+                const totalPrice = BigInt(amount) * pricePerShare;
+
+                const initialContractBalance = await ethers.provider.getBalance(newWSTokenManagementAddress);
+
+                // Buy shares with ETH
+                const buySharesTx = await newWSTokenManagementContract.connect(buyer).buyShares(amount, { value: totalPrice });
+                await buySharesTx.wait();
+
+                // Verify correct number of shares transferred
+                const buyerBalance = await newWSTokenManagementContract.balanceOf(buyer.address, 1); // Assuming songSharesId is 1
+                expect(buyerBalance).to.equal(BigInt(amount));
+
+                // Verify contract's ETH balance increased correctly
+                const finalContractBalance = await ethers.provider.getBalance(newWSTokenManagementAddress);
+                expect(finalContractBalance - initialContractBalance).to.equal(totalPrice);
+            }
+
+            // Verify that all shares were sold
+            const sharesForSale = await newWSTokenManagementContract.sharesForSale();
+            expect(sharesForSale).to.equal(0);
+
+            // Verify that the sale is no longer active
+            const saleActive = await newWSTokenManagementContract.saleActive();
+            expect(saleActive).to.equal(false);
+        });
     });
 });
