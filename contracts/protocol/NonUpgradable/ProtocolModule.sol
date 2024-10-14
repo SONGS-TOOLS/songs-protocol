@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
+import "./../Interfaces/IMetadataModule.sol";
 
 
 contract ProtocolModule is Ownable {
@@ -12,6 +13,7 @@ contract ProtocolModule is Ownable {
     uint256 public releaseFee;
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
+    IMetadataModule public metadataModule;
 
     bool public paused; // Add paused state variable
 
@@ -22,9 +24,6 @@ contract ProtocolModule is Ownable {
 
     mapping(address => address) public wrappedSongToDistributor;
     mapping(address => address) public pendingDistributorRequests;
-
-    mapping(address => mapping(uint256 => string)) public pendingMetadataUpdates;
-    mapping(address => mapping(uint256 => bool)) public metadataUpdateConfirmed;
 
     mapping(address => bool) public wrappedSongAuthenticity;
 
@@ -55,13 +54,16 @@ contract ProtocolModule is Ownable {
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
      * @param _whitelistingManager The address of the WhitelistingManager contract.
+     * @param _metadataModule The address of the MetadataModule contract.
      */
     constructor  (
         address _distributorWalletFactory,
-        address _whitelistingManager
+        address _whitelistingManager,
+        address _metadataModule
     ) Ownable(msg.sender) {
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
+        metadataModule = IMetadataModule(_metadataModule);
         paused = false; // Initialize paused state
     }
 
@@ -238,77 +240,6 @@ contract ProtocolModule is Ownable {
     }
 
     /**
-     * @dev Requests an update to the metadata.
-     * @param wrappedSong The address of the wrapped song.
-     * @param tokenId The ID of the token to update.
-     * @param newMetadata The new metadata to be set.
-     */
-    function requestUpdateMetadata(address wrappedSong, uint256 tokenId, string memory newMetadata) external {
-        require(msg.sender == wrappedSong, "Only WrappedSongSmartAccount can request metadata update");
-        require(wrappedSongToDistributor[wrappedSong] != address(0), "Wrapped song not released");
-        pendingMetadataUpdates[wrappedSong][tokenId] = newMetadata;
-        metadataUpdateConfirmed[wrappedSong][tokenId] = false;
-        emit MetadataUpdateRequested(wrappedSong, tokenId, newMetadata);
-    }
-
-    /**
-     * @dev Confirms the update to the metadata.
-     * @param wrappedSong The address of the wrapped song.
-     * @param tokenId The ID of the token to update.
-     */
-    function confirmUpdateMetadata(address wrappedSong, uint256 tokenId) external {
-        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can confirm metadata update");
-        require(bytes(pendingMetadataUpdates[wrappedSong][tokenId]).length > 0, "No pending metadata update");
-
-        metadataUpdateConfirmed[wrappedSong][tokenId] = true;
-        
-        // Call the WrappedSongSmartAccount to update the metadata
-        IWrappedSongSmartAccount(wrappedSong).executeConfirmedMetadataUpdate(tokenId);
-        
-        emit MetadataUpdated(wrappedSong, tokenId, pendingMetadataUpdates[wrappedSong][tokenId]);
-    }
-
-    /**
-     * @dev Rejects the update to the metadata.
-     * @param wrappedSong The address of the wrapped song.
-     * @param tokenId The ID of the token to update.
-     */
-    function rejectUpdateMetadata(address wrappedSong, uint256 tokenId) external {
-        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can reject metadata update");
-        delete pendingMetadataUpdates[wrappedSong][tokenId];
-        delete metadataUpdateConfirmed[wrappedSong][tokenId];
-    }
-
-    /**
-     * @dev Retrieves the pending metadata update for a specific token ID.
-     * @param wrappedSong The address of the wrapped song.
-     * @param tokenId The ID of the token.
-     * @return The pending metadata update.
-     */
-    function getPendingMetadataUpdate(address wrappedSong, uint256 tokenId) external view returns (string memory) {
-        return pendingMetadataUpdates[wrappedSong][tokenId];
-    }
-
-    /**
-     * @dev Checks if the metadata update is confirmed for a specific token ID.
-     * @param wrappedSong The address of the wrapped song.
-     * @param tokenId The ID of the token.
-     * @return True if the metadata update is confirmed, false otherwise.
-     */
-    function isMetadataUpdateConfirmed(address wrappedSong, uint256 tokenId) external view returns (bool) {
-        return metadataUpdateConfirmed[wrappedSong][tokenId];
-    }
-
-    /**
-     * @dev Checks if a wrapped song is released.
-     * @param wrappedSong The address of the wrapped song.
-     * @return True if the wrapped song is released, false otherwise.
-     */
-    function isReleased(address wrappedSong) external view returns (bool) {
-        return wrappedSongToDistributor[wrappedSong] != address(0);
-    }
-
-    /**
      * @dev Sets the authenticity status of a wrapped song.
      * @param wrappedSong The address of the wrapped song.
      * @param _isAuthentic The authenticity status to be set.
@@ -337,14 +268,11 @@ contract ProtocolModule is Ownable {
         return whitelistingManager.isValidToCreateWrappedSong(creator);
     }
 
-    // Add this new function
-    function clearPendingMetadataUpdate(address wrappedSong, uint256 tokenId) external {
-        require(msg.sender == wrappedSong, "Only WrappedSongSmartAccount can clear pending updates");
-        delete pendingMetadataUpdates[wrappedSong][tokenId];
-        delete metadataUpdateConfirmed[wrappedSong][tokenId];
-    }
-
     function setReviewPeriodDays(uint256 _days) external onlyOwner {
         reviewPeriodDays = _days;
+    }
+
+    function setMetadataModule(address _metadataModule) external onlyOwner {
+        metadataModule = IMetadataModule(_metadataModule);
     }
 }

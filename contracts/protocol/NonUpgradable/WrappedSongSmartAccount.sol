@@ -82,7 +82,7 @@ contract WrappedSongSmartAccount is
       'Invalid protocol module address'
     );
 
-    newWSTokenManagement = new WSTokenManagement(address(this), _owner);
+    newWSTokenManagement = new WSTokenManagement(address(this), _owner, protocolModule.metadataModule());
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
   }
@@ -264,65 +264,6 @@ contract WrappedSongSmartAccount is
   }
 
   /**
-   * @dev Requests an update to the metadata if the song has been released.
-   * @param tokenId The ID of the token to update.
-   * @param newMetadata The new metadata to be set.
-   */
-  function requestUpdateMetadata(
-    uint256 tokenId,
-    string memory newMetadata
-  ) external onlyOwner {
-    require(
-      protocolModule.isReleased(address(this)),
-      'Song not released, update metadata directly'
-    );
-    protocolModule.requestUpdateMetadata(address(this), tokenId, newMetadata);
-  }
-
-  /**
-   * @dev Updates the metadata directly if the song has not been released.
-   * @param tokenId The ID of the token to update.
-   * @param newMetadata The new metadata to be set.
-   */
-  function updateMetadata(
-    uint256 tokenId,
-    string memory newMetadata
-  ) public onlyOwner {
-    require(
-      !protocolModule.isReleased(address(this)),
-      'Cannot update metadata directly after release, request update instead'
-    );
-    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
-    emit MetadataUpdated(tokenId, newMetadata, address(this));
-  }
-
-  /**
-   * @dev Executes the confirmed metadata update.
-   * @param tokenId The ID of the token to update.
-   */
-  function executeConfirmedMetadataUpdate(uint256 tokenId) external {
-    require(
-      msg.sender == address(protocolModule),
-      'Only ProtocolModule can execute confirmed updates'
-    );
-    require(
-      protocolModule.isMetadataUpdateConfirmed(address(this), tokenId),
-      'Metadata update not confirmed'
-    );
-
-    string memory newMetadata = protocolModule.getPendingMetadataUpdate(
-      address(this),
-      tokenId
-    );
-
-    newWSTokenManagement.setTokenURI(tokenId, newMetadata);
-
-    protocolModule.clearPendingMetadataUpdate(address(this), tokenId);
-
-    emit MetadataUpdated(tokenId, newMetadata, address(this));
-  }
-
-  /**
    * @dev Initiates the withdrawal of sale funds from the WSTokenManagement contract.
    */
   function withdrawSaleFundsFromWSTokenManagement() external onlyOwner {
@@ -438,7 +379,7 @@ contract WrappedSongSmartAccount is
   }
 
   /**
-   * @dev Indicates whether a contract implements the `IERC1155Receiver` interface.
+ M  * @dev Indicates whether a contract implements the `IERC1155Receiver` interface.
    * @param interfaceId The interface identifier, as specified in ERC-165.
    * @return `true` if the contract implements the `IERC1155Receiver` interface.
    */
@@ -469,6 +410,9 @@ contract WrappedSongSmartAccount is
     emit EarningsReceived(token, amount, earningsPerShare);
   }
 
+  function getWSTokenManagementAddress() external view returns (address) {
+    return address(newWSTokenManagement);
+  }
   // Fallback function
 
   /**
@@ -483,4 +427,5 @@ contract WrappedSongSmartAccount is
       _processEarnings(msg.value, address(0));
     }
   }
+
 }

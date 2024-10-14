@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import './../Interfaces/IMetadataModule.sol';
 
 contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   using SafeERC20 for IERC20;
@@ -27,6 +28,9 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
   uint256 public maxSharesPerWallet;
   IERC20 public stableCoin;
+  address public metadataModule;
+
+  string private _baseURI;
 
   event WSTokensCreated(address indexed smartAccount, address indexed minter);
   event SharesSaleStarted(uint256 amount, uint256 price, address indexed owner, uint256 maxSharesPerWallet, address stableCoinAddress);
@@ -34,32 +38,57 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   event SharesSaleEnded();
   event FundsWithdrawn(address indexed to, uint256 amount);
   event ERC20Received(address token, uint256 amount, address sender);
+  event MetadataUpdated(string newMetadata);
   
   modifier onlyMinter() {
     require(msg.sender == _minter, 'Caller is not the minter');
     _;
   }
+  
+  modifier onlyMetadataModule() {
+    require(msg.sender == metadataModule, "Only MetadataModule can update token URIs");
+    _;
+  }
 
   constructor(
     address _smartAccountAddress,
-    address _minterAddress
+    address _minterAddress,
+    address _metadataModuleAddress
   ) ERC1155('') Ownable(_smartAccountAddress) {
     _minter = _minterAddress;
     _currentTokenId = 0;
+    metadataModule = _metadataModuleAddress;
     emit WSTokensCreated(_smartAccountAddress, _minterAddress);
   }
 
   /**
-   * @dev Sets the token URI for a specific token ID.
+   * @dev Internal function to set the token URI for a specific token ID.
    * @param tokenId The ID of the token to set the URI for.
    * @param tokenURI The URI to be set for the token.
    */
-  function setTokenURI(
-    uint256 tokenId,
-    string memory tokenURI
-  ) public onlyOwner {
+  function _setTokenURI(uint256 tokenId, string memory tokenURI) internal {
     _tokenURIs[tokenId] = tokenURI;
+    emit MetadataUpdated(tokenURI);
   }
+
+  /**
+   * @dev Public function to update the token URI, only callable by the MetadataModule.
+   * @param tokenId The ID of the token to update the URI for.
+   * @param newTokenURI The new URI to be set for the token.
+   */
+  function updateTokenURI(uint256 tokenId, string memory newTokenURI) external onlyMetadataModule {
+    _setTokenURI(tokenId, newTokenURI);
+  }
+
+  /**
+   * @dev Updates the base URI for all token URIs.
+   * @param newTokenURI The new base URI to be set.
+   */
+  function updateAllTokenURIs(string memory newTokenURI) external onlyMetadataModule {
+    _baseURI = newTokenURI;
+    emit MetadataUpdated(newTokenURI);
+  }
+
 
   /**
    * @dev Creates a new song concept NFT.
@@ -73,8 +102,8 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   ) public onlyOwner returns (uint256 songId) {
     songId = 0;
     _mint(smartWallet, songId, 1, '');
-    setTokenURI(songId, songURI);
     songToConceptNFT[songId] = songId;
+    _setTokenURI(songId, songURI);
     return songId;
   }
 
@@ -103,10 +132,10 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
     sharesId = SONG_SHARES_ID;
     _mint(creator, sharesId, sharesAmount, '');
-    setTokenURI(sharesId, sharesURI);
     songToFungibleShares[songId] = sharesId;
     fungibleTokenShares[sharesId] = sharesAmount;
     totalShares = sharesAmount;
+    _setTokenURI(sharesId, sharesURI);
     return sharesId;
   }
 
@@ -236,4 +265,12 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
   // Function to allow the contract to receive ETH
   receive() external payable {}
+
+  function setMetadataModule(address _metadataModule) external onlyOwner {
+    metadataModule = _metadataModule;
+  }
+
+  function uri(uint256) public view virtual override returns (string memory) {
+    return _baseURI;
+  }
 }
