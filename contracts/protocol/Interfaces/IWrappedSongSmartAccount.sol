@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import './../Interfaces/IMetadataModule.sol';
+
 interface IWrappedSongSmartAccount {
   function requestWrappedSongReleaseWithMetadata(address _distributorWallet, string memory songURI) external;
   function requestWrappedSongRelease(address _distributorWallet) external;
@@ -10,9 +12,7 @@ interface IWrappedSongSmartAccount {
   function claimEthEarnings() external;
   function updateEarnings() external;
   function withdrawSaleFundsFromWSTokenManagement() external;
-  function createsWrappedSongTokens(string memory songURI, uint256 sharesAmount, string memory sharesURI, address creator) external returns (uint256 songId, uint256 newSongSharesId);
-  function createsSongToken(string memory songURI, address[] memory participants) external returns (uint256 songId);
-  function createFungibleSongShares(uint256 songId, uint256 sharesAmount, string memory sharesURI, address creator) external returns (uint256 sharesId);
+  function createSongTokens(IMetadataModule.Metadata memory songMetadata, uint256 sharesAmount, address creator) external returns (uint256 songId, uint256 sharesId);
   function getWSTokenManagementAddress() external view returns (address);
   function owner() external view returns (address);
   function redeemShares() external;

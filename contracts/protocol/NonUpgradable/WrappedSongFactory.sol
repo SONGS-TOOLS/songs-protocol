@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
+import './../Interfaces/IMetadataModule.sol';
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract WrappedSongFactory {
   IProtocolModule public protocolModule;
@@ -20,9 +22,8 @@ contract WrappedSongFactory {
   event WrappedSongCreatedWithMetadata(
     address indexed owner,
     address wrappedSongSmartAccount,
-    string songURI,
-    uint256 sharesAmount,
-    string sharesURI
+    IMetadataModule.Metadata songMetadata,
+    uint256 sharesAmount
   );
 
   constructor(address _protocolModule) {
@@ -64,37 +65,52 @@ contract WrappedSongFactory {
   }
 
   /**
+   * @dev Validates the metadata object to ensure all required fields are present and non-empty.
+   * @param metadata The metadata object to validate.
+   * @return bool Returns true if the metadata is valid, false otherwise.
+   */
+  function isValidMetadata(IMetadataModule.Metadata memory metadata) internal pure returns (bool) {
+      return (
+          bytes(metadata.name).length > 0 &&
+          // bytes(metadata.description).length > 0 &&
+          bytes(metadata.image).length > 0 &&
+          // bytes(metadata.externalUrl).length > 0 &&
+          bytes(metadata.animationUrl).length > 0 &&
+          bytes(metadata.attributesIpfsHash).length > 0
+      );
+  }
+
+  /**
    * @dev Creates a new wrapped song with metadata.
    * @param _stablecoin The address of the stablecoin contract.
-   * @param songURI The URI of the song metadata.
+   * @param songMetadata The metadata for the song NFT.
    * @param sharesAmount The amount of shares to be created.
-   * @param sharesURI The URI containing metadata for the shares.
    */
   function createWrappedSongWithMetadata(
     address _stablecoin,
-    string memory songURI,
-    uint256 sharesAmount,
-    string memory sharesURI
+    IMetadataModule.Metadata memory songMetadata,
+    uint256 sharesAmount
   ) public payable {
-    require(!protocolModule.paused(), 'Protocol is paused'); // Check if protocol is paused
+    require(!protocolModule.paused(), 'Protocol is paused');
+    require(isValidMetadata(songMetadata), "Invalid metadata: All fields must be non-empty");
+    
     address newWrappedSongSmartAccount = createWrappedSong(_stablecoin);
 
     WrappedSongSmartAccount wrappedSong = WrappedSongSmartAccount(
-      payable(newWrappedSongSmartAccount)
+        payable(newWrappedSongSmartAccount)
     );
-    wrappedSong.createsWrappedSongTokens(
-      songURI,
-      sharesAmount,
-      sharesURI,
-      msg.sender
+    
+    wrappedSong.createSongTokens(
+        songMetadata,
+        sharesAmount,
+        msg.sender
     );
 
     emit WrappedSongCreatedWithMetadata(
-      msg.sender,
-      newWrappedSongSmartAccount,
-      songURI,
-      sharesAmount,
-      sharesURI
+        msg.sender,
+        newWrappedSongSmartAccount,
+        songMetadata,
+        sharesAmount
     );
   }
 

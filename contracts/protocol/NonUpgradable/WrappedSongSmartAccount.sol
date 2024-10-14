@@ -9,6 +9,7 @@ import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IDistributorWallet.sol';
+import './../Interfaces/IMetadataModule.sol';
 
 contract WrappedSongSmartAccount is
   Ownable,
@@ -20,6 +21,7 @@ contract WrappedSongSmartAccount is
   WSTokenManagement public immutable newWSTokenManagement;
   IERC20 public immutable stablecoin;
   IProtocolModule public immutable protocolModule;
+  IMetadataModule public immutable metadataModule;
 
   uint256 public songSharesId;
   uint256 public wrappedSongTokenId;
@@ -82,9 +84,10 @@ contract WrappedSongSmartAccount is
       'Invalid protocol module address'
     );
 
-    newWSTokenManagement = new WSTokenManagement(address(this), _owner, protocolModule.metadataModule());
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
+    metadataModule = IMetadataModule(protocolModule.metadataModule());
+    newWSTokenManagement = new WSTokenManagement(address(this), _owner, address(protocolModule.metadataModule()));
   }
 
   // External functions
@@ -92,13 +95,13 @@ contract WrappedSongSmartAccount is
   /**
    * @dev Requests the release of the wrapped song with a metadata update.
    * @param _distributorWallet The address of the distributor wallet.
-   * @param songURI The new metadata URI for the song.
+   * @param newMetadata The new metadata for the song.
    */
   function requestWrappedSongReleaseWithMetadata(
     address _distributorWallet,
-    string memory songURI
+    IMetadataModule.Metadata memory newMetadata
   ) external onlyOwner {
-    updateMetadata(wrappedSongTokenId, songURI);
+    metadataModule.requestUpdateMetadata(address(this), newMetadata);
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
@@ -111,42 +114,6 @@ contract WrappedSongSmartAccount is
   ) external onlyOwner {
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
-
-  // /**
-  //  * @dev Batch transfers shares to multiple recipients.
-  //  * @param amounts The amounts of shares to be transferred.
-  //  * @param recipients The addresses of the recipients.
-  //  */
-  // function batchTransferShares(
-  //   uint256[] memory amounts,
-  //   address[] memory recipients
-  // ) external onlyOwner {
-  //   require(
-  //     amounts.length == recipients.length,
-  //     'Arrays must be the same length'
-  //   );
-
-  //   uint256 totalAmount = 0;
-  //   for (uint256 i = 0; i < amounts.length; i++) {
-  //     totalAmount += amounts[i];
-  //   }
-
-  //   require(
-  //     newWSTokenManagement.balanceOf(owner(), songSharesId) >= totalAmount,
-  //     'Not enough shares to transfer'
-  //   );
-
-  //   for (uint256 i = 0; i < recipients.length; i++) {
-  //     newWSTokenManagement.safeTransferFrom(
-  //       owner(),
-  //       recipients[i],
-  //       songSharesId,
-  //       amounts[i],
-  //       ''
-  //     );
-  //   }
-  //   emit BatchSongSharesTransferred(owner(), recipients, amounts);
-  // }
 
   /**
    * @dev Receives ERC20 tokens and processes them as earnings.
@@ -273,69 +240,22 @@ contract WrappedSongSmartAccount is
   // Public functions
 
   /**
-   * @dev Registers a new song with the given URI and creates fungible shares.
-   * @param songURI The URI of the song.
+   * @dev Creates wrapped song tokens and metadata.
+   * @param songMetadata The metadata for the song NFT.
    * @param sharesAmount The amount of shares to be created.
-   * @param sharesURI The URI for the shares.
    * @param creator The address of the creator.
-   * @return songId The ID of the registered song.
-   * @return newSongSharesId The ID of the created fungible shares.
    */
-  function createsWrappedSongTokens(
-    string memory songURI,
-    uint256 sharesAmount,
-    string memory sharesURI,
-    address creator
-  ) public returns (uint256 songId, uint256 newSongSharesId) {
-    songId = newWSTokenManagement.createSongConcept(songURI, address(this));
-    wrappedSongTokenId = songId;
-    newSongSharesId = newWSTokenManagement.createFungibleSongShares(
-      songId,
-      sharesAmount,
-      sharesURI,
-      creator
-    );
-    songSharesId = newSongSharesId;
-    return (songId, newSongSharesId);
-  }
-
-  /**
-   * @dev Registers a new song with the given URI.
-   * @param songURI The URI of the song.
-   * @param participants The addresses of the participants.
-   * @return songId The ID of the registered song.
-   */
-  function createsSongToken(
-    string memory songURI,
-    address[] memory participants
-  ) public onlyOwner returns (uint256 songId) {
-    songId = newWSTokenManagement.createSongConcept(songURI, address(this));
-    wrappedSongTokenId = songId;
-    return songId;
-  }
-
-  /**
-   * @dev Creates fungible song shares for the given song ID and shares amount.
-   * @param songId The ID of the song.
-   * @param sharesAmount The amount of shares to be created.
-   * @param sharesURI The URI for the shares.
-   * @param creator The address of the creator.
-   * @return sharesId The ID of the created shares.
-   */
-  function createFungibleSongShares(
-    uint256 songId,
-    uint256 sharesAmount,
-    string memory sharesURI,
-    address creator
-  ) public onlyOwner returns (uint256 sharesId) {
-    sharesId = newWSTokenManagement.createFungibleSongShares(
-      songId,
-      sharesAmount,
-      sharesURI,
-      creator
-    );
-    songSharesId = sharesId;
-    return sharesId;
+  function createSongTokens(
+      IMetadataModule.Metadata memory songMetadata,
+      uint256 sharesAmount,
+      address creator
+  ) public onlyOwner {
+      // Create song concept NFT and fungible song shares
+      newWSTokenManagement.createSongTokens(
+          sharesAmount
+      );
+      // Set metadata for song NFT and shares
+      metadataModule.createMetadata(address(this), songMetadata);
   }
 
   // ERC1155Receiver functions

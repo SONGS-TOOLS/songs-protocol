@@ -67,6 +67,17 @@ async function main() {
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
 
   /* ////////////////////////////////////////////
+  ////////  MetadataModule contract  ////////
+  //////////////////////////////////////////// */
+
+  console.log('Deploying MetadataModule...');
+  const MetadataModule = await ethers.getContractFactory('MetadataModule');
+  const metadataModule = await MetadataModule.deploy(await protocolModule.getAddress());
+  await metadataModule.waitForDeployment();
+  console.log('MetadataModule deployed to:', await metadataModule.getAddress());
+  await saveAbi('MetadataModule', await metadataModule.getAddress());
+
+  /* ////////////////////////////////////////////
   ////////  WSUtils contract  ////////
   //////////////////////////////////////////// */
 
@@ -91,8 +102,8 @@ async function main() {
   // Save the ABI of WrappedSongSmartAccount without deploying it
   await saveAbi('WrappedSongSmartAccount', '0x0000000000000000000000000000000000000000');
 
-  // Save the ABI of WSTokenManagement without deploying it
-  await saveAbi('WSTokenManagement', '0x0000000000000000000000000000000000000000');
+  // Save the ABI of WSTokensManagement without deploying it
+  await saveAbi('WSTokensManagement', '0x0000000000000000000000000000000000000000');
 
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
@@ -104,10 +115,12 @@ async function main() {
   // Update deployment-info.json
   const deploymentInfo = {
     network: network.name,
-    protocolModuleAddress: protocolModule.address,
-    protocolModuleStartBlock: deploymentReceipt?.blockNumber || 0,
-    wrappedSongFactoryAddress: wrappedSongFactory.address,
+    protocolModuleAddress: await protocolModule.getAddress(),
+    protocolModuleStartBlock: (await protocolModule.deploymentTransaction()?.wait())?.blockNumber || 0,
+    wrappedSongFactoryAddress: await wrappedSongFactory.getAddress(),
     wrappedSongFactoryStartBlock: (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0,
+    metadataModuleAddress: await metadataModule.getAddress(),
+    metadataModuleStartBlock: (await metadataModule.deploymentTransaction()?.wait())?.blockNumber || 0,
   };
 
   fs.writeFileSync(
@@ -122,6 +135,7 @@ async function main() {
     chainId: network.config.chainId,
     protocolModuleAddress: await protocolModule.getAddress(),
     wrappedSongFactoryAddress: await wrappedSongFactory.getAddress(),
+    metadataModuleAddress: await metadataModule.getAddress(),
     startBlock: deploymentBlockNumber
   };
 
@@ -130,7 +144,7 @@ async function main() {
   console.log(`Subgraph deployment info saved to ${subgraphDeployInfoPath}`);
 }
 
-async function saveAbi(contractName: string, contractAddress: any) {
+async function saveAbi(contractName: string, contractAddress: string) {
   const artifact = await artifacts.readArtifact(contractName);
   const abiContent = JSON.stringify(artifact.abi, null, 2); // Pretty print the JSON
 

@@ -5,7 +5,6 @@ import path from 'path';
 const abisDirectory = path.join(__dirname, '..', 'abis');
 const networkName = network.name;
 const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-// Load the contract addresses from the previously saved file
 const addressesFile = path.join(
   abisDirectory,
   `protocolContractAddresses-${networkName}.json`
@@ -16,8 +15,6 @@ if (!fs.existsSync(addressesFile)) {
 }
 
 const contractAddresses = JSON.parse(fs.readFileSync(addressesFile, 'utf8'));
-const zeroAddress = '0x0000000000000000000000000000000000000000';
-
 console.log('Loaded contract addresses:', contractAddresses);
 
 async function main() {
@@ -37,9 +34,8 @@ async function main() {
   const newWallet = new ethers.Wallet(privateKey2, provider);
   console.log('New wallet address:', newWallet.address);
 
-  // Send ETH to the new wallet if on localhost network
   if (network.name === 'localhost' || network.name === 'hardhat') {
-    const ethAmount = ethers.parseEther('10'); // Send 10 ETH
+    const ethAmount = ethers.parseEther('10');
     const tx = await deployer.sendTransaction({
       to: newWallet.address,
       value: ethAmount
@@ -47,108 +43,112 @@ async function main() {
     await tx.wait();
     console.log(`Sent ${ethers.formatEther(ethAmount)} ETH to ${newWallet.address}`);
 
-    // Wait for a moment to ensure the transaction is processed
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Log the new balance
     const balance = await provider.getBalance(newWallet.address);
     console.log(`New balance of ${newWallet.address}: ${ethers.formatEther(balance)} ETH`);
   }
 
-  // Get the deployed contract instances
   const DistributorWalletFactory = await ethers.getContractAt(
     'DistributorWalletFactory',
     contractAddresses.DistributorWalletFactory,
-    deployer // Use the original deployer
+    deployer
   );
   const WrappedSongFactory = await ethers.getContractAt(
     'WrappedSongFactory',
     contractAddresses.WrappedSongFactory,
-    newWallet // Use the new wallet for WrappedSongFactory
+    newWallet
   );
   const ProtocolModule = await ethers.getContractAt(
     'ProtocolModule',
     contractAddresses.ProtocolModule,
-    newWallet // Use the new wallet for ProtocolModule
+    newWallet
+  );
+  const MetadataModule = await ethers.getContractAt(
+    'MetadataModule',
+    contractAddresses.MetadataModule,
+    newWallet
   );
 
-  // Before creating a new Distributor Wallet
   const existingWallets = await DistributorWalletFactory.getDistributorWallets(newWallet.address);
   let distributorWalletAddress;
   
   if (existingWallets.length > 0) {
     distributorWalletAddress = existingWallets[0];
   } else {
-    // Proceed with creating a new wallet
     try {
-
       const createDistributorWalletTx = await DistributorWalletFactory.createDistributorWallet(
         USDC_ADDRESS,
         contractAddresses.ProtocolModule,
-        newWallet.address // Set the new wallet as the owner
+        newWallet.address
       );
-      const receipt = await createDistributorWalletTx.wait();
-
-      // Get the newly created wallet address
+      await createDistributorWalletTx.wait();
       const newWallets = await DistributorWalletFactory.getDistributorWallets(newWallet.address);
       distributorWalletAddress = newWallets[newWallets.length - 1];
       console.log('Distributor Wallet created at:', distributorWalletAddress);
     } catch (error) {
       console.error('Error creating Distributor Wallet:', error);
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-      }
-      return; // Exit if creation fails
+      return;
     }
   }
 
   const DistributorWallet = await ethers.getContractAt(
     'DistributorWallet',
     distributorWalletAddress,
-    deployer
+    newWallet
   );
 
-  // CREATE WRAPPED SONGS
-  const songURIs = [
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmYokwEwRiSHtfukgtZ5LTBSnTQfp1JALYXhK7uASk9Y88",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmVBkGMe2fwWLH6aNcfcXsA14NG4gcTvZi3zmUWtxHhsTv",
-    "https://purple-accurate-pinniped-799.mypinata.cloud/ipfs/QmXmNYqFmqCseAE2PLoK9is4A68Vg8QGFy1Se3kL94xYf7"
+  const songMetadatas = [
+    {
+      name: "Moonlight",
+      description: "",
+      image: "QmMoonlightImageHash",
+      externalUrl: "https://app.songs-tools.com/wrapped-songs/Moonlight",
+      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
+      attributesIpfsHash: "ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+    },
+    {
+      name: "Starlight",
+      description: "",
+      image: "QmStarlightImageHash",
+      externalUrl: "https://app.songs-tools.com/wrapped-songs/Starlight",
+      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
+      attributesIpfsHash: "ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+    },
+    {
+      name: "Sunlight",
+      description: "",
+      image: "QmSunlightImageHash",
+      externalUrl: "https://app.songs-tools.com/wrapped-songs/Sunlight",
+      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
+      attributesIpfsHash: "ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+    }
   ];
 
-  const sharesAmount = 10000; // Example shares amount
+  const sharesAmount = 10000;
 
-  for (let i = 0; i < songURIs.length; i++) {
-    const songURI = songURIs[i];
-    console.log(
-      `Creating Wrapped Song ${i} with URI: ${songURI} and shares amount: ${sharesAmount}`
-    );
+  for (let i = 0; i < songMetadatas.length; i++) {
+    console.log(`Creating Wrapped Song ${i} with metadata:`, songMetadatas[i]);
     try {
-      const createWrappedSongTx =
-        await WrappedSongFactory.createWrappedSongWithMetadata(
-          USDC_ADDRESS,
-          songURI, // SONG URI
-          sharesAmount,
-          songURI // SONG SHARES URI 
-        );
+      const createWrappedSongTx = await WrappedSongFactory.createWrappedSongWithMetadata(
+        USDC_ADDRESS,
+        songMetadatas[i],
+        sharesAmount
+      );
       await createWrappedSongTx.wait();
 
-      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
-        newWallet.address // Use the new wallet address
-      );
-      const wrappedSongAddress =
-        ownerWrappedSongs[ownerWrappedSongs.length - 1];
+      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(newWallet.address);
+      const wrappedSongAddress = ownerWrappedSongs[ownerWrappedSongs.length - 1];
       console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
     } catch (error) {
       console.error(`Failed to create Wrapped Song ${i}:`, error);
-      return; // Exit if creation fails
+      return;
     }
   }
 
-  // RELEASE WRAPPED SONGS 0 - 1
+  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(newWallet.address);
+
   for (let i = 0; i < 2; i++) {
-    const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
-      newWallet.address // Use the new wallet address
-    );
     const wrappedSongAddress = ownerWrappedSongs[i];
     try {
       const requestReleaseTx = await ProtocolModule.requestWrappedSongRelease(
@@ -156,40 +156,18 @@ async function main() {
         distributorWalletAddress
       );
       await requestReleaseTx.wait();
-      console.log(
-        `Release requested for Wrapped Song ${i} at:`,
-        wrappedSongAddress
-      );
+      console.log(`Release requested for Wrapped Song ${i} at:`, wrappedSongAddress);
     } catch (error) {
-      console.error(
-        `Failed to request release for Wrapped Song ${i}:`,
-        error
-      );
+      console.error(`Failed to request release for Wrapped Song ${i}:`, error);
     }
   }
 
-  // CONFIRM RELEASE FOR WRAPPED SONG 0
-  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
-    newWallet.address // Use the new wallet address
-  );
   try {
-    // Connect the DistributorWallet contract to the newWallet
-    const DistributorWalletAsOwner = DistributorWallet.connect(newWallet);
-    
-    // @ts-ignore
-    const confirmReleaseTx = await DistributorWalletAsOwner.confirmWrappedSongRelease(
-      ownerWrappedSongs[0]
-    );
+    const confirmReleaseTx = await DistributorWallet.confirmWrappedSongRelease(ownerWrappedSongs[0]);
     await confirmReleaseTx.wait();
-    console.log(
-      `Release confirmed for Wrapped Song ${0} at:`,
-      ownerWrappedSongs[0]
-    );
+    console.log(`Release confirmed for Wrapped Song 0 at:`, ownerWrappedSongs[0]);
   } catch (error) {
-    console.error(`Failed to confirm release for Wrapped Song ${0}:`, error);
-    if (error instanceof Error) {
-      console.error('Error message:', error.message);
-    }
+    console.error(`Failed to confirm release for Wrapped Song 0:`, error);
   }
 }
 

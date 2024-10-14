@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 interface IWSTokensManagement is IERC1155 {
   function setTokenURI(uint256 tokenId, string memory tokenURI) external;
