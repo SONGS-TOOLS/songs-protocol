@@ -264,6 +264,7 @@ export function handleWrappedSongReleaseRejected(
 
   wrappedSong.status = 'Created';
   wrappedSong.releaseRequest = null;
+  wrappedSong.distributor = null;
   wrappedSong.save();
 
   store.remove('ReleaseRequest', releaseRequestId.toHexString());

@@ -6,9 +6,9 @@ dataSources:
     name: ProtocolModule
     network: 'base-sepolia'
     source:
-      address: '0xb47B426E5F7b11306D63B62666b97a9537657797'
+      address: '0xB7497e0fbD066B4f4D8DB769bc98627C924De83F'
       abi: ProtocolModule
-      startBlock: 15149755
+      startBlock: 15976579
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -39,14 +39,15 @@ dataSources:
           handler: handleReviewPeriodExpired
         - event: WrappedSongAuthenticitySet(indexed address,bool)
           handler: handleWrappedSongAuthenticitySet
+
       file: ./src/protocol-module.ts
   - kind: ethereum
     name: WrappedSongFactory
     network: 'base-sepolia'
     source:
-      address: '0xb5f4d2E441968352134F5fE20db1c9Ae618EA988'
+      address: '0x8CF8D65939C06c50677778DEecf725Df1980e1C8'
       abi: WrappedSongFactory
-      startBlock: 15149755
+      startBlock: 15976579
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -58,7 +59,7 @@ dataSources:
         - name: WrappedSongFactory
           file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address,address)
+        - event: WrappedSongCreated(indexed address,address,address,address)
           handler: handleWrappedSongCreated
         - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
           handler: handleWrappedSongCreatedWithMetadata
@@ -67,9 +68,9 @@ dataSources:
     name: distributorWalletFactory
     network: 'base-sepolia'
     source:
-      address: '0xDD82B73D6d8A17630bF90545E5CFe0e6bf980509'
+      address: '0xb0f812628CAd3D3f96c94888f7078BB85a03d639'
       abi: DistributorWalletFactory
-      startBlock: 15149755
+      startBlock: 15976579
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -83,7 +84,6 @@ dataSources:
         - event: DistributorWalletCreated(indexed address,address)
           handler: handleDistributorWalletCreated
       file: ./src/distributor-wallet-factory.ts
-
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
@@ -98,12 +98,17 @@ templates:
       entities:
         - WrappedSong
         - Metadata
+        # - WSTokenManagement
+        # - ShareHolder
+        # - WrappedSongShareHolder
       abis:
         - name: WrappedSongSmartAccount
           file: ../abis/WrappedSongSmartAccount.json
       eventHandlers:
         - event: MetadataUpdated(indexed uint256,string,address)
           handler: handleMetadataUpdatedDirectly
+        # - event: SongSharesTransferred(indexed address,indexed address,uint256)
+        #   handler: handleSongSharesTransferred
   - name: TokenMetadata
     kind: file/ipfs
     network: 'base-sepolia'
@@ -131,11 +136,14 @@ templates:
         - WrappedSong
         - SaleOffer
         - Sale
+        - WSTokenManagement
+        - ShareHolder
+        - WrappedSongShareHolder
       abis:
         - name: WSTokenManagement
           file: ../abis/WSTokenManagement.json
       eventHandlers:
-        - event: SharesSaleStarted(uint256,uint256)
+        - event: SharesSaleStarted(uint256,uint256,indexed address,uint256,address)
           handler: handleSharesSaleStarted
         - event: SharesSold(address,uint256)
           handler: handleSharesSold
@@ -143,3 +151,5 @@ templates:
           handler: handleSharesSaleEnded
         - event: FundsWithdrawn(indexed address,uint256)
           handler: handleFundsWithdrawn
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle

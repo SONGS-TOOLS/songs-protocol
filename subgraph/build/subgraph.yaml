@@ -4,10 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: ProtocolModule
-    network: localhost
+    network: base-sepolia
     source:
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      address: "0xA4D2AA1aE7fA6c0ADda7D6262e12A7149044686d"
       abi: ProtocolModule
+      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -41,10 +42,11 @@ dataSources:
       file: ProtocolModule\ProtocolModule.wasm
   - kind: ethereum
     name: WrappedSongFactory
-    network: localhost
+    network: base-sepolia
     source:
-      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"
+      address: "0xe6F9C8e4581A1164ac45D353A2a9013db087e64c"
       abi: WrappedSongFactory
+      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -63,10 +65,11 @@ dataSources:
       file: WrappedSongFactory\WrappedSongFactory.wasm
   - kind: ethereum
     name: distributorWalletFactory
-    network: localhost
+    network: base-sepolia
     source:
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      address: "0x057c3599217840898c73F0D858d45d4F3f61D78e"
       abi: DistributorWalletFactory
+      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -83,7 +86,7 @@ dataSources:
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
-    network: localhost
+    network: base-sepolia
     source:
       abi: WrappedSongSmartAccount
     mapping:
@@ -102,7 +105,7 @@ templates:
           handler: handleMetadataUpdatedDirectly
   - name: TokenMetadata
     kind: file/ipfs
-    network: localhost
+    network: base-sepolia
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript

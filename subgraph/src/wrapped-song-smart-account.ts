@@ -1,10 +1,17 @@
-import { Address, BigInt, Bytes, store } from '@graphprotocol/graph-ts';
-import { Metadata, ShareHolder, WrappedSong } from '../generated/schema';
+import { Address, BigInt, Bytes, log, store } from '@graphprotocol/graph-ts';
+import {
+  Metadata,
+  ShareHolder,
+  WrappedSong,
+  WrappedSongShareHolder,
+  WSTokenManagement,
+} from '../generated/schema';
 import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
 import {
   // EarningsRedeemed as EarningsRedeemedEvent,
   EarningsUpdated as EarningsUpdatedEvent,
   MetadataUpdated as MetadataUpdatedEvent,
+  SongSharesTransferred as SongSharesTransferredEvent,
   // Transfer as TransferEvent,
 } from '../generated/templates/WrappedSongSmartAccount/WrappedSongSmartAccount';
 
@@ -162,8 +169,8 @@ export function handleMetadataUpdatedDirectly(
 // }
 
 export function handleEarningsUpdated(event: EarningsUpdatedEvent): void {
-  let shareHolderId = event.address;
-  let shareHolder = ShareHolder.load(shareHolderId);
+  // let shareHolderId = event.address;
+  // let shareHolder = ShareHolder.load(shareHolderId);
   // if (shareHolder == null) {
   //   shareHolder = new ShareHolder(shareHolderId);
   //   shareHolder.wrappedSong = event.address;
