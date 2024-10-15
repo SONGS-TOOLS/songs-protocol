@@ -5,13 +5,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
-
+import "./../Interfaces/IERC20Whitelist.sol";
 
 contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
+    IERC20Whitelist public erc20whitelist;
 
     bool public paused; // Add paused state variable
 
@@ -55,13 +56,16 @@ contract ProtocolModule is Ownable {
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
      * @param _whitelistingManager The address of the WhitelistingManager contract.
+     * @param _erc20whitelist The address of the ERC20Whitelist contract.
      */
     constructor  (
         address _distributorWalletFactory,
-        address _whitelistingManager
+        address _whitelistingManager,
+        address _erc20whitelist
     ) Ownable(msg.sender) {
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
+        erc20whitelist = IERC20Whitelist(_erc20whitelist);
         paused = false; // Initialize paused state
     }
 
@@ -75,6 +79,22 @@ contract ProtocolModule is Ownable {
     function setPaused(bool _paused) external onlyOwner {
         paused = _paused;
         emit Paused(_paused);
+    }
+
+    /**
+     * @dev whitelists a token.
+     * @param token The address of the token to whitelist.
+     */
+    function whitelistToken(address token) external onlyOwner {
+        erc20whitelist.whitelistToken(token);
+    }
+
+    /**
+     * @dev removes a token from the whitelist.
+     * @param token The address of the token to remove from the whitelist.
+     */
+    function removeTokenFromWhitelist(address token) external onlyOwner {
+        erc20whitelist.removeTokenFromWhitelist(token);
     }
 
     /**
@@ -199,6 +219,14 @@ contract ProtocolModule is Ownable {
      */
     function setWhitelistingManager(address _whitelistingManager) external onlyOwner {
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
+    }
+
+    /**
+     * @dev Sets the address of the ERC20Whitelist contract. Only the owner can set the address.
+     * @param _erc20whitelist The address of the new ERC20Whitelist contract.
+     */
+    function setERC20Whitelist(address _erc20whitelist) external onlyOwner {
+        erc20whitelist = IERC20Whitelist(_erc20whitelist);
     }
 
     /**
