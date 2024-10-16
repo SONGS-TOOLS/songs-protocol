@@ -200,11 +200,16 @@ async function main() {
   };
 
   try {
-    const requestUpdateTx = await MetadataModule.requestUpdateMetadata(
-      ownerWrappedSongs[0],
-      newMetadata
-    );
+    const wrappedSongAddress = ownerWrappedSongs[0];
+    const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
+
+    console.log(`Requesting metadata update for Wrapped Song at: ${wrappedSongAddress}`);
+    const requestUpdateTx = await wrappedSong.requestUpdateMetadata(newMetadata);
+    console.log(`Transaction hash: ${requestUpdateTx.hash}`);
+
+    console.log(`Waiting for transaction confirmation...`);
     await requestUpdateTx.wait();
+    console.log(`Metadata update requested successfully`);
 
     const confirmUpdateTx1 = await DistributorWallet.confirmUpdateMetadata(
       ownerWrappedSongs[0]
@@ -212,7 +217,7 @@ async function main() {
     await confirmUpdateTx1.wait();
     console.log(`Metadata update confirmed for Wrapped Song:`);
   } catch (error) {
-    console.error(`Failed to update metadata for Wrapped Song 0:`, error);
+    console.error(`Failed to request metadata update for Wrapped Song:`, error);
     if (error instanceof Error) {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);

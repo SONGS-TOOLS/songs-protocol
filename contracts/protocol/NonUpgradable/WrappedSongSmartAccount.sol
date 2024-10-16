@@ -41,11 +41,6 @@ contract WrappedSongSmartAccount is
   mapping(address => uint256) public redeemedEarnings;
 
   // Events
-  event MetadataUpdated(
-    uint256 indexed tokenId,
-    string newMetadata,
-    address implementationAccount
-  );
   event EarningsReceived(
     address indexed token,
     uint256 amount,
@@ -253,6 +248,36 @@ contract WrappedSongSmartAccount is
     }
   }
 
+
+  /**
+   * @dev Requests an update to the metadata if the song has been released.
+   * @param newMetadata The new metadata to be set.
+   */
+  function requestUpdateMetadata(
+    IMetadataModule.Metadata memory newMetadata
+  ) external onlyOwner {
+    require(
+      protocolModule.isReleased(address(this)),
+      'Song not released, update metadata directly'
+    );
+    metadataModule.requestUpdateMetadata(address(this), newMetadata);
+  }
+
+  /**
+   * @dev Updates the metadata directly if the song has not been released.
+   * @param newMetadata The new metadata to be set.
+   */
+  function updateMetadata(
+    IMetadataModule.Metadata memory newMetadata
+  ) public onlyOwner {
+    require(
+      !protocolModule.isReleased(address(this)),
+      'Cannot update metadata directly after release, request update instead'
+    );
+    metadataModule.updateMetadata(address(this), newMetadata);
+  }
+
+
   /**
    * @dev Initiates the withdrawal of sale funds from the WSTokenManagement contract.
    */
@@ -335,6 +360,7 @@ contract WrappedSongSmartAccount is
   function getWSTokenManagementAddress() external view returns (address) {
     return address(newWSTokenManagement);
   }
+  
   // Fallback function
 
   /**
