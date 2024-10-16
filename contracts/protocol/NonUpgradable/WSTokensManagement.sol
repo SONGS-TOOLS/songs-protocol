@@ -18,6 +18,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
   uint256 public constant SONG_CONCEPT_ID = 0;
   uint256 public constant SONG_SHARES_ID = 1;
+  
   uint256 public sharesForSale;
   uint256 public pricePerShare;
   bool public saleActive;

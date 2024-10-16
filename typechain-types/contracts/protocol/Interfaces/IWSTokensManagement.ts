@@ -30,15 +30,12 @@ export interface IWSTokensManagementInterface extends Interface {
       | "balanceOf"
       | "balanceOfBatch"
       | "buyShares"
-      | "createFungibleSongShares"
-      | "createSongConcept"
+      | "createSongTokens"
       | "endSharesSale"
       | "fungibleTokenShares"
-      | "getFungibleTokenShares"
-      | "getShareholderAddresses"
-      | "getSharesIdForSong"
       | "isApprovedForAll"
       | "maxSharesPerWallet"
+      | "metadataModule"
       | "onERC20Received"
       | "pricePerShare"
       | "safeBatchTransferFrom"
@@ -46,7 +43,7 @@ export interface IWSTokensManagementInterface extends Interface {
       | "saleActive"
       | "setApprovalForAll"
       | "setMaxSharesPerWallet"
-      | "setTokenURI"
+      | "setMetadataModule"
       | "sharesForSale"
       | "songToFungibleShares"
       | "stableCoin"
@@ -54,6 +51,8 @@ export interface IWSTokensManagementInterface extends Interface {
       | "supportsInterface"
       | "totalShares"
       | "totalSupply"
+      | "updateAllTokenURIs"
+      | "updateTokenURI"
       | "uri"
       | "withdrawFunds"
   ): FunctionFragment;
@@ -83,12 +82,8 @@ export interface IWSTokensManagementInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "createFungibleSongShares",
-    values: [BigNumberish, BigNumberish, string, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createSongConcept",
-    values: [string, AddressLike]
+    functionFragment: "createSongTokens",
+    values: [AddressLike, BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "endSharesSale",
@@ -99,23 +94,15 @@ export interface IWSTokensManagementInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getFungibleTokenShares",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getShareholderAddresses",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSharesIdForSong",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "maxSharesPerWallet",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "metadataModule",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -153,8 +140,8 @@ export interface IWSTokensManagementInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTokenURI",
-    values: [BigNumberish, string]
+    functionFragment: "setMetadataModule",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "sharesForSale",
@@ -184,6 +171,14 @@ export interface IWSTokensManagementInterface extends Interface {
     functionFragment: "totalSupply",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "updateAllTokenURIs",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateTokenURI",
+    values: [BigNumberish, string]
+  ): string;
   encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "withdrawFunds",
@@ -201,11 +196,7 @@ export interface IWSTokensManagementInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "buyShares", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "createFungibleSongShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createSongConcept",
+    functionFragment: "createSongTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -217,23 +208,15 @@ export interface IWSTokensManagementInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getFungibleTokenShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getShareholderAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSharesIdForSong",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "maxSharesPerWallet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "metadataModule",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -262,7 +245,7 @@ export interface IWSTokensManagementInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setTokenURI",
+    functionFragment: "setMetadataModule",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -288,6 +271,14 @@ export interface IWSTokensManagementInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateAllTokenURIs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateTokenURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
@@ -447,20 +438,13 @@ export interface IWSTokensManagement extends BaseContract {
 
   buyShares: TypedContractMethod<[amount: BigNumberish], [void], "payable">;
 
-  createFungibleSongShares: TypedContractMethod<
+  createSongTokens: TypedContractMethod<
     [
-      songId: BigNumberish,
+      smartWallet: AddressLike,
       sharesAmount: BigNumberish,
-      sharesURI: string,
       creator: AddressLike
     ],
-    [bigint],
-    "nonpayable"
-  >;
-
-  createSongConcept: TypedContractMethod<
-    [songURI: string, smartWallet: AddressLike],
-    [bigint],
+    [[bigint, bigint] & { songId: bigint; sharesId: bigint }],
     "nonpayable"
   >;
 
@@ -472,24 +456,6 @@ export interface IWSTokensManagement extends BaseContract {
     "view"
   >;
 
-  getFungibleTokenShares: TypedContractMethod<
-    [sharesId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  getShareholderAddresses: TypedContractMethod<
-    [sharesId: BigNumberish],
-    [string[]],
-    "view"
-  >;
-
-  getSharesIdForSong: TypedContractMethod<
-    [songId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
   isApprovedForAll: TypedContractMethod<
     [account: AddressLike, operator: AddressLike],
     [boolean],
@@ -497,6 +463,8 @@ export interface IWSTokensManagement extends BaseContract {
   >;
 
   maxSharesPerWallet: TypedContractMethod<[], [bigint], "view">;
+
+  metadataModule: TypedContractMethod<[], [string], "view">;
 
   onERC20Received: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
@@ -544,8 +512,8 @@ export interface IWSTokensManagement extends BaseContract {
     "nonpayable"
   >;
 
-  setTokenURI: TypedContractMethod<
-    [tokenId: BigNumberish, tokenURI: string],
+  setMetadataModule: TypedContractMethod<
+    [_metadataModule: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -581,6 +549,18 @@ export interface IWSTokensManagement extends BaseContract {
 
   totalSupply: TypedContractMethod<[id: BigNumberish], [bigint], "view">;
 
+  updateAllTokenURIs: TypedContractMethod<
+    [newTokenURI: string],
+    [void],
+    "nonpayable"
+  >;
+
+  updateTokenURI: TypedContractMethod<
+    [tokenId: BigNumberish, newTokenURI: string],
+    [void],
+    "nonpayable"
+  >;
+
   uri: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
   withdrawFunds: TypedContractMethod<[], [void], "nonpayable">;
@@ -610,22 +590,14 @@ export interface IWSTokensManagement extends BaseContract {
     nameOrSignature: "buyShares"
   ): TypedContractMethod<[amount: BigNumberish], [void], "payable">;
   getFunction(
-    nameOrSignature: "createFungibleSongShares"
+    nameOrSignature: "createSongTokens"
   ): TypedContractMethod<
     [
-      songId: BigNumberish,
+      smartWallet: AddressLike,
       sharesAmount: BigNumberish,
-      sharesURI: string,
       creator: AddressLike
     ],
-    [bigint],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "createSongConcept"
-  ): TypedContractMethod<
-    [songURI: string, smartWallet: AddressLike],
-    [bigint],
+    [[bigint, bigint] & { songId: bigint; sharesId: bigint }],
     "nonpayable"
   >;
   getFunction(
@@ -634,15 +606,6 @@ export interface IWSTokensManagement extends BaseContract {
   getFunction(
     nameOrSignature: "fungibleTokenShares"
   ): TypedContractMethod<[sharesId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getFungibleTokenShares"
-  ): TypedContractMethod<[sharesId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getShareholderAddresses"
-  ): TypedContractMethod<[sharesId: BigNumberish], [string[]], "view">;
-  getFunction(
-    nameOrSignature: "getSharesIdForSong"
-  ): TypedContractMethod<[songId: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "isApprovedForAll"
   ): TypedContractMethod<
@@ -653,6 +616,9 @@ export interface IWSTokensManagement extends BaseContract {
   getFunction(
     nameOrSignature: "maxSharesPerWallet"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "metadataModule"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "onERC20Received"
   ): TypedContractMethod<
@@ -703,12 +669,8 @@ export interface IWSTokensManagement extends BaseContract {
     nameOrSignature: "setMaxSharesPerWallet"
   ): TypedContractMethod<[maxShares: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "setTokenURI"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish, tokenURI: string],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: "setMetadataModule"
+  ): TypedContractMethod<[_metadataModule: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "sharesForSale"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -739,6 +701,16 @@ export interface IWSTokensManagement extends BaseContract {
   getFunction(
     nameOrSignature: "totalSupply"
   ): TypedContractMethod<[id: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "updateAllTokenURIs"
+  ): TypedContractMethod<[newTokenURI: string], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "updateTokenURI"
+  ): TypedContractMethod<
+    [tokenId: BigNumberish, newTokenURI: string],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "uri"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;

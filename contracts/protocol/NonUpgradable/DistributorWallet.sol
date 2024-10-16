@@ -145,6 +145,41 @@ contract DistributorWallet is Ownable {
   // TODO : add Redeem Stable Coin
 
 
+ // Metadata Functions
+
+  /**
+   * @dev Confirms the update to the metadata.
+   * @param wrappedSong The address of the wrapped song.
+   */
+  function confirmUpdateMetadata(address wrappedSong) external onlyOwner {
+    require(
+      !protocolModule.metadataModule().isMetadataUpdateConfirmed(wrappedSong),
+      'No pending metadata update for this wrapped song'
+    );
+    require(
+      protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
+      'Not the distributor for this wrapped song'
+    );
+    protocolModule.metadataModule().confirmUpdateMetadata(wrappedSong);
+  }
+
+  /**
+   * @dev Rejects the update to the metadata.
+   * @param wrappedSong The address of the wrapped song.
+   */
+  function rejectUpdateMetadata(address wrappedSong) external onlyOwner {
+    require(
+      !protocolModule.metadataModule().isMetadataUpdateConfirmed(wrappedSong),
+      'No pending metadata update for this wrapped song'
+    );
+    require(
+      protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
+      'Not the distributor for this wrapped song'
+    );
+    protocolModule.metadataModule().rejectUpdateMetadata(wrappedSong);
+  }
+
+
   // Wrapped Song Management Functions
 
   /**

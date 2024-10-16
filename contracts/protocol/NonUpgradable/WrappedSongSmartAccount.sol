@@ -10,6 +10,7 @@ import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IDistributorWallet.sol';
 import './../Interfaces/IMetadataModule.sol';
+import "hardhat/console.sol";
 
 contract WrappedSongSmartAccount is
   Ownable,
@@ -67,27 +68,49 @@ contract WrappedSongSmartAccount is
   // event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
 
   /**
-   * @dev Initializes the contract with the given parameters.
+   * @dev Initializes the contract with the given parameters and creates song tokens.
    * @param _stablecoinAddress The address of the stablecoin contract.
    * @param _owner The address of the owner.
    * @param _protocolModuleAddress The address of the ProtocolModule contract.
+   * @param sharesAmount The amount of shares to be created.
    */
   constructor(
     address _stablecoinAddress,
     address _owner,
-    address _protocolModuleAddress
+    address _protocolModuleAddress,
+    uint256 sharesAmount
   ) Ownable(_owner) {
+
     require(_stablecoinAddress != address(0), 'Invalid stablecoin address');
     require(_owner != address(0), 'Invalid owner address');
     require(
       _protocolModuleAddress != address(0),
       'Invalid protocol module address'
     );
+    require(sharesAmount > 0, 'Invalid shares amount');
 
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
     metadataModule = IMetadataModule(protocolModule.metadataModule());
+    
     newWSTokenManagement = new WSTokenManagement(address(this), _owner, address(protocolModule.metadataModule()));
+
+    _createSongTokens(sharesAmount, _owner);
+  }
+
+  // Internal functions
+  /**
+   * @dev Creates wrapped song tokens and metadata.
+   * @param sharesAmount The amount of shares to be created.
+   * @param creator The address of the creator.
+   */
+  function _createSongTokens(
+      uint256 sharesAmount,
+      address creator
+  ) internal {
+      newWSTokenManagement.createSongTokens(
+          sharesAmount
+      );
   }
 
   // External functions
@@ -235,27 +258,6 @@ contract WrappedSongSmartAccount is
    */
   function withdrawSaleFundsFromWSTokenManagement() external onlyOwner {
     newWSTokenManagement.withdrawFunds();
-  }
-
-  // Public functions
-
-  /**
-   * @dev Creates wrapped song tokens and metadata.
-   * @param songMetadata The metadata for the song NFT.
-   * @param sharesAmount The amount of shares to be created.
-   * @param creator The address of the creator.
-   */
-  function createSongTokens(
-      IMetadataModule.Metadata memory songMetadata,
-      uint256 sharesAmount,
-      address creator
-  ) public onlyOwner {
-      // Create song concept NFT and fungible song shares
-      newWSTokenManagement.createSongTokens(
-          sharesAmount
-      );
-      // Set metadata for song NFT and shares
-      metadataModule.createMetadata(address(this), songMetadata);
   }
 
   // ERC1155Receiver functions

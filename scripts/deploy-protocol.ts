@@ -94,16 +94,22 @@ async function main() {
 
   console.log('Deploying WrappedSongFactory...');
   const WrappedSongFactory = await ethers.getContractFactory('WrappedSongFactory');
-  const wrappedSongFactory = await WrappedSongFactory.deploy(await protocolModule.getAddress());
+  const wrappedSongFactory = await WrappedSongFactory.deploy(
+    await protocolModule.getAddress(), 
+    await metadataModule.getAddress()
+  );
   await wrappedSongFactory.waitForDeployment();
   console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
   await saveAbi('WrappedSongFactory', await wrappedSongFactory.getAddress());
+
+  // Set MetadataModule in ProtocolModule
+  await protocolModule.setMetadataModule(await metadataModule.getAddress());
 
   // Save the ABI of WrappedSongSmartAccount without deploying it
   await saveAbi('WrappedSongSmartAccount', '0x0000000000000000000000000000000000000000');
 
   // Save the ABI of WSTokensManagement without deploying it
-  await saveAbi('WSTokensManagement', '0x0000000000000000000000000000000000000000');
+  await saveAbi('WSTokenManagement', '0x0000000000000000000000000000000000000000');
 
   // After all deployments, save the contract addresses to a file
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));

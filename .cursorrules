@@ -14,6 +14,7 @@
 - Avoid using tx.origin for authorization
 - Implement upgradability patterns when appropriate (e.g., proxy patterns)
 - No need to add events in interfaces
+- Whenever an update in a contract is done, update the interface in interfaces folder.
 
 ## TypeScript (Tests, Scripts, Subgraph)
 - Prioritize readability and maintainability in all TypeScript code

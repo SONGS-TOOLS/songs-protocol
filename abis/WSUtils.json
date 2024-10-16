@@ -62,30 +62,6 @@
         "internalType": "address",
         "name": "_wsTokensManagement",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFungibleTokenShares",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wsTokensManagement",
-        "type": "address"
       }
     ],
     "name": "getPricePerShare",
@@ -105,57 +81,9 @@
         "internalType": "address",
         "name": "_wsTokensManagement",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getShareholderAddresses",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wsTokensManagement",
-        "type": "address"
       }
     ],
     "name": "getSharesForSale",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wsTokensManagement",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getSharesIdForSong",
     "outputs": [
       {
         "internalType": "uint256",

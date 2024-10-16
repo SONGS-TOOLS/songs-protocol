@@ -54,16 +54,13 @@ contract ProtocolModule is Ownable {
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
      * @param _whitelistingManager The address of the WhitelistingManager contract.
-     * @param _metadataModule The address of the MetadataModule contract.
      */
     constructor  (
         address _distributorWalletFactory,
-        address _whitelistingManager,
-        address _metadataModule
+        address _whitelistingManager
     ) Ownable(msg.sender) {
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
-        metadataModule = IMetadataModule(_metadataModule);
         paused = false; // Initialize paused state
     }
 
@@ -237,6 +234,15 @@ contract ProtocolModule is Ownable {
      */
     function addISCC(address wrappedSong, string memory iscc) external onlyOwner {
         isccRegistry[wrappedSong] = iscc;
+    }
+    
+    /**
+     * @dev Checks if a wrapped song is released.
+     * @param wrappedSong The address of the wrapped song.
+     * @return True if the wrapped song is released, false otherwise.
+     */
+    function isReleased(address wrappedSong) external view returns (bool) {
+        return wrappedSongToDistributor[wrappedSong] != address(0);
     }
 
     /**

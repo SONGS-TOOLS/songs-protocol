@@ -5,13 +5,13 @@ import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IMetadataModule.sol';
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "hardhat/console.sol";
 
 contract WrappedSongFactory {
-  IProtocolModule public protocolModule;
+  IProtocolModule public immutable protocolModule;
+  IMetadataModule public immutable metadataModule;
   mapping(address => address[]) public ownerWrappedSongs;
 
-  // TODO: make sure to find another way for the frontend to get the 
-  // wsTokenManagement address, to remove the wsTokenManagement parameter from the event
   event WrappedSongCreated(
     address indexed owner,
     address wrappedSongSmartAccount,
@@ -26,42 +26,9 @@ contract WrappedSongFactory {
     uint256 sharesAmount
   );
 
-  constructor(address _protocolModule) {
+  constructor(address _protocolModule, address _metadataModule) {
     protocolModule = IProtocolModule(_protocolModule);
-  }
-
-  /**
-   * @dev Creates a new wrapped song.
-   * @param _stablecoin The address of the stablecoin contract.
-   * @return The address of the created WrappedSongSmartAccount.
-   */
-  function createWrappedSong(
-    address _stablecoin
-  ) public payable returns (address) {
-    require(!protocolModule.paused(), 'Protocol is paused'); // Check if protocol is paused
-    //TODO: Pay fee in stablecoins
-    require(
-      msg.value >= protocolModule.wrappedSongCreationFee(),
-      'Insufficient creation fee'
-    );
-    // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
-
-    // Create WrappedSongSmartAccount instance
-    WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
-        _stablecoin,
-        msg.sender,
-        address(protocolModule)
-      );
-    ownerWrappedSongs[msg.sender].push(address(newWrappedSongSmartAccount));
-    // newWrappedSongSmartAccount.newWSTokenManagement
-    emit WrappedSongCreated(
-      msg.sender,
-      address(newWrappedSongSmartAccount),
-      _stablecoin,
-      address(newWrappedSongSmartAccount.newWSTokenManagement())
-    );
-
-    return address(newWrappedSongSmartAccount);
+    metadataModule = IMetadataModule(_metadataModule);
   }
 
   /**
@@ -72,9 +39,7 @@ contract WrappedSongFactory {
   function isValidMetadata(IMetadataModule.Metadata memory metadata) internal pure returns (bool) {
       return (
           bytes(metadata.name).length > 0 &&
-          // bytes(metadata.description).length > 0 &&
           bytes(metadata.image).length > 0 &&
-          // bytes(metadata.externalUrl).length > 0 &&
           bytes(metadata.animationUrl).length > 0 &&
           bytes(metadata.attributesIpfsHash).length > 0
       );
@@ -85,33 +50,47 @@ contract WrappedSongFactory {
    * @param _stablecoin The address of the stablecoin contract.
    * @param songMetadata The metadata for the song NFT.
    * @param sharesAmount The amount of shares to be created.
+   * @return The address of the created WrappedSongSmartAccount.
    */
   function createWrappedSongWithMetadata(
     address _stablecoin,
     IMetadataModule.Metadata memory songMetadata,
     uint256 sharesAmount
-  ) public payable {
+  ) public payable returns (address) {
     require(!protocolModule.paused(), 'Protocol is paused');
-    require(isValidMetadata(songMetadata), "Invalid metadata: All fields must be non-empty");
-    
-    address newWrappedSongSmartAccount = createWrappedSong(_stablecoin);
+    require(isValidMetadata(songMetadata), "Invalid metadata: All required fields must be non-empty");
+    require(sharesAmount > 0, "Shares amount must be greater than zero");
 
-    WrappedSongSmartAccount wrappedSong = WrappedSongSmartAccount(
-        payable(newWrappedSongSmartAccount)
-    );
-    
-    wrappedSong.createSongTokens(
-        songMetadata,
-        sharesAmount,
-        msg.sender
+    uint256 requiredFee = protocolModule.wrappedSongCreationFee();
+    require(
+      msg.value >= requiredFee,
+      'Insufficient creation fee'
     );
 
+    // Uncomment the following line when ready to enforce the whitelist
+    // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+
+    WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
+        _stablecoin,
+        msg.sender,
+        address(protocolModule),
+        sharesAmount
+    );
+
+    address newWrappedSongSmartAccountAddress = address(newWrappedSongSmartAccount);
+
+    ownerWrappedSongs[msg.sender].push(newWrappedSongSmartAccountAddress);
+
+    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
+    
     emit WrappedSongCreatedWithMetadata(
         msg.sender,
-        newWrappedSongSmartAccount,
+        newWrappedSongSmartAccountAddress,
         songMetadata,
         sharesAmount
     );
+
+    return newWrappedSongSmartAccountAddress;
   }
 
   /**

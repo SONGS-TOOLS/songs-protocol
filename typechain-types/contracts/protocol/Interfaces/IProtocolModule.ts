@@ -21,6 +21,20 @@ import type {
   TypedContractMethod,
 } from "../../../common";
 
+export declare namespace IProtocolModule {
+  export type ReviewPeriodStruct = {
+    startTime: BigNumberish;
+    endTime: BigNumberish;
+    distributor: AddressLike;
+  };
+
+  export type ReviewPeriodStructOutput = [
+    startTime: bigint,
+    endTime: bigint,
+    distributor: string
+  ] & { startTime: bigint; endTime: bigint; distributor: string };
+}
+
 export interface IProtocolModuleInterface extends Interface {
   getFunction(
     nameOrSignature:
@@ -29,31 +43,27 @@ export interface IProtocolModuleInterface extends Interface {
       | "addISRC"
       | "addISWC"
       | "addUPC"
-      | "clearPendingMetadataUpdate"
-      | "confirmUpdateMetadata"
       | "confirmWrappedSongRelease"
       | "distributorWalletFactory"
       | "getPendingDistributorRequests"
-      | "getPendingMetadataUpdate"
       | "getWrappedSongDistributor"
       | "handleExpiredReviewPeriod"
       | "isAuthentic"
-      | "isMetadataUpdateConfirmed"
       | "isReleased"
       | "isValidToCreateWrappedSong"
       | "isccRegistry"
       | "isrcRegistry"
       | "iswcRegistry"
+      | "metadataModule"
       | "paused"
       | "pendingDistributorRequests"
-      | "rejectUpdateMetadata"
       | "rejectWrappedSongRelease"
       | "releaseFee"
       | "removeWrappedSongReleaseRequest"
-      | "requestUpdateMetadata"
       | "requestWrappedSongRelease"
       | "reviewPeriodDays"
       | "reviewPeriods"
+      | "setMetadataModule"
       | "setPaused"
       | "setReleaseFee"
       | "setReviewPeriodDays"
@@ -63,6 +73,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "upcRegistry"
       | "updateDistributorWalletFactory"
       | "whitelistingManager"
+      | "wrappedSongAuthenticity"
       | "wrappedSongCreationFee"
       | "wrappedSongToDistributor"
   ): FunctionFragment;
@@ -88,14 +99,6 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "clearPendingMetadataUpdate",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "confirmUpdateMetadata",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "confirmWrappedSongRelease",
     values: [AddressLike]
   ): string;
@@ -108,10 +111,6 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getPendingMetadataUpdate",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getWrappedSongDistributor",
     values: [AddressLike]
   ): string;
@@ -122,10 +121,6 @@ export interface IProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "isAuthentic",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isMetadataUpdateConfirmed",
-    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "isReleased",
@@ -147,14 +142,14 @@ export interface IProtocolModuleInterface extends Interface {
     functionFragment: "iswcRegistry",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "metadataModule",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pendingDistributorRequests",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "rejectUpdateMetadata",
-    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "rejectWrappedSongRelease",
@@ -169,10 +164,6 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "requestUpdateMetadata",
-    values: [AddressLike, BigNumberish, string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "requestWrappedSongRelease",
     values: [AddressLike, AddressLike]
   ): string;
@@ -182,6 +173,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reviewPeriods",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMetadataModule",
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "setPaused", values: [boolean]): string;
@@ -218,6 +213,10 @@ export interface IProtocolModuleInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "wrappedSongAuthenticity",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "wrappedSongCreationFee",
     values?: undefined
   ): string;
@@ -235,14 +234,6 @@ export interface IProtocolModuleInterface extends Interface {
   decodeFunctionResult(functionFragment: "addISWC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addUPC", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "clearPendingMetadataUpdate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "confirmUpdateMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "confirmWrappedSongRelease",
     data: BytesLike
   ): Result;
@@ -255,10 +246,6 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getPendingMetadataUpdate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getWrappedSongDistributor",
     data: BytesLike
   ): Result;
@@ -268,10 +255,6 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isAuthentic",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isMetadataUpdateConfirmed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isReleased", data: BytesLike): Result;
@@ -291,13 +274,13 @@ export interface IProtocolModuleInterface extends Interface {
     functionFragment: "iswcRegistry",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "metadataModule",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingDistributorRequests",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "rejectUpdateMetadata",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -310,10 +293,6 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "requestUpdateMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "requestWrappedSongRelease",
     data: BytesLike
   ): Result;
@@ -323,6 +302,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "reviewPeriods",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMetadataModule",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
@@ -356,6 +339,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "whitelistingManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "wrappedSongAuthenticity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -441,18 +428,6 @@ export interface IProtocolModule extends BaseContract {
     "nonpayable"
   >;
 
-  clearPendingMetadataUpdate: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  confirmUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   confirmWrappedSongRelease: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
@@ -463,12 +438,6 @@ export interface IProtocolModule extends BaseContract {
 
   getPendingDistributorRequests: TypedContractMethod<
     [wrappedSong: AddressLike],
-    [string],
-    "view"
-  >;
-
-  getPendingMetadataUpdate: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
     [string],
     "view"
   >;
@@ -487,12 +456,6 @@ export interface IProtocolModule extends BaseContract {
 
   isAuthentic: TypedContractMethod<
     [wrappedSong: AddressLike],
-    [boolean],
-    "view"
-  >;
-
-  isMetadataUpdateConfirmed: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
     [boolean],
     "view"
   >;
@@ -527,18 +490,14 @@ export interface IProtocolModule extends BaseContract {
     "view"
   >;
 
+  metadataModule: TypedContractMethod<[], [string], "view">;
+
   paused: TypedContractMethod<[], [boolean], "view">;
 
   pendingDistributorRequests: TypedContractMethod<
     [wrappedSong: AddressLike],
     [string],
     "view"
-  >;
-
-  rejectUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
   >;
 
   rejectWrappedSongRelease: TypedContractMethod<
@@ -555,12 +514,6 @@ export interface IProtocolModule extends BaseContract {
     "nonpayable"
   >;
 
-  requestUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish, newMetadata: string],
-    [void],
-    "nonpayable"
-  >;
-
   requestWrappedSongRelease: TypedContractMethod<
     [wrappedSong: AddressLike, distributor: AddressLike],
     [void],
@@ -571,14 +524,14 @@ export interface IProtocolModule extends BaseContract {
 
   reviewPeriods: TypedContractMethod<
     [wrappedSong: AddressLike],
-    [
-      [bigint, bigint, string] & {
-        startTime: bigint;
-        endTime: bigint;
-        distributor: string;
-      }
-    ],
+    [IProtocolModule.ReviewPeriodStructOutput],
     "view"
+  >;
+
+  setMetadataModule: TypedContractMethod<
+    [_metadataModule: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   setPaused: TypedContractMethod<[_paused: boolean], [void], "nonpayable">;
@@ -602,7 +555,7 @@ export interface IProtocolModule extends BaseContract {
   >;
 
   setWrappedSongAuthenticity: TypedContractMethod<
-    [wrappedSong: AddressLike, isAuthentic: boolean],
+    [wrappedSong: AddressLike, _isAuthentic: boolean],
     [void],
     "nonpayable"
   >;
@@ -626,6 +579,12 @@ export interface IProtocolModule extends BaseContract {
   >;
 
   whitelistingManager: TypedContractMethod<[], [string], "view">;
+
+  wrappedSongAuthenticity: TypedContractMethod<
+    [wrappedSong: AddressLike],
+    [boolean],
+    "view"
+  >;
 
   wrappedSongCreationFee: TypedContractMethod<[], [bigint], "view">;
 
@@ -671,20 +630,6 @@ export interface IProtocolModule extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "clearPendingMetadataUpdate"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "confirmUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "confirmWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -694,13 +639,6 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "getPendingDistributorRequests"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
-    nameOrSignature: "getPendingMetadataUpdate"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [string],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getWrappedSongDistributor"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
@@ -709,13 +647,6 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "isAuthentic"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "isMetadataUpdateConfirmed"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [boolean],
-    "view"
-  >;
   getFunction(
     nameOrSignature: "isReleased"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
@@ -732,18 +663,14 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "iswcRegistry"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
+    nameOrSignature: "metadataModule"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "paused"
   ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "pendingDistributorRequests"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
-  getFunction(
-    nameOrSignature: "rejectUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "rejectWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
@@ -753,13 +680,6 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "removeWrappedSongReleaseRequest"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "requestUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish, newMetadata: string],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "requestWrappedSongRelease"
   ): TypedContractMethod<
@@ -774,15 +694,12 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "reviewPeriods"
   ): TypedContractMethod<
     [wrappedSong: AddressLike],
-    [
-      [bigint, bigint, string] & {
-        startTime: bigint;
-        endTime: bigint;
-        distributor: string;
-      }
-    ],
+    [IProtocolModule.ReviewPeriodStructOutput],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "setMetadataModule"
+  ): TypedContractMethod<[_metadataModule: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setPaused"
   ): TypedContractMethod<[_paused: boolean], [void], "nonpayable">;
@@ -802,7 +719,7 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "setWrappedSongAuthenticity"
   ): TypedContractMethod<
-    [wrappedSong: AddressLike, isAuthentic: boolean],
+    [wrappedSong: AddressLike, _isAuthentic: boolean],
     [void],
     "nonpayable"
   >;
@@ -818,6 +735,9 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "whitelistingManager"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "wrappedSongAuthenticity"
+  ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "wrappedSongCreationFee"
   ): TypedContractMethod<[], [bigint], "view">;

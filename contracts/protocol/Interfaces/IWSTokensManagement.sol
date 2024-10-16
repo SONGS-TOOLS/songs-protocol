@@ -28,4 +28,5 @@ interface IWSTokensManagement is IERC1155 {
   function maxSharesPerWallet() external view returns (uint256);
   function stableCoin() external view returns (IERC20);
   function metadataModule() external view returns (address);
+  function totalSupply(uint256 id) external view returns (uint256);
 }

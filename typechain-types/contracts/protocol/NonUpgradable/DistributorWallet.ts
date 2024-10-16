@@ -51,9 +51,6 @@ export interface DistributorWalletInterface extends Interface {
   getEvent(
     nameOrSignatureOrTopic:
       | "FundsReceived"
-      | "MetadataUpdateRejected"
-      | "MetadataUpdateRequested"
-      | "MetadataUpdated"
       | "OwnershipTransferred"
       | "WrappedSongAcceptedForReview"
       | "WrappedSongRedeemed"
@@ -68,7 +65,7 @@ export interface DistributorWalletInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "confirmUpdateMetadata",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "confirmWrappedSongRelease",
@@ -117,7 +114,7 @@ export interface DistributorWalletInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rejectUpdateMetadata",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "rejectWrappedSongRelease",
@@ -224,63 +221,6 @@ export namespace FundsReceivedEvent {
     from: string;
     amount: bigint;
     currency: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace MetadataUpdateRejectedEvent {
-  export type InputTuple = [wrappedSong: AddressLike, tokenId: BigNumberish];
-  export type OutputTuple = [wrappedSong: string, tokenId: bigint];
-  export interface OutputObject {
-    wrappedSong: string;
-    tokenId: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace MetadataUpdateRequestedEvent {
-  export type InputTuple = [
-    wrappedSong: AddressLike,
-    tokenId: BigNumberish,
-    newMetadata: string
-  ];
-  export type OutputTuple = [
-    wrappedSong: string,
-    tokenId: bigint,
-    newMetadata: string
-  ];
-  export interface OutputObject {
-    wrappedSong: string;
-    tokenId: bigint;
-    newMetadata: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace MetadataUpdatedEvent {
-  export type InputTuple = [
-    wrappedSong: AddressLike,
-    tokenId: BigNumberish,
-    newMetadata: string
-  ];
-  export type OutputTuple = [
-    wrappedSong: string,
-    tokenId: bigint,
-    newMetadata: string
-  ];
-  export interface OutputObject {
-    wrappedSong: string;
-    tokenId: bigint;
-    newMetadata: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -412,7 +352,7 @@ export interface DistributorWallet extends BaseContract {
   >;
 
   confirmUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
+    [wrappedSong: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -478,7 +418,7 @@ export interface DistributorWallet extends BaseContract {
   >;
 
   rejectUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
+    [wrappedSong: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -514,11 +454,7 @@ export interface DistributorWallet extends BaseContract {
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "confirmUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "confirmWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
@@ -573,11 +509,7 @@ export interface DistributorWallet extends BaseContract {
   ): TypedContractMethod<[_wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "rejectUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "rejectWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
@@ -600,27 +532,6 @@ export interface DistributorWallet extends BaseContract {
     FundsReceivedEvent.InputTuple,
     FundsReceivedEvent.OutputTuple,
     FundsReceivedEvent.OutputObject
-  >;
-  getEvent(
-    key: "MetadataUpdateRejected"
-  ): TypedContractEvent<
-    MetadataUpdateRejectedEvent.InputTuple,
-    MetadataUpdateRejectedEvent.OutputTuple,
-    MetadataUpdateRejectedEvent.OutputObject
-  >;
-  getEvent(
-    key: "MetadataUpdateRequested"
-  ): TypedContractEvent<
-    MetadataUpdateRequestedEvent.InputTuple,
-    MetadataUpdateRequestedEvent.OutputTuple,
-    MetadataUpdateRequestedEvent.OutputObject
-  >;
-  getEvent(
-    key: "MetadataUpdated"
-  ): TypedContractEvent<
-    MetadataUpdatedEvent.InputTuple,
-    MetadataUpdatedEvent.OutputTuple,
-    MetadataUpdatedEvent.OutputObject
   >;
   getEvent(
     key: "OwnershipTransferred"
@@ -675,39 +586,6 @@ export interface DistributorWallet extends BaseContract {
       FundsReceivedEvent.InputTuple,
       FundsReceivedEvent.OutputTuple,
       FundsReceivedEvent.OutputObject
-    >;
-
-    "MetadataUpdateRejected(address,uint256)": TypedContractEvent<
-      MetadataUpdateRejectedEvent.InputTuple,
-      MetadataUpdateRejectedEvent.OutputTuple,
-      MetadataUpdateRejectedEvent.OutputObject
-    >;
-    MetadataUpdateRejected: TypedContractEvent<
-      MetadataUpdateRejectedEvent.InputTuple,
-      MetadataUpdateRejectedEvent.OutputTuple,
-      MetadataUpdateRejectedEvent.OutputObject
-    >;
-
-    "MetadataUpdateRequested(address,uint256,string)": TypedContractEvent<
-      MetadataUpdateRequestedEvent.InputTuple,
-      MetadataUpdateRequestedEvent.OutputTuple,
-      MetadataUpdateRequestedEvent.OutputObject
-    >;
-    MetadataUpdateRequested: TypedContractEvent<
-      MetadataUpdateRequestedEvent.InputTuple,
-      MetadataUpdateRequestedEvent.OutputTuple,
-      MetadataUpdateRequestedEvent.OutputObject
-    >;
-
-    "MetadataUpdated(address,uint256,string)": TypedContractEvent<
-      MetadataUpdatedEvent.InputTuple,
-      MetadataUpdatedEvent.OutputTuple,
-      MetadataUpdatedEvent.OutputObject
-    >;
-    MetadataUpdated: TypedContractEvent<
-      MetadataUpdatedEvent.InputTuple,
-      MetadataUpdatedEvent.OutputTuple,
-      MetadataUpdatedEvent.OutputObject
     >;
 
     "OwnershipTransferred(address,address)": TypedContractEvent<

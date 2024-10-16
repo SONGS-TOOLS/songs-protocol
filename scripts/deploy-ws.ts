@@ -38,19 +38,28 @@ async function main() {
     contractAddresses.MetadataModule
   );
 
-  let distributorWalletAddresses = await DistributorWalletFactory.getDistributorWallets(deployer.address);
+  let distributorWalletAddresses =
+    await DistributorWalletFactory.getDistributorWallets(deployer.address);
   if (distributorWalletAddresses.length === 0) {
     console.log('Creating Distributor Wallet...');
-    const distributorWalletTx = await DistributorWalletFactory.createDistributorWallet(
-      USDC_ADDRESS,
-      contractAddresses.ProtocolModule,
-      deployer.address
-    );
+    const distributorWalletTx =
+      await DistributorWalletFactory.createDistributorWallet(
+        USDC_ADDRESS,
+        contractAddresses.ProtocolModule,
+        deployer.address
+      );
     await distributorWalletTx.wait();
-    distributorWalletAddresses = await DistributorWalletFactory.getDistributorWallets(deployer.address);
-    console.log('Distributor Wallet created at:', distributorWalletAddresses[0]);
+    distributorWalletAddresses =
+      await DistributorWalletFactory.getDistributorWallets(deployer.address);
+    console.log(
+      'Distributor Wallet created at:',
+      distributorWalletAddresses[0]
+    );
   } else {
-    console.log('Distributor Wallet already exists at:', distributorWalletAddresses);
+    console.log(
+      'Distributor Wallet already exists at:',
+      distributorWalletAddresses
+    );
   }
 
   const distributorWalletAddress = distributorWalletAddresses[0];
@@ -61,29 +70,50 @@ async function main() {
 
   const songMetadatas = [
     {
-      name: "Tamago",
-      description: "",
-      image: "QmcpB2wEwLDKsu7jKBb1EDqgQCCBeL29VAx6M9bFepyGyj",
-      externalUrl: "https://app.songs-tools.com/wrapped-songs/Tamago",
-      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
-      attributesIpfsHash: "https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+      name: 'Tamago',
+      description: '',
+      image: 'QmcpB2wEwLDKsu7jKBb1EDqgQCCBeL29VAx6M9bFepyGyj',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Tamago',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash:
+        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
     },
     {
-      name: "Crystals",
-      description: "",
-      image: "Qmf3X24XbgAzc7bhiGESbzVW3upJoGYHMnDxgxkQcJ8dHC",
-      externalUrl: "https://app.songs-tools.com/wrapped-songs/Crystals",
-      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
-      attributesIpfsHash: "https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+      name: 'Crystals',
+      description: '',
+      image: 'Qmf3X24XbgAzc7bhiGESbzVW3upJoGYHMnDxgxkQcJ8dHC',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Crystals',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash:
+        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
     },
     {
-      name: "Twilight",
-      description: "",
-      image: "QmX9jf3NM5BAkBnUrrpqVTP1yg3CdkYBwdqVPjJBdszwQD",
-      externalUrl: "https://app.songs-tools.com/wrapped-songs/Twilight",
-      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
-      attributesIpfsHash: "https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
-    }
+      name: 'Twilight',
+      description: '',
+      image: 'QmX9jf3NM5BAkBnUrrpqVTP1yg3CdkYBwdqVPjJBdszwQD',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Twilight',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash:
+        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+    },
+    {
+      name: 'Crystals',
+      description: '',
+      image: 'Qmf3X24XbgAzc7bhiGESbzVW3upJoGYHMnDxgxkQcJ8dHC',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Crystals',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash:
+        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+    },
+    {
+      name: 'Twilight',
+      description: '',
+      image: 'QmX9jf3NM5BAkBnUrrpqVTP1yg3CdkYBwdqVPjJBdszwQD',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Twilight',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash:
+        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+    },
   ];
 
   const sharesAmount = 10000;
@@ -91,15 +121,33 @@ async function main() {
   for (let i = 0; i < songMetadatas.length; i++) {
     console.log(`Creating Wrapped Song ${i} with metadata:`, songMetadatas[i]);
     try {
-      const createWrappedSongTx = await WrappedSongFactory.createWrappedSongWithMetadata(
-        USDC_ADDRESS,
-        songMetadatas[i],
-        sharesAmount
+      console.log(
+        `Creating Wrapped Song ${i} with metadata:`,
+        songMetadatas[i]
       );
-      await createWrappedSongTx.wait();
+      console.log(`Using USDC address:`, USDC_ADDRESS);
+      console.log(`Shares amount:`, sharesAmount);
 
-      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(deployer.address);
-      const wrappedSongAddress = ownerWrappedSongs[ownerWrappedSongs.length - 1];
+      const createWrappedSongTx =
+        await WrappedSongFactory.createWrappedSongWithMetadata(
+          USDC_ADDRESS,
+          songMetadatas[i],
+          sharesAmount
+        );
+      console.log(`Transaction hash:`, createWrappedSongTx.hash);
+
+      console.log(`Waiting for transaction confirmation...`);
+      await createWrappedSongTx.wait();
+      console.log(`Transaction confirmed`);
+
+      console.log(`Fetching owner's wrapped songs...`);
+      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+        deployer.address
+      );
+      console.log(`Total wrapped songs for owner:`, ownerWrappedSongs.length);
+
+      const wrappedSongAddress =
+        ownerWrappedSongs[ownerWrappedSongs.length - 1];
       console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
     } catch (error) {
       console.error(`Failed to create Wrapped Song ${i}:`, error);
@@ -107,7 +155,9 @@ async function main() {
     }
   }
 
-  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(deployer.address);
+  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+    deployer.address
+  );
 
   for (let i = 0; i < 2; i++) {
     const wrappedSongAddress = ownerWrappedSongs[i];
@@ -117,39 +167,56 @@ async function main() {
         distributorWalletAddress
       );
       await requestReleaseTx.wait();
-      console.log(`Release requested for Wrapped Song ${i} at:`, wrappedSongAddress);
+      console.log(
+        `Release requested for Wrapped Song ${i} at:`,
+        wrappedSongAddress
+      );
     } catch (error) {
       console.error(`Failed to request release for Wrapped Song ${i}:`, error);
     }
   }
 
   try {
-    const confirmReleaseTx = await DistributorWallet.confirmWrappedSongRelease(ownerWrappedSongs[0]);
+    const confirmReleaseTx = await DistributorWallet.confirmWrappedSongRelease(
+      ownerWrappedSongs[0]
+    );
     await confirmReleaseTx.wait();
-    console.log(`Release confirmed for Wrapped Song 0 at:`, ownerWrappedSongs[0]);
+    console.log(
+      `Release confirmed for Wrapped Song 0 at:`,
+      ownerWrappedSongs[0]
+    );
   } catch (error) {
     console.error(`Failed to confirm release for Wrapped Song 0:`, error);
   }
 
   const newMetadata = {
-    name: "Updated Tamago",
-    description: "Updated version of Tamago",
-    image: "QmUpdatedImageHash",
-    externalUrl: "https://app.songs-tools.com/wrapped-songs/UpdatedTamago",
-    animationUrl: "QmUpdatedAnimationHash",
-    attributesIpfsHash: "https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+    name: 'Updated Tamago',
+    description: 'Updated version of Tamago',
+    image: 'QmUpdatedImageHash',
+    externalUrl: 'https://app.songs-tools.com/wrapped-songs/UpdatedTamago',
+    animationUrl: 'QmUpdatedAnimationHash',
+    attributesIpfsHash:
+      'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
   };
 
   try {
-    const requestUpdateTx = await MetadataModule.requestUpdateMetadata(ownerWrappedSongs[0], newMetadata);
+    const requestUpdateTx = await MetadataModule.requestUpdateMetadata(
+      ownerWrappedSongs[0],
+      newMetadata
+    );
     await requestUpdateTx.wait();
-    console.log(`Metadata update requested for Wrapped Song 0 at:`, ownerWrappedSongs[0]);
 
-    const confirmUpdateTx = await DistributorWallet.confirmUpdateMetadata(ownerWrappedSongs[0]);
-    await confirmUpdateTx.wait();
-    console.log(`Metadata update confirmed for Wrapped Song 0 at:`, ownerWrappedSongs[0]);
+    const confirmUpdateTx1 = await DistributorWallet.confirmUpdateMetadata(
+      ownerWrappedSongs[0]
+    );
+    await confirmUpdateTx1.wait();
+    console.log(`Metadata update confirmed for Wrapped Song:`);
   } catch (error) {
     console.error(`Failed to update metadata for Wrapped Song 0:`, error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
   }
 }
 
