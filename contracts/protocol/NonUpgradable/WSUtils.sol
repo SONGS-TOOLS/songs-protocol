@@ -70,36 +70,6 @@ contract WSUtils is Ownable, ERC165 {
     }
 
     /**
-     * @dev Retrieves the list of shareholder addresses for a given shares ID.
-     * @param _wsTokensManagement The address of the IWSTokensManagement.
-     * @param sharesId The ID of the shares.
-     * @return An array of shareholder addresses.
-     */
-    function getShareholderAddresses(address _wsTokensManagement, uint256 sharesId) public view returns (address[] memory) {
-        return IWSTokensManagement(_wsTokensManagement).getShareholderAddresses(sharesId);
-    }
-
-    /**
-     * @dev Retrieves the total amount of fungible shares for a specific shares ID.
-     * @param _wsTokensManagement The address of the IWSTokensManagement.
-     * @param sharesId The ID of the shares to query.
-     * @return The total amount of shares for the specified ID.
-     */
-    function getFungibleTokenShares(address _wsTokensManagement, uint256 sharesId) public view returns (uint256) {
-        return IWSTokensManagement(_wsTokensManagement).getFungibleTokenShares(sharesId);
-    }
-
-    /**
-     * @dev Retrieves the fungible shares ID associated with a specific song.
-     * @param _wsTokensManagement The address of the IWSTokensManagement.
-     * @param songId The ID of the song to query.
-     * @return The ID of the fungible shares associated with the specified song.
-     */
-    function getSharesIdForSong(address _wsTokensManagement, uint256 songId) public view returns (uint256) {
-        return IWSTokensManagement(_wsTokensManagement).getSharesIdForSong(songId);
-    }
-
-    /**
      * @dev Checks if a share sale is currently active.
      * @param _wsTokensManagement The address of the IWSTokensManagement.
      * @return A boolean indicating whether a share sale is active.

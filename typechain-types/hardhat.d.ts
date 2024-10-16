@@ -198,6 +198,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IDistributorWalletFactory__factory>;
     getContractFactory(
+      name: "IMetadataModule",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMetadataModule__factory>;
+    getContractFactory(
       name: "IProtocolModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IProtocolModule__factory>;
@@ -214,6 +218,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWSTokensManagement__factory>;
     getContractFactory(
+      name: "IWSTokensManagement",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IWSTokensManagement__factory>;
+    getContractFactory(
       name: "IWSUtils",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWSUtils__factory>;
@@ -225,6 +233,10 @@ declare module "hardhat/types/runtime" {
       name: "DistributorWalletFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DistributorWalletFactory__factory>;
+    getContractFactory(
+      name: "MetadataModule",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MetadataModule__factory>;
     getContractFactory(
       name: "ProtocolModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -521,6 +533,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IDistributorWalletFactory>;
     getContractAt(
+      name: "IMetadataModule",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMetadataModule>;
+    getContractAt(
       name: "IProtocolModule",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -541,6 +558,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IWSTokensManagement>;
     getContractAt(
+      name: "IWSTokensManagement",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IWSTokensManagement>;
+    getContractAt(
       name: "IWSUtils",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -555,6 +577,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.DistributorWalletFactory>;
+    getContractAt(
+      name: "MetadataModule",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MetadataModule>;
     getContractAt(
       name: "ProtocolModule",
       address: string | ethers.Addressable,
@@ -821,6 +848,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IDistributorWalletFactory>;
     deployContract(
+      name: "IMetadataModule",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMetadataModule>;
+    deployContract(
       name: "IProtocolModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IProtocolModule>;
@@ -837,6 +868,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSTokensManagement>;
     deployContract(
+      name: "IWSTokensManagement",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IWSTokensManagement>;
+    deployContract(
       name: "IWSUtils",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSUtils>;
@@ -848,6 +883,10 @@ declare module "hardhat/types/runtime" {
       name: "DistributorWalletFactory",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.DistributorWalletFactory>;
+    deployContract(
+      name: "MetadataModule",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MetadataModule>;
     deployContract(
       name: "ProtocolModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1144,6 +1183,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IDistributorWalletFactory>;
     deployContract(
+      name: "IMetadataModule",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMetadataModule>;
+    deployContract(
       name: "IProtocolModule",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1164,6 +1208,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSTokensManagement>;
     deployContract(
+      name: "IWSTokensManagement",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IWSTokensManagement>;
+    deployContract(
       name: "IWSUtils",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1178,6 +1227,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.DistributorWalletFactory>;
+    deployContract(
+      name: "MetadataModule",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MetadataModule>;
     deployContract(
       name: "ProtocolModule",
       args: any[],

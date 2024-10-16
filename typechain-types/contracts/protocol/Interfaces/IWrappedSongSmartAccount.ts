@@ -21,58 +21,50 @@ import type {
   TypedContractMethod,
 } from "../../../common";
 
+export declare namespace IMetadataModule {
+  export type MetadataStruct = {
+    name: string;
+    description: string;
+    image: string;
+    externalUrl: string;
+    animationUrl: string;
+    attributesIpfsHash: string;
+  };
+
+  export type MetadataStructOutput = [
+    name: string,
+    description: string,
+    image: string,
+    externalUrl: string,
+    animationUrl: string,
+    attributesIpfsHash: string
+  ] & {
+    name: string;
+    description: string;
+    image: string;
+    externalUrl: string;
+    animationUrl: string;
+    attributesIpfsHash: string;
+  };
+}
+
 export interface IWrappedSongSmartAccountInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "batchTransferShares"
-      | "canReceiveERC20"
-      | "checkAuthenticity"
-      | "claimAllEarnings"
       | "claimEarnings"
       | "claimEthEarnings"
-      | "createFungibleSongShares"
-      | "createsSongToken"
-      | "createsWrappedSongTokens"
-      | "executeConfirmedMetadataUpdate"
-      | "getReceivedTokens"
-      | "getRedeemedEarnings"
-      | "getRemainingEarnings"
-      | "getSongSharesBalance"
-      | "getTokenBalance"
-      | "getTokenMetadata"
-      | "getTokenTotalSupply"
-      | "getTotalEarnings"
-      | "getUnclaimedEarnings"
+      | "createSongTokens"
       | "getWSTokenManagementAddress"
-      | "getWrappedSongMetadata"
+      | "owner"
       | "receiveERC20"
       | "receiveEarnings"
-      | "requestUpdateMetadata"
+      | "redeemShares"
       | "requestWrappedSongRelease"
       | "requestWrappedSongReleaseWithMetadata"
-      | "setSharesForSale"
-      | "transferSongShares"
       | "updateEarnings"
-      | "updateMetadata"
       | "withdrawSaleFundsFromWSTokenManagement"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "batchTransferShares",
-    values: [BigNumberish[], AddressLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "canReceiveERC20",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "checkAuthenticity",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimAllEarnings",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "claimEarnings",
     values?: undefined
@@ -82,65 +74,14 @@ export interface IWrappedSongSmartAccountInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "createFungibleSongShares",
-    values: [BigNumberish, BigNumberish, string, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createsSongToken",
-    values: [string, AddressLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createsWrappedSongTokens",
-    values: [string, BigNumberish, string, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "executeConfirmedMetadataUpdate",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReceivedTokens",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRedeemedEarnings",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRemainingEarnings",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSongSharesBalance",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTokenBalance",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTokenMetadata",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTokenTotalSupply",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTotalEarnings",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getUnclaimedEarnings",
-    values: [AddressLike]
+    functionFragment: "createSongTokens",
+    values: [IMetadataModule.MetadataStruct, BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getWSTokenManagementAddress",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "getWrappedSongMetadata",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "receiveERC20",
     values: [AddressLike, BigNumberish]
@@ -150,8 +91,8 @@ export interface IWrappedSongSmartAccountInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "requestUpdateMetadata",
-    values: [BigNumberish, string]
+    functionFragment: "redeemShares",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "requestWrappedSongRelease",
@@ -162,42 +103,14 @@ export interface IWrappedSongSmartAccountInterface extends Interface {
     values: [AddressLike, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSharesForSale",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferSongShares",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "updateEarnings",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateMetadata",
-    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSaleFundsFromWSTokenManagement",
     values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "batchTransferShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "canReceiveERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "checkAuthenticity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimAllEarnings",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "claimEarnings",
     data: BytesLike
@@ -207,65 +120,14 @@ export interface IWrappedSongSmartAccountInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "createFungibleSongShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createsSongToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createsWrappedSongTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executeConfirmedMetadataUpdate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getReceivedTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRedeemedEarnings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRemainingEarnings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSongSharesBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTokenBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTokenMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTokenTotalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTotalEarnings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getUnclaimedEarnings",
+    functionFragment: "createSongTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getWSTokenManagementAddress",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getWrappedSongMetadata",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "receiveERC20",
     data: BytesLike
@@ -275,7 +137,7 @@ export interface IWrappedSongSmartAccountInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "requestUpdateMetadata",
+    functionFragment: "redeemShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -287,19 +149,7 @@ export interface IWrappedSongSmartAccountInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setSharesForSale",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferSongShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "updateEarnings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateMetadata",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -351,113 +201,23 @@ export interface IWrappedSongSmartAccount extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  batchTransferShares: TypedContractMethod<
-    [amounts: BigNumberish[], recipients: AddressLike[]],
-    [void],
-    "nonpayable"
-  >;
-
-  canReceiveERC20: TypedContractMethod<[], [boolean], "view">;
-
-  checkAuthenticity: TypedContractMethod<[], [boolean], "view">;
-
-  claimAllEarnings: TypedContractMethod<[], [void], "nonpayable">;
-
   claimEarnings: TypedContractMethod<[], [void], "nonpayable">;
 
   claimEthEarnings: TypedContractMethod<[], [void], "nonpayable">;
 
-  createFungibleSongShares: TypedContractMethod<
+  createSongTokens: TypedContractMethod<
     [
-      songId: BigNumberish,
+      songMetadata: IMetadataModule.MetadataStruct,
       sharesAmount: BigNumberish,
-      sharesURI: string,
       creator: AddressLike
     ],
-    [bigint],
+    [[bigint, bigint] & { songId: bigint; sharesId: bigint }],
     "nonpayable"
-  >;
-
-  createsSongToken: TypedContractMethod<
-    [songURI: string, participants: AddressLike[]],
-    [bigint],
-    "nonpayable"
-  >;
-
-  createsWrappedSongTokens: TypedContractMethod<
-    [
-      songURI: string,
-      sharesAmount: BigNumberish,
-      sharesURI: string,
-      creator: AddressLike
-    ],
-    [[bigint, bigint] & { songId: bigint; newSongSharesId: bigint }],
-    "nonpayable"
-  >;
-
-  executeConfirmedMetadataUpdate: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  getReceivedTokens: TypedContractMethod<[], [string[]], "view">;
-
-  getRedeemedEarnings: TypedContractMethod<
-    [account: AddressLike],
-    [bigint],
-    "view"
-  >;
-
-  getRemainingEarnings: TypedContractMethod<
-    [account: AddressLike],
-    [bigint],
-    "view"
-  >;
-
-  getSongSharesBalance: TypedContractMethod<
-    [account: AddressLike],
-    [bigint],
-    "view"
-  >;
-
-  getTokenBalance: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  getTokenMetadata: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [string],
-    "view"
-  >;
-
-  getTokenTotalSupply: TypedContractMethod<
-    [id: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
-  getTotalEarnings: TypedContractMethod<
-    [account: AddressLike],
-    [bigint],
-    "view"
-  >;
-
-  getUnclaimedEarnings: TypedContractMethod<
-    [account: AddressLike],
-    [bigint],
-    "view"
   >;
 
   getWSTokenManagementAddress: TypedContractMethod<[], [string], "view">;
 
-  getWrappedSongMetadata: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [string],
-    "view"
-  >;
+  owner: TypedContractMethod<[], [string], "view">;
 
   receiveERC20: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
@@ -467,11 +227,7 @@ export interface IWrappedSongSmartAccount extends BaseContract {
 
   receiveEarnings: TypedContractMethod<[], [void], "payable">;
 
-  requestUpdateMetadata: TypedContractMethod<
-    [tokenId: BigNumberish, newMetadata: string],
-    [void],
-    "nonpayable"
-  >;
+  redeemShares: TypedContractMethod<[], [void], "nonpayable">;
 
   requestWrappedSongRelease: TypedContractMethod<
     [_distributorWallet: AddressLike],
@@ -485,29 +241,7 @@ export interface IWrappedSongSmartAccount extends BaseContract {
     "nonpayable"
   >;
 
-  setSharesForSale: TypedContractMethod<
-    [
-      sharesId: BigNumberish,
-      percentage: BigNumberish,
-      pricePerShare: BigNumberish
-    ],
-    [void],
-    "nonpayable"
-  >;
-
-  transferSongShares: TypedContractMethod<
-    [amount: BigNumberish, to: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   updateEarnings: TypedContractMethod<[], [void], "nonpayable">;
-
-  updateMetadata: TypedContractMethod<
-    [tokenId: BigNumberish, newMetadata: string],
-    [void],
-    "nonpayable"
-  >;
 
   withdrawSaleFundsFromWSTokenManagement: TypedContractMethod<
     [],
@@ -520,94 +254,28 @@ export interface IWrappedSongSmartAccount extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "batchTransferShares"
-  ): TypedContractMethod<
-    [amounts: BigNumberish[], recipients: AddressLike[]],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "canReceiveERC20"
-  ): TypedContractMethod<[], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "checkAuthenticity"
-  ): TypedContractMethod<[], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "claimAllEarnings"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "claimEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "claimEthEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "createFungibleSongShares"
+    nameOrSignature: "createSongTokens"
   ): TypedContractMethod<
     [
-      songId: BigNumberish,
+      songMetadata: IMetadataModule.MetadataStruct,
       sharesAmount: BigNumberish,
-      sharesURI: string,
       creator: AddressLike
     ],
-    [bigint],
+    [[bigint, bigint] & { songId: bigint; sharesId: bigint }],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "createsSongToken"
-  ): TypedContractMethod<
-    [songURI: string, participants: AddressLike[]],
-    [bigint],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "createsWrappedSongTokens"
-  ): TypedContractMethod<
-    [
-      songURI: string,
-      sharesAmount: BigNumberish,
-      sharesURI: string,
-      creator: AddressLike
-    ],
-    [[bigint, bigint] & { songId: bigint; newSongSharesId: bigint }],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "executeConfirmedMetadataUpdate"
-  ): TypedContractMethod<[tokenId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "getReceivedTokens"
-  ): TypedContractMethod<[], [string[]], "view">;
-  getFunction(
-    nameOrSignature: "getRedeemedEarnings"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getRemainingEarnings"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getSongSharesBalance"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getTokenBalance"
-  ): TypedContractMethod<[tokenId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getTokenMetadata"
-  ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
-  getFunction(
-    nameOrSignature: "getTokenTotalSupply"
-  ): TypedContractMethod<[id: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getTotalEarnings"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getUnclaimedEarnings"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "getWSTokenManagementAddress"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "getWrappedSongMetadata"
-  ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "receiveERC20"
   ): TypedContractMethod<
@@ -619,12 +287,8 @@ export interface IWrappedSongSmartAccount extends BaseContract {
     nameOrSignature: "receiveEarnings"
   ): TypedContractMethod<[], [void], "payable">;
   getFunction(
-    nameOrSignature: "requestUpdateMetadata"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish, newMetadata: string],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: "redeemShares"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "requestWrappedSongRelease"
   ): TypedContractMethod<
@@ -640,33 +304,8 @@ export interface IWrappedSongSmartAccount extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "setSharesForSale"
-  ): TypedContractMethod<
-    [
-      sharesId: BigNumberish,
-      percentage: BigNumberish,
-      pricePerShare: BigNumberish
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "transferSongShares"
-  ): TypedContractMethod<
-    [amount: BigNumberish, to: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "updateEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "updateMetadata"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish, newMetadata: string],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "withdrawSaleFundsFromWSTokenManagement"
   ): TypedContractMethod<[], [void], "nonpayable">;

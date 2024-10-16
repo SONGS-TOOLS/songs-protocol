@@ -29,24 +29,6 @@ const _abi = [
         name: "wrappedSong",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "confirmUpdateMetadata",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
     ],
     name: "confirmWrappedSongRelease",
     outputs: [],
@@ -69,19 +51,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address payable",
-        name: "_wrappedSong",
-        type: "address",
-      },
-    ],
-    name: "distributeEarnings",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "",
         type: "uint256",
@@ -91,19 +60,6 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "protocolModule",
-    outputs: [
-      {
-        internalType: "contract IProtocolModule",
         name: "",
         type: "address",
       },
@@ -153,19 +109,8 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_wrappedSong",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "receivePayment",
+    inputs: [],
+    name: "receiveERC20",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -234,87 +179,10 @@ const _abi = [
         name: "wrappedSong",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "rejectUpdateMetadata",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
     ],
     name: "rejectWrappedSongRelease",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_wrappedSong",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "setAccounting",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address[]",
-        name: "_wrappedSongs",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "_amounts",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256",
-        name: "_totalAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_batchSize",
-        type: "uint256",
-      },
-    ],
-    name: "setAccountingBatch",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "stablecoin",
-    outputs: [
-      {
-        internalType: "contract IERC20",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

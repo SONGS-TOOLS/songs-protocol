@@ -26,11 +26,8 @@ import type {
 export interface WSUtilsInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "getFungibleTokenShares"
       | "getPricePerShare"
-      | "getShareholderAddresses"
       | "getSharesForSale"
-      | "getSharesIdForSong"
       | "getSongSharesBalance"
       | "getTokenBalance"
       | "getTokenMetadata"
@@ -49,24 +46,12 @@ export interface WSUtilsInterface extends Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "getFungibleTokenShares",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getPricePerShare",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getShareholderAddresses",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getSharesForSale",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSharesIdForSong",
-    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getSongSharesBalance",
@@ -119,23 +104,11 @@ export interface WSUtilsInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "getFungibleTokenShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getPricePerShare",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getShareholderAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getSharesForSale",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSharesIdForSong",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -245,32 +218,14 @@ export interface WSUtils extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  getFungibleTokenShares: TypedContractMethod<
-    [_wsTokensManagement: AddressLike, sharesId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
   getPricePerShare: TypedContractMethod<
     [_wsTokensManagement: AddressLike],
     [bigint],
     "view"
   >;
 
-  getShareholderAddresses: TypedContractMethod<
-    [_wsTokensManagement: AddressLike, sharesId: BigNumberish],
-    [string[]],
-    "view"
-  >;
-
   getSharesForSale: TypedContractMethod<
     [_wsTokensManagement: AddressLike],
-    [bigint],
-    "view"
-  >;
-
-  getSharesIdForSong: TypedContractMethod<
-    [_wsTokensManagement: AddressLike, songId: BigNumberish],
     [bigint],
     "view"
   >;
@@ -350,32 +305,11 @@ export interface WSUtils extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "getFungibleTokenShares"
-  ): TypedContractMethod<
-    [_wsTokensManagement: AddressLike, sharesId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getPricePerShare"
   ): TypedContractMethod<[_wsTokensManagement: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getShareholderAddresses"
-  ): TypedContractMethod<
-    [_wsTokensManagement: AddressLike, sharesId: BigNumberish],
-    [string[]],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getSharesForSale"
   ): TypedContractMethod<[_wsTokensManagement: AddressLike], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getSharesIdForSong"
-  ): TypedContractMethod<
-    [_wsTokensManagement: AddressLike, songId: BigNumberish],
-    [bigint],
-    "view"
-  >;
   getFunction(
     nameOrSignature: "getSongSharesBalance"
   ): TypedContractMethod<

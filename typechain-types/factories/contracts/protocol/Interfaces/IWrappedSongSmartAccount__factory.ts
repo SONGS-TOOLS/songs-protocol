@@ -10,57 +10,6 @@ import type {
 
 const _abi = [
   {
-    inputs: [
-      {
-        internalType: "uint256[]",
-        name: "amounts",
-        type: "uint256[]",
-      },
-      {
-        internalType: "address[]",
-        name: "recipients",
-        type: "address[]",
-      },
-    ],
-    name: "batchTransferShares",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "canReceiveERC20",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "checkAuthenticity",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "claimAllEarnings",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "claimEarnings",
     outputs: [],
@@ -77,9 +26,41 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "songId",
-        type: "uint256",
+        components: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "description",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "image",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "externalUrl",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "animationUrl",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "attributesIpfsHash",
+            type: "string",
+          },
+        ],
+        internalType: "struct IMetadataModule.Metadata",
+        name: "songMetadata",
+        type: "tuple",
       },
       {
         internalType: "uint256",
@@ -87,18 +68,18 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "string",
-        name: "sharesURI",
-        type: "string",
-      },
-      {
         internalType: "address",
         name: "creator",
         type: "address",
       },
     ],
-    name: "createFungibleSongShares",
+    name: "createSongTokens",
     outputs: [
+      {
+        internalType: "uint256",
+        name: "songId",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "sharesId",
@@ -106,247 +87,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "songURI",
-        type: "string",
-      },
-      {
-        internalType: "address[]",
-        name: "participants",
-        type: "address[]",
-      },
-    ],
-    name: "createsSongToken",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "songId",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "songURI",
-        type: "string",
-      },
-      {
-        internalType: "uint256",
-        name: "sharesAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "sharesURI",
-        type: "string",
-      },
-      {
-        internalType: "address",
-        name: "creator",
-        type: "address",
-      },
-    ],
-    name: "createsWrappedSongTokens",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "songId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "newSongSharesId",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "executeConfirmedMetadataUpdate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getReceivedTokens",
-    outputs: [
-      {
-        internalType: "address[]",
-        name: "",
-        type: "address[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "getRedeemedEarnings",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "getRemainingEarnings",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "getSongSharesBalance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getTokenBalance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getTokenMetadata",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-    ],
-    name: "getTokenTotalSupply",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "getTotalEarnings",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "getUnclaimedEarnings",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -363,19 +103,13 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getWrappedSongMetadata",
+    inputs: [],
+    name: "owner",
     outputs: [
       {
-        internalType: "string",
+        internalType: "address",
         name: "",
-        type: "string",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -407,19 +141,8 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "newMetadata",
-        type: "string",
-      },
-    ],
-    name: "requestUpdateMetadata",
+    inputs: [],
+    name: "redeemShares",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -456,67 +179,8 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "sharesId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "percentage",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "pricePerShare",
-        type: "uint256",
-      },
-    ],
-    name: "setSharesForSale",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-    ],
-    name: "transferSongShares",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "updateEarnings",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "newMetadata",
-        type: "string",
-      },
-    ],
-    name: "updateMetadata",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

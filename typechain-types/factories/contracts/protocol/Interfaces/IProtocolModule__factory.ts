@@ -101,42 +101,6 @@ const _abi = [
         name: "wrappedSong",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "clearPendingMetadataUpdate",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "confirmUpdateMetadata",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
     ],
     name: "confirmWrappedSongRelease",
     outputs: [],
@@ -170,30 +134,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getPendingMetadataUpdate",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
       },
     ],
     stateMutability: "view",
@@ -240,30 +180,6 @@ const _abi = [
       },
     ],
     name: "isAuthentic",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "isMetadataUpdateConfirmed",
     outputs: [
       {
         internalType: "bool",
@@ -371,6 +287,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "metadataModule",
+    outputs: [
+      {
+        internalType: "contract IMetadataModule",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "paused",
     outputs: [
       {
@@ -399,24 +328,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "rejectUpdateMetadata",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -466,29 +377,6 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "newMetadata",
-        type: "string",
-      },
-    ],
-    name: "requestUpdateMetadata",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "wrappedSong",
-        type: "address",
-      },
-      {
         internalType: "address",
         name: "distributor",
         type: "address",
@@ -523,22 +411,42 @@ const _abi = [
     name: "reviewPeriods",
     outputs: [
       {
-        internalType: "uint256",
-        name: "startTime",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "endTime",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "distributor",
-        type: "address",
+        components: [
+          {
+            internalType: "uint256",
+            name: "startTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "endTime",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "distributor",
+            type: "address",
+          },
+        ],
+        internalType: "struct IProtocolModule.ReviewPeriod",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_metadataModule",
+        type: "address",
+      },
+    ],
+    name: "setMetadataModule",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -602,7 +510,7 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "isAuthentic",
+        name: "_isAuthentic",
         type: "bool",
       },
     ],
@@ -664,6 +572,25 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "wrappedSong",
+        type: "address",
+      },
+    ],
+    name: "wrappedSongAuthenticity",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
