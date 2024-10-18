@@ -138,31 +138,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newMetadata",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "implementationAccount",
-        "type": "address"
-      }
-    ],
-    "name": "MetadataUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
         "type": "address"
@@ -535,6 +510,51 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "newMetadata",
+        "type": "tuple"
+      }
+    ],
+    "name": "requestUpdateMetadata",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "_distributorWallet",
         "type": "address"
@@ -720,6 +740,51 @@
   {
     "inputs": [],
     "name": "updateEarnings",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "newMetadata",
+        "type": "tuple"
+      }
+    ],
+    "name": "updateMetadata",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

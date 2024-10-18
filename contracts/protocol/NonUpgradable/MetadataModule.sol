@@ -145,7 +145,7 @@ contract MetadataModule is Ownable {
      */
     function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory) {
         Metadata memory metadata = wrappedSongMetadata[wrappedSong];
-        return _composeTokenURI(metadata, tokenId);
+        return _composeTokenURI(metadata, tokenId, wrappedSong);
     }
 
     /**
@@ -170,27 +170,36 @@ contract MetadataModule is Ownable {
      * @dev Composes the token URI from the metadata and token ID.
      * @param metadata The metadata of the wrapped song.
      * @param tokenId The ID of the token.
+     * @param wrappedSongAddress The address of the wrapped song.
      * @return The composed token URI as a string.
      */
-    function _composeTokenURI(Metadata memory metadata, uint256 tokenId) internal pure returns (string memory) {
+    function _composeTokenURI(Metadata memory metadata, uint256 tokenId, address wrappedSongAddress) internal pure returns (string memory) {
         string memory tokenType;
         string memory imageData;
+        string memory description;
 
         if (tokenId == 0) {
             tokenType = unicode"◒";
             imageData = metadata.image;
+            description = metadata.description;
         } else if (tokenId == 1) {
             tokenType = unicode"§";
             imageData = _generateSVGImage(metadata.image);
+            description = string(abi.encodePacked(
+                "These are the SongShares representing your share on the royalty earnings of the Wrapped Song",
+                addressToString(wrappedSongAddress),
+                "."
+            ));
         } else {
             tokenType = "Creator-defined NFT";
             imageData = metadata.image;
+            description = metadata.description;
         }
 
         string memory json = Base64.encode(
             bytes(string(abi.encodePacked(
                 '{"name": "', tokenType, ' - ', metadata.name, '",',
-                '"description": "', metadata.description, '",',
+                '"description": "', description, '",',
                 '"image": "', imageData, '",',
                 '"external_url": "', metadata.externalUrl, '",',
                 '"animation_url": "', metadata.animationUrl, '",',
@@ -232,5 +241,18 @@ contract MetadataModule is Ownable {
             '</defs>',
             '</svg>'
         ));
+    }
+
+    function addressToString(address _addr) internal pure returns (string memory) {
+        bytes32 value = bytes32(uint256(uint160(_addr)));
+        bytes memory alphabet = "0123456789abcdef";
+        bytes memory str = new bytes(42);
+        str[0] = '0';
+        str[1] = 'x';
+        for (uint256 i = 0; i < 20; i++) {
+            str[2+i*2] = alphabet[uint8(value[i + 12] >> 4)];
+            str[3+i*2] = alphabet[uint8(value[i + 12] & 0x0f)];
+        }
+        return string(str);
     }
 }
