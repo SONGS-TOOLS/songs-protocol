@@ -32,8 +32,15 @@ contract DistributorWallet is Ownable {
     address _protocolModule,
     address _owner
   ) Ownable(_owner) {
-    stablecoin = IERC20(_stablecoin);
     protocolModule = IProtocolModule(_protocolModule);
+    
+    // Check if the stablecoin is whitelisted
+    require(
+      protocolModule.erc20whitelist().isTokenWhitelisted(_stablecoin),
+      "Stablecoin is not whitelisted"
+    );
+    
+    stablecoin = IERC20(_stablecoin);
   }
 
   // Payment Functions
