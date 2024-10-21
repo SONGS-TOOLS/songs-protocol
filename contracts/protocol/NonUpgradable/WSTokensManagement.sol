@@ -20,6 +20,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 public constant SONG_CONCEPT_ID = 0;
   uint256 public constant SONG_SHARES_ID = 1;
 
+  
   uint256 public sharesForSale;
   uint256 public pricePerShare;
   bool public saleActive;
@@ -76,7 +77,9 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
    * @dev Creates a new song concept NFT and fungible shares for it.
    * @param sharesAmount The total amount of shares to create.
    */
-  function createSongTokens(uint256 sharesAmount) public onlyOwner {
+  function createSongTokens(
+    uint256 sharesAmount
+  ) public onlyOwner {
     // Create song concept NFT to the WrappedSongSmartAccount
     _mint(owner(), SONG_CONCEPT_ID, 1, '');
     // Create fungible SongShares to the minter
