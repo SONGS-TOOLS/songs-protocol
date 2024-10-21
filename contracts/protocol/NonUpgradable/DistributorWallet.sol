@@ -36,7 +36,7 @@ contract DistributorWallet is Ownable {
     
     // Check if the stablecoin is whitelisted
     require(
-      protocolModule.erc20whitelist().isTokenWhitelisted(_stablecoin),
+      protocolModule.isTokenWhitelisted(_stablecoin),
       "Stablecoin is not whitelisted"
     );
     

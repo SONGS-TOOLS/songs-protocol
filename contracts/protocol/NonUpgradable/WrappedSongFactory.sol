@@ -67,8 +67,7 @@ contract WrappedSongFactory {
       'Insufficient creation fee'
     );
 
-    // Uncomment the following line when ready to enforce the whitelist
-    // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+    require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
 
     WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
         _stablecoin,
