@@ -15,6 +15,11 @@
         "internalType": "address",
         "name": "_protocolModuleAddress",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "sharesAmount",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -133,31 +138,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newMetadata",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "implementationAccount",
-        "type": "address"
-      }
-    ],
-    "name": "MetadataUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
         "type": "address"
@@ -257,103 +237,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "sharesAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "sharesURI",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      }
-    ],
-    "name": "createFungibleSongShares",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "songURI",
-        "type": "string"
-      },
-      {
-        "internalType": "address[]",
-        "name": "participants",
-        "type": "address[]"
-      }
-    ],
-    "name": "createsSongToken",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "songURI",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "sharesAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "sharesURI",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      }
-    ],
-    "name": "createsWrappedSongTokens",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newSongSharesId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "ethBalance",
     "outputs": [
@@ -367,16 +250,16 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "getWSTokenManagementAddress",
+    "outputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
-    "name": "executeConfirmedMetadataUpdate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -412,6 +295,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "metadataModule",
+    "outputs": [
+      {
+        "internalType": "contract IMetadataModule",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -614,14 +510,41 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
         "name": "newMetadata",
-        "type": "string"
+        "type": "tuple"
       }
     ],
     "name": "requestUpdateMetadata",
@@ -650,9 +573,41 @@
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "songURI",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "newMetadata",
+        "type": "tuple"
       }
     ],
     "name": "requestWrappedSongReleaseWithMetadata",
@@ -766,24 +721,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "transferSongShares",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "",
         "type": "address"
@@ -810,14 +747,41 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
         "name": "newMetadata",
-        "type": "string"
+        "type": "tuple"
       }
     ],
     "name": "updateMetadata",

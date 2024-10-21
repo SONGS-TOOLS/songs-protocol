@@ -5,6 +5,7 @@ import type * as wsTokensManagementSol from "./WSTokensManagement.sol";
 export type { wsTokensManagementSol };
 export type { DistributorWallet } from "./DistributorWallet";
 export type { DistributorWalletFactory } from "./DistributorWalletFactory";
+export type { MetadataModule } from "./MetadataModule";
 export type { ProtocolModule } from "./ProtocolModule";
 export type { WSUtils } from "./WSUtils";
 export type { WhitelistingManager } from "./WhitelistingManager";

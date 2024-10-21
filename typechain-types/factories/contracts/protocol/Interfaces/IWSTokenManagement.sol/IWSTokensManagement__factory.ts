@@ -6,7 +6,7 @@ import { Contract, Interface, type ContractRunner } from "ethers";
 import type {
   IWSTokensManagement,
   IWSTokensManagementInterface,
-} from "../../../../contracts/protocol/Interfaces/IWSTokensManagement";
+} from "../../../../../contracts/protocol/Interfaces/IWSTokenManagement.sol/IWSTokensManagement";
 
 const _abi = [
   {
@@ -204,9 +204,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "smartWallet",
-        type: "address",
+        internalType: "uint256",
+        name: "songId",
+        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -214,21 +214,45 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "string",
+        name: "sharesURI",
+        type: "string",
+      },
+      {
         internalType: "address",
         name: "creator",
         type: "address",
       },
     ],
-    name: "createSongTokens",
+    name: "createFungibleSongShares",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "sharesId",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "songURI",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "smartWallet",
+        type: "address",
+      },
+    ],
+    name: "createSongConcept",
     outputs: [
       {
         internalType: "uint256",
         name: "songId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "sharesId",
         type: "uint256",
       },
     ],
@@ -472,6 +496,24 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "tokenURI",
+        type: "string",
+      },
+    ],
+    name: "setTokenURI",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "sharesForSale",
     outputs: [
@@ -580,38 +622,6 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-    ],
-    name: "totalSupply",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "newTokenURI",
-        type: "string",
-      },
-    ],
-    name: "updateAllTokenURIs",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
       },
@@ -624,25 +634,6 @@ const _abi = [
     name: "updateTokenURI",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "uri",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

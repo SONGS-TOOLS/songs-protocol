@@ -25,34 +25,23 @@ export interface IDistributorWalletInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "acceptWrappedSongForReview"
-      | "confirmUpdateMetadata"
       | "confirmWrappedSongRelease"
       | "currentBatchIndex"
-      | "distributeEarnings"
       | "managedWrappedSongs"
-      | "protocolModule"
       | "receiveBatchPaymentETH"
       | "receiveBatchPaymentStablecoin"
-      | "receivePayment"
+      | "receiveERC20"
       | "receivePaymentETH"
       | "receivePaymentStablecoin"
       | "redeemETH"
       | "redeemWrappedSongEarnings"
-      | "rejectUpdateMetadata"
       | "rejectWrappedSongRelease"
-      | "setAccounting"
-      | "setAccountingBatch"
-      | "stablecoin"
       | "wrappedSongTreasury"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "acceptWrappedSongForReview",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "confirmUpdateMetadata",
-    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "confirmWrappedSongRelease",
@@ -63,16 +52,8 @@ export interface IDistributorWalletInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "distributeEarnings",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "managedWrappedSongs",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "protocolModule",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "receiveBatchPaymentETH",
@@ -83,8 +64,8 @@ export interface IDistributorWalletInterface extends Interface {
     values: [AddressLike[], BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "receivePayment",
-    values: [AddressLike, BigNumberish]
+    functionFragment: "receiveERC20",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "receivePaymentETH",
@@ -103,24 +84,8 @@ export interface IDistributorWalletInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "rejectUpdateMetadata",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "rejectWrappedSongRelease",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAccounting",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAccountingBatch",
-    values: [AddressLike[], BigNumberish[], BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stablecoin",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "wrappedSongTreasury",
@@ -132,10 +97,6 @@ export interface IDistributorWalletInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "confirmUpdateMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "confirmWrappedSongRelease",
     data: BytesLike
   ): Result;
@@ -144,15 +105,7 @@ export interface IDistributorWalletInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "distributeEarnings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "managedWrappedSongs",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "protocolModule",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -164,7 +117,7 @@ export interface IDistributorWalletInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "receivePayment",
+    functionFragment: "receiveERC20",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -181,22 +134,9 @@ export interface IDistributorWalletInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "rejectUpdateMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "rejectWrappedSongRelease",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setAccounting",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setAccountingBatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "stablecoin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "wrappedSongTreasury",
     data: BytesLike
@@ -252,12 +192,6 @@ export interface IDistributorWallet extends BaseContract {
     "nonpayable"
   >;
 
-  confirmUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   confirmWrappedSongRelease: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
@@ -266,19 +200,11 @@ export interface IDistributorWallet extends BaseContract {
 
   currentBatchIndex: TypedContractMethod<[], [bigint], "view">;
 
-  distributeEarnings: TypedContractMethod<
-    [_wrappedSong: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   managedWrappedSongs: TypedContractMethod<
     [arg0: BigNumberish],
     [string],
     "view"
   >;
-
-  protocolModule: TypedContractMethod<[], [string], "view">;
 
   receiveBatchPaymentETH: TypedContractMethod<
     [_wrappedSongs: AddressLike[], _amounts: BigNumberish[]],
@@ -296,11 +222,7 @@ export interface IDistributorWallet extends BaseContract {
     "nonpayable"
   >;
 
-  receivePayment: TypedContractMethod<
-    [_wrappedSong: AddressLike, _amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  receiveERC20: TypedContractMethod<[], [void], "nonpayable">;
 
   receivePaymentETH: TypedContractMethod<
     [_wrappedSong: AddressLike],
@@ -326,36 +248,11 @@ export interface IDistributorWallet extends BaseContract {
     "nonpayable"
   >;
 
-  rejectUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   rejectWrappedSongRelease: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
     "nonpayable"
   >;
-
-  setAccounting: TypedContractMethod<
-    [_wrappedSong: AddressLike, _amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  setAccountingBatch: TypedContractMethod<
-    [
-      _wrappedSongs: AddressLike[],
-      _amounts: BigNumberish[],
-      _totalAmount: BigNumberish,
-      _batchSize: BigNumberish
-    ],
-    [void],
-    "nonpayable"
-  >;
-
-  stablecoin: TypedContractMethod<[], [string], "view">;
 
   wrappedSongTreasury: TypedContractMethod<
     [arg0: AddressLike],
@@ -371,27 +268,14 @@ export interface IDistributorWallet extends BaseContract {
     nameOrSignature: "acceptWrappedSongForReview"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "confirmUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "confirmWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "currentBatchIndex"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "distributeEarnings"
-  ): TypedContractMethod<[_wrappedSong: AddressLike], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "managedWrappedSongs"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
-  getFunction(
-    nameOrSignature: "protocolModule"
-  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "receiveBatchPaymentETH"
   ): TypedContractMethod<
@@ -411,12 +295,8 @@ export interface IDistributorWallet extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "receivePayment"
-  ): TypedContractMethod<
-    [_wrappedSong: AddressLike, _amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: "receiveERC20"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "receivePaymentETH"
   ): TypedContractMethod<[_wrappedSong: AddressLike], [void], "payable">;
@@ -434,37 +314,8 @@ export interface IDistributorWallet extends BaseContract {
     nameOrSignature: "redeemWrappedSongEarnings"
   ): TypedContractMethod<[_wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "rejectUpdateMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike, tokenId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "rejectWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setAccounting"
-  ): TypedContractMethod<
-    [_wrappedSong: AddressLike, _amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setAccountingBatch"
-  ): TypedContractMethod<
-    [
-      _wrappedSongs: AddressLike[],
-      _amounts: BigNumberish[],
-      _totalAmount: BigNumberish,
-      _batchSize: BigNumberish
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "stablecoin"
-  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "wrappedSongTreasury"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;

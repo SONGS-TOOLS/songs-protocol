@@ -13,7 +13,7 @@ const scripts: Scripts = {
   'deploy-license': `npx hardhat run scripts/deploy-license.ts --network ${network}`,
   'deploy': `npx hardhat run scripts/deploy.ts --network ${network}`,
   'deploy-ws-2': `npx hardhat run scripts/deploy-ws-2.ts --network ${network}`,
-  'deploy-all': `npm run deploy:protocol -- ${network} && npm run deploy:songs -- ${network}`,
+  'deploy-all': `npm run deploy:protocol ${network} && npm run deploy:songs ${network}`,
 };
 
 if (!scripts[scriptName]) {

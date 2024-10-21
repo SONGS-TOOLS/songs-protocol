@@ -5,6 +5,11 @@
         "internalType": "address",
         "name": "_protocolModule",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_metadataModule",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -57,22 +62,48 @@
         "type": "address"
       },
       {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
         "indexed": false,
-        "internalType": "string",
-        "name": "songURI",
-        "type": "string"
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "songMetadata",
+        "type": "tuple"
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "sharesAmount",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "sharesURI",
-        "type": "string"
       }
     ],
     "name": "WrappedSongCreatedWithMetadata",
@@ -84,9 +115,51 @@
         "internalType": "address",
         "name": "_stablecoin",
         "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "externalUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "songMetadata",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "sharesAmount",
+        "type": "uint256"
       }
     ],
-    "name": "createWrappedSong",
+    "name": "createWrappedSongWithMetadata",
     "outputs": [
       {
         "internalType": "address",
@@ -94,34 +167,6 @@
         "type": "address"
       }
     ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_stablecoin",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "songURI",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "sharesAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "sharesURI",
-        "type": "string"
-      }
-    ],
-    "name": "createWrappedSongWithMetadata",
-    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
@@ -139,6 +184,19 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "metadataModule",
+    "outputs": [
+      {
+        "internalType": "contract IMetadataModule",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
