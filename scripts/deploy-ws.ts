@@ -75,8 +75,7 @@ async function main() {
       image: 'QmcpB2wEwLDKsu7jKBb1EDqgQCCBeL29VAx6M9bFepyGyj',
       externalUrl: 'https://app.songs-tools.com/wrapped-songs/Tamago',
       animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
-      attributesIpfsHash:
-        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
     {
       name: 'Crystals',
@@ -84,8 +83,7 @@ async function main() {
       image: 'Qmf3X24XbgAzc7bhiGESbzVW3upJoGYHMnDxgxkQcJ8dHC',
       externalUrl: 'https://app.songs-tools.com/wrapped-songs/Crystals',
       animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
-      attributesIpfsHash:
-        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
     {
       name: 'Twilight',
@@ -93,8 +91,7 @@ async function main() {
       image: 'QmX9jf3NM5BAkBnUrrpqVTP1yg3CdkYBwdqVPjJBdszwQD',
       externalUrl: 'https://app.songs-tools.com/wrapped-songs/Twilight',
       animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
-      attributesIpfsHash:
-        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
     {
       name: 'Crystals',
@@ -102,8 +99,7 @@ async function main() {
       image: 'Qmf3X24XbgAzc7bhiGESbzVW3upJoGYHMnDxgxkQcJ8dHC',
       externalUrl: 'https://app.songs-tools.com/wrapped-songs/Crystals',
       animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
-      attributesIpfsHash:
-        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
     {
       name: 'Twilight',
@@ -111,8 +107,7 @@ async function main() {
       image: 'QmX9jf3NM5BAkBnUrrpqVTP1yg3CdkYBwdqVPjJBdszwQD',
       externalUrl: 'https://app.songs-tools.com/wrapped-songs/Twilight',
       animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
-      attributesIpfsHash:
-        'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
   ];
 
@@ -196,15 +191,21 @@ async function main() {
     externalUrl: 'https://app.songs-tools.com/wrapped-songs/UpdatedTamago',
     animationUrl: 'QmUpdatedAnimationHash',
     attributesIpfsHash:
-      'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json',
+      'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
   };
 
   try {
     const wrappedSongAddress = ownerWrappedSongs[0];
-    const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
+    const wrappedSong = await ethers.getContractAt(
+      'WrappedSongSmartAccount',
+      wrappedSongAddress
+    );
 
-    console.log(`Requesting metadata update for Wrapped Song at: ${wrappedSongAddress}`);
-    const requestUpdateTx = await wrappedSong.requestUpdateMetadata(newMetadata);
+    console.log(
+      `Requesting metadata update for Wrapped Song at: ${wrappedSongAddress}`
+    );
+    const requestUpdateTx =
+      await wrappedSong.requestUpdateMetadata(newMetadata);
     console.log(`Transaction hash: ${requestUpdateTx.hash}`);
 
     console.log(`Waiting for transaction confirmation...`);
