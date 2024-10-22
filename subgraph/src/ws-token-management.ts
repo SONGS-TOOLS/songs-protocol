@@ -18,6 +18,7 @@ import {
 
 export function handleSharesSaleStarted(event: SharesSaleStarted): void {
   let wsTokenManagementAddress = event.address;
+  const currency = event.params.stableCoinAddress;
   const wsTokenManagement = WSTokenManagement.load(wsTokenManagementAddress);
   if (!wsTokenManagement) {
     return;
@@ -41,11 +42,12 @@ export function handleSharesSaleStarted(event: SharesSaleStarted): void {
     saleOffer = new SaleOffer(saleOfferId);
     saleOffer.createdAt = event.block.timestamp;
   }
-
+  saleOffer.currency = currency;
   saleOffer.amount = event.params.amount;
   saleOffer.initialAmount = event.params.amount;
   saleOffer.maxPerWallet = event.params.maxSharesPerWallet;
   saleOffer.pricePerShare = event.params.price;
+  saleOffer.currency = event.params.stableCoinAddress;
   // saleOffer.updatedAt = event.block.timestamp;
 
   saleOffer.save();
@@ -74,6 +76,13 @@ export function handleSharesSold(event: SharesSold): void {
     // Why not? Why do we need to have pricePerShare in a sale?
     sale.pricePerShare = BigInt.fromI32(0); // We don't have access to the price in this event
     sale.timestamp = event.block.timestamp;
+    const saleOfferId = wsTokenManagement.saleOffer;
+    if (saleOfferId) {
+      const saleOffer = SaleOffer.load(saleOfferId);
+      if (saleOffer) {
+        sale.currency = saleOffer.currency;
+      }
+    }
 
     sale.save();
 
