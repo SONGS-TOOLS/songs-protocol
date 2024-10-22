@@ -31,12 +31,8 @@ export class WrappedSongCreated__Params {
     return this._event.parameters[1].value.toAddress();
   }
 
-  get stablecoin(): Address {
-    return this._event.parameters[2].value.toAddress();
-  }
-
   get wsTokenManagement(): Address {
-    return this._event.parameters[3].value.toAddress();
+    return this._event.parameters[2].value.toAddress();
   }
 }
 
@@ -61,16 +57,40 @@ export class WrappedSongCreatedWithMetadata__Params {
     return this._event.parameters[1].value.toAddress();
   }
 
-  get songURI(): string {
-    return this._event.parameters[2].value.toString();
+  get songMetadata(): WrappedSongCreatedWithMetadataSongMetadataStruct {
+    return changetype<WrappedSongCreatedWithMetadataSongMetadataStruct>(
+      this._event.parameters[2].value.toTuple(),
+    );
   }
 
   get sharesAmount(): BigInt {
     return this._event.parameters[3].value.toBigInt();
   }
+}
 
-  get sharesURI(): string {
-    return this._event.parameters[4].value.toString();
+export class WrappedSongCreatedWithMetadataSongMetadataStruct extends ethereum.Tuple {
+  get name(): string {
+    return this[0].toString();
+  }
+
+  get description(): string {
+    return this[1].toString();
+  }
+
+  get image(): string {
+    return this[2].toString();
+  }
+
+  get externalUrl(): string {
+    return this[3].toString();
+  }
+
+  get animationUrl(): string {
+    return this[4].toString();
+  }
+
+  get attributesIpfsHash(): string {
+    return this[5].toString();
   }
 }
 
@@ -102,6 +122,25 @@ export class WrappedSongFactory extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddressArray());
+  }
+
+  metadataModule(): Address {
+    let result = super.call("metadataModule", "metadataModule():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_metadataModule(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "metadataModule",
+      "metadataModule():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   ownerWrappedSongs(param0: Address, param1: BigInt): Address {
@@ -176,6 +215,10 @@ export class ConstructorCall__Inputs {
   get _protocolModule(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
+
+  get _metadataModule(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
 }
 
 export class ConstructorCall__Outputs {
@@ -183,40 +226,6 @@ export class ConstructorCall__Outputs {
 
   constructor(call: ConstructorCall) {
     this._call = call;
-  }
-}
-
-export class CreateWrappedSongCall extends ethereum.Call {
-  get inputs(): CreateWrappedSongCall__Inputs {
-    return new CreateWrappedSongCall__Inputs(this);
-  }
-
-  get outputs(): CreateWrappedSongCall__Outputs {
-    return new CreateWrappedSongCall__Outputs(this);
-  }
-}
-
-export class CreateWrappedSongCall__Inputs {
-  _call: CreateWrappedSongCall;
-
-  constructor(call: CreateWrappedSongCall) {
-    this._call = call;
-  }
-
-  get _stablecoin(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class CreateWrappedSongCall__Outputs {
-  _call: CreateWrappedSongCall;
-
-  constructor(call: CreateWrappedSongCall) {
-    this._call = call;
-  }
-
-  get value0(): Address {
-    return this._call.outputValues[0].value.toAddress();
   }
 }
 
@@ -241,16 +250,14 @@ export class CreateWrappedSongWithMetadataCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get songURI(): string {
-    return this._call.inputValues[1].value.toString();
+  get songMetadata(): CreateWrappedSongWithMetadataCallSongMetadataStruct {
+    return changetype<CreateWrappedSongWithMetadataCallSongMetadataStruct>(
+      this._call.inputValues[1].value.toTuple(),
+    );
   }
 
   get sharesAmount(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get sharesURI(): string {
-    return this._call.inputValues[3].value.toString();
   }
 }
 
@@ -259,5 +266,35 @@ export class CreateWrappedSongWithMetadataCall__Outputs {
 
   constructor(call: CreateWrappedSongWithMetadataCall) {
     this._call = call;
+  }
+
+  get value0(): Address {
+    return this._call.outputValues[0].value.toAddress();
+  }
+}
+
+export class CreateWrappedSongWithMetadataCallSongMetadataStruct extends ethereum.Tuple {
+  get name(): string {
+    return this[0].toString();
+  }
+
+  get description(): string {
+    return this[1].toString();
+  }
+
+  get image(): string {
+    return this[2].toString();
+  }
+
+  get externalUrl(): string {
+    return this[3].toString();
+  }
+
+  get animationUrl(): string {
+    return this[4].toString();
+  }
+
+  get attributesIpfsHash(): string {
+    return this[5].toString();
   }
 }

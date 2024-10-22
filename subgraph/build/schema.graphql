@@ -22,22 +22,32 @@ type WrappedSong @entity {
   isAuthentic: Boolean!
 }
 
-type TokenMetadata @entity {
+type Attributes @entity {
   id: ID!
-  image: String
-  external_url: String
-  name: String
-  description: String
   attributes: String
-  animation_url: String
+}
+
+type SongMetadata @entity {
+  id: ID!
+  image: String!
+  externalUrl: String!
+  name: String!
+  description: String!
+  attributesIpfsHash: String!
+  attributes: Attributes
+  animationUrl: String!
+}
+
+type SharesMetadata @entity {
+  id: ID!
+  image: String!
+  name: String!
 }
 
 type Metadata @entity {
   id: ID!
-  songCID: String
-  sharesCID: String
-  songURI: TokenMetadata
-  sharesURI: TokenMetadata
+  songMetadata: SongMetadata!
+  sharesMetadata: SharesMetadata!
   wrappedSong: WrappedSong! @derivedFrom(field: "metadata")
 }
 

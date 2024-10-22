@@ -323,38 +323,6 @@ export class ProtocolModule extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  getPendingMetadataUpdate(wrappedSong: Address, tokenId: BigInt): string {
-    let result = super.call(
-      "getPendingMetadataUpdate",
-      "getPendingMetadataUpdate(address,uint256):(string)",
-      [
-        ethereum.Value.fromAddress(wrappedSong),
-        ethereum.Value.fromUnsignedBigInt(tokenId),
-      ],
-    );
-
-    return result[0].toString();
-  }
-
-  try_getPendingMetadataUpdate(
-    wrappedSong: Address,
-    tokenId: BigInt,
-  ): ethereum.CallResult<string> {
-    let result = super.tryCall(
-      "getPendingMetadataUpdate",
-      "getPendingMetadataUpdate(address,uint256):(string)",
-      [
-        ethereum.Value.fromAddress(wrappedSong),
-        ethereum.Value.fromUnsignedBigInt(tokenId),
-      ],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
   getWrappedSongDistributor(wrappedSong: Address): Address {
     let result = super.call(
       "getWrappedSongDistributor",
@@ -392,38 +360,6 @@ export class ProtocolModule extends ethereum.SmartContract {
     let result = super.tryCall("isAuthentic", "isAuthentic(address):(bool)", [
       ethereum.Value.fromAddress(wrappedSong),
     ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  isMetadataUpdateConfirmed(wrappedSong: Address, tokenId: BigInt): boolean {
-    let result = super.call(
-      "isMetadataUpdateConfirmed",
-      "isMetadataUpdateConfirmed(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(wrappedSong),
-        ethereum.Value.fromUnsignedBigInt(tokenId),
-      ],
-    );
-
-    return result[0].toBoolean();
-  }
-
-  try_isMetadataUpdateConfirmed(
-    wrappedSong: Address,
-    tokenId: BigInt,
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "isMetadataUpdateConfirmed",
-      "isMetadataUpdateConfirmed(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(wrappedSong),
-        ethereum.Value.fromUnsignedBigInt(tokenId),
-      ],
-    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -538,36 +474,23 @@ export class ProtocolModule extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
-  metadataUpdateConfirmed(param0: Address, param1: BigInt): boolean {
-    let result = super.call(
-      "metadataUpdateConfirmed",
-      "metadataUpdateConfirmed(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
-    );
+  metadataModule(): Address {
+    let result = super.call("metadataModule", "metadataModule():(address)", []);
 
-    return result[0].toBoolean();
+    return result[0].toAddress();
   }
 
-  try_metadataUpdateConfirmed(
-    param0: Address,
-    param1: BigInt,
-  ): ethereum.CallResult<boolean> {
+  try_metadataModule(): ethereum.CallResult<Address> {
     let result = super.tryCall(
-      "metadataUpdateConfirmed",
-      "metadataUpdateConfirmed(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
+      "metadataModule",
+      "metadataModule():(address)",
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   owner(): Address {
@@ -623,38 +546,6 @@ export class ProtocolModule extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  pendingMetadataUpdates(param0: Address, param1: BigInt): string {
-    let result = super.call(
-      "pendingMetadataUpdates",
-      "pendingMetadataUpdates(address,uint256):(string)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
-    );
-
-    return result[0].toString();
-  }
-
-  try_pendingMetadataUpdates(
-    param0: Address,
-    param1: BigInt,
-  ): ethereum.CallResult<string> {
-    let result = super.tryCall(
-      "pendingMetadataUpdates",
-      "pendingMetadataUpdates(address,uint256):(string)",
-      [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromUnsignedBigInt(param1),
-      ],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   releaseFee(): BigInt {
@@ -1042,74 +933,6 @@ export class AddUPCCall__Outputs {
   }
 }
 
-export class ClearPendingMetadataUpdateCall extends ethereum.Call {
-  get inputs(): ClearPendingMetadataUpdateCall__Inputs {
-    return new ClearPendingMetadataUpdateCall__Inputs(this);
-  }
-
-  get outputs(): ClearPendingMetadataUpdateCall__Outputs {
-    return new ClearPendingMetadataUpdateCall__Outputs(this);
-  }
-}
-
-export class ClearPendingMetadataUpdateCall__Inputs {
-  _call: ClearPendingMetadataUpdateCall;
-
-  constructor(call: ClearPendingMetadataUpdateCall) {
-    this._call = call;
-  }
-
-  get wrappedSong(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get tokenId(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class ClearPendingMetadataUpdateCall__Outputs {
-  _call: ClearPendingMetadataUpdateCall;
-
-  constructor(call: ClearPendingMetadataUpdateCall) {
-    this._call = call;
-  }
-}
-
-export class ConfirmUpdateMetadataCall extends ethereum.Call {
-  get inputs(): ConfirmUpdateMetadataCall__Inputs {
-    return new ConfirmUpdateMetadataCall__Inputs(this);
-  }
-
-  get outputs(): ConfirmUpdateMetadataCall__Outputs {
-    return new ConfirmUpdateMetadataCall__Outputs(this);
-  }
-}
-
-export class ConfirmUpdateMetadataCall__Inputs {
-  _call: ConfirmUpdateMetadataCall;
-
-  constructor(call: ConfirmUpdateMetadataCall) {
-    this._call = call;
-  }
-
-  get wrappedSong(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get tokenId(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class ConfirmUpdateMetadataCall__Outputs {
-  _call: ConfirmUpdateMetadataCall;
-
-  constructor(call: ConfirmUpdateMetadataCall) {
-    this._call = call;
-  }
-}
-
 export class ConfirmWrappedSongReleaseCall extends ethereum.Call {
   get inputs(): ConfirmWrappedSongReleaseCall__Inputs {
     return new ConfirmWrappedSongReleaseCall__Inputs(this);
@@ -1166,40 +989,6 @@ export class HandleExpiredReviewPeriodCall__Outputs {
   _call: HandleExpiredReviewPeriodCall;
 
   constructor(call: HandleExpiredReviewPeriodCall) {
-    this._call = call;
-  }
-}
-
-export class RejectUpdateMetadataCall extends ethereum.Call {
-  get inputs(): RejectUpdateMetadataCall__Inputs {
-    return new RejectUpdateMetadataCall__Inputs(this);
-  }
-
-  get outputs(): RejectUpdateMetadataCall__Outputs {
-    return new RejectUpdateMetadataCall__Outputs(this);
-  }
-}
-
-export class RejectUpdateMetadataCall__Inputs {
-  _call: RejectUpdateMetadataCall;
-
-  constructor(call: RejectUpdateMetadataCall) {
-    this._call = call;
-  }
-
-  get wrappedSong(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get tokenId(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class RejectUpdateMetadataCall__Outputs {
-  _call: RejectUpdateMetadataCall;
-
-  constructor(call: RejectUpdateMetadataCall) {
     this._call = call;
   }
 }
@@ -1290,44 +1079,6 @@ export class RenounceOwnershipCall__Outputs {
   }
 }
 
-export class RequestUpdateMetadataCall extends ethereum.Call {
-  get inputs(): RequestUpdateMetadataCall__Inputs {
-    return new RequestUpdateMetadataCall__Inputs(this);
-  }
-
-  get outputs(): RequestUpdateMetadataCall__Outputs {
-    return new RequestUpdateMetadataCall__Outputs(this);
-  }
-}
-
-export class RequestUpdateMetadataCall__Inputs {
-  _call: RequestUpdateMetadataCall;
-
-  constructor(call: RequestUpdateMetadataCall) {
-    this._call = call;
-  }
-
-  get wrappedSong(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get tokenId(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get newMetadata(): string {
-    return this._call.inputValues[2].value.toString();
-  }
-}
-
-export class RequestUpdateMetadataCall__Outputs {
-  _call: RequestUpdateMetadataCall;
-
-  constructor(call: RequestUpdateMetadataCall) {
-    this._call = call;
-  }
-}
-
 export class RequestWrappedSongReleaseCall extends ethereum.Call {
   get inputs(): RequestWrappedSongReleaseCall__Inputs {
     return new RequestWrappedSongReleaseCall__Inputs(this);
@@ -1358,6 +1109,36 @@ export class RequestWrappedSongReleaseCall__Outputs {
   _call: RequestWrappedSongReleaseCall;
 
   constructor(call: RequestWrappedSongReleaseCall) {
+    this._call = call;
+  }
+}
+
+export class SetMetadataModuleCall extends ethereum.Call {
+  get inputs(): SetMetadataModuleCall__Inputs {
+    return new SetMetadataModuleCall__Inputs(this);
+  }
+
+  get outputs(): SetMetadataModuleCall__Outputs {
+    return new SetMetadataModuleCall__Outputs(this);
+  }
+}
+
+export class SetMetadataModuleCall__Inputs {
+  _call: SetMetadataModuleCall;
+
+  constructor(call: SetMetadataModuleCall) {
+    this._call = call;
+  }
+
+  get _metadataModule(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetMetadataModuleCall__Outputs {
+  _call: SetMetadataModuleCall;
+
+  constructor(call: SetMetadataModuleCall) {
     this._call = call;
   }
 }

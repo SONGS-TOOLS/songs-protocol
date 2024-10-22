@@ -28,23 +28,22 @@ dataSources:
           handler: handleWrappedSongReleased
         - event: WrappedSongReleaseRejected(indexed address,indexed address)
           handler: handleWrappedSongReleaseRejected
-        - event: MetadataUpdateRequested(indexed address,indexed uint256,string)
-          handler: handleMetadataUpdateRequested
-        - event: MetadataUpdated(indexed address,indexed uint256,string)
-          handler: handleMetadataUpdated
+        # - event: MetadataUpdateRequested(indexed address,indexed uint256,string)
+        #   handler: handleMetadataUpdateRequested
+        # - event: MetadataUpdated(indexed address,indexed uint256,string)
+        #   handler: handleMetadataUpdated
         - event: DistributorAcceptedReview(indexed address,indexed address)
           handler: handleDistributorAcceptedReview
         - event: ReviewPeriodExpired(indexed address,indexed address)
           handler: handleReviewPeriodExpired
         - event: WrappedSongAuthenticitySet(indexed address,bool)
           handler: handleWrappedSongAuthenticitySet
-
       file: ./src/protocol-module.ts
   - kind: ethereum
     name: WrappedSongFactory
     network: 'localhost'
     source:
-      address: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9'
+      address: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707'
       abi: WrappedSongFactory
     mapping:
       kind: ethereum/events
@@ -57,10 +56,10 @@ dataSources:
         - name: WrappedSongFactory
           file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address,address,address)
+        - event: WrappedSongCreated(indexed address,address,address)
           handler: handleWrappedSongCreated
-        - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
-          handler: handleWrappedSongCreatedWithMetadata
+        # - event: WrappedSongCreatedWithMetadata(indexed address,address,(string,string,string,string,string,string),uint256)
+        #   handler: handleWrappedSongCreatedWithMetadata
       file: ./src/wrapped-song-factory.ts
   - kind: ethereum
     name: distributorWalletFactory
@@ -81,6 +80,35 @@ dataSources:
         - event: DistributorWalletCreated(indexed address,address)
           handler: handleDistributorWalletCreated
       file: ./src/distributor-wallet-factory.ts
+  - kind: ethereum
+    name: metadataModule
+    network: 'localhost'
+    source:
+      address: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9'
+      abi: MetadataModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/metadata-module.ts
+      entities:
+        - WrappedSong
+        - Metadata
+        - MetadataUpdateRequest
+        - SharesMetadata
+        - SongMetadata
+      abis:
+        - name: MetadataModule
+          file: ../artifacts/contracts/protocol/NonUpgradable/MetadataModule.sol/MetadataModule.json
+      eventHandlers:
+        - event: MetadataCreated(indexed address,(string,string,string,string,string,string))
+          handler: handleMetadataCreated
+        - event: MetadataUpdateRequested(indexed address,(string,string,string,string,string,string))
+          handler: handleMetadataUpdateRequested
+        - event: MetadataUpdated(indexed address,(string,string,string,string,string,string))
+          handler: handleMetadataUpdated
+        - event: MetadataUpdateRejected(indexed address)
+          handler: handleMetadataUpdateRejected
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
@@ -98,25 +126,22 @@ templates:
       abis:
         - name: WrappedSongSmartAccount
           file: ../abis/WrappedSongSmartAccount.json
-      eventHandlers:
-        - event: MetadataUpdated(indexed uint256,string,address)
-          handler: handleMetadataUpdatedDirectly
-  - name: TokenMetadata
+  - name: Attributes
     kind: file/ipfs
     network: 'localhost'
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       file: ./src/ipfs-mappings.ts
-      handler: handleTokenMetadata
+      handler: handleAttributes
       entities:
-        - TokenMetadata
+        - Attributes
       abis:
         - name: WrappedSongSmartAccount
           file: ../abis/WrappedSongSmartAccount.json
   - name: WSTokenManagement
     kind: ethereum/contract
-    network: 'base-sepolia'
+    network: 'localhost'
     source:
       abi: WSTokenManagement
     mapping:
@@ -133,7 +158,7 @@ templates:
         - name: WSTokenManagement
           file: ../abis/WSTokenManagement.json
       eventHandlers:
-        - event: SharesSaleStarted(uint256,uint256,indexed address,uint256)
+        - event: SharesSaleStarted(uint256,uint256,indexed address,uint256,address)
           handler: handleSharesSaleStarted
         - event: SharesSold(address,uint256)
           handler: handleSharesSold
