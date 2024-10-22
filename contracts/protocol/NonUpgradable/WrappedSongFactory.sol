@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IMetadataModule.sol';
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
+import '@openzeppelin/contracts/utils/Strings.sol';
+import 'hardhat/console.sol';
 
 contract WrappedSongFactory {
   IProtocolModule public immutable protocolModule;
@@ -36,13 +36,13 @@ contract WrappedSongFactory {
    * @param metadata The metadata object to validate.
    * @return bool Returns true if the metadata is valid, false otherwise.
    */
-  function isValidMetadata(IMetadataModule.Metadata memory metadata) internal pure returns (bool) {
-      return (
-          bytes(metadata.name).length > 0 &&
-          bytes(metadata.image).length > 0 &&
-          bytes(metadata.animationUrl).length > 0 &&
-          bytes(metadata.attributesIpfsHash).length > 0
-      );
+  function isValidMetadata(
+    IMetadataModule.Metadata memory metadata
+  ) internal pure returns (bool) {
+    return (bytes(metadata.name).length > 0 &&
+      bytes(metadata.image).length > 0 &&
+      bytes(metadata.animationUrl).length > 0 &&
+      bytes(metadata.attributesIpfsHash).length > 0);
   }
 
   /**
@@ -58,14 +58,14 @@ contract WrappedSongFactory {
     uint256 sharesAmount
   ) public payable returns (address) {
     require(!protocolModule.paused(), 'Protocol is paused');
-    require(isValidMetadata(songMetadata), "Invalid metadata: All required fields must be non-empty");
-    require(sharesAmount > 0, "Shares amount must be greater than zero");
+    require(
+      isValidMetadata(songMetadata),
+      'Invalid metadata: All required fields must be non-empty'
+    );
+    require(sharesAmount > 0, 'Shares amount must be greater than zero');
 
     uint256 requiredFee = protocolModule.wrappedSongCreationFee();
-    require(
-      msg.value >= requiredFee,
-      'Insufficient creation fee'
-    );
+    require(msg.value >= requiredFee, 'Insufficient creation fee');
 
     // Uncomment the following line when ready to enforce the whitelist
     // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
@@ -75,19 +75,27 @@ contract WrappedSongFactory {
         msg.sender,
         address(protocolModule),
         sharesAmount
-    );
+      );
 
-    address newWrappedSongSmartAccountAddress = address(newWrappedSongSmartAccount);
+    address newWrappedSongSmartAccountAddress = address(
+      newWrappedSongSmartAccount
+    );
+    address wsTokenManagement = address(
+      newWrappedSongSmartAccount.newWSTokenManagement()
+    );
 
     ownerWrappedSongs[msg.sender].push(newWrappedSongSmartAccountAddress);
 
-    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
-    
-    emit WrappedSongCreatedWithMetadata(
-        msg.sender,
-        newWrappedSongSmartAccountAddress,
-        songMetadata,
-        sharesAmount
+    emit WrappedSongCreated(
+      msg.sender,
+      _stablecoin,
+      newWrappedSongSmartAccountAddress,
+      wsTokenManagement
+    );
+
+    metadataModule.createMetadata(
+      newWrappedSongSmartAccountAddress,
+      songMetadata
     );
 
     return newWrappedSongSmartAccountAddress;
