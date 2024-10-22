@@ -1,35 +1,24 @@
-import { BigInt, log, store } from '@graphprotocol/graph-ts';
+import { BigInt, store } from '@graphprotocol/graph-ts';
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
-  MetadataUpdated as MetadataUpdateConfirmedEvent,
-  MetadataUpdateRequested as MetadataUpdateRequestedEvent,
   ReviewPeriodExpired as ReviewPeriodExpiredEvent,
   WrappedSongAuthenticitySet as WrappedSongAuthenticitySetEvent,
   WrappedSongReleased as WrappedSongReleasedEvent,
   WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
   WrappedSongReleaseRequested as WrappedSongRequestedEvent,
 } from '../generated/ProtocolModule/ProtocolModule';
-import {
-  Distributor,
-  Metadata,
-  MetadataUpdateRequest,
-  ReleaseRequest,
-  WrappedSong,
-} from '../generated/schema';
-import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
+import { Distributor, ReleaseRequest, WrappedSong } from '../generated/schema';
 
 export function handleWrappedSongReleaseRequested(
   event: WrappedSongRequestedEvent
 ): void {
-  // GET IDs FROM ALL TOPICS IN EVENT (wrappedSong, distributor, releaseRequest)
   const wrappedSongId = event.params.wrappedSong;
   const distributorId = event.params.distributor;
   const releaseRequestId = event.transaction.hash;
 
-  // GET ENTITIES FROM SCHEMA
   let distributor = Distributor.load(distributorId);
   let wrappedSong = WrappedSong.load(wrappedSongId);
-  // CREATE NEW RELEASE REQUEST ONLY IF WRAPPEDSONG AND DISTRIBUTOR EXIST
+
   if (!wrappedSong || !distributor) {
     return;
   }
@@ -40,7 +29,7 @@ export function handleWrappedSongReleaseRequested(
   releaseRequest.status = 'Pending';
   releaseRequest.createdAt = event.block.timestamp;
   releaseRequest.save();
-  // ASSIGN DISTRIBUTOR AND RELEASE REQUEST TO WRAPPEDSONG
+
   wrappedSong.distributor = distributorId;
   wrappedSong.releaseRequest = releaseRequestId;
   wrappedSong.save();
@@ -69,125 +58,6 @@ export function handleWrappedSongReleased(
   wrappedSong.releaseRequest = null;
   wrappedSong.save();
   store.remove('ReleaseRequest', releaseRequestId.toHexString());
-}
-
-export function handleMetadataUpdateRequested(
-  event: MetadataUpdateRequestedEvent
-): void {
-  const wrappedSongId = event.params.wrappedSong;
-  const wrappedSong = WrappedSong.load(wrappedSongId);
-  if (!wrappedSong) {
-    return;
-  }
-  let distributorId = wrappedSong.distributor;
-
-  if (!distributorId) {
-    return;
-  }
-
-  let metadataUpdateRequestId = event.block.hash;
-
-  let metadataUpdateRequest = new MetadataUpdateRequest(
-    metadataUpdateRequestId
-  );
-
-  let newMetadataId = metadataUpdateRequestId.toHexString() + '-newMetadata';
-  let newMetadata = new Metadata(newMetadataId);
-
-  const newMetadataUrl = event.params.newMetadata;
-  const songIpfsURI =
-    newMetadataUrl.split('/ipfs/').length > 1
-      ? newMetadataUrl.split('/ipfs/')[1]
-      : null;
-  if (songIpfsURI) {
-    newMetadata.songURI = songIpfsURI;
-    newMetadata.songCID = songIpfsURI;
-    TokenMetadataTemplate.create(songIpfsURI);
-  } else if (newMetadataUrl.startsWith('Qm')) {
-    newMetadata.songURI = newMetadataUrl;
-    newMetadata.songCID = newMetadataUrl;
-    TokenMetadataTemplate.create(newMetadataUrl);
-  }
-
-  //ASSIGN PREVIOUS SHARE METADATA TO METADATA UPDATE REQUEST
-  const currentMetadataId = wrappedSong.metadata;
-  if (currentMetadataId) {
-    const currentMetadata = Metadata.load(currentMetadataId);
-    if (currentMetadata) {
-      newMetadata.sharesURI = currentMetadata.sharesURI;
-      newMetadata.sharesCID = currentMetadata.sharesCID;
-    }
-  }
-
-  newMetadata.save();
-
-  metadataUpdateRequest.newMetadata = newMetadataId;
-  metadataUpdateRequest.status = 'Pending';
-  metadataUpdateRequest.createdAt = event.block.timestamp;
-  metadataUpdateRequest.save();
-
-  wrappedSong.pendingMetadataUpdate = metadataUpdateRequestId;
-  wrappedSong.save();
-}
-
-export function handleMetadataUpdated(
-  event: MetadataUpdateConfirmedEvent
-): void {
-  const wrappedSongId = event.params.wrappedSong;
-  const wrappedSong = WrappedSong.load(wrappedSongId);
-
-  if (!wrappedSong) {
-    return;
-  }
-
-  const metadataUpdateRequestId = wrappedSong.pendingMetadataUpdate;
-
-  if (!metadataUpdateRequestId) {
-    return;
-  }
-
-  const metadataUpdateRequest = MetadataUpdateRequest.load(
-    metadataUpdateRequestId
-  );
-
-  if (!metadataUpdateRequest) {
-    return;
-  }
-
-  metadataUpdateRequest.status = 'Confirmed';
-  metadataUpdateRequest.confirmedAt = event.block.timestamp;
-  metadataUpdateRequest.save();
-  const oldMetadataId = wrappedSong.metadata;
-
-  const newMetadataId = metadataUpdateRequest.newMetadata;
-  wrappedSong.metadata = newMetadataId;
-
-  if (oldMetadataId) {
-    const oldMetadata = Metadata.load(oldMetadataId);
-    if (oldMetadata) {
-      const songURI = oldMetadata.songCID;
-      if (songURI) {
-        log.debug('METADATA UPDATED: REMOVING OLD METADATA SONG URI : {}', [
-          songURI,
-        ]);
-        store.remove('TokenMetadata', songURI);
-      }
-
-      const sharesURI = oldMetadata.sharesCID;
-      if (sharesURI) {
-        log.debug('METADATA UPDATED: REMOVING OLD METADATA SHARES URI : {}', [
-          sharesURI,
-        ]);
-        store.remove('TokenMetadata', sharesURI);
-      }
-      store.remove('Metadata', oldMetadataId);
-    }
-  }
-
-  wrappedSong.pendingMetadataUpdate = null;
-  wrappedSong.save();
-
-  store.remove('MetadataUpdateRequest', metadataUpdateRequestId.toHexString());
 }
 
 export function handleDistributorAcceptedReview(

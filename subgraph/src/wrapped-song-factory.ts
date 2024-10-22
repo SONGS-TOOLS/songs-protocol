@@ -1,14 +1,11 @@
-import { BigInt, log } from '@graphprotocol/graph-ts';
-import {
-  WrappedSongCreated as WrappedSongCreatedEvent,
-  WrappedSongCreatedWithMetadata as WrappedSongCreatedWithMetadataEvent,
-} from '../generated/WrappedSongFactory/WrappedSongFactory';
-import { Metadata, WrappedSong, WSTokenManagement } from '../generated/schema';
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts';
+import { WrappedSongCreated as WrappedSongCreatedEvent } from '../generated/WrappedSongFactory/WrappedSongFactory';
+import { WrappedSong, WSTokenManagement } from '../generated/schema';
 import {
   WrappedSongSmartAccount,
   WSTokenManagement as WSTokenManagementTemplate,
+  Attributes as AttributesTemplate,
 } from '../generated/templates';
-import { TokenMetadata as TokenMetadataTemplate } from '../generated/templates';
 
 export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   const wrappedSongId = event.params.wrappedSongSmartAccount;
@@ -16,7 +13,11 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   wrappedSong.creator = event.params.owner;
   wrappedSong.status = 'Created';
   wrappedSong.address = wrappedSongId;
-  wrappedSong.stablecoinAddress = event.params.stablecoin;
+
+  //TODO: Remove this once we have a real stablecoin
+  wrappedSong.stablecoinAddress = Bytes.fromHexString(
+    '0x0000000000000000000000000000000000000000'
+  );
   wrappedSong.createdAt = event.block.timestamp;
   wrappedSong.releasedAt = null;
   wrappedSong.totalShares = BigInt.fromI32(10000);
@@ -26,11 +27,6 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   const wsTokenManagement = new WSTokenManagement(
     event.params.wsTokenManagement
   );
-  log.info('wrappedSongId, {}', [wrappedSongId.toHexString()]);
-  log.info('wsTokenManagement, {}', [
-    event.params.wsTokenManagement.toHexString(),
-  ]);
-  log.info('stablecoin, {}', [event.params.stablecoin.toHexString()]);
 
   wsTokenManagement.wrappedSong = wrappedSongId;
   wsTokenManagement.saleActive = false;
@@ -42,67 +38,3 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   // Create a new instance of the WrappedSongSmartAccount template
   WrappedSongSmartAccount.create(wrappedSongId);
 }
-
-export function handleWrappedSongCreatedWithMetadata(
-  event: WrappedSongCreatedWithMetadataEvent
-): void {
-  log.info('TRYING TO handleWrappedSongCreatedWithMetadata', []);
-
-  //IN THE CURRENT LOGIC, THE WRAPPED SONG WILL EXIST ALREADY AND THE WRAPPED SONG CREATED EVENT WILL HAVE BEEN TRIGGERED
-  const wrappedSongId = event.params.wrappedSongSmartAccount;
-  const wrappedSong = WrappedSong.load(wrappedSongId);
-  if (!wrappedSong) {
-    return;
-  }
-
-  let metadataId = wrappedSongId.toHexString() + '-metadata';
-  let metadata = new Metadata(metadataId);
-
-  // wrappedSong.sharesAmount = event.params.sharesAmount;
-
-  const songMetadataUrl = event.params.songURI;
-  const sharesMetadataUrl = event.params.sharesURI;
-
-  //Check if the songURI is a URL and if it is, extract CID from it, otherwise, it's a CID
-
-  const songIpfsURI =
-    songMetadataUrl.split('/ipfs/').length > 1
-      ? songMetadataUrl.split('/ipfs/')[1]
-      : null;
-  if (songIpfsURI) {
-    metadata.songURI = songIpfsURI;
-    metadata.songCID = songIpfsURI;
-    TokenMetadataTemplate.create(songIpfsURI);
-  } else if (songMetadataUrl.startsWith('Qm')) {
-    metadata.songURI = songMetadataUrl;
-    metadata.songCID = songMetadataUrl;
-    TokenMetadataTemplate.create(songMetadataUrl);
-  } else {
-    metadata.songURI = songMetadataUrl;
-    metadata.songCID = songMetadataUrl;
-  }
-
-  const sharesIpfsURI =
-    sharesMetadataUrl.split('/ipfs/').length > 1
-      ? sharesMetadataUrl.split('/ipfs/')[1]
-      : null;
-  if (sharesIpfsURI) {
-    metadata.sharesURI = sharesIpfsURI;
-    metadata.sharesCID = sharesIpfsURI;
-    TokenMetadataTemplate.create(sharesIpfsURI);
-  } else if (sharesMetadataUrl.startsWith('Qm')) {
-    metadata.sharesURI = sharesMetadataUrl;
-    metadata.sharesCID = sharesMetadataUrl;
-    TokenMetadataTemplate.create(sharesMetadataUrl);
-  } else {
-    metadata.sharesURI = sharesMetadataUrl;
-    metadata.sharesCID = sharesMetadataUrl;
-  }
-
-  metadata.save();
-
-  wrappedSong.metadata = metadataId;
-  wrappedSong.save();
-}
-
-// Remove handleWrappedSongCreatedWithMetadata as it's no longer used

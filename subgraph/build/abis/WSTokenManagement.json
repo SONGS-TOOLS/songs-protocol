@@ -10,10 +10,37 @@
         "internalType": "address",
         "name": "_minterAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_metadataModuleAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "AddressEmptyCode",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "AddressInsufficientBalance",
+    "type": "error"
   },
   {
     "inputs": [
@@ -118,6 +145,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "FailedInnerCall",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -142,6 +174,17 @@
   {
     "inputs": [],
     "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
     "type": "error"
   },
   {
@@ -173,6 +216,31 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20Received",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "to",
@@ -186,6 +254,19 @@
       }
     ],
     "name": "FundsWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newMetadata",
+        "type": "string"
+      }
+    ],
+    "name": "MetadataUpdated",
     "type": "event"
   },
   {
@@ -239,6 +320,12 @@
         "internalType": "uint256",
         "name": "maxSharesPerWallet",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "stableCoinAddress",
+        "type": "address"
       }
     ],
     "name": "SharesSaleStarted",
@@ -377,6 +464,19 @@
   },
   {
     "inputs": [],
+    "name": "SONG_CONCEPT_ID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "SONG_SHARES_ID",
     "outputs": [
       {
@@ -439,29 +539,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "burn",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -476,57 +553,12 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "sharesAmount",
         "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "sharesURI",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
       }
     ],
-    "name": "createFungibleSongShares",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "songURI",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "smartWallet",
-        "type": "address"
-      }
-    ],
-    "name": "createSongConcept",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      }
-    ],
+    "name": "createSongTokens",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -551,82 +583,6 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "fungibleTokenShares",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFungibleTokenShares",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "sharesId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getShareholderAddresses",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "songId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getSharesIdForSong",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -667,6 +623,43 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "metadataModule",
+    "outputs": [
+      {
+        "internalType": "contract IMetadataModule",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "onERC20Received",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -813,24 +806,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "tokenURI",
-        "type": "string"
-      }
-    ],
-    "name": "setTokenURI",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "sharesForSale",
     "outputs": [
@@ -844,19 +819,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "songToFungibleShares",
+    "inputs": [],
+    "name": "stableCoin",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "contract IERC20",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -878,6 +847,11 @@
         "internalType": "uint256",
         "name": "maxShares",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_stableCoin",
+        "type": "address"
       }
     ],
     "name": "startSharesSale",
@@ -987,5 +961,9 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

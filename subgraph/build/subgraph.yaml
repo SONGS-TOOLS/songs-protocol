@@ -4,11 +4,10 @@ schema:
 dataSources:
   - kind: ethereum
     name: ProtocolModule
-    network: base-sepolia
+    network: localhost
     source:
-      address: "0xA4D2AA1aE7fA6c0ADda7D6262e12A7149044686d"
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
       abi: ProtocolModule
-      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -19,9 +18,9 @@ dataSources:
         - Distributor
       abis:
         - name: ProtocolModule
-          file: artifacts\contracts\protocol\NonUpgradable\ProtocolModule.sol\ProtocolModule.json
+          file: artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
         - name: WrappedSongSmartAccount
-          file: artifacts\contracts\protocol\NonUpgradable\WrappedSongSmartAccount.sol\WrappedSongSmartAccount.json
+          file: artifacts/contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol/WrappedSongSmartAccount.json
       eventHandlers:
         - event: WrappedSongReleaseRequested(indexed address,indexed address,indexed address)
           handler: handleWrappedSongReleaseRequested
@@ -29,24 +28,19 @@ dataSources:
           handler: handleWrappedSongReleased
         - event: WrappedSongReleaseRejected(indexed address,indexed address)
           handler: handleWrappedSongReleaseRejected
-        - event: MetadataUpdateRequested(indexed address,indexed uint256,string)
-          handler: handleMetadataUpdateRequested
-        - event: MetadataUpdated(indexed address,indexed uint256,string)
-          handler: handleMetadataUpdated
         - event: DistributorAcceptedReview(indexed address,indexed address)
           handler: handleDistributorAcceptedReview
         - event: ReviewPeriodExpired(indexed address,indexed address)
           handler: handleReviewPeriodExpired
         - event: WrappedSongAuthenticitySet(indexed address,bool)
           handler: handleWrappedSongAuthenticitySet
-      file: ProtocolModule\ProtocolModule.wasm
+      file: ProtocolModule/ProtocolModule.wasm
   - kind: ethereum
     name: WrappedSongFactory
-    network: base-sepolia
+    network: localhost
     source:
-      address: "0xe6F9C8e4581A1164ac45D353A2a9013db087e64c"
+      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
       abi: WrappedSongFactory
-      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -56,20 +50,17 @@ dataSources:
         - Metadata
       abis:
         - name: WrappedSongFactory
-          file: artifacts\contracts\protocol\NonUpgradable\WrappedSongFactory.sol\WrappedSongFactory.json
+          file: artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address,address,address)
+        - event: WrappedSongCreated(indexed address,address,address)
           handler: handleWrappedSongCreated
-        - event: WrappedSongCreatedWithMetadata(indexed address,address,string,uint256,string)
-          handler: handleWrappedSongCreatedWithMetadata
-      file: WrappedSongFactory\WrappedSongFactory.wasm
+      file: WrappedSongFactory/WrappedSongFactory.wasm
   - kind: ethereum
     name: distributorWalletFactory
-    network: base-sepolia
+    network: localhost
     source:
-      address: "0x057c3599217840898c73F0D858d45d4F3f61D78e"
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
       abi: DistributorWalletFactory
-      startBlock: 15149755
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -78,54 +69,81 @@ dataSources:
         - Distributor
       abis:
         - name: DistributorWalletFactory
-          file: artifacts\contracts\protocol\NonUpgradable\DistributorWalletFactory.sol\DistributorWalletFactory.json
+          file: artifacts/contracts/protocol/NonUpgradable/DistributorWalletFactory.sol/DistributorWalletFactory.json
       eventHandlers:
         - event: DistributorWalletCreated(indexed address,address)
           handler: handleDistributorWalletCreated
-      file: distributorWalletFactory\distributorWalletFactory.wasm
+      file: distributorWalletFactory/distributorWalletFactory.wasm
+  - kind: ethereum
+    name: metadataModule
+    network: localhost
+    source:
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      abi: MetadataModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: metadataModule/metadataModule.wasm
+      entities:
+        - WrappedSong
+        - Metadata
+        - MetadataUpdateRequest
+        - SharesMetadata
+        - SongMetadata
+      abis:
+        - name: MetadataModule
+          file: artifacts/contracts/protocol/NonUpgradable/MetadataModule.sol/MetadataModule.json
+      eventHandlers:
+        - event: MetadataCreated(indexed address,(string,string,string,string,string,string))
+          handler: handleMetadataCreated
+        - event: MetadataUpdateRequested(indexed
+            address,(string,string,string,string,string,string))
+          handler: handleMetadataUpdateRequested
+        - event: MetadataUpdated(indexed address,(string,string,string,string,string,string))
+          handler: handleMetadataUpdated
+        - event: MetadataUpdateRejected(indexed address)
+          handler: handleMetadataUpdateRejected
 templates:
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
-    network: base-sepolia
+    network: localhost
     source:
       abi: WrappedSongSmartAccount
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: templates\WrappedSongSmartAccount\WrappedSongSmartAccount.wasm
+      file: templates/WrappedSongSmartAccount/WrappedSongSmartAccount.wasm
       entities:
         - WrappedSong
         - Metadata
       abis:
         - name: WrappedSongSmartAccount
-          file: abis\WrappedSongSmartAccount.json
-      eventHandlers:
-        - event: MetadataUpdated(indexed uint256,string,address)
-          handler: handleMetadataUpdatedDirectly
-  - name: TokenMetadata
+          file: abis/WrappedSongSmartAccount.json
+  - name: Attributes
     kind: file/ipfs
-    network: base-sepolia
+    network: localhost
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: templates\TokenMetadata\TokenMetadata.wasm
-      handler: handleTokenMetadata
+      file: templates/Attributes/Attributes.wasm
+      handler: handleAttributes
       entities:
-        - TokenMetadata
+        - Attributes
       abis:
         - name: WrappedSongSmartAccount
-          file: abis\WrappedSongSmartAccount.json
+          file: abis/WrappedSongSmartAccount.json
   - name: WSTokenManagement
     kind: ethereum/contract
-    network: base-sepolia
+    network: localhost
     source:
       abi: WSTokenManagement
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      file: templates\WSTokenManagement\WSTokenManagement.wasm
+      file: templates/WSTokenManagement/WSTokenManagement.wasm
       entities:
         - WrappedSong
         - SaleOffer
@@ -133,9 +151,9 @@ templates:
         - WSTokenManagement
       abis:
         - name: WSTokenManagement
-          file: abis\WSTokenManagement.json
+          file: abis/WSTokenManagement.json
       eventHandlers:
-        - event: SharesSaleStarted(uint256,uint256,indexed address,uint256)
+        - event: SharesSaleStarted(uint256,uint256,indexed address,uint256,address)
           handler: handleSharesSaleStarted
         - event: SharesSold(address,uint256)
           handler: handleSharesSold
