@@ -5,11 +5,12 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "node ../scripts/deploy-subgraph.js",
+    "deploy-dev": "node ../scripts/deploy-subgraph.js --dev",
     "codegen-local": "graph codegen ./subgraph-local.yaml",
     "build-local": "graph build ./subgraph-local.yaml",
     "create-local": "graph create --node http://localhost:8020/ songs-protocol",
     "remove-local": "graph remove --node http://localhost:8020/ songs-protocol",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 --version-label 0.1.1 songs-protocol  ./subgraph-local.yaml",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 --version-label 0.1.1 songs-protocol ./subgraph-local.yaml",
     "do-local": "yarn codegen-local && yarn build-local && yarn deploy-local"
   },
   "dependencies": {
