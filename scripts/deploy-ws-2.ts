@@ -38,15 +38,12 @@ async function main() {
     const ethAmount = ethers.parseEther('10');
     const tx = await deployer.sendTransaction({
       to: newWallet.address,
-      value: ethAmount
+      value: ethAmount,
     });
     await tx.wait();
-    console.log(`Sent ${ethers.formatEther(ethAmount)} ETH to ${newWallet.address}`);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
     const balance = await provider.getBalance(newWallet.address);
-    console.log(`New balance of ${newWallet.address}: ${ethers.formatEther(balance)} ETH`);
   }
 
   const DistributorWalletFactory = await ethers.getContractAt(
@@ -70,20 +67,25 @@ async function main() {
     newWallet
   );
 
-  const existingWallets = await DistributorWalletFactory.getDistributorWallets(newWallet.address);
+  const existingWallets = await DistributorWalletFactory.getDistributorWallets(
+    newWallet.address
+  );
   let distributorWalletAddress;
-  
+
   if (existingWallets.length > 0) {
     distributorWalletAddress = existingWallets[0];
   } else {
     try {
-      const createDistributorWalletTx = await DistributorWalletFactory.createDistributorWallet(
-        USDC_ADDRESS,
-        contractAddresses.ProtocolModule,
+      const createDistributorWalletTx =
+        await DistributorWalletFactory.createDistributorWallet(
+          USDC_ADDRESS,
+          contractAddresses.ProtocolModule,
+          newWallet.address
+        );
+      await createDistributorWalletTx.wait();
+      const newWallets = await DistributorWalletFactory.getDistributorWallets(
         newWallet.address
       );
-      await createDistributorWalletTx.wait();
-      const newWallets = await DistributorWalletFactory.getDistributorWallets(newWallet.address);
       distributorWalletAddress = newWallets[newWallets.length - 1];
       console.log('Distributor Wallet created at:', distributorWalletAddress);
     } catch (error) {
@@ -100,29 +102,29 @@ async function main() {
 
   const songMetadatas = [
     {
-      name: "Moonlight",
-      description: "",
-      image: "QmMoonlightImageHash",
-      externalUrl: "https://app.songs-tools.com/wrapped-songs/Moonlight",
-      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
-      attributesIpfsHash: "ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+      name: 'Moonlight',
+      description: '',
+      image: 'QmcpB2wEwLDKsu7jKBb1EDqgQCCBeL29VAx6M9bFepyGyj',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Moonlight',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
     {
-      name: "Starlight",
-      description: "",
-      image: "QmStarlightImageHash",
-      externalUrl: "https://app.songs-tools.com/wrapped-songs/Starlight",
-      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
-      attributesIpfsHash: "ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
+      name: 'Starlight',
+      description: '',
+      image: 'Qmf3X24XbgAzc7bhiGESbzVW3upJoGYHMnDxgxkQcJ8dHC',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Starlight',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
     },
     {
-      name: "Sunlight",
-      description: "",
-      image: "QmSunlightImageHash",
-      externalUrl: "https://app.songs-tools.com/wrapped-songs/Sunlight",
-      animationUrl: "QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR",
-      attributesIpfsHash: "ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim?filename=attributes_1.json"
-    }
+      name: 'Sunlight',
+      description: '',
+      image: 'QmX9jf3NM5BAkBnUrrpqVTP1yg3CdkYBwdqVPjJBdszwQD',
+      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Sunlight',
+      animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
+    },
   ];
 
   const sharesAmount = 10000;
@@ -130,15 +132,19 @@ async function main() {
   for (let i = 0; i < songMetadatas.length; i++) {
     console.log(`Creating Wrapped Song ${i} with metadata:`, songMetadatas[i]);
     try {
-      const createWrappedSongTx = await WrappedSongFactory.createWrappedSongWithMetadata(
-        USDC_ADDRESS,
-        songMetadatas[i],
-        sharesAmount
-      );
+      const createWrappedSongTx =
+        await WrappedSongFactory.createWrappedSongWithMetadata(
+          USDC_ADDRESS,
+          songMetadatas[i],
+          sharesAmount
+        );
       await createWrappedSongTx.wait();
 
-      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(newWallet.address);
-      const wrappedSongAddress = ownerWrappedSongs[ownerWrappedSongs.length - 1];
+      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+        newWallet.address
+      );
+      const wrappedSongAddress =
+        ownerWrappedSongs[ownerWrappedSongs.length - 1];
       console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
     } catch (error) {
       console.error(`Failed to create Wrapped Song ${i}:`, error);
@@ -146,7 +152,9 @@ async function main() {
     }
   }
 
-  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(newWallet.address);
+  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+    newWallet.address
+  );
 
   for (let i = 0; i < 2; i++) {
     const wrappedSongAddress = ownerWrappedSongs[i];
@@ -156,16 +164,24 @@ async function main() {
         distributorWalletAddress
       );
       await requestReleaseTx.wait();
-      console.log(`Release requested for Wrapped Song ${i} at:`, wrappedSongAddress);
+      console.log(
+        `Release requested for Wrapped Song ${i} at:`,
+        wrappedSongAddress
+      );
     } catch (error) {
       console.error(`Failed to request release for Wrapped Song ${i}:`, error);
     }
   }
 
   try {
-    const confirmReleaseTx = await DistributorWallet.confirmWrappedSongRelease(ownerWrappedSongs[0]);
+    const confirmReleaseTx = await DistributorWallet.confirmWrappedSongRelease(
+      ownerWrappedSongs[0]
+    );
     await confirmReleaseTx.wait();
-    console.log(`Release confirmed for Wrapped Song 0 at:`, ownerWrappedSongs[0]);
+    console.log(
+      `Release confirmed for Wrapped Song 0 at:`,
+      ownerWrappedSongs[0]
+    );
   } catch (error) {
     console.error(`Failed to confirm release for Wrapped Song 0:`, error);
   }
