@@ -20,13 +20,13 @@ export class WrappedSongSmartAccount extends DataSourceTemplate {
   }
 }
 
-export class TokenMetadata extends DataSourceTemplate {
+export class Attributes extends DataSourceTemplate {
   static create(cid: string): void {
-    DataSourceTemplate.create("TokenMetadata", [cid]);
+    DataSourceTemplate.create("Attributes", [cid]);
   }
 
   static createWithContext(cid: string, context: DataSourceContext): void {
-    DataSourceTemplate.createWithContext("TokenMetadata", [cid], context);
+    DataSourceTemplate.createWithContext("Attributes", [cid], context);
   }
 }
 

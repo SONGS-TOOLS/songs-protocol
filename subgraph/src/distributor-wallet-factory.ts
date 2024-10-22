@@ -8,6 +8,5 @@ export function handleDistributorWalletCreated(
   let distributor = new Distributor(event.params.wallet);
   distributor.address = event.params.wallet;
   distributor.owner = event.params.distributor;
-  log.info('DISTRIBUTOR WALLET CREATED EVENT', []);
   distributor.save();
 }
