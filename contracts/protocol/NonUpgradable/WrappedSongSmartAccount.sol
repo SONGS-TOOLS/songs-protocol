@@ -10,7 +10,6 @@ import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IDistributorWallet.sol';
 import './../Interfaces/IMetadataModule.sol';
-import "hardhat/console.sol";
 
 contract WrappedSongSmartAccount is
   Ownable,
@@ -59,7 +58,11 @@ contract WrappedSongSmartAccount is
   );
   event SaleFundsReceived(uint256 amount);
   event SaleFundsWithdrawn(address indexed to, uint256 amount);
-  event SongSharesTransferred(address indexed from, address indexed to, uint256 amount);
+  event SongSharesTransferred(
+    address indexed from,
+    address indexed to,
+    uint256 amount
+  );
   // event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
 
   /**
@@ -97,13 +100,8 @@ contract WrappedSongSmartAccount is
    * @param sharesAmount The amount of shares to be created.
    * @param creator The address of the creator.
    */
-  function _createSongTokens(
-      uint256 sharesAmount,
-      address creator
-  ) internal {
-      newWSTokenManagement.createSongTokens(
-          sharesAmount
-      );
+  function _createSongTokens(uint256 sharesAmount, address creator) internal {
+    newWSTokenManagement.createSongTokens(sharesAmount);
   }
 
   // External functions
@@ -117,7 +115,7 @@ contract WrappedSongSmartAccount is
     address _distributorWallet,
     IMetadataModule.Metadata memory newMetadata
   ) external onlyOwner {
-    metadataModule.requestUpdateMetadata(address(this), newMetadata);
+    metadataModule.updateMetadata(address(this), newMetadata);
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
 
@@ -207,7 +205,12 @@ contract WrappedSongSmartAccount is
     );
 
     // Emit events
-    emit EarningsClaimed(msg.sender, address(stablecoin), stablecoinShare, totalAmount);
+    emit EarningsClaimed(
+      msg.sender,
+      address(stablecoin),
+      stablecoinShare,
+      totalAmount
+    );
   }
 
   /**
@@ -246,7 +249,6 @@ contract WrappedSongSmartAccount is
     }
   }
 
-
   /**
    * @dev Requests an update to the metadata if the song has been released.
    * @param newMetadata The new metadata to be set.
@@ -274,7 +276,6 @@ contract WrappedSongSmartAccount is
     );
     metadataModule.updateMetadata(address(this), newMetadata);
   }
-
 
   /**
    * @dev Initiates the withdrawal of sale funds from the WSTokenManagement contract.
@@ -358,14 +359,13 @@ contract WrappedSongSmartAccount is
   function getWSTokenManagementAddress() external view returns (address) {
     return address(newWSTokenManagement);
   }
-  
+
   // Fallback function
 
   /**
    * @dev Function to receive ETH. It automatically processes it as earnings.
    */
   receive() external payable {
-    
     if (msg.sender == address(newWSTokenManagement)) {
       saleFunds += msg.value;
       emit SaleFundsReceived(msg.value);
@@ -373,5 +373,4 @@ contract WrappedSongSmartAccount is
       _processEarnings(msg.value, address(0));
     }
   }
-
 }

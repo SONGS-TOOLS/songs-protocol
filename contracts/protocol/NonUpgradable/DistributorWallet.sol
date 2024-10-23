@@ -5,7 +5,6 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
-import 'hardhat/console.sol';
 
 contract DistributorWallet is Ownable {
   IERC20 public stablecoin;
@@ -194,12 +193,10 @@ contract DistributorWallet is Ownable {
    * @param wrappedSong The address of the wrapped song to be released.
    */
   function confirmWrappedSongRelease(address wrappedSong) external onlyOwner {
-    console.log('Start Confirming release for wrapped song:', wrappedSong);
     require(
       protocolModule.getPendingDistributorRequests(wrappedSong) == address(this),
       'Not the pending distributor for this wrapped song'
     );
-    console.log('Confirming release for wrapped song:', wrappedSong);
 
     protocolModule.confirmWrappedSongRelease(wrappedSong);
     managedWrappedSongs.push(wrappedSong);

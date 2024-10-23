@@ -14,10 +14,10 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   wrappedSong.status = 'Created';
   wrappedSong.address = wrappedSongId;
 
+  log.info('DEBUGGGG stablecoin: {}', [event.params.stablecoin.toHexString()]);
+
   //TODO: Remove this once we have a real stablecoin
-  wrappedSong.stablecoinAddress = Bytes.fromHexString(
-    '0x0000000000000000000000000000000000000000'
-  );
+  wrappedSong.stablecoinAddress = event.params.stablecoin;
   wrappedSong.createdAt = event.block.timestamp;
   wrappedSong.releasedAt = null;
   wrappedSong.totalShares = BigInt.fromI32(10000);
