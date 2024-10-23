@@ -88,8 +88,8 @@ contract WrappedSongFactory {
 
     emit WrappedSongCreated(
       msg.sender,
-      _stablecoin,
       newWrappedSongSmartAccountAddress,
+      _stablecoin,
       wsTokenManagement
     );
 
