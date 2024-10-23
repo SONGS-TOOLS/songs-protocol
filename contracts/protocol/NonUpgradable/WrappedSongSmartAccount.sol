@@ -10,7 +10,6 @@ import './WSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IDistributorWallet.sol';
 import './../Interfaces/IMetadataModule.sol';
-import 'hardhat/console.sol';
 
 contract WrappedSongSmartAccount is
   Ownable,
