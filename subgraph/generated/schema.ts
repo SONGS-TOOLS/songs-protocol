@@ -1141,6 +1141,19 @@ export class Sale extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
+  get currency(): Bytes {
+    let value = this.get("currency");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set currency(value: Bytes) {
+    this.set("currency", Value.fromBytes(value));
+  }
+
   get wsTokenManagement(): Bytes {
     let value = this.get("wsTokenManagement");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1248,6 +1261,19 @@ export class SaleOffer extends Entity {
 
   set pricePerShare(value: BigInt) {
     this.set("pricePerShare", Value.fromBigInt(value));
+  }
+
+  get currency(): Bytes {
+    let value = this.get("currency");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set currency(value: Bytes) {
+    this.set("currency", Value.fromBytes(value));
   }
 
   get createdAt(): BigInt {

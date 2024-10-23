@@ -52,7 +52,7 @@ dataSources:
         - name: WrappedSongFactory
           file: artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address,address)
+        - event: WrappedSongCreated(indexed address,address,address,address)
           handler: handleWrappedSongCreated
       file: WrappedSongFactory/WrappedSongFactory.wasm
   - kind: ethereum
@@ -161,3 +161,5 @@ templates:
           handler: handleSharesSaleEnded
         - event: FundsWithdrawn(indexed address,uint256)
           handler: handleFundsWithdrawn
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle

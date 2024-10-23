@@ -89,6 +89,7 @@ type Sale @entity {
   amount: BigInt!
   pricePerShare: BigInt!
   timestamp: BigInt!
+  currency: Bytes!
   wsTokenManagement: WSTokenManagement!
 }
 
@@ -98,6 +99,7 @@ type SaleOffer @entity {
   maxPerWallet: BigInt!
   amount: BigInt!
   pricePerShare: BigInt!
+  currency: Bytes!
   createdAt: BigInt!
 }
 

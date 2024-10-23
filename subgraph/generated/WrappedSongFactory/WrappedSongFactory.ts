@@ -31,8 +31,12 @@ export class WrappedSongCreated__Params {
     return this._event.parameters[1].value.toAddress();
   }
 
-  get wsTokenManagement(): Address {
+  get stablecoin(): Address {
     return this._event.parameters[2].value.toAddress();
+  }
+
+  get wsTokenManagement(): Address {
+    return this._event.parameters[3].value.toAddress();
   }
 }
 
