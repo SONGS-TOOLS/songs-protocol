@@ -56,7 +56,7 @@ dataSources:
         - name: WrappedSongFactory
           file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
       eventHandlers:
-        - event: WrappedSongCreated(indexed address,address,address)
+        - event: WrappedSongCreated(indexed address,address,address,address)
           handler: handleWrappedSongCreated
         # - event: WrappedSongCreatedWithMetadata(indexed address,address,(string,string,string,string,string,string),uint256)
         #   handler: handleWrappedSongCreatedWithMetadata
