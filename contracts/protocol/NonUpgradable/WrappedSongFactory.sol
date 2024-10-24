@@ -63,6 +63,11 @@ contract WrappedSongFactory {
       'Invalid metadata: All required fields must be non-empty'
     );
     require(sharesAmount > 0, 'Shares amount must be greater than zero');
+    
+    require(
+      protocolModule.isTokenWhitelisted(_stablecoin),
+      "Stablecoin is not whitelisted"
+    );
 
     uint256 requiredFee = protocolModule.wrappedSongCreationFee();
     require(msg.value >= requiredFee, 'Insufficient creation fee');

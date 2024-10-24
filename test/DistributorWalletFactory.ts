@@ -29,6 +29,7 @@ describe("DistributorWalletFactory", function () {
             erc20Whitelist.target
         );
         await protocolModule.waitForDeployment();
+        
         // Set ProtocolModule as authorized caller for ERC20Whitelist
         await erc20Whitelist.connect(initialOwner).setAuthorizedCaller(protocolModule.target);
         
