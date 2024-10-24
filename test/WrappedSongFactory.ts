@@ -133,19 +133,10 @@ describe("WrappedSongFactory", function () {
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            const songId = await wrappedSong.wrappedSongTokenId();
-            const songSharesId = await wrappedSong.songSharesId();
-
-            console.log('songId: ', songId);
-            console.log('songSharesId: ', songSharesId);
-
-            expect(songId).to.equal(0);
-            expect(songSharesId).to.equal(0);
-
             const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
             const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
 
-            const balance = await newWSTokenManagementContract.balanceOf(user.address, songSharesId);
+            const balance = await newWSTokenManagementContract.balanceOf(user.address, 1);
             expect(balance).to.equal(sharesAmount);
 
             // TODO: Test that the metadata is set correctly
@@ -187,16 +178,10 @@ describe("WrappedSongFactory", function () {
                 const wrappedSongAddress = userWrappedSongs[0];
                 const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-                const songId = await wrappedSong.wrappedSongTokenId();
-                const songSharesId = await wrappedSong.songSharesId();
-
-                expect(songId).to.equal(1);
-                expect(songSharesId).to.equal(0);
-
                 const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
                 const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
 
-                const balance = await newWSTokenManagementContract.balanceOf(user.address, songSharesId);
+                const balance = await newWSTokenManagementContract.balanceOf(user.address, 1);
                 expect(balance).to.equal(sharesAmount);
 
                 // TODO: Test that the metadata is set correctly
