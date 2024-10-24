@@ -16,18 +16,30 @@ describe("DistributorWalletFactory", function () {
         const distributorWalletFactory = await DistributorWalletFactory.deploy(initialOwner.address);
         await distributorWalletFactory.waitForDeployment();
 
+        // Deploy ERC20Whitelist
+        const ERC20Whitelist = await ethers.getContractFactory("ERC20Whitelist");
+        const erc20Whitelist = await ERC20Whitelist.deploy(initialOwner.address);
+        await erc20Whitelist.waitForDeployment();
+
         // Deploy ProtocolModule
         const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
-        const protocolModule = await ProtocolModule.deploy(
+        const protocolModule = await ProtocolModule.connect(deployer).deploy(
             distributorWalletFactory.target,
-            whitelistingManager.target
+            whitelistingManager.target,
+            erc20Whitelist.target
         );
         await protocolModule.waitForDeployment();
-
+        // Set ProtocolModule as authorized caller for ERC20Whitelist
+        await erc20Whitelist.connect(initialOwner).setAuthorizedCaller(protocolModule.target);
+        
         // Deploy a mock stablecoin for testing
         const MockToken = await ethers.getContractFactory("MockToken");
         const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
         await mockStablecoin.waitForDeployment();
+
+
+        // Whitelist the mock stablecoin using ProtocolModule
+        await protocolModule.connect(deployer).whitelistToken(mockStablecoin.target);
 
         return { deployer, initialOwner, user, distributorWalletFactory, protocolModule, mockStablecoin };
     }
@@ -48,6 +60,9 @@ describe("DistributorWalletFactory", function () {
         it("should create a distributor wallet", async function () {
             const { initialOwner, user, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
             
+            // Whitelist the mock stablecoin
+            await protocolModule.connect(initialOwner).whitelistToken(mockStablecoin.target);
+
             await expect(distributorWalletFactory.connect(initialOwner).createDistributorWallet(
                 mockStablecoin.target,
                 protocolModule.target,

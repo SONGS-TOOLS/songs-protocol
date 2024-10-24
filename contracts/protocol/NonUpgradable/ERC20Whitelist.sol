@@ -14,17 +14,29 @@ contract ERC20Whitelist is Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     EnumerableSet.AddressSet private _whitelistedTokens;
+    address public authorizedCaller;
 
     event TokenWhitelisted(address indexed token, string name, string symbol);
     event TokenRemovedFromWhitelist(address indexed token);
+    event AuthorizedCallerSet(address indexed caller);
 
     constructor(address _initialOwner) Ownable(_initialOwner) {}
+
+    modifier onlyOwnerOrAuthorized() {
+        require(msg.sender == owner() || msg.sender == authorizedCaller, "Not authorized");
+        _;
+    }
+
+    function setAuthorizedCaller(address _caller) external onlyOwner {
+        authorizedCaller = _caller;
+        emit AuthorizedCallerSet(_caller);
+    }
 
     /**
      * @dev Adds a token address to the whitelist
      * @param token The address of the ERC20 token to whitelist
      */
-    function whitelistToken(address token) external onlyOwner {
+    function whitelistToken(address token) external onlyOwnerOrAuthorized {
         require(token != address(0), "Invalid token address");
         require(_whitelistedTokens.add(token), "Token already whitelisted");
         
@@ -39,7 +51,7 @@ contract ERC20Whitelist is Ownable {
      * @dev Removes a token address from the whitelist
      * @param token The address of the ERC20 token to remove from the whitelist
      */
-    function removeTokenFromWhitelist(address token) external onlyOwner {
+    function removeTokenFromWhitelist(address token) external onlyOwnerOrAuthorized {
         require(_whitelistedTokens.remove(token), "Token not in whitelist");
         emit TokenRemovedFromWhitelist(token);
     }

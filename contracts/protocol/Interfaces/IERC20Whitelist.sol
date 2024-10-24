@@ -17,6 +17,17 @@ interface IERC20Whitelist {
     event TokenRemovedFromWhitelist(address indexed token);
 
     /**
+     * @dev Emitted when the authorized caller is set
+     */
+    event AuthorizedCallerSet(address indexed caller);
+
+    /**
+     * @dev Sets the authorized caller
+     * @param caller The address of the authorized caller
+     */
+    function setAuthorizedCaller(address caller) external;
+    
+    /**
      * @dev Adds a token address to the whitelist
      * @param token The address of the ERC20 token to whitelist
      */

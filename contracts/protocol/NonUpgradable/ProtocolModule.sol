@@ -37,6 +37,11 @@ contract ProtocolModule is Ownable {
     }
     mapping(address => ReviewPeriod) public reviewPeriods;
 
+    modifier onlyOwnerOrAuthorized() {
+        require(msg.sender == owner() || msg.sender == address(erc20whitelist), "Not authorized");
+        _;
+    }
+
     uint256 public reviewPeriodDays = 7; // Default to 7 days, can be changed by owner
 
     event Paused(bool isPaused); // Add event for pausing
@@ -85,16 +90,16 @@ contract ProtocolModule is Ownable {
      * @dev whitelists a token.
      * @param token The address of the token to whitelist.
      */
-    function whitelistToken(address token) external onlyOwner {
-        erc20whitelist.whitelistToken(token);
+    function whitelistToken(address token) external onlyOwnerOrAuthorized {
+        return erc20whitelist.whitelistToken(token);
     }
 
     /**
      * @dev removes a token from the whitelist.
      * @param token The address of the token to remove from the whitelist.
      */
-    function removeTokenFromWhitelist(address token) external onlyOwner {
-        erc20whitelist.removeTokenFromWhitelist(token);
+    function removeTokenFromWhitelist(address token) external onlyOwnerOrAuthorized {
+        return erc20whitelist.removeTokenFromWhitelist(token);
     }
 
     /**
@@ -301,6 +306,15 @@ contract ProtocolModule is Ownable {
      */
     function isValidToCreateWrappedSong(address creator) external view returns (bool) {
         return whitelistingManager.isValidToCreateWrappedSong(creator);
+    }
+
+    /**
+     * @dev Checks if a token is whitelisted.
+     * @param token The address of the token to check.
+     * @return True if the token is whitelisted, false otherwise.
+     */
+    function isTokenWhitelisted(address token) external view returns (bool) {
+        return erc20whitelist.isTokenWhitelisted(token);
     }
 
     function setReviewPeriodDays(uint256 _days) external onlyOwner {

@@ -33,12 +33,6 @@ contract DistributorWallet is Ownable {
   ) Ownable(_owner) {
     protocolModule = IProtocolModule(_protocolModule);
     
-    // Check if the stablecoin is whitelisted
-    require(
-      protocolModule.isTokenWhitelisted(_stablecoin),
-      "Stablecoin is not whitelisted"
-    );
-    
     stablecoin = IERC20(_stablecoin);
   }
 

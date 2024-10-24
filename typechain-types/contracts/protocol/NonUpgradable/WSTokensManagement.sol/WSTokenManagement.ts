@@ -40,6 +40,7 @@ export interface WSTokenManagementInterface extends Interface {
       | "onERC20Received"
       | "owner"
       | "pricePerShare"
+      | "protocolModule"
       | "renounceOwnership"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
@@ -125,6 +126,10 @@ export interface WSTokenManagementInterface extends Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pricePerShare",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "protocolModule",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -237,6 +242,10 @@ export interface WSTokenManagementInterface extends Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pricePerShare",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "protocolModule",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -598,6 +607,8 @@ export interface WSTokenManagement extends BaseContract {
 
   pricePerShare: TypedContractMethod<[], [bigint], "view">;
 
+  protocolModule: TypedContractMethod<[], [string], "view">;
+
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
   safeBatchTransferFrom: TypedContractMethod<
@@ -741,6 +752,9 @@ export interface WSTokenManagement extends BaseContract {
   getFunction(
     nameOrSignature: "pricePerShare"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "protocolModule"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
