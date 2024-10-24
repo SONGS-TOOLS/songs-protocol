@@ -59,9 +59,6 @@ describe("DistributorWalletFactory", function () {
     describe("createDistributorWallet", function () {
         it("should create a distributor wallet", async function () {
             const { initialOwner, user, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
-            
-            // Whitelist the mock stablecoin
-            await protocolModule.connect(initialOwner).whitelistToken(mockStablecoin.target);
 
             await expect(distributorWalletFactory.connect(initialOwner).createDistributorWallet(
                 mockStablecoin.target,
