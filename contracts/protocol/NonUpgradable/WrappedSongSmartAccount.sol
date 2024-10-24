@@ -78,14 +78,6 @@ contract WrappedSongSmartAccount is
     address _protocolModuleAddress,
     uint256 sharesAmount
   ) Ownable(_owner) {
-    // We need to move this checks to the factory
-    require(_owner != address(0), 'Invalid owner address');
-    require(
-      _protocolModuleAddress != address(0),
-      'Invalid protocol module address'
-    );
-    require(sharesAmount > 0, 'Invalid shares amount');
-
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
     metadataModule = IMetadataModule(protocolModule.metadataModule());
