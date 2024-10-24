@@ -121,6 +121,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "erc20whitelist",
+    outputs: [
+      {
+        internalType: "contract IERC20Whitelist",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -199,6 +212,25 @@ const _abi = [
       },
     ],
     name: "isReleased",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "isTokenWhitelisted",
     outputs: [
       {
         internalType: "bool",
@@ -360,6 +392,19 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "removeTokenFromWhitelist",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "wrappedSong",
         type: "address",
       },
@@ -434,6 +479,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_erc20whitelist",
+        type: "address",
+      },
+    ],
+    name: "setERC20Whitelist",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -560,6 +618,19 @@ const _abi = [
       },
     ],
     name: "updateDistributorWalletFactory",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "whitelistToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

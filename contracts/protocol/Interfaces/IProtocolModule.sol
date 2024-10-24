@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "./IMetadataModule.sol";
-
+import "./IERC20Whitelist.sol";
 interface IProtocolModule {
     // Structs
     struct ReviewPeriod {
@@ -27,6 +27,7 @@ interface IProtocolModule {
     function paused() external view returns (bool);
     function reviewPeriodDays() external view returns (uint256);
     function metadataModule() external view returns (IMetadataModule);
+    function erc20whitelist() external view returns (IERC20Whitelist);
 
     // State-changing functions
     function setPaused(bool _paused) external;
@@ -47,6 +48,9 @@ interface IProtocolModule {
     function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external;
     function setReviewPeriodDays(uint256 _days) external;
     function setMetadataModule(address _metadataModule) external;
+    function setERC20Whitelist(address _erc20whitelist) external;
+    function whitelistToken(address token) external;
+    function removeTokenFromWhitelist(address token) external;
 
     // Additional view functions
     function getWrappedSongDistributor(address wrappedSong) external view returns (address);
@@ -54,4 +58,5 @@ interface IProtocolModule {
     function isReleased(address wrappedSong) external view returns (bool);
     function isAuthentic(address wrappedSong) external view returns (bool);
     function isValidToCreateWrappedSong(address creator) external view returns (bool);
+    function isTokenWhitelisted(address token) external view returns (bool);
 }

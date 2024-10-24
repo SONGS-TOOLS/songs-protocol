@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
+import "./../Interfaces/IERC20Whitelist.sol";
 import "./../Interfaces/IMetadataModule.sol";
 
 
@@ -13,6 +14,7 @@ contract ProtocolModule is Ownable {
     uint256 public releaseFee;
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
+    IERC20Whitelist public erc20whitelist;
     IMetadataModule public metadataModule;
 
     bool public paused; // Add paused state variable
@@ -35,6 +37,11 @@ contract ProtocolModule is Ownable {
     }
     mapping(address => ReviewPeriod) public reviewPeriods;
 
+    modifier onlyOwnerOrAuthorized() {
+        require(msg.sender == owner() || msg.sender == address(erc20whitelist), "Not authorized");
+        _;
+    }
+
     uint256 public reviewPeriodDays = 7; // Default to 7 days, can be changed by owner
 
     event Paused(bool isPaused); // Add event for pausing
@@ -54,13 +61,16 @@ contract ProtocolModule is Ownable {
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
      * @param _whitelistingManager The address of the WhitelistingManager contract.
+     * @param _erc20whitelist The address of the ERC20Whitelist contract.
      */
     constructor  (
         address _distributorWalletFactory,
-        address _whitelistingManager
+        address _whitelistingManager,
+        address _erc20whitelist
     ) Ownable(msg.sender) {
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
+        erc20whitelist = IERC20Whitelist(_erc20whitelist);
         paused = false; // Initialize paused state
     }
 
@@ -74,6 +84,22 @@ contract ProtocolModule is Ownable {
     function setPaused(bool _paused) external onlyOwner {
         paused = _paused;
         emit Paused(_paused);
+    }
+
+    /**
+     * @dev whitelists a token.
+     * @param token The address of the token to whitelist.
+     */
+    function whitelistToken(address token) external onlyOwnerOrAuthorized {
+        return erc20whitelist.whitelistToken(token);
+    }
+
+    /**
+     * @dev removes a token from the whitelist.
+     * @param token The address of the token to remove from the whitelist.
+     */
+    function removeTokenFromWhitelist(address token) external onlyOwnerOrAuthorized {
+        return erc20whitelist.removeTokenFromWhitelist(token);
     }
 
     /**
@@ -201,6 +227,14 @@ contract ProtocolModule is Ownable {
     }
 
     /**
+     * @dev Sets the address of the ERC20Whitelist contract. Only the owner can set the address.
+     * @param _erc20whitelist The address of the new ERC20Whitelist contract.
+     */
+    function setERC20Whitelist(address _erc20whitelist) external onlyOwner {
+        erc20whitelist = IERC20Whitelist(_erc20whitelist);
+    }
+
+    /**
      * @dev Adds an ISRC to the registry for a given wrapped song.
      * @param wrappedSong The address of the wrapped song.
      * @param isrc The ISRC to be added.
@@ -272,6 +306,15 @@ contract ProtocolModule is Ownable {
      */
     function isValidToCreateWrappedSong(address creator) external view returns (bool) {
         return whitelistingManager.isValidToCreateWrappedSong(creator);
+    }
+
+    /**
+     * @dev Checks if a token is whitelisted.
+     * @param token The address of the token to check.
+     * @return True if the token is whitelisted, false otherwise.
+     */
+    function isTokenWhitelisted(address token) external view returns (bool) {
+        return erc20whitelist.isTokenWhitelisted(token);
     }
 
     function setReviewPeriodDays(uint256 _days) external onlyOwner {

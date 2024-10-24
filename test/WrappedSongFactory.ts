@@ -16,22 +16,36 @@ describe("WrappedSongFactory", function () {
         const distributorWalletFactory = await DistributorWalletFactory.deploy(deployer.address);
         await distributorWalletFactory.waitForDeployment();
 
+        // Deploy ERC20Whitelist
+        const ERC20Whitelist = await ethers.getContractFactory("ERC20Whitelist");
+        const erc20Whitelist = await ERC20Whitelist.deploy(deployer.address);
+        await erc20Whitelist.waitForDeployment();
+
         // Deploy ProtocolModule
         const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
         const protocolModule = await ProtocolModule.deploy(
             distributorWalletFactory.target,
-            whitelistingManager.target
+            whitelistingManager.target,
+            erc20Whitelist.target
         );
         await protocolModule.waitForDeployment();
+
+        // Set ProtocolModule as authorized caller for ERC20Whitelist
+        await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
 
         // Deploy WSUtils
         const WSUtils = await ethers.getContractFactory("WSUtils");
         const wsUtils = await WSUtils.deploy(protocolModule.target, deployer.address);
         await wsUtils.waitForDeployment();
 
+        // Deploy MetadataModule
+        const MetadataModule = await ethers.getContractFactory("MetadataModule");
+        const metadataModule = await MetadataModule.deploy(protocolModule.target);
+        await metadataModule.waitForDeployment();
+
         // Deploy WrappedSongFactory
         const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
-        const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target);
+        const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target, metadataModule.target);
         await wrappedSongFactory.waitForDeployment();
 
         // Deploy a mock stablecoin for testing
@@ -42,6 +56,9 @@ describe("WrappedSongFactory", function () {
         // Set creation fee in ProtocolModule
         await protocolModule.setWrappedSongCreationFee(ethers.parseEther("0.1"));
 
+        // Whitelist the mock stablecoin using ProtocolModule
+        await protocolModule.whitelistToken(mockStablecoin.target);
+
         // Deploy DistributorWallet
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
@@ -51,42 +68,64 @@ describe("WrappedSongFactory", function () {
 
         const distributorWallet = await distributorWalletFactory.getDistributorWallets(deployer.address);
 
-        return { deployer, user, address2, address3, address4, address5, wrappedSongFactory, protocolModule, mockStablecoin, distributorWallet, wsUtils };
+        return { deployer, user, address2, address3, address4, address5, wrappedSongFactory, protocolModule, mockStablecoin, distributorWallet, wsUtils, metadataModule };
     }
 
     describe("createWrappedSong", function () {
-        it("should create a wrapped song", async function () {
+        it("should create a wrapped song with new metadata module", async function () {
             const { user, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
+            const sharesAmount = 1;
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
 
-            await expect(wrappedSongFactory.connect(user).createWrappedSong(mockStablecoin.target, { value: creationFee }))
+            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(mockStablecoin.target, metadata, sharesAmount, { value: creationFee }))
                 .to.emit(wrappedSongFactory, "WrappedSongCreated");
 
             const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
         });
 
-        it("should fail to create a wrapped song with insufficient fee", async function () {
+        it("should fail to create a wrapped song with metadata with insufficient fee", async function () {
             const { user, wrappedSongFactory, mockStablecoin } = await loadFixture(deployContractFixture);
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
 
-            await expect(wrappedSongFactory.connect(user).createWrappedSong(mockStablecoin.target, { value: 0 }))
+            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(mockStablecoin.target, metadata, 1000, { value: 0 }))
                 .to.be.revertedWith("Insufficient creation fee");
         });
 
         it("should create a wrapped song with metadata and 10000 song shares", async function () {
             const { user, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
-            const songURI = "ipfs://song-metadata";
             const sharesAmount = 10000;
-            const sharesURI = "ipfs://shares-metadata";
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
 
             await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
                 mockStablecoin.target,
-                songURI,
+                metadata,
                 sharesAmount,
-                sharesURI,
                 { value: creationFee }
-            )).to.emit(wrappedSongFactory, "WrappedSongCreatedWithMetadata");
+            )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
             const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
@@ -94,16 +133,10 @@ describe("WrappedSongFactory", function () {
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            const songId = await wrappedSong.wrappedSongTokenId();
-            const songSharesId = await wrappedSong.songSharesId();
-
-            expect(songId).to.equal(0);
-            expect(songSharesId).to.equal(1);
-
             const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
             const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
 
-            const balance = await newWSTokenManagementContract.balanceOf(user.address, songSharesId);
+            const balance = await newWSTokenManagementContract.balanceOf(user.address, 1);
             expect(balance).to.equal(sharesAmount);
 
             // TODO: Test that the metadata is set correctly
@@ -118,21 +151,26 @@ describe("WrappedSongFactory", function () {
         });
 
         it("should create 5 wrapped songs with different owners", async function () {
-            const { user, address2, address3, address4, address5, wrappedSongFactory, mockStablecoin, protocolModule /* , wsUtils */} = await loadFixture(deployContractFixture);
+            const { user, address2, address3, address4, address5, wrappedSongFactory, mockStablecoin, protocolModule /* , wsUtils */ } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
-            const songURI = "ipfs://song-metadata";
             const sharesAmount = 10000;
-            const sharesURI = "ipfs://shares-metadata";
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
             const users = [user, address2, address3, address4, address5];
 
             for (const user of users) {
                 await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
                     mockStablecoin.target,
-                    songURI,
+                    metadata,
                     sharesAmount,
-                    sharesURI,
                     { value: creationFee }
-                )).to.emit(wrappedSongFactory, "WrappedSongCreatedWithMetadata");
+                )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
                 const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
                 expect(userWrappedSongs.length).to.equal(1);
@@ -140,16 +178,10 @@ describe("WrappedSongFactory", function () {
                 const wrappedSongAddress = userWrappedSongs[0];
                 const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-                const songId = await wrappedSong.wrappedSongTokenId();
-                const songSharesId = await wrappedSong.songSharesId();
-
-                expect(songId).to.equal(0);
-                expect(songSharesId).to.equal(1);
-
                 const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
                 const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
-                
-                const balance = await newWSTokenManagementContract.balanceOf(user.address, songSharesId);
+
+                const balance = await newWSTokenManagementContract.balanceOf(user.address, 1);
                 expect(balance).to.equal(sharesAmount);
 
                 // TODO: Test that the metadata is set correctly
@@ -169,19 +201,24 @@ describe("WrappedSongFactory", function () {
         it("should request the release of the wrapped songs", async function () {
             const { user, address2, address3, address4, address5, wrappedSongFactory, mockStablecoin, protocolModule, distributorWallet } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
-            const songURI = "ipfs://song-metadata";
             const sharesAmount = 10000;
-            const sharesURI = "ipfs://shares-metadata";
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
             const users = [user, address2, address3, address4, address5];
 
             for (const user of users) {
                 await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
                     mockStablecoin.target,
-                    songURI,
+                    metadata,
                     sharesAmount,
-                    sharesURI,
                     { value: creationFee }
-                )).to.emit(wrappedSongFactory, "WrappedSongCreatedWithMetadata");
+                )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
                 const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
                 expect(userWrappedSongs.length).to.equal(1);

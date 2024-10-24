@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './DistributorWallet.sol';
+import './../Interfaces/IProtocolModule.sol';
 
 contract DistributorWalletFactory is Ownable {
   mapping(address => address[]) public distributorWallets; 
@@ -27,6 +28,12 @@ contract DistributorWalletFactory is Ownable {
     address _protocolModule,
     address _owner
   ) external onlyOwner returns (address) {
+    // Check if the stablecoin is whitelisted
+    require(
+      IProtocolModule(_protocolModule).isTokenWhitelisted(_stablecoin),
+      "Stablecoin is not whitelisted"
+    );
+
     DistributorWallet newWallet = new DistributorWallet(
       _stablecoin,
       _protocolModule,

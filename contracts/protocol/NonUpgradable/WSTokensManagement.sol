@@ -7,6 +7,7 @@ import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import './../Interfaces/IMetadataModule.sol';
+import './../Interfaces/IProtocolModule.sol';
 
 contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   using SafeERC20 for IERC20;
@@ -18,6 +19,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
   uint256 public constant SONG_CONCEPT_ID = 0;
   uint256 public constant SONG_SHARES_ID = 1;
+
   
   uint256 public sharesForSale;
   uint256 public pricePerShare;
@@ -27,6 +29,7 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 public maxSharesPerWallet;
   IERC20 public stableCoin;
   IMetadataModule public metadataModule;
+  IProtocolModule public protocolModule;
 
   string private _baseURI;
 
@@ -60,11 +63,13 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   constructor(
     address _smartAccountAddress,
     address _minterAddress,
-    address _metadataModuleAddress
+    address _metadataModuleAddress,
+    address _protocolModuleAddress
   ) ERC1155('') Ownable(_smartAccountAddress) {
     _minter = _minterAddress;
     _currentTokenId = 0;
     metadataModule = IMetadataModule(_metadataModuleAddress);
+    protocolModule = IProtocolModule(_protocolModuleAddress);
     emit WSTokensCreated(_smartAccountAddress, _minterAddress);
   }
 
@@ -103,10 +108,17 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
       'Invalid sale parameters'
     );
     if (_stableCoin != address(0)) {
+      
+      require(
+        protocolModule.isTokenWhitelisted(_stableCoin),
+        'Stablecoin is not whitelisted'
+      );
+
       require(
         _stableCoin.code.length > 0 && IERC20(_stableCoin).totalSupply() > 0,
         'Invalid ERC20 token'
       );
+      
       stableCoin = IERC20(_stableCoin);
     } else {
       stableCoin = IERC20(address(0));
@@ -213,5 +225,4 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
 
   // Function to allow the contract to receive ETH
   receive() external payable {}
-
 }
