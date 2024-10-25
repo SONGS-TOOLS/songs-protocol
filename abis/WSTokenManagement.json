@@ -15,6 +15,11 @@
         "internalType": "address",
         "name": "_metadataModuleAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_protocolModuleAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -683,6 +688,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "protocolModule",
+    "outputs": [
+      {
+        "internalType": "contract IProtocolModule",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

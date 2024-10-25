@@ -32,7 +32,6 @@ contract DistributorWallet is Ownable {
     address _owner
   ) Ownable(_owner) {
     protocolModule = IProtocolModule(_protocolModule);
-    
     stablecoin = IERC20(_stablecoin);
   }
 

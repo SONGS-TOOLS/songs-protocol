@@ -14,7 +14,7 @@ const addressesFile2 = path.join(localAbisDirectory, `protocolContractAddresses-
 let contractAddresses: any = {};
 
 // USDC stablecoin address on mainnet
-const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -52,6 +52,22 @@ async function main() {
   console.log('DistributorWalletFactory deployed to:', await distributorWalletFactory.getAddress());
   await saveAbi('DistributorWalletFactory', await distributorWalletFactory.getAddress());
 
+    /* ////////////////////////////////////////////
+  ////////  ERC20Whitelist contract  ////////
+  //////////////////////////////////////////// */
+  
+  console.log('Deploying ERC20Whitelist...');
+  const ERC20Whitelist = await ethers.getContractFactory('ERC20Whitelist');
+  const erc20Whitelist = await ERC20Whitelist.deploy(deployer.address);
+  await erc20Whitelist.waitForDeployment();
+  console.log('ERC20Whitelist deployed to:', await erc20Whitelist.getAddress());
+  await saveAbi('ERC20Whitelist', await erc20Whitelist.getAddress());
+
+  // Whitelist USDC
+  console.log('Whitelisting USDC...');
+  await erc20Whitelist.whitelistToken(USDC_ADDRESS);
+  console.log('USDC whitelisted');
+
   /* ////////////////////////////////////////////
   ////////  ProtocolModule contract  ////////
   //////////////////////////////////////////// */
@@ -60,12 +76,12 @@ async function main() {
   const ProtocolModule = await ethers.getContractFactory('ProtocolModule');
   const protocolModule = await ProtocolModule.deploy(
     await distributorWalletFactory.getAddress(),
-    await whitelistingManager.getAddress()
+    await whitelistingManager.getAddress(),
+    await erc20Whitelist.getAddress()
   );
-  const deploymentReceipt = await protocolModule.waitForDeployment();
+  await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
-
   /* ////////////////////////////////////////////
   ////////  MetadataModule contract  ////////
   //////////////////////////////////////////// */

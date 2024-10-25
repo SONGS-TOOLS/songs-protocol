@@ -226,6 +226,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWSTokensManagement__factory>;
     getContractFactory(
+      name: "IWSTokensManagement",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IWSTokensManagement__factory>;
+    getContractFactory(
       name: "IWSUtils",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWSUtils__factory>;
@@ -576,6 +580,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IWSTokensManagement>;
     getContractAt(
+      name: "IWSTokensManagement",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IWSTokensManagement>;
+    getContractAt(
       name: "IWSUtils",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -889,6 +898,10 @@ declare module "hardhat/types/runtime" {
       name: "IWSTokenManagement",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSTokenManagement>;
+    deployContract(
+      name: "IWSTokensManagement",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IWSTokensManagement>;
     deployContract(
       name: "IWSTokensManagement",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1238,6 +1251,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSTokenManagement>;
+    deployContract(
+      name: "IWSTokensManagement",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IWSTokensManagement>;
     deployContract(
       name: "IWSTokensManagement",
       args: any[],
