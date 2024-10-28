@@ -108,10 +108,10 @@ export type { IWhitelistingManager } from "./contracts/protocol/Interfaces/IWhit
 export { IWhitelistingManager__factory } from "./factories/contracts/protocol/Interfaces/IWhitelistingManager__factory";
 export type { IWrappedSongSmartAccount } from "./contracts/protocol/Interfaces/IWrappedSongSmartAccount";
 export { IWrappedSongSmartAccount__factory } from "./factories/contracts/protocol/Interfaces/IWrappedSongSmartAccount__factory";
-export type { IWSTokenManagement } from "./contracts/protocol/Interfaces/IWSTokenManagement.sol/IWSTokenManagement";
-export { IWSTokenManagement__factory } from "./factories/contracts/protocol/Interfaces/IWSTokenManagement.sol/IWSTokenManagement__factory";
-export type { IWSTokensManagement } from "./contracts/protocol/Interfaces/IWSTokenManagement.sol/IWSTokensManagement";
-export { IWSTokensManagement__factory } from "./factories/contracts/protocol/Interfaces/IWSTokenManagement.sol/IWSTokensManagement__factory";
+export type { IWSTokenManagement } from "./contracts/protocol/Interfaces/IWSTokenManagement";
+export { IWSTokenManagement__factory } from "./factories/contracts/protocol/Interfaces/IWSTokenManagement__factory";
+export type { IWSTokensManagement } from "./contracts/protocol/Interfaces/IWSTokensManagement";
+export { IWSTokensManagement__factory } from "./factories/contracts/protocol/Interfaces/IWSTokensManagement__factory";
 export type { IWSUtils } from "./contracts/protocol/Interfaces/IWSUtils";
 export { IWSUtils__factory } from "./factories/contracts/protocol/Interfaces/IWSUtils__factory";
 export type { DistributorWallet } from "./contracts/protocol/NonUpgradable/DistributorWallet";

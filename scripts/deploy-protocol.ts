@@ -63,18 +63,13 @@ async function main() {
   console.log('ERC20Whitelist deployed to:', await erc20Whitelist.getAddress());
   await saveAbi('ERC20Whitelist', await erc20Whitelist.getAddress());
 
-  // Whitelist USDC
-  console.log('Whitelisting USDC...');
-  await erc20Whitelist.whitelistToken(USDC_ADDRESS);
-  console.log('USDC whitelisted');
-
   /* ////////////////////////////////////////////
   ////////  ProtocolModule contract  ////////
   //////////////////////////////////////////// */
 
   console.log('Deploying ProtocolModule...');
   const ProtocolModule = await ethers.getContractFactory('ProtocolModule');
-  const protocolModule = await ProtocolModule.deploy(
+  const protocolModule = await ProtocolModule.connect(deployer).deploy(
     await distributorWalletFactory.getAddress(),
     await whitelistingManager.getAddress(),
     await erc20Whitelist.getAddress()
@@ -82,6 +77,15 @@ async function main() {
   await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
+
+  // Set ProtocolModule as authorized caller for ERC20Whitelist
+  await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
+  
+  // Whitelist USDC using the protocolModule
+  console.log('Whitelisting USDC...');
+  await protocolModule.connect(deployer).whitelistToken(USDC_ADDRESS);
+  console.log('USDC whitelisted');
+  
   /* ////////////////////////////////////////////
   ////////  MetadataModule contract  ////////
   //////////////////////////////////////////// */
