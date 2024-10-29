@@ -4,7 +4,6 @@ import path from 'path';
 
 const abisDirectory = path.join(__dirname, '..', 'abis');
 const networkName = network.name;
-const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
 const addressesFile = path.join(
   abisDirectory,
   `protocolContractAddresses-${networkName}.json`
@@ -16,6 +15,12 @@ if (!fs.existsSync(addressesFile)) {
 
 const contractAddresses = JSON.parse(fs.readFileSync(addressesFile, 'utf8'));
 console.log('Loaded contract addresses:', contractAddresses);
+
+const USDC_ADDRESS = contractAddresses.USDC;
+if (!USDC_ADDRESS) {
+  throw new Error('USDC address not found in contract addresses file');
+}
+console.log('Using USDC address:', USDC_ADDRESS);
 
 async function main() {
   const [deployer] = await ethers.getSigners();

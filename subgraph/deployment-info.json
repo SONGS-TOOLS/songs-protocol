@@ -1,7 +1,8 @@
 {
-  "networkName": "localhost",
-  "protocolModuleAddress": "0x7D206a279019Ef6A9330A06b592E47aC86823Aa4",
-  "wrappedSongFactoryAddress": "0x9C0bEE965cEA10BB00a4602a36038bAfE680a28c",
-  "metadataModuleAddress": "0x0c7056652736A06d6D90f11B29176DEa7630f14C",
-  "startBlock": 17192362
+  "networkName": "hardhat",
+  "chainId": 31337,
+  "protocolModuleAddress": "0x10318845C67ec7FC2BC993E706B81ED61DC8b884",
+  "wrappedSongFactoryAddress": "0xA792fA35f2844e010E2189cB0b6e6FDF006B0e54",
+  "metadataModuleAddress": "0x9C0bEE965cEA10BB00a4602a36038bAfE680a28c",
+  "startBlock": 17215464
 }

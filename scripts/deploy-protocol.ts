@@ -13,8 +13,30 @@ const addressesFile2 = path.join(localAbisDirectory, `protocolContractAddresses-
 // Object to hold contract addresses
 let contractAddresses: any = {};
 
-// USDC stablecoin address on mainnet
-const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+async function getTokenAddress() {
+  // If we're on a test network, deploy MockToken
+  if (network.name === 'hardhat' || network.name === 'localhost') {
+    console.log('Deploying MockToken...');
+    const MockToken = await ethers.getContractFactory('MockToken');
+    const mockToken = await MockToken.deploy('Mock USDC', 'mUSDC');
+    await mockToken.waitForDeployment();
+    const mockTokenAddress = await mockToken.getAddress();
+    console.log('MockToken deployed to:', mockTokenAddress);
+    
+    // Save the MockToken ABI
+    await saveAbi('MockToken', mockTokenAddress);
+    
+    // Save the token address in contractAddresses
+    contractAddresses['USDC'] = mockTokenAddress;
+    
+    return mockTokenAddress;
+  }
+  
+  // For mainnet or other networks, use the real USDC address
+  const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+  contractAddresses['USDC'] = usdcAddress;
+  return usdcAddress;
+}
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -83,8 +105,10 @@ async function main() {
   
   // Whitelist USDC using the protocolModule
   console.log('Whitelisting USDC...');
-  await protocolModule.connect(deployer).whitelistToken(USDC_ADDRESS);
-  console.log('USDC whitelisted');
+  const tokenAddress = await getTokenAddress();
+  console.log('Whitelisting token at address:', tokenAddress);
+  await protocolModule.connect(deployer).whitelistToken(tokenAddress);
+  console.log('Token whitelisted');
   
   /* ////////////////////////////////////////////
   ////////  MetadataModule contract  ////////
