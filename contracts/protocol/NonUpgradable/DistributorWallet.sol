@@ -31,8 +31,8 @@ contract DistributorWallet is Ownable {
     address _protocolModule,
     address _owner
   ) Ownable(_owner) {
-    stablecoin = IERC20(_stablecoin);
     protocolModule = IProtocolModule(_protocolModule);
+    stablecoin = IERC20(_stablecoin);
   }
 
   // Payment Functions

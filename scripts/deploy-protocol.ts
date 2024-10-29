@@ -13,8 +13,30 @@ const addressesFile2 = path.join(localAbisDirectory, `protocolContractAddresses-
 // Object to hold contract addresses
 let contractAddresses: any = {};
 
-// USDC stablecoin address on mainnet
-const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+async function getTokenAddress() {
+  // If we're on a test network, deploy MockToken
+  if (network.name === 'hardhat' || network.name === 'localhost') {
+    console.log('Deploying MockToken...');
+    const MockToken = await ethers.getContractFactory('MockToken');
+    const mockToken = await MockToken.deploy('Mock USDC', 'mUSDC');
+    await mockToken.waitForDeployment();
+    const mockTokenAddress = await mockToken.getAddress();
+    console.log('MockToken deployed to:', mockTokenAddress);
+    
+    // Save the MockToken ABI
+    await saveAbi('MockToken', mockTokenAddress);
+    
+    // Save the token address in contractAddresses
+    contractAddresses['USDC'] = mockTokenAddress;
+    
+    return mockTokenAddress;
+  }
+  
+  // For mainnet or other networks, use the real USDC address
+  const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+  contractAddresses['USDC'] = usdcAddress;
+  return usdcAddress;
+}
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -52,20 +74,42 @@ async function main() {
   console.log('DistributorWalletFactory deployed to:', await distributorWalletFactory.getAddress());
   await saveAbi('DistributorWalletFactory', await distributorWalletFactory.getAddress());
 
+    /* ////////////////////////////////////////////
+  ////////  ERC20Whitelist contract  ////////
+  //////////////////////////////////////////// */
+  
+  console.log('Deploying ERC20Whitelist...');
+  const ERC20Whitelist = await ethers.getContractFactory('ERC20Whitelist');
+  const erc20Whitelist = await ERC20Whitelist.deploy(deployer.address);
+  await erc20Whitelist.waitForDeployment();
+  console.log('ERC20Whitelist deployed to:', await erc20Whitelist.getAddress());
+  await saveAbi('ERC20Whitelist', await erc20Whitelist.getAddress());
+
   /* ////////////////////////////////////////////
   ////////  ProtocolModule contract  ////////
   //////////////////////////////////////////// */
 
   console.log('Deploying ProtocolModule...');
   const ProtocolModule = await ethers.getContractFactory('ProtocolModule');
-  const protocolModule = await ProtocolModule.deploy(
+  const protocolModule = await ProtocolModule.connect(deployer).deploy(
     await distributorWalletFactory.getAddress(),
-    await whitelistingManager.getAddress()
+    await whitelistingManager.getAddress(),
+    await erc20Whitelist.getAddress()
   );
-  const deploymentReceipt = await protocolModule.waitForDeployment();
+  await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
 
+  // Set ProtocolModule as authorized caller for ERC20Whitelist
+  await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
+  
+  // Whitelist USDC using the protocolModule
+  console.log('Whitelisting USDC...');
+  const tokenAddress = await getTokenAddress();
+  console.log('Whitelisting token at address:', tokenAddress);
+  await protocolModule.connect(deployer).whitelistToken(tokenAddress);
+  console.log('Token whitelisted');
+  
   /* ////////////////////////////////////////////
   ////////  MetadataModule contract  ////////
   //////////////////////////////////////////// */

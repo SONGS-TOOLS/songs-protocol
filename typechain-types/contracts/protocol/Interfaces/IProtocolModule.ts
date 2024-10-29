@@ -45,11 +45,13 @@ export interface IProtocolModuleInterface extends Interface {
       | "addUPC"
       | "confirmWrappedSongRelease"
       | "distributorWalletFactory"
+      | "erc20whitelist"
       | "getPendingDistributorRequests"
       | "getWrappedSongDistributor"
       | "handleExpiredReviewPeriod"
       | "isAuthentic"
       | "isReleased"
+      | "isTokenWhitelisted"
       | "isValidToCreateWrappedSong"
       | "isccRegistry"
       | "isrcRegistry"
@@ -59,10 +61,12 @@ export interface IProtocolModuleInterface extends Interface {
       | "pendingDistributorRequests"
       | "rejectWrappedSongRelease"
       | "releaseFee"
+      | "removeTokenFromWhitelist"
       | "removeWrappedSongReleaseRequest"
       | "requestWrappedSongRelease"
       | "reviewPeriodDays"
       | "reviewPeriods"
+      | "setERC20Whitelist"
       | "setMetadataModule"
       | "setPaused"
       | "setReleaseFee"
@@ -72,6 +76,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "setWrappedSongCreationFee"
       | "upcRegistry"
       | "updateDistributorWalletFactory"
+      | "whitelistToken"
       | "whitelistingManager"
       | "wrappedSongAuthenticity"
       | "wrappedSongCreationFee"
@@ -107,6 +112,10 @@ export interface IProtocolModuleInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "erc20whitelist",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getPendingDistributorRequests",
     values: [AddressLike]
   ): string;
@@ -124,6 +133,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isReleased",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isTokenWhitelisted",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -160,6 +173,10 @@ export interface IProtocolModuleInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "removeTokenFromWhitelist",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeWrappedSongReleaseRequest",
     values: [AddressLike]
   ): string;
@@ -173,6 +190,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "reviewPeriods",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setERC20Whitelist",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -209,6 +230,10 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "whitelistToken",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "whitelistingManager",
     values?: undefined
   ): string;
@@ -242,6 +267,10 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "erc20whitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getPendingDistributorRequests",
     data: BytesLike
   ): Result;
@@ -258,6 +287,10 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isReleased", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenWhitelisted",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "isValidToCreateWrappedSong",
     data: BytesLike
@@ -289,6 +322,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "releaseFee", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "removeTokenFromWhitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeWrappedSongReleaseRequest",
     data: BytesLike
   ): Result;
@@ -302,6 +339,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "reviewPeriods",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setERC20Whitelist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -335,6 +376,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateDistributorWalletFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "whitelistToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -436,6 +481,8 @@ export interface IProtocolModule extends BaseContract {
 
   distributorWalletFactory: TypedContractMethod<[], [string], "view">;
 
+  erc20whitelist: TypedContractMethod<[], [string], "view">;
+
   getPendingDistributorRequests: TypedContractMethod<
     [wrappedSong: AddressLike],
     [string],
@@ -462,6 +509,12 @@ export interface IProtocolModule extends BaseContract {
 
   isReleased: TypedContractMethod<
     [wrappedSong: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isTokenWhitelisted: TypedContractMethod<
+    [token: AddressLike],
     [boolean],
     "view"
   >;
@@ -508,6 +561,12 @@ export interface IProtocolModule extends BaseContract {
 
   releaseFee: TypedContractMethod<[], [bigint], "view">;
 
+  removeTokenFromWhitelist: TypedContractMethod<
+    [token: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   removeWrappedSongReleaseRequest: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
@@ -526,6 +585,12 @@ export interface IProtocolModule extends BaseContract {
     [wrappedSong: AddressLike],
     [IProtocolModule.ReviewPeriodStructOutput],
     "view"
+  >;
+
+  setERC20Whitelist: TypedContractMethod<
+    [_erc20whitelist: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   setMetadataModule: TypedContractMethod<
@@ -574,6 +639,12 @@ export interface IProtocolModule extends BaseContract {
 
   updateDistributorWalletFactory: TypedContractMethod<
     [_newFactory: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  whitelistToken: TypedContractMethod<
+    [token: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -636,6 +707,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "distributorWalletFactory"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "erc20whitelist"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "getPendingDistributorRequests"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
@@ -650,6 +724,9 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "isReleased"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isTokenWhitelisted"
+  ): TypedContractMethod<[token: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "isValidToCreateWrappedSong"
   ): TypedContractMethod<[creator: AddressLike], [boolean], "view">;
@@ -678,6 +755,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "releaseFee"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "removeTokenFromWhitelist"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "removeWrappedSongReleaseRequest"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -697,6 +777,9 @@ export interface IProtocolModule extends BaseContract {
     [IProtocolModule.ReviewPeriodStructOutput],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "setERC20Whitelist"
+  ): TypedContractMethod<[_erc20whitelist: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setMetadataModule"
   ): TypedContractMethod<[_metadataModule: AddressLike], [void], "nonpayable">;
@@ -732,6 +815,9 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "updateDistributorWalletFactory"
   ): TypedContractMethod<[_newFactory: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "whitelistToken"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "whitelistingManager"
   ): TypedContractMethod<[], [string], "view">;

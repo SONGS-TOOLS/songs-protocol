@@ -78,23 +78,11 @@ contract WrappedSongSmartAccount is
     address _protocolModuleAddress,
     uint256 sharesAmount
   ) Ownable(_owner) {
-    require(_stablecoinAddress != address(0), 'Invalid stablecoin address');
-    require(_owner != address(0), 'Invalid owner address');
-    require(
-      _protocolModuleAddress != address(0),
-      'Invalid protocol module address'
-    );
-    require(sharesAmount > 0, 'Invalid shares amount');
-
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
     metadataModule = IMetadataModule(protocolModule.metadataModule());
-
-    newWSTokenManagement = new WSTokenManagement(
-      address(this),
-      _owner,
-      address(protocolModule.metadataModule())
-    );
+    
+    newWSTokenManagement = new WSTokenManagement(address(this), _owner, address(protocolModule.metadataModule()), _protocolModuleAddress);
 
     _createSongTokens(sharesAmount, _owner);
   }

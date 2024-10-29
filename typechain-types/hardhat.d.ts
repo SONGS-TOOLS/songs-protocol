@@ -198,6 +198,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IDistributorWalletFactory__factory>;
     getContractFactory(
+      name: "IERC20Whitelist",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Whitelist__factory>;
+    getContractFactory(
       name: "IMetadataModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IMetadataModule__factory>;
@@ -214,9 +218,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWrappedSongSmartAccount__factory>;
     getContractFactory(
-      name: "IWSTokensManagement",
+      name: "IWSTokenManagement",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IWSTokensManagement__factory>;
+    ): Promise<Contracts.IWSTokenManagement__factory>;
     getContractFactory(
       name: "IWSTokensManagement",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -233,6 +237,10 @@ declare module "hardhat/types/runtime" {
       name: "DistributorWalletFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DistributorWalletFactory__factory>;
+    getContractFactory(
+      name: "ERC20Whitelist",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Whitelist__factory>;
     getContractFactory(
       name: "MetadataModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -533,6 +541,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IDistributorWalletFactory>;
     getContractAt(
+      name: "IERC20Whitelist",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Whitelist>;
+    getContractAt(
       name: "IMetadataModule",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -553,10 +566,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IWrappedSongSmartAccount>;
     getContractAt(
-      name: "IWSTokensManagement",
+      name: "IWSTokenManagement",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.IWSTokensManagement>;
+    ): Promise<Contracts.IWSTokenManagement>;
     getContractAt(
       name: "IWSTokensManagement",
       address: string | ethers.Addressable,
@@ -577,6 +590,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.DistributorWalletFactory>;
+    getContractAt(
+      name: "ERC20Whitelist",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Whitelist>;
     getContractAt(
       name: "MetadataModule",
       address: string | ethers.Addressable,
@@ -848,6 +866,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IDistributorWalletFactory>;
     deployContract(
+      name: "IERC20Whitelist",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC20Whitelist>;
+    deployContract(
       name: "IMetadataModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IMetadataModule>;
@@ -864,9 +886,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWrappedSongSmartAccount>;
     deployContract(
-      name: "IWSTokensManagement",
+      name: "IWSTokenManagement",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IWSTokensManagement>;
+    ): Promise<Contracts.IWSTokenManagement>;
     deployContract(
       name: "IWSTokensManagement",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -883,6 +905,10 @@ declare module "hardhat/types/runtime" {
       name: "DistributorWalletFactory",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.DistributorWalletFactory>;
+    deployContract(
+      name: "ERC20Whitelist",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20Whitelist>;
     deployContract(
       name: "MetadataModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1183,6 +1209,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IDistributorWalletFactory>;
     deployContract(
+      name: "IERC20Whitelist",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC20Whitelist>;
+    deployContract(
       name: "IMetadataModule",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1203,10 +1234,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWrappedSongSmartAccount>;
     deployContract(
-      name: "IWSTokensManagement",
+      name: "IWSTokenManagement",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IWSTokensManagement>;
+    ): Promise<Contracts.IWSTokenManagement>;
     deployContract(
       name: "IWSTokensManagement",
       args: any[],
@@ -1227,6 +1258,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.DistributorWalletFactory>;
+    deployContract(
+      name: "ERC20Whitelist",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC20Whitelist>;
     deployContract(
       name: "MetadataModule",
       args: any[],

@@ -63,12 +63,23 @@ contract WrappedSongFactory {
       'Invalid metadata: All required fields must be non-empty'
     );
     require(sharesAmount > 0, 'Shares amount must be greater than zero');
+    
+    require(
+      protocolModule.isTokenWhitelisted(_stablecoin),
+      "Stablecoin is not whitelisted"
+    );
 
-    uint256 requiredFee = protocolModule.wrappedSongCreationFee();
-    require(msg.value >= requiredFee, 'Insufficient creation fee');
+    require(msg.value >= protocolModule.wrappedSongCreationFee(), 'Insufficient creation fee');
 
-    // Uncomment the following line when ready to enforce the whitelist
-    // require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+
+    require(msg.sender != address(0), 'Invalid owner address');
+    require(
+      address(protocolModule) != address(0),
+      'Invalid protocol module address'
+    );
+    require(sharesAmount > 0, 'Invalid shares amount');
+
+    require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
 
     WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
         _stablecoin,

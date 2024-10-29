@@ -10,6 +10,11 @@
         "internalType": "address",
         "name": "_whitelistingManager",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_erc20whitelist",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -351,6 +356,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "erc20whitelist",
+    "outputs": [
+      {
+        "internalType": "contract IERC20Whitelist",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -429,6 +447,25 @@
       }
     ],
     "name": "isReleased",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "isTokenWhitelisted",
     "outputs": [
       {
         "internalType": "bool",
@@ -603,6 +640,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "removeTokenFromWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "wrappedSong",
         "type": "address"
       }
@@ -677,6 +727,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_erc20whitelist",
+        "type": "address"
+      }
+    ],
+    "name": "setERC20Whitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -816,6 +879,19 @@
       }
     ],
     "name": "updateDistributorWalletFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "whitelistToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
