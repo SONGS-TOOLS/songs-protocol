@@ -353,6 +353,25 @@ contract WrappedSongSmartAccount is
     return address(newWSTokenManagement);
   }
 
+  /**
+   * @dev Migrates the wrapped song to a new WSTokenManagement contract.
+   * @param metadataAddress The address of the new metadata module.
+   */
+  function migrateWrappedSong(address metadataAddress) external {
+    // Authorizer caller at protocol Level to target new protocol
+    // Paused protocol
+    require(msg.sender == protocolModule.isV2WrappedSongFactory(), 'Not v2 wrapped song factory');
+    
+    // Create new WS on v2
+    // WS without token management
+    // Asigante old token management to new WS
+    // Transfer ownership of new WS
+  
+
+    newWSTokenManagement.migrateWrappedSong(metadataAddress);
+    newWSTokenManagement.transferOwnership(address(this));
+  }
+
   // Fallback function
 
   /**

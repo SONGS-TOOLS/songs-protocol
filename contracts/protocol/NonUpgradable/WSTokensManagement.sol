@@ -223,6 +223,11 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     return metadataModule.getTokenURI(owner(), tokenId);
   }
 
+  function migrateWrappedSong(address metadataAddress) external onlyOwner {
+    metadataModule = IMetadataModule(metadataAddress);
+  }
+
+
   // Function to allow the contract to receive ETH
   receive() external payable {}
 }

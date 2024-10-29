@@ -12,6 +12,8 @@ import "./../Interfaces/IMetadataModule.sol";
 contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
+    address public v2WrappedSongFactory;
+    
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
     IERC20Whitelist public erc20whitelist;
@@ -323,5 +325,13 @@ contract ProtocolModule is Ownable {
 
     function setMetadataModule(address _metadataModule) external onlyOwner {
         metadataModule = IMetadataModule(_metadataModule);
+    }
+
+    function isV2WrappedSongFactory() external view returns (address) {
+        return v2WrappedSongFactory;
+    }
+
+    function setV2WrappedSongFactory(address _v2WrappedSongFactory) external onlyOwner {
+        v2WrappedSongFactory = _v2WrappedSongFactory;
     }
 }

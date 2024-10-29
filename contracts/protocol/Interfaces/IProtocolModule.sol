@@ -59,4 +59,6 @@ interface IProtocolModule {
     function isAuthentic(address wrappedSong) external view returns (bool);
     function isValidToCreateWrappedSong(address creator) external view returns (bool);
     function isTokenWhitelisted(address token) external view returns (bool);
+    function isV2WrappedSongFactory() external view returns (address);
+    function setV2WrappedSongFactory(address _v2WrappedSongFactory) external;
 }
