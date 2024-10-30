@@ -138,7 +138,7 @@ async function main() {
     console.log(`Creating Wrapped Song ${i} with metadata:`, songMetadatas[i]);
     try {
       const createWrappedSongTx =
-        await WrappedSongFactory.createWrappedSongWithMetadata(
+        await WrappedSongFactory.createWrappedSong(
           USDC_ADDRESS,
           songMetadatas[i],
           sharesAmount

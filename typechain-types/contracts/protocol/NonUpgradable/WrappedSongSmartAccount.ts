@@ -56,11 +56,16 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "accumulatedEarningsPerShare"
       | "claimEarnings"
       | "claimEthEarnings"
+      | "createBuyoutToken"
+      | "createLegalContract"
+      | "createSongShares"
       | "ethBalance"
       | "getWSTokenManagementAddress"
       | "isTokenReceived"
       | "lastClaimedEarningsPerShare"
       | "metadataModule"
+      | "migrateWrappedSong"
+      | "migrated"
       | "newWSTokenManagement"
       | "onERC1155BatchReceived"
       | "onERC1155Received"
@@ -84,13 +89,14 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "transferOwnership"
       | "unclaimedEarnings"
       | "updateEarnings"
+      | "updateLegalContractURI"
       | "updateMetadata"
-      | "withdrawSaleFundsFromWSTokenManagement"
       | "wrappedSongTokenId"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "ContractMigrated"
       | "EarningsClaimed"
       | "EarningsReceived"
       | "EarningsUpdated"
@@ -113,6 +119,18 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "createBuyoutToken",
+    values: [BigNumberish, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createLegalContract",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createSongShares",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "ethBalance",
     values?: undefined
   ): string;
@@ -132,6 +150,11 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     functionFragment: "metadataModule",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "migrateWrappedSong",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "migrated", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "newWSTokenManagement",
     values?: undefined
@@ -225,12 +248,12 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "updateMetadata",
-    values: [IMetadataModule.MetadataStruct]
+    functionFragment: "updateLegalContractURI",
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawSaleFundsFromWSTokenManagement",
-    values?: undefined
+    functionFragment: "updateMetadata",
+    values: [IMetadataModule.MetadataStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "wrappedSongTokenId",
@@ -247,6 +270,18 @@ export interface WrappedSongSmartAccountInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "claimEthEarnings",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createBuyoutToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createLegalContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createSongShares",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "ethBalance", data: BytesLike): Result;
@@ -266,6 +301,11 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     functionFragment: "metadataModule",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "migrateWrappedSong",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "migrated", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "newWSTokenManagement",
     data: BytesLike
@@ -350,17 +390,29 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateMetadata",
+    functionFragment: "updateLegalContractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawSaleFundsFromWSTokenManagement",
+    functionFragment: "updateMetadata",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "wrappedSongTokenId",
     data: BytesLike
   ): Result;
+}
+
+export namespace ContractMigratedEvent {
+  export type InputTuple = [newWrappedSongAddress: AddressLike];
+  export type OutputTuple = [newWrappedSongAddress: string];
+  export interface OutputObject {
+    newWrappedSongAddress: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace EarningsClaimedEvent {
@@ -537,6 +589,24 @@ export interface WrappedSongSmartAccount extends BaseContract {
 
   claimEthEarnings: TypedContractMethod<[], [void], "nonpayable">;
 
+  createBuyoutToken: TypedContractMethod<
+    [amount: BigNumberish, recipient: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  createLegalContract: TypedContractMethod<
+    [contractURI: string],
+    [bigint],
+    "nonpayable"
+  >;
+
+  createSongShares: TypedContractMethod<
+    [sharesAmount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   ethBalance: TypedContractMethod<[], [bigint], "view">;
 
   getWSTokenManagementAddress: TypedContractMethod<[], [string], "view">;
@@ -550,6 +620,14 @@ export interface WrappedSongSmartAccount extends BaseContract {
   >;
 
   metadataModule: TypedContractMethod<[], [string], "view">;
+
+  migrateWrappedSong: TypedContractMethod<
+    [metadataAddress: AddressLike, newWrappedSongAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  migrated: TypedContractMethod<[], [boolean], "view">;
 
   newWSTokenManagement: TypedContractMethod<[], [string], "view">;
 
@@ -644,14 +722,14 @@ export interface WrappedSongSmartAccount extends BaseContract {
 
   updateEarnings: TypedContractMethod<[], [void], "nonpayable">;
 
-  updateMetadata: TypedContractMethod<
-    [newMetadata: IMetadataModule.MetadataStruct],
+  updateLegalContractURI: TypedContractMethod<
+    [tokenId: BigNumberish, newURI: string],
     [void],
     "nonpayable"
   >;
 
-  withdrawSaleFundsFromWSTokenManagement: TypedContractMethod<
-    [],
+  updateMetadata: TypedContractMethod<
+    [newMetadata: IMetadataModule.MetadataStruct],
     [void],
     "nonpayable"
   >;
@@ -672,6 +750,19 @@ export interface WrappedSongSmartAccount extends BaseContract {
     nameOrSignature: "claimEthEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "createBuyoutToken"
+  ): TypedContractMethod<
+    [amount: BigNumberish, recipient: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "createLegalContract"
+  ): TypedContractMethod<[contractURI: string], [bigint], "nonpayable">;
+  getFunction(
+    nameOrSignature: "createSongShares"
+  ): TypedContractMethod<[sharesAmount: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "ethBalance"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -686,6 +777,16 @@ export interface WrappedSongSmartAccount extends BaseContract {
   getFunction(
     nameOrSignature: "metadataModule"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "migrateWrappedSong"
+  ): TypedContractMethod<
+    [metadataAddress: AddressLike, newWrappedSongAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "migrated"
+  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "newWSTokenManagement"
   ): TypedContractMethod<[], [string], "view">;
@@ -795,6 +896,13 @@ export interface WrappedSongSmartAccount extends BaseContract {
     nameOrSignature: "updateEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "updateLegalContractURI"
+  ): TypedContractMethod<
+    [tokenId: BigNumberish, newURI: string],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "updateMetadata"
   ): TypedContractMethod<
     [newMetadata: IMetadataModule.MetadataStruct],
@@ -802,12 +910,16 @@ export interface WrappedSongSmartAccount extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "withdrawSaleFundsFromWSTokenManagement"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "wrappedSongTokenId"
   ): TypedContractMethod<[], [bigint], "view">;
 
+  getEvent(
+    key: "ContractMigrated"
+  ): TypedContractEvent<
+    ContractMigratedEvent.InputTuple,
+    ContractMigratedEvent.OutputTuple,
+    ContractMigratedEvent.OutputObject
+  >;
   getEvent(
     key: "EarningsClaimed"
   ): TypedContractEvent<
@@ -859,6 +971,17 @@ export interface WrappedSongSmartAccount extends BaseContract {
   >;
 
   filters: {
+    "ContractMigrated(address)": TypedContractEvent<
+      ContractMigratedEvent.InputTuple,
+      ContractMigratedEvent.OutputTuple,
+      ContractMigratedEvent.OutputObject
+    >;
+    ContractMigrated: TypedContractEvent<
+      ContractMigratedEvent.InputTuple,
+      ContractMigratedEvent.OutputTuple,
+      ContractMigratedEvent.OutputObject
+    >;
+
     "EarningsClaimed(address,address,uint256,uint256)": TypedContractEvent<
       EarningsClaimedEvent.InputTuple,
       EarningsClaimedEvent.OutputTuple,

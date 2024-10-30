@@ -54,9 +54,11 @@ export interface IMetadataModuleInterface extends Interface {
       | "confirmUpdateMetadata"
       | "createMetadata"
       | "getPendingMetadataUpdate"
+      | "getTokenMetadata"
       | "getTokenURI"
       | "isMetadataUpdateConfirmed"
       | "rejectUpdateMetadata"
+      | "removeMetadata"
       | "requestUpdateMetadata"
       | "updateMetadata"
   ): FunctionFragment;
@@ -74,6 +76,10 @@ export interface IMetadataModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getTokenMetadata",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getTokenURI",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -83,6 +89,10 @@ export interface IMetadataModuleInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rejectUpdateMetadata",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeMetadata",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -107,6 +117,10 @@ export interface IMetadataModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getTokenMetadata",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getTokenURI",
     data: BytesLike
   ): Result;
@@ -116,6 +130,10 @@ export interface IMetadataModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "rejectUpdateMetadata",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeMetadata",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -189,6 +207,12 @@ export interface IMetadataModule extends BaseContract {
     "view"
   >;
 
+  getTokenMetadata: TypedContractMethod<
+    [wrappedSong: AddressLike],
+    [IMetadataModule.MetadataStructOutput],
+    "view"
+  >;
+
   getTokenURI: TypedContractMethod<
     [wrappedSong: AddressLike, tokenId: BigNumberish],
     [string],
@@ -202,6 +226,12 @@ export interface IMetadataModule extends BaseContract {
   >;
 
   rejectUpdateMetadata: TypedContractMethod<
+    [wrappedSong: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  removeMetadata: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
     "nonpayable"
@@ -241,6 +271,13 @@ export interface IMetadataModule extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getTokenMetadata"
+  ): TypedContractMethod<
+    [wrappedSong: AddressLike],
+    [IMetadataModule.MetadataStructOutput],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getTokenURI"
   ): TypedContractMethod<
     [wrappedSong: AddressLike, tokenId: BigNumberish],
@@ -252,6 +289,9 @@ export interface IMetadataModule extends BaseContract {
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "rejectUpdateMetadata"
+  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "removeMetadata"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "requestUpdateMetadata"

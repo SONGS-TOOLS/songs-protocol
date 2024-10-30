@@ -50,6 +50,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "getWrappedSongDistributor"
       | "handleExpiredReviewPeriod"
       | "isAuthentic"
+      | "isAuthorizedContract"
       | "isReleased"
       | "isTokenWhitelisted"
       | "isValidToCreateWrappedSong"
@@ -66,6 +67,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "requestWrappedSongRelease"
       | "reviewPeriodDays"
       | "reviewPeriods"
+      | "setAuthorizedContract"
       | "setERC20Whitelist"
       | "setMetadataModule"
       | "setPaused"
@@ -132,6 +134,10 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "isAuthorizedContract",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isReleased",
     values: [AddressLike]
   ): string;
@@ -191,6 +197,10 @@ export interface IProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "reviewPeriods",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAuthorizedContract",
+    values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setERC20Whitelist",
@@ -286,6 +296,10 @@ export interface IProtocolModuleInterface extends Interface {
     functionFragment: "isAuthentic",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isAuthorizedContract",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isReleased", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isTokenWhitelisted",
@@ -339,6 +353,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "reviewPeriods",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAuthorizedContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -507,6 +525,12 @@ export interface IProtocolModule extends BaseContract {
     "view"
   >;
 
+  isAuthorizedContract: TypedContractMethod<
+    [contractAddress: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   isReleased: TypedContractMethod<
     [wrappedSong: AddressLike],
     [boolean],
@@ -585,6 +609,12 @@ export interface IProtocolModule extends BaseContract {
     [wrappedSong: AddressLike],
     [IProtocolModule.ReviewPeriodStructOutput],
     "view"
+  >;
+
+  setAuthorizedContract: TypedContractMethod<
+    [contractAddress: AddressLike, isAuthorized: boolean],
+    [void],
+    "nonpayable"
   >;
 
   setERC20Whitelist: TypedContractMethod<
@@ -722,6 +752,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "isAuthentic"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
   getFunction(
+    nameOrSignature: "isAuthorizedContract"
+  ): TypedContractMethod<[contractAddress: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "isReleased"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
   getFunction(
@@ -776,6 +809,13 @@ export interface IProtocolModule extends BaseContract {
     [wrappedSong: AddressLike],
     [IProtocolModule.ReviewPeriodStructOutput],
     "view"
+  >;
+  getFunction(
+    nameOrSignature: "setAuthorizedContract"
+  ): TypedContractMethod<
+    [contractAddress: AddressLike, isAuthorized: boolean],
+    [void],
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "setERC20Whitelist"

@@ -12,7 +12,6 @@ import "./../Interfaces/IMetadataModule.sol";
 contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
-    address public v2WrappedSongFactory;
     
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
@@ -30,6 +29,9 @@ contract ProtocolModule is Ownable {
     mapping(address => address) public pendingDistributorRequests;
 
     mapping(address => bool) public wrappedSongAuthenticity;
+
+    // Authorized contracts
+    mapping(address => bool) public authorizedContracts;
 
     // Add this struct and mapping
     struct ReviewPeriod {
@@ -319,19 +321,37 @@ contract ProtocolModule is Ownable {
         return erc20whitelist.isTokenWhitelisted(token);
     }
 
+    /**
+     * @dev Sets the review period days. Only the owner can set the review period days.
+     * @param _days The number of days for the review period.
+     */
     function setReviewPeriodDays(uint256 _days) external onlyOwner {
         reviewPeriodDays = _days;
     }
 
+    /**
+     * @dev Sets the address of the MetadataModule contract. Only the owner can set the address.
+     * @param _metadataModule The address of the new MetadataModule contract.
+     */
     function setMetadataModule(address _metadataModule) external onlyOwner {
         metadataModule = IMetadataModule(_metadataModule);
     }
 
-    function isV2WrappedSongFactory() external view returns (address) {
-        return v2WrappedSongFactory;
+    /**
+     * @dev Checks if a contract is authorized.
+     * @param _contractAddress The address of the contract to check.
+     * @return True if the contract is authorized, false otherwise.
+     */
+    function isAuthorizedContract(address _contractAddress) external view returns (bool) {
+        return authorizedContracts[_contractAddress];
     }
 
-    function setV2WrappedSongFactory(address _v2WrappedSongFactory) external onlyOwner {
-        v2WrappedSongFactory = _v2WrappedSongFactory;
+    /**
+     * @dev Sets the authorization status of a contract.
+     * @param _contractAddress The address of the contract to set the authorization status.
+     * @param _isAuthorized The authorization status to be set.
+     */
+    function setAuthorizedContract(address _contractAddress, bool _isAuthorized) external onlyOwner {
+        authorizedContracts[_contractAddress] = _isAuthorized;
     }
 }

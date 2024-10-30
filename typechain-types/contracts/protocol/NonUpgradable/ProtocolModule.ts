@@ -31,6 +31,7 @@ export interface ProtocolModuleInterface extends Interface {
       | "addISRC"
       | "addISWC"
       | "addUPC"
+      | "authorizedContracts"
       | "confirmWrappedSongRelease"
       | "distributorWalletFactory"
       | "erc20whitelist"
@@ -38,6 +39,7 @@ export interface ProtocolModuleInterface extends Interface {
       | "getWrappedSongDistributor"
       | "handleExpiredReviewPeriod"
       | "isAuthentic"
+      | "isAuthorizedContract"
       | "isReleased"
       | "isTokenWhitelisted"
       | "isValidToCreateWrappedSong"
@@ -56,6 +58,7 @@ export interface ProtocolModuleInterface extends Interface {
       | "requestWrappedSongRelease"
       | "reviewPeriodDays"
       | "reviewPeriods"
+      | "setAuthorizedContract"
       | "setERC20Whitelist"
       | "setMetadataModule"
       | "setPaused"
@@ -109,6 +112,10 @@ export interface ProtocolModuleInterface extends Interface {
     values: [AddressLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "authorizedContracts",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "confirmWrappedSongRelease",
     values: [AddressLike]
   ): string;
@@ -134,6 +141,10 @@ export interface ProtocolModuleInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isAuthentic",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isAuthorizedContract",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -201,6 +212,10 @@ export interface ProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "reviewPeriods",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAuthorizedContract",
+    values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setERC20Whitelist",
@@ -273,6 +288,10 @@ export interface ProtocolModuleInterface extends Interface {
   decodeFunctionResult(functionFragment: "addISWC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addUPC", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "authorizedContracts",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "confirmWrappedSongRelease",
     data: BytesLike
   ): Result;
@@ -298,6 +317,10 @@ export interface ProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isAuthentic",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isAuthorizedContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isReleased", data: BytesLike): Result;
@@ -358,6 +381,10 @@ export interface ProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "reviewPeriods",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAuthorizedContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -652,6 +679,12 @@ export interface ProtocolModule extends BaseContract {
     "nonpayable"
   >;
 
+  authorizedContracts: TypedContractMethod<
+    [arg0: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   confirmWrappedSongRelease: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
@@ -682,6 +715,12 @@ export interface ProtocolModule extends BaseContract {
 
   isAuthentic: TypedContractMethod<
     [wrappedSong: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  isAuthorizedContract: TypedContractMethod<
+    [_contractAddress: AddressLike],
     [boolean],
     "view"
   >;
@@ -762,6 +801,12 @@ export interface ProtocolModule extends BaseContract {
       }
     ],
     "view"
+  >;
+
+  setAuthorizedContract: TypedContractMethod<
+    [_contractAddress: AddressLike, _isAuthorized: boolean],
+    [void],
+    "nonpayable"
   >;
 
   setERC20Whitelist: TypedContractMethod<
@@ -880,6 +925,9 @@ export interface ProtocolModule extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "authorizedContracts"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "confirmWrappedSongRelease"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -900,6 +948,9 @@ export interface ProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "isAuthentic"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isAuthorizedContract"
+  ): TypedContractMethod<[_contractAddress: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "isReleased"
   ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
@@ -967,6 +1018,13 @@ export interface ProtocolModule extends BaseContract {
       }
     ],
     "view"
+  >;
+  getFunction(
+    nameOrSignature: "setAuthorizedContract"
+  ): TypedContractMethod<
+    [_contractAddress: AddressLike, _isAuthorized: boolean],
+    [void],
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "setERC20Whitelist"

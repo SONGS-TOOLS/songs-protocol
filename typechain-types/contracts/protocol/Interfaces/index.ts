@@ -4,6 +4,7 @@
 export type { IDistributorWallet } from "./IDistributorWallet";
 export type { IDistributorWalletFactory } from "./IDistributorWalletFactory";
 export type { IERC20Whitelist } from "./IERC20Whitelist";
+export type { IMarketPlace } from "./IMarketPlace";
 export type { IMetadataModule } from "./IMetadataModule";
 export type { IProtocolModule } from "./IProtocolModule";
 export type { IWSTokenManagement } from "./IWSTokenManagement";

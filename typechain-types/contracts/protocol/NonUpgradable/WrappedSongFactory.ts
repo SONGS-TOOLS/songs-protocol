@@ -53,26 +53,18 @@ export declare namespace IMetadataModule {
 export interface WrappedSongFactoryInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "createWrappedSongWithMetadata"
-      | "getOwnerWrappedSongs"
+      | "createWrappedSong"
       | "metadataModule"
       | "ownerWrappedSongs"
       | "protocolModule"
+      | "smartAccountToWSToken"
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic:
-      | "WrappedSongCreated"
-      | "WrappedSongCreatedWithMetadata"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WrappedSongCreated"): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "createWrappedSongWithMetadata",
+    functionFragment: "createWrappedSong",
     values: [AddressLike, IMetadataModule.MetadataStruct, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getOwnerWrappedSongs",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "metadataModule",
@@ -86,13 +78,13 @@ export interface WrappedSongFactoryInterface extends Interface {
     functionFragment: "protocolModule",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "smartAccountToWSToken",
+    values: [AddressLike]
+  ): string;
 
   decodeFunctionResult(
-    functionFragment: "createWrappedSongWithMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getOwnerWrappedSongs",
+    functionFragment: "createWrappedSong",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -107,50 +99,32 @@ export interface WrappedSongFactoryInterface extends Interface {
     functionFragment: "protocolModule",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "smartAccountToWSToken",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace WrappedSongCreatedEvent {
   export type InputTuple = [
     owner: AddressLike,
-    wrappedSongSmartAccount: AddressLike,
+    indexedwrappedSongSmartAccount: AddressLike,
     stablecoin: AddressLike,
-    wsTokenManagement: AddressLike
-  ];
-  export type OutputTuple = [
-    owner: string,
-    wrappedSongSmartAccount: string,
-    stablecoin: string,
-    wsTokenManagement: string
-  ];
-  export interface OutputObject {
-    owner: string;
-    wrappedSongSmartAccount: string;
-    stablecoin: string;
-    wsTokenManagement: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace WrappedSongCreatedWithMetadataEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    wrappedSongSmartAccount: AddressLike,
-    songMetadata: IMetadataModule.MetadataStruct,
+    wsTokenManagement: AddressLike,
     sharesAmount: BigNumberish
   ];
   export type OutputTuple = [
     owner: string,
-    wrappedSongSmartAccount: string,
-    songMetadata: IMetadataModule.MetadataStructOutput,
+    indexedwrappedSongSmartAccount: string,
+    stablecoin: string,
+    wsTokenManagement: string,
     sharesAmount: bigint
   ];
   export interface OutputObject {
     owner: string;
-    wrappedSongSmartAccount: string;
-    songMetadata: IMetadataModule.MetadataStructOutput;
+    indexedwrappedSongSmartAccount: string;
+    stablecoin: string;
+    wsTokenManagement: string;
     sharesAmount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -202,7 +176,7 @@ export interface WrappedSongFactory extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  createWrappedSongWithMetadata: TypedContractMethod<
+  createWrappedSong: TypedContractMethod<
     [
       _stablecoin: AddressLike,
       songMetadata: IMetadataModule.MetadataStruct,
@@ -210,12 +184,6 @@ export interface WrappedSongFactory extends BaseContract {
     ],
     [string],
     "payable"
-  >;
-
-  getOwnerWrappedSongs: TypedContractMethod<
-    [_owner: AddressLike],
-    [string[]],
-    "view"
   >;
 
   metadataModule: TypedContractMethod<[], [string], "view">;
@@ -228,12 +196,18 @@ export interface WrappedSongFactory extends BaseContract {
 
   protocolModule: TypedContractMethod<[], [string], "view">;
 
+  smartAccountToWSToken: TypedContractMethod<
+    [arg0: AddressLike],
+    [string],
+    "view"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "createWrappedSongWithMetadata"
+    nameOrSignature: "createWrappedSong"
   ): TypedContractMethod<
     [
       _stablecoin: AddressLike,
@@ -243,9 +217,6 @@ export interface WrappedSongFactory extends BaseContract {
     [string],
     "payable"
   >;
-  getFunction(
-    nameOrSignature: "getOwnerWrappedSongs"
-  ): TypedContractMethod<[_owner: AddressLike], [string[]], "view">;
   getFunction(
     nameOrSignature: "metadataModule"
   ): TypedContractMethod<[], [string], "view">;
@@ -259,6 +230,9 @@ export interface WrappedSongFactory extends BaseContract {
   getFunction(
     nameOrSignature: "protocolModule"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "smartAccountToWSToken"
+  ): TypedContractMethod<[arg0: AddressLike], [string], "view">;
 
   getEvent(
     key: "WrappedSongCreated"
@@ -267,16 +241,9 @@ export interface WrappedSongFactory extends BaseContract {
     WrappedSongCreatedEvent.OutputTuple,
     WrappedSongCreatedEvent.OutputObject
   >;
-  getEvent(
-    key: "WrappedSongCreatedWithMetadata"
-  ): TypedContractEvent<
-    WrappedSongCreatedWithMetadataEvent.InputTuple,
-    WrappedSongCreatedWithMetadataEvent.OutputTuple,
-    WrappedSongCreatedWithMetadataEvent.OutputObject
-  >;
 
   filters: {
-    "WrappedSongCreated(address,address,address,address)": TypedContractEvent<
+    "WrappedSongCreated(address,address,address,address,uint256)": TypedContractEvent<
       WrappedSongCreatedEvent.InputTuple,
       WrappedSongCreatedEvent.OutputTuple,
       WrappedSongCreatedEvent.OutputObject
@@ -285,17 +252,6 @@ export interface WrappedSongFactory extends BaseContract {
       WrappedSongCreatedEvent.InputTuple,
       WrappedSongCreatedEvent.OutputTuple,
       WrappedSongCreatedEvent.OutputObject
-    >;
-
-    "WrappedSongCreatedWithMetadata(address,address,tuple,uint256)": TypedContractEvent<
-      WrappedSongCreatedWithMetadataEvent.InputTuple,
-      WrappedSongCreatedWithMetadataEvent.OutputTuple,
-      WrappedSongCreatedWithMetadataEvent.OutputObject
-    >;
-    WrappedSongCreatedWithMetadata: TypedContractEvent<
-      WrappedSongCreatedWithMetadataEvent.InputTuple,
-      WrappedSongCreatedWithMetadataEvent.OutputTuple,
-      WrappedSongCreatedWithMetadataEvent.OutputObject
     >;
   };
 }

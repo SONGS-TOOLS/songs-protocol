@@ -162,6 +162,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Math__factory>;
     getContractFactory(
+      name: "Pausable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Pausable__factory>;
+    getContractFactory(
       name: "ReentrancyGuard",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReentrancyGuard__factory>;
@@ -202,6 +206,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Whitelist__factory>;
     getContractFactory(
+      name: "IMarketPlace",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMarketPlace__factory>;
+    getContractFactory(
       name: "IMetadataModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IMetadataModule__factory>;
@@ -241,6 +249,10 @@ declare module "hardhat/types/runtime" {
       name: "ERC20Whitelist",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Whitelist__factory>;
+    getContractFactory(
+      name: "MarketPlace",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MarketPlace__factory>;
     getContractFactory(
       name: "MetadataModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -496,6 +508,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Math>;
     getContractAt(
+      name: "Pausable",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Pausable>;
+    getContractAt(
       name: "ReentrancyGuard",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -546,6 +563,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20Whitelist>;
     getContractAt(
+      name: "IMarketPlace",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMarketPlace>;
+    getContractAt(
       name: "IMetadataModule",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -595,6 +617,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20Whitelist>;
+    getContractAt(
+      name: "MarketPlace",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MarketPlace>;
     getContractAt(
       name: "MetadataModule",
       address: string | ethers.Addressable,
@@ -830,6 +857,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Math>;
     deployContract(
+      name: "Pausable",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Pausable>;
+    deployContract(
       name: "ReentrancyGuard",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ReentrancyGuard>;
@@ -870,6 +901,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20Whitelist>;
     deployContract(
+      name: "IMarketPlace",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMarketPlace>;
+    deployContract(
       name: "IMetadataModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IMetadataModule>;
@@ -909,6 +944,10 @@ declare module "hardhat/types/runtime" {
       name: "ERC20Whitelist",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20Whitelist>;
+    deployContract(
+      name: "MarketPlace",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MarketPlace>;
     deployContract(
       name: "MetadataModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1164,6 +1203,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Math>;
     deployContract(
+      name: "Pausable",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Pausable>;
+    deployContract(
       name: "ReentrancyGuard",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1214,6 +1258,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20Whitelist>;
     deployContract(
+      name: "IMarketPlace",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMarketPlace>;
+    deployContract(
       name: "IMetadataModule",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1263,6 +1312,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20Whitelist>;
+    deployContract(
+      name: "MarketPlace",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MarketPlace>;
     deployContract(
       name: "MetadataModule",
       args: any[],

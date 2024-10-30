@@ -207,6 +207,25 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+    ],
+    name: "isAuthorizedContract",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "wrappedSong",
         type: "address",
       },
@@ -479,6 +498,24 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "contractAddress",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "isAuthorized",
+        type: "bool",
+      },
+    ],
+    name: "setAuthorizedContract",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
