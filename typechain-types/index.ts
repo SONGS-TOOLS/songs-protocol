@@ -110,6 +110,8 @@ export type { IProtocolModule } from "./contracts/protocol/Interfaces/IProtocolM
 export { IProtocolModule__factory } from "./factories/contracts/protocol/Interfaces/IProtocolModule__factory";
 export type { IWhitelistingManager } from "./contracts/protocol/Interfaces/IWhitelistingManager";
 export { IWhitelistingManager__factory } from "./factories/contracts/protocol/Interfaces/IWhitelistingManager__factory";
+export type { IWrappedSongFactory } from "./contracts/protocol/Interfaces/IWrappedSongFactory";
+export { IWrappedSongFactory__factory } from "./factories/contracts/protocol/Interfaces/IWrappedSongFactory__factory";
 export type { IWrappedSongSmartAccount } from "./contracts/protocol/Interfaces/IWrappedSongSmartAccount";
 export { IWrappedSongSmartAccount__factory } from "./factories/contracts/protocol/Interfaces/IWrappedSongSmartAccount__factory";
 export type { IWSTokenManagement } from "./contracts/protocol/Interfaces/IWSTokenManagement";

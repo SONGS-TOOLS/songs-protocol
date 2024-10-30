@@ -38,7 +38,6 @@ export interface WSTokenManagementInterface extends Interface {
       | "currentLegalContractId"
       | "exists"
       | "isApprovedForAll"
-      | "isLegalContract"
       | "legalContractURIs"
       | "metadataModule"
       | "migrateWrappedSong"
@@ -53,7 +52,6 @@ export interface WSTokenManagementInterface extends Interface {
       | "totalSupply()"
       | "totalSupply(uint256)"
       | "transferOwnership"
-      | "updateLegalContractURI"
       | "uri"
   ): FunctionFragment;
 
@@ -120,10 +118,6 @@ export interface WSTokenManagementInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "isLegalContract",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "legalContractURIs",
     values: [BigNumberish]
   ): string;
@@ -182,10 +176,6 @@ export interface WSTokenManagementInterface extends Interface {
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "updateLegalContractURI",
-    values: [BigNumberish, string]
-  ): string;
   encodeFunctionData(functionFragment: "uri", values: [BigNumberish]): string;
 
   decodeFunctionResult(
@@ -228,10 +218,6 @@ export interface WSTokenManagementInterface extends Interface {
   decodeFunctionResult(functionFragment: "exists", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLegalContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -285,10 +271,6 @@ export interface WSTokenManagementInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateLegalContractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "uri", data: BytesLike): Result;
@@ -563,12 +545,6 @@ export interface WSTokenManagement extends BaseContract {
     "view"
   >;
 
-  isLegalContract: TypedContractMethod<
-    [tokenId: BigNumberish],
-    [boolean],
-    "view"
-  >;
-
   legalContractURIs: TypedContractMethod<
     [arg0: BigNumberish],
     [string],
@@ -641,12 +617,6 @@ export interface WSTokenManagement extends BaseContract {
     "nonpayable"
   >;
 
-  updateLegalContractURI: TypedContractMethod<
-    [tokenId: BigNumberish, newURI: string],
-    [void],
-    "nonpayable"
-  >;
-
   uri: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
@@ -705,9 +675,6 @@ export interface WSTokenManagement extends BaseContract {
     [boolean],
     "view"
   >;
-  getFunction(
-    nameOrSignature: "isLegalContract"
-  ): TypedContractMethod<[tokenId: BigNumberish], [boolean], "view">;
   getFunction(
     nameOrSignature: "legalContractURIs"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
@@ -774,13 +741,6 @@ export interface WSTokenManagement extends BaseContract {
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "updateLegalContractURI"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish, newURI: string],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "uri"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;

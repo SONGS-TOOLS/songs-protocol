@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract WrappedSongFactory {
   IProtocolModule public immutable protocolModule;
   IMetadataModule public immutable metadataModule;
-  mapping(address => address[]) public ownerWrappedSongs;
-  mapping(address => address) public smartAccountToWSToken;
 
   event WrappedSongCreated(
     address indexed owner,
@@ -75,9 +73,8 @@ contract WrappedSongFactory {
     address newWrappedSongSmartAccountAddress = address(newWrappedSongSmartAccount);
     address wsTokenManagementAddress = newWrappedSongSmartAccount.getWSTokenManagementAddress();
 
-    smartAccountToWSToken[newWrappedSongSmartAccountAddress] = wsTokenManagementAddress;
-
-    ownerWrappedSongs[msg.sender].push(newWrappedSongSmartAccountAddress);
+    protocolModule.setSmartAccountToWSToken(newWrappedSongSmartAccountAddress, wsTokenManagementAddress);
+    protocolModule.addOwnerWrappedSong(msg.sender, newWrappedSongSmartAccountAddress);
 
     metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
 

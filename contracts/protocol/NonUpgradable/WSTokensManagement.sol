@@ -113,48 +113,19 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     return tokenId;
   }
 
-  /**
-   * @dev Updates the URI of a specific legal contract token.
-   * @param tokenId The ID of the legal contract token to update.
-   * @param newURI The new URI for the legal contract.
-   */
-  function updateLegalContractURI(uint256 tokenId, string memory newURI) external onlyOwner {
-    require(bytes(newURI).length > 0, "Invalid URI");
-    require(tokenId >= LEGAL_CONTRACT_START_ID && tokenId < currentLegalContractId, "Invalid legal contract ID");
-    require(_tokenCreated[tokenId], "Legal contract token does not exist");
-    require(totalSupply(tokenId) > 0, "Legal contract token does not exist");
-    
-    legalContractURIs[tokenId] = newURI;
-    emit LegalContractURIUpdated(tokenId, newURI);
-  }
 
-  /**
-   * @dev Returns whether a token ID is a legal contract token.
-   * @param tokenId The token ID to check.
-   */
-  function isLegalContract(uint256 tokenId) public view returns (bool) {
-    return tokenId >= LEGAL_CONTRACT_START_ID && tokenId < currentLegalContractId;
-  }
 
   function uri(uint256 tokenId) public view virtual override returns (string memory) {
-    if (isLegalContract(tokenId)) {
+    if (tokenId >= LEGAL_CONTRACT_START_ID && tokenId < currentLegalContractId) {
       return legalContractURIs[tokenId];
     }
     return metadataModule.getTokenURI(owner(), tokenId);
   }
 
-
   function migrateWrappedSong(address metadataAddress) external onlyOwner {
     metadataModule = IMetadataModule(metadataAddress);
   }
 
-  /**
-   * @dev Internal function to mark a token as created.
-   * @param tokenId The token ID to mark as created.
-   */
-  function _markTokenAsCreated(uint256 tokenId) internal {
-    _tokenCreated[tokenId] = true;
-  }
 
   /**
    * @dev Override _beforeTokenTransfer to prevent transfers of non-created tokens.

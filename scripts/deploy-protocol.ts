@@ -148,6 +148,7 @@ async function main() {
 
   // Set MetadataModule in ProtocolModule
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
+  await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
 
   // Save the ABI of WrappedSongSmartAccount without deploying it
   await saveAbi('WrappedSongSmartAccount', '0x0000000000000000000000000000000000000000');

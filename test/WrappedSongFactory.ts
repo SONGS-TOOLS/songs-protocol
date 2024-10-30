@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
-import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers } from "hardhat";
 
 describe("WrappedSongFactory", function () {
     async function deployContractFixture() {
@@ -88,7 +88,7 @@ describe("WrappedSongFactory", function () {
             await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(mockStablecoin.target, metadata, sharesAmount, { value: creationFee }))
                 .to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
         });
 
@@ -127,7 +127,7 @@ describe("WrappedSongFactory", function () {
                 { value: creationFee }
             )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
 
             const wrappedSongAddress = userWrappedSongs[0];
@@ -172,7 +172,7 @@ describe("WrappedSongFactory", function () {
                     { value: creationFee }
                 )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-                const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+                const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
                 expect(userWrappedSongs.length).to.equal(1);
 
                 const wrappedSongAddress = userWrappedSongs[0];
@@ -220,7 +220,7 @@ describe("WrappedSongFactory", function () {
                     { value: creationFee }
                 )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-                const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+                const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
                 expect(userWrappedSongs.length).to.equal(1);
 
                 const wrappedSongAddress = userWrappedSongs[0];

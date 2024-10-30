@@ -56,13 +56,11 @@ export interface MetadataModuleInterface extends Interface {
       | "confirmUpdateMetadata"
       | "createMetadata"
       | "getPendingMetadataUpdate"
-      | "getTokenMetadata"
       | "getTokenURI"
       | "isMetadataUpdateConfirmed"
       | "owner"
       | "protocolModule"
       | "rejectUpdateMetadata"
-      | "removeMetadata"
       | "renounceOwnership"
       | "requestUpdateMetadata"
       | "transferOwnership"
@@ -91,10 +89,6 @@ export interface MetadataModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getTokenMetadata",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getTokenURI",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -109,10 +103,6 @@ export interface MetadataModuleInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rejectUpdateMetadata",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeMetadata",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -145,10 +135,6 @@ export interface MetadataModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getTokenMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getTokenURI",
     data: BytesLike
   ): Result;
@@ -163,10 +149,6 @@ export interface MetadataModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "rejectUpdateMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeMetadata",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -330,12 +312,6 @@ export interface MetadataModule extends BaseContract {
     "view"
   >;
 
-  getTokenMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike],
-    [MetadataModule.MetadataStructOutput],
-    "view"
-  >;
-
   getTokenURI: TypedContractMethod<
     [wrappedSong: AddressLike, tokenId: BigNumberish],
     [string],
@@ -353,12 +329,6 @@ export interface MetadataModule extends BaseContract {
   protocolModule: TypedContractMethod<[], [string], "view">;
 
   rejectUpdateMetadata: TypedContractMethod<
-    [wrappedSong: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  removeMetadata: TypedContractMethod<
     [wrappedSong: AddressLike],
     [void],
     "nonpayable"
@@ -406,13 +376,6 @@ export interface MetadataModule extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "getTokenMetadata"
-  ): TypedContractMethod<
-    [wrappedSong: AddressLike],
-    [MetadataModule.MetadataStructOutput],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getTokenURI"
   ): TypedContractMethod<
     [wrappedSong: AddressLike, tokenId: BigNumberish],
@@ -430,9 +393,6 @@ export interface MetadataModule extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "rejectUpdateMetadata"
-  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "removeMetadata"
   ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "renounceOwnership"

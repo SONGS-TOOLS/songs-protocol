@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokensManagement.sol";
+import "hardhat/console.sol";
 
 contract MetadataModule is Ownable {
     IProtocolModule public protocolModule;
@@ -56,30 +57,41 @@ contract MetadataModule is Ownable {
      */
     
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external {
+        console.log("createMetadata called for wrapped song:", wrappedSong);
+        console.log("Caller (msg.sender):", msg.sender);
 
         require(bytes(wrappedSongMetadata[wrappedSong].name).length == 0, "Metadata already exists");
         
         wrappedSongMetadata[wrappedSong] = newMetadata;
         emit MetadataCreated(wrappedSong, newMetadata);
         
+        console.log("createMetadata completed successfully");
     }
-
     /**
      * @dev Requests an update to the metadata of a released wrapped song.
      * @param wrappedSong The address of the wrapped song.
      * @param newMetadata The new metadata to be set.
      */
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external {
+        console.log("requestUpdateMetadata called for wrapped song:", wrappedSong);
+        console.log("Caller (msg.sender):", msg.sender);
+
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
 
         require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can request update");
+        console.log("Owner check passed");
 
         require(protocolModule.isReleased(wrappedSong), "Song not released, update metadata directly");
+        console.log("Release check passed");
         
         pendingMetadataUpdates[wrappedSong] = newMetadata;
         metadataUpdateConfirmed[wrappedSong] = false;
+        console.log("Pending metadata update set");
 
         emit MetadataUpdateRequested(wrappedSong, newMetadata);
+        console.log("MetadataUpdateRequested event emitted");
+
+        console.log("requestUpdateMetadata completed successfully");
     }
 
     /**
@@ -126,7 +138,7 @@ contract MetadataModule is Ownable {
     }
 
     /**
-     * @dev Retrieves the token URI for a given wrapped song andY l token ID.
+     * @dev Retrieves the token URI for a given wrapped song and token ID.
      * @param wrappedSong The address of the wrapped song.
      * @param tokenId The ID of the token.
      * @return The token URI as a string.
@@ -198,11 +210,6 @@ contract MetadataModule is Ownable {
         return string(abi.encodePacked("data:application/json;base64,", json));
     }
 
-    /**
-     * @dev Generates the SVG image for the wrapped song.
-     * @param imageUrl The URL of the image to be used in the SVG.
-     * @return The SVG image as a string.
-     */
     function _generateSVGImage(string memory imageUrl) internal pure returns (string memory) {
         string memory svgContent = _generateSVGContent(imageUrl);
         return string(abi.encodePacked(
@@ -211,11 +218,6 @@ contract MetadataModule is Ownable {
         ));
     }
 
-    /**
-     * @dev Generates the SVG content for the wrapped song.
-     * @param imageUrl The URL of the image to be used in the SVG.
-     * @return The SVG content as a string.
-     */
     function _generateSVGContent(string memory imageUrl) internal pure returns (string memory) {
         return string(abi.encodePacked(
             '<svg width="562" height="562" viewBox="0 0 562 562" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
@@ -241,11 +243,6 @@ contract MetadataModule is Ownable {
         ));
     }
 
-    /**
-     * @dev Converts an address to a string.
-     * @param _addr The address to convert.
-     * @return The address as a string.
-     */
     function addressToString(address _addr) internal pure returns (string memory) {
         bytes32 value = bytes32(uint256(uint160(_addr)));
         bytes memory alphabet = "0123456789abcdef";
@@ -258,27 +255,4 @@ contract MetadataModule is Ownable {
         }
         return string(str);
     }
-
-    // Migration contracts
-
-    /**
-     * @dev Retrieves the metadata for a wrapped song.
-     * @param wrappedSong The address of the wrapped song.
-     * @return The metadata for the wrapped song.
-     */
-    function getTokenMetadata(address wrappedSong) external view returns (Metadata memory) {
-        return wrappedSongMetadata[wrappedSong];
-    }
-
-    /**
-     * @dev Removes the metadata for a wrapped song. Only callable by authorized contracts.
-     * @param wrappedSong The address of the wrapped song.
-     */
-    function removeMetadata(address wrappedSong) external {
-        require(
-        msg.sender == address(protocolModule) || 
-        protocolModule.isAuthorizedContract(msg.sender), "Only protocol or authorized contracts can remove metadata");
-        delete wrappedSongMetadata[wrappedSong];
-    }
-    
 }

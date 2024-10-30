@@ -80,6 +80,24 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "wrappedSong",
+        type: "address",
+      },
+    ],
+    name: "addOwnerWrappedSong",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "wrappedSong",
         type: "address",
       },
@@ -128,6 +146,25 @@ const _abi = [
         internalType: "contract IERC20Whitelist",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "getOwnerWrappedSongs",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
       },
     ],
     stateMutability: "view",
@@ -587,6 +624,24 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "smartAccount",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "wsToken",
+        type: "address",
+      },
+    ],
+    name: "setSmartAccountToWSToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_whitelistingManager",
         type: "address",
       },
@@ -623,6 +678,19 @@ const _abi = [
       },
     ],
     name: "setWrappedSongCreationFee",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_wrappedSongFactory",
+        type: "address",
+      },
+    ],
+    name: "setWrappedSongFactory",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -712,6 +780,19 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "wrappedSongFactoryAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",

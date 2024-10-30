@@ -145,7 +145,7 @@ async function main() {
         );
       await createWrappedSongTx.wait();
 
-      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+      const ownerWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(
         newWallet.address
       );
       const wrappedSongAddress =
@@ -157,7 +157,7 @@ async function main() {
     }
   }
 
-  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+  const ownerWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(
     newWallet.address
   );
 

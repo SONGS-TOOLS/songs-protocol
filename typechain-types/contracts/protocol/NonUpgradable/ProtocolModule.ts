@@ -30,11 +30,13 @@ export interface ProtocolModuleInterface extends Interface {
       | "addISCC"
       | "addISRC"
       | "addISWC"
+      | "addOwnerWrappedSong"
       | "addUPC"
       | "authorizedContracts"
       | "confirmWrappedSongRelease"
       | "distributorWalletFactory"
       | "erc20whitelist"
+      | "getOwnerWrappedSongs"
       | "getPendingDistributorRequests"
       | "getWrappedSongDistributor"
       | "handleExpiredReviewPeriod"
@@ -48,6 +50,7 @@ export interface ProtocolModuleInterface extends Interface {
       | "iswcRegistry"
       | "metadataModule"
       | "owner"
+      | "ownerWrappedSongs"
       | "paused"
       | "pendingDistributorRequests"
       | "rejectWrappedSongRelease"
@@ -64,9 +67,12 @@ export interface ProtocolModuleInterface extends Interface {
       | "setPaused"
       | "setReleaseFee"
       | "setReviewPeriodDays"
+      | "setSmartAccountToWSToken"
       | "setWhitelistingManager"
       | "setWrappedSongAuthenticity"
       | "setWrappedSongCreationFee"
+      | "setWrappedSongFactory"
+      | "smartAccountToWSToken"
       | "transferOwnership"
       | "upcRegistry"
       | "updateDistributorWalletFactory"
@@ -74,6 +80,8 @@ export interface ProtocolModuleInterface extends Interface {
       | "whitelistingManager"
       | "wrappedSongAuthenticity"
       | "wrappedSongCreationFee"
+      | "wrappedSongFactory"
+      | "wrappedSongFactoryAddress"
       | "wrappedSongToDistributor"
   ): FunctionFragment;
 
@@ -108,6 +116,10 @@ export interface ProtocolModuleInterface extends Interface {
     values: [AddressLike, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "addOwnerWrappedSong",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "addUPC",
     values: [AddressLike, string]
   ): string;
@@ -126,6 +138,10 @@ export interface ProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "erc20whitelist",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getOwnerWrappedSongs",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getPendingDistributorRequests",
@@ -176,6 +192,10 @@ export interface ProtocolModuleInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "ownerWrappedSongs",
+    values: [AddressLike, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pendingDistributorRequests",
@@ -235,6 +255,10 @@ export interface ProtocolModuleInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setSmartAccountToWSToken",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setWhitelistingManager",
     values: [AddressLike]
   ): string;
@@ -245,6 +269,14 @@ export interface ProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setWrappedSongCreationFee",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setWrappedSongFactory",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "smartAccountToWSToken",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -275,6 +307,14 @@ export interface ProtocolModuleInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "wrappedSongFactory",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "wrappedSongFactoryAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "wrappedSongToDistributor",
     values: [AddressLike]
   ): string;
@@ -286,6 +326,10 @@ export interface ProtocolModuleInterface extends Interface {
   decodeFunctionResult(functionFragment: "addISCC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addISRC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addISWC", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addOwnerWrappedSong",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "addUPC", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "authorizedContracts",
@@ -301,6 +345,10 @@ export interface ProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "erc20whitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getOwnerWrappedSongs",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -349,6 +397,10 @@ export interface ProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ownerWrappedSongs",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingDistributorRequests",
@@ -405,6 +457,10 @@ export interface ProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setSmartAccountToWSToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setWhitelistingManager",
     data: BytesLike
   ): Result;
@@ -414,6 +470,14 @@ export interface ProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setWrappedSongCreationFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setWrappedSongFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "smartAccountToWSToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -442,6 +506,14 @@ export interface ProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "wrappedSongCreationFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "wrappedSongFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "wrappedSongFactoryAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -673,6 +745,12 @@ export interface ProtocolModule extends BaseContract {
     "nonpayable"
   >;
 
+  addOwnerWrappedSong: TypedContractMethod<
+    [owner: AddressLike, wrappedSong: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   addUPC: TypedContractMethod<
     [wrappedSong: AddressLike, upc: string],
     [void],
@@ -694,6 +772,12 @@ export interface ProtocolModule extends BaseContract {
   distributorWalletFactory: TypedContractMethod<[], [string], "view">;
 
   erc20whitelist: TypedContractMethod<[], [string], "view">;
+
+  getOwnerWrappedSongs: TypedContractMethod<
+    [owner: AddressLike],
+    [string[]],
+    "view"
+  >;
 
   getPendingDistributorRequests: TypedContractMethod<
     [wrappedSong: AddressLike],
@@ -752,6 +836,12 @@ export interface ProtocolModule extends BaseContract {
   metadataModule: TypedContractMethod<[], [string], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
+
+  ownerWrappedSongs: TypedContractMethod<
+    [arg0: AddressLike, arg1: BigNumberish],
+    [string],
+    "view"
+  >;
 
   paused: TypedContractMethod<[], [boolean], "view">;
 
@@ -835,6 +925,12 @@ export interface ProtocolModule extends BaseContract {
     "nonpayable"
   >;
 
+  setSmartAccountToWSToken: TypedContractMethod<
+    [smartAccount: AddressLike, wsToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   setWhitelistingManager: TypedContractMethod<
     [_whitelistingManager: AddressLike],
     [void],
@@ -851,6 +947,18 @@ export interface ProtocolModule extends BaseContract {
     [_fee: BigNumberish],
     [void],
     "nonpayable"
+  >;
+
+  setWrappedSongFactory: TypedContractMethod<
+    [_wrappedSongFactory: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  smartAccountToWSToken: TypedContractMethod<
+    [arg0: AddressLike],
+    [string],
+    "view"
   >;
 
   transferOwnership: TypedContractMethod<
@@ -882,6 +990,10 @@ export interface ProtocolModule extends BaseContract {
   >;
 
   wrappedSongCreationFee: TypedContractMethod<[], [bigint], "view">;
+
+  wrappedSongFactory: TypedContractMethod<[], [string], "view">;
+
+  wrappedSongFactoryAddress: TypedContractMethod<[], [string], "view">;
 
   wrappedSongToDistributor: TypedContractMethod<
     [arg0: AddressLike],
@@ -918,6 +1030,13 @@ export interface ProtocolModule extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "addOwnerWrappedSong"
+  ): TypedContractMethod<
+    [owner: AddressLike, wrappedSong: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "addUPC"
   ): TypedContractMethod<
     [wrappedSong: AddressLike, upc: string],
@@ -936,6 +1055,9 @@ export interface ProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "erc20whitelist"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getOwnerWrappedSongs"
+  ): TypedContractMethod<[owner: AddressLike], [string[]], "view">;
   getFunction(
     nameOrSignature: "getPendingDistributorRequests"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
@@ -975,6 +1097,13 @@ export interface ProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "ownerWrappedSongs"
+  ): TypedContractMethod<
+    [arg0: AddressLike, arg1: BigNumberish],
+    [string],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "paused"
   ): TypedContractMethod<[], [boolean], "view">;
@@ -1042,6 +1171,13 @@ export interface ProtocolModule extends BaseContract {
     nameOrSignature: "setReviewPeriodDays"
   ): TypedContractMethod<[_days: BigNumberish], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setSmartAccountToWSToken"
+  ): TypedContractMethod<
+    [smartAccount: AddressLike, wsToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "setWhitelistingManager"
   ): TypedContractMethod<
     [_whitelistingManager: AddressLike],
@@ -1058,6 +1194,16 @@ export interface ProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "setWrappedSongCreationFee"
   ): TypedContractMethod<[_fee: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setWrappedSongFactory"
+  ): TypedContractMethod<
+    [_wrappedSongFactory: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "smartAccountToWSToken"
+  ): TypedContractMethod<[arg0: AddressLike], [string], "view">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
@@ -1079,6 +1225,12 @@ export interface ProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "wrappedSongCreationFee"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "wrappedSongFactory"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "wrappedSongFactoryAddress"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "wrappedSongToDistributor"
   ): TypedContractMethod<[arg0: AddressLike], [string], "view">;

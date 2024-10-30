@@ -77,14 +77,6 @@ contract WrappedSongSmartAccount is
     uint256 newEarnings,
     uint256 totalEarnings
   );
-  event SaleFundsReceived(uint256 amount);
-  event SaleFundsWithdrawn(address indexed to, uint256 amount);
-  event SongSharesTransferred(
-    address indexed from,
-    address indexed to,
-    uint256 amount
-  );
-  // event BatchSongSharesTransferred(address indexed from, address[] recipients, uint256[] amounts);
   event ContractMigrated(address indexed newWrappedSongAddress);
 
   /**
@@ -119,10 +111,14 @@ contract WrappedSongSmartAccount is
   }
 
   /**
-   * @dev Creates the initial song shares. Can only be called by owner.
+   * @dev Creates the initial song shares. Can only be called by owner or factory.
    * @param sharesAmount The amount of shares to create
    */
-  function createSongShares(uint256 sharesAmount) external onlyOwner {
+  function createSongShares(uint256 sharesAmount) external {
+    require(
+      msg.sender == owner() || msg.sender == protocolModule.wrappedSongFactoryAddress(),
+      "Caller is not owner or factory"
+    );
     require(
       newWSTokenManagement.totalSupply(1) == 0,
       "Shares already initialized"
@@ -153,17 +149,6 @@ contract WrappedSongSmartAccount is
     return newWSTokenManagement.createLegalContract(contractURI);
   }
 
-  /**
-   * @dev Updates the URI of a legal contract token. Can only be called by owner or wrapped song distributor.
-   * @param tokenId The ID of the legal contract token to update
-   * @param newURI The new URI for the legal contract
-   */
-  function updateLegalContractURI(
-    uint256 tokenId,
-    string memory newURI
-  ) external onlyOwnerOrDistributor {
-    newWSTokenManagement.updateLegalContractURI(tokenId, newURI);
-  }
 
 
   /******************************************************************************
@@ -373,33 +358,33 @@ contract WrappedSongSmartAccount is
    *                                                                             *
    ******************************************************************************/
 
-  /**
-   * @dev Requests an update to the metadata if the song has been released.
-   * @param newMetadata The new metadata to be set.
-   */
-  function requestUpdateMetadata(
-    IMetadataModule.Metadata memory newMetadata
-  ) external onlyOwner {
-    require(
-      protocolModule.isReleased(address(this)),
-      "Song not released, update metadata directly"
-    );
-    metadataModule.requestUpdateMetadata(address(this), newMetadata);
-  }
+  // /**
+  //  * @dev Requests an update to the metadata if the song has been released.
+  //  * @param newMetadata The new metadata to be set.
+  //  */
+  // function requestUpdateMetadata(
+  //   IMetadataModule.Metadata memory newMetadata
+  // ) external onlyOwner {
+  //   require(
+  //     protocolModule.isReleased(address(this)),
+  //     "Song not released, update metadata directly"
+  //   );
+  //   metadataModule.requestUpdateMetadata(address(this), newMetadata);
+  // }
 
-  /**
-   * @dev Updates the metadata directly if the song has not been released.
-   * @param newMetadata The new metadata to be set.
-   */
-  function updateMetadata(
-    IMetadataModule.Metadata memory newMetadata
-  ) public onlyOwner {
-    require(
-      !protocolModule.isReleased(address(this)),
-      "Cannot update metadata directly after release, request update instead"
-    );
-    metadataModule.updateMetadata(address(this), newMetadata);
-  }
+  // /**
+  //  * @dev Updates the metadata directly if the song has not been released.
+  //  * @param newMetadata The new metadata to be set.
+  //  */
+  // function updateMetadata(
+  //   IMetadataModule.Metadata memory newMetadata
+  // ) public onlyOwner {
+  //   require(
+  //     !protocolModule.isReleased(address(this)),
+  //     "Cannot update metadata directly after release, request update instead"
+  //   );
+  //   metadataModule.updateMetadata(address(this), newMetadata);
+  // }
 
   /******************************************************************************
    *                                                                             *

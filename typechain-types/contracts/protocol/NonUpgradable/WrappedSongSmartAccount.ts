@@ -77,7 +77,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "redeemShares"
       | "redeemedEarnings"
       | "renounceOwnership"
-      | "requestUpdateMetadata"
       | "requestWrappedSongRelease"
       | "requestWrappedSongReleaseWithMetadata"
       | "saleFunds"
@@ -89,8 +88,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "transferOwnership"
       | "unclaimedEarnings"
       | "updateEarnings"
-      | "updateLegalContractURI"
-      | "updateMetadata"
       | "wrappedSongTokenId"
   ): FunctionFragment;
 
@@ -101,9 +98,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
       | "EarningsReceived"
       | "EarningsUpdated"
       | "OwnershipTransferred"
-      | "SaleFundsReceived"
-      | "SaleFundsWithdrawn"
-      | "SongSharesTransferred"
   ): EventFragment;
 
   encodeFunctionData(
@@ -203,10 +197,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "requestUpdateMetadata",
-    values: [IMetadataModule.MetadataStruct]
-  ): string;
-  encodeFunctionData(
     functionFragment: "requestWrappedSongRelease",
     values: [AddressLike]
   ): string;
@@ -246,14 +236,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
   encodeFunctionData(
     functionFragment: "updateEarnings",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateLegalContractURI",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateMetadata",
-    values: [IMetadataModule.MetadataStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "wrappedSongTokenId",
@@ -348,10 +330,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "requestUpdateMetadata",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "requestWrappedSongRelease",
     data: BytesLike
   ): Result;
@@ -387,14 +365,6 @@ export interface WrappedSongSmartAccountInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateEarnings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateLegalContractURI",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateMetadata",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -490,49 +460,6 @@ export namespace OwnershipTransferredEvent {
   export interface OutputObject {
     previousOwner: string;
     newOwner: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace SaleFundsReceivedEvent {
-  export type InputTuple = [amount: BigNumberish];
-  export type OutputTuple = [amount: bigint];
-  export interface OutputObject {
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace SaleFundsWithdrawnEvent {
-  export type InputTuple = [to: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [to: string, amount: bigint];
-  export interface OutputObject {
-    to: string;
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace SongSharesTransferredEvent {
-  export type InputTuple = [
-    from: AddressLike,
-    to: AddressLike,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [from: string, to: string, amount: bigint];
-  export interface OutputObject {
-    from: string;
-    to: string;
-    amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -675,12 +602,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  requestUpdateMetadata: TypedContractMethod<
-    [newMetadata: IMetadataModule.MetadataStruct],
-    [void],
-    "nonpayable"
-  >;
-
   requestWrappedSongRelease: TypedContractMethod<
     [_distributorWallet: AddressLike],
     [void],
@@ -721,18 +642,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
   unclaimedEarnings: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   updateEarnings: TypedContractMethod<[], [void], "nonpayable">;
-
-  updateLegalContractURI: TypedContractMethod<
-    [tokenId: BigNumberish, newURI: string],
-    [void],
-    "nonpayable"
-  >;
-
-  updateMetadata: TypedContractMethod<
-    [newMetadata: IMetadataModule.MetadataStruct],
-    [void],
-    "nonpayable"
-  >;
 
   wrappedSongTokenId: TypedContractMethod<[], [bigint], "view">;
 
@@ -845,13 +754,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "requestUpdateMetadata"
-  ): TypedContractMethod<
-    [newMetadata: IMetadataModule.MetadataStruct],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "requestWrappedSongRelease"
   ): TypedContractMethod<
     [_distributorWallet: AddressLike],
@@ -896,20 +798,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
     nameOrSignature: "updateEarnings"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "updateLegalContractURI"
-  ): TypedContractMethod<
-    [tokenId: BigNumberish, newURI: string],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "updateMetadata"
-  ): TypedContractMethod<
-    [newMetadata: IMetadataModule.MetadataStruct],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "wrappedSongTokenId"
   ): TypedContractMethod<[], [bigint], "view">;
 
@@ -947,27 +835,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
-  >;
-  getEvent(
-    key: "SaleFundsReceived"
-  ): TypedContractEvent<
-    SaleFundsReceivedEvent.InputTuple,
-    SaleFundsReceivedEvent.OutputTuple,
-    SaleFundsReceivedEvent.OutputObject
-  >;
-  getEvent(
-    key: "SaleFundsWithdrawn"
-  ): TypedContractEvent<
-    SaleFundsWithdrawnEvent.InputTuple,
-    SaleFundsWithdrawnEvent.OutputTuple,
-    SaleFundsWithdrawnEvent.OutputObject
-  >;
-  getEvent(
-    key: "SongSharesTransferred"
-  ): TypedContractEvent<
-    SongSharesTransferredEvent.InputTuple,
-    SongSharesTransferredEvent.OutputTuple,
-    SongSharesTransferredEvent.OutputObject
   >;
 
   filters: {
@@ -1024,39 +891,6 @@ export interface WrappedSongSmartAccount extends BaseContract {
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
-    >;
-
-    "SaleFundsReceived(uint256)": TypedContractEvent<
-      SaleFundsReceivedEvent.InputTuple,
-      SaleFundsReceivedEvent.OutputTuple,
-      SaleFundsReceivedEvent.OutputObject
-    >;
-    SaleFundsReceived: TypedContractEvent<
-      SaleFundsReceivedEvent.InputTuple,
-      SaleFundsReceivedEvent.OutputTuple,
-      SaleFundsReceivedEvent.OutputObject
-    >;
-
-    "SaleFundsWithdrawn(address,uint256)": TypedContractEvent<
-      SaleFundsWithdrawnEvent.InputTuple,
-      SaleFundsWithdrawnEvent.OutputTuple,
-      SaleFundsWithdrawnEvent.OutputObject
-    >;
-    SaleFundsWithdrawn: TypedContractEvent<
-      SaleFundsWithdrawnEvent.InputTuple,
-      SaleFundsWithdrawnEvent.OutputTuple,
-      SaleFundsWithdrawnEvent.OutputObject
-    >;
-
-    "SongSharesTransferred(address,address,uint256)": TypedContractEvent<
-      SongSharesTransferredEvent.InputTuple,
-      SongSharesTransferredEvent.OutputTuple,
-      SongSharesTransferredEvent.OutputObject
-    >;
-    SongSharesTransferred: TypedContractEvent<
-      SongSharesTransferredEvent.InputTuple,
-      SongSharesTransferredEvent.OutputTuple,
-      SongSharesTransferredEvent.OutputObject
     >;
   };
 }

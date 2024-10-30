@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./../Interfaces/IWrappedSongFactory.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
@@ -13,6 +14,10 @@ contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
     
+    mapping(address => address[]) public ownerWrappedSongs;
+    mapping(address => address) public smartAccountToWSToken;
+
+    IWrappedSongFactory public wrappedSongFactory;
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
     IERC20Whitelist public erc20whitelist;
@@ -353,5 +358,36 @@ contract ProtocolModule is Ownable {
      */
     function setAuthorizedContract(address _contractAddress, bool _isAuthorized) external onlyOwner {
         authorizedContracts[_contractAddress] = _isAuthorized;
+    }
+
+    /**
+     * @dev Returns the address of the WrappedSongFactory contract.
+     * @return The address of the WrappedSongFactory contract.
+     */
+    function wrappedSongFactoryAddress() external view returns (address) {
+        return address(wrappedSongFactory);
+    }
+
+    /**
+     * @dev Sets the address of the WrappedSongFactory contract. Only the owner can set the address.
+     * @param _wrappedSongFactory The address of the new WrappedSongFactory contract.
+     */
+    function setWrappedSongFactory(address _wrappedSongFactory) external onlyOwner {
+        require(_wrappedSongFactory != address(0), "Invalid factory address");
+        wrappedSongFactory = IWrappedSongFactory(_wrappedSongFactory);
+    }
+
+    function setSmartAccountToWSToken(address smartAccount, address wsToken) external {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can set token mapping");
+        smartAccountToWSToken[smartAccount] = wsToken;
+    }
+
+    function addOwnerWrappedSong(address owner, address wrappedSong) external {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
+        ownerWrappedSongs[owner].push(wrappedSong);
+    }
+
+    function getOwnerWrappedSongs(address owner) external view returns (address[] memory) {
+        return ownerWrappedSongs[owner];
     }
 }

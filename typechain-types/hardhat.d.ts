@@ -222,6 +222,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWhitelistingManager__factory>;
     getContractFactory(
+      name: "IWrappedSongFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IWrappedSongFactory__factory>;
+    getContractFactory(
       name: "IWrappedSongSmartAccount",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWrappedSongSmartAccount__factory>;
@@ -583,6 +587,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IWhitelistingManager>;
     getContractAt(
+      name: "IWrappedSongFactory",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IWrappedSongFactory>;
+    getContractAt(
       name: "IWrappedSongSmartAccount",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -917,6 +926,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWhitelistingManager>;
     deployContract(
+      name: "IWrappedSongFactory",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IWrappedSongFactory>;
+    deployContract(
       name: "IWrappedSongSmartAccount",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWrappedSongSmartAccount>;
@@ -1277,6 +1290,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWhitelistingManager>;
+    deployContract(
+      name: "IWrappedSongFactory",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IWrappedSongFactory>;
     deployContract(
       name: "IWrappedSongSmartAccount",
       args: any[],

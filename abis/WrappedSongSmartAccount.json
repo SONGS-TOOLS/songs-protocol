@@ -161,63 +161,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "SaleFundsReceived",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "SaleFundsWithdrawn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "SongSharesTransferred",
-    "type": "event"
-  },
-  {
     "inputs": [],
     "name": "accumulatedEarningsPerShare",
     "outputs": [
@@ -599,51 +542,6 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "image",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "externalUrl",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "animationUrl",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "attributesIpfsHash",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IMetadataModule.Metadata",
-        "name": "newMetadata",
-        "type": "tuple"
-      }
-    ],
-    "name": "requestUpdateMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "_distributorWallet",
         "type": "address"
@@ -829,69 +727,6 @@
   {
     "inputs": [],
     "name": "updateEarnings",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "newURI",
-        "type": "string"
-      }
-    ],
-    "name": "updateLegalContractURI",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "image",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "externalUrl",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "animationUrl",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "attributesIpfsHash",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IMetadataModule.Metadata",
-        "name": "newMetadata",
-        "type": "tuple"
-      }
-    ],
-    "name": "updateMetadata",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

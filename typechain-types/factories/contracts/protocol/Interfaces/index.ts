@@ -11,4 +11,5 @@ export { IWSTokenManagement__factory } from "./IWSTokenManagement__factory";
 export { IWSTokensManagement__factory } from "./IWSTokensManagement__factory";
 export { IWSUtils__factory } from "./IWSUtils__factory";
 export { IWhitelistingManager__factory } from "./IWhitelistingManager__factory";
+export { IWrappedSongFactory__factory } from "./IWrappedSongFactory__factory";
 export { IWrappedSongSmartAccount__factory } from "./IWrappedSongSmartAccount__factory";

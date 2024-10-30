@@ -11,4 +11,5 @@ export type { IWSTokenManagement } from "./IWSTokenManagement";
 export type { IWSTokensManagement } from "./IWSTokensManagement";
 export type { IWSUtils } from "./IWSUtils";
 export type { IWhitelistingManager } from "./IWhitelistingManager";
+export type { IWrappedSongFactory } from "./IWrappedSongFactory";
 export type { IWrappedSongSmartAccount } from "./IWrappedSongSmartAccount";
