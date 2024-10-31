@@ -113,8 +113,6 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     return tokenId;
   }
 
-
-
   function uri(uint256 tokenId) public view virtual override returns (string memory) {
     if (tokenId >= LEGAL_CONTRACT_START_ID && tokenId < currentLegalContractId) {
       return legalContractURIs[tokenId];

@@ -349,45 +349,6 @@ contract WrappedSongSmartAccount is
 
   /******************************************************************************
    *                                                                             *
-   *                           METADATA MANAGEMENT                               *
-   *                                                                             *
-   * This section contains functions related to managing metadata for the        *
-   * wrapped song. It includes functionality for requesting metadata updates     *
-   * after release, directly updating metadata before release, and handling      *
-   * metadata-related operations through the metadata module.                    *
-   *                                                                             *
-   ******************************************************************************/
-
-  // /**
-  //  * @dev Requests an update to the metadata if the song has been released.
-  //  * @param newMetadata The new metadata to be set.
-  //  */
-  // function requestUpdateMetadata(
-  //   IMetadataModule.Metadata memory newMetadata
-  // ) external onlyOwner {
-  //   require(
-  //     protocolModule.isReleased(address(this)),
-  //     "Song not released, update metadata directly"
-  //   );
-  //   metadataModule.requestUpdateMetadata(address(this), newMetadata);
-  // }
-
-  // /**
-  //  * @dev Updates the metadata directly if the song has not been released.
-  //  * @param newMetadata The new metadata to be set.
-  //  */
-  // function updateMetadata(
-  //   IMetadataModule.Metadata memory newMetadata
-  // ) public onlyOwner {
-  //   require(
-  //     !protocolModule.isReleased(address(this)),
-  //     "Cannot update metadata directly after release, request update instead"
-  //   );
-  //   metadataModule.updateMetadata(address(this), newMetadata);
-  // }
-
-  /******************************************************************************
-   *                                                                             *
    *                           ERC1155 RECEIVER                                  *
    *                                                                             *
    * This section contains functions required to implement the ERC1155Receiver   *
