@@ -214,13 +214,23 @@ export namespace FundsReceivedEvent {
   export type InputTuple = [
     from: AddressLike,
     amount: BigNumberish,
-    currency: string
+    currency: string,
+    wrappedSongs: AddressLike[],
+    amounts: BigNumberish[]
   ];
-  export type OutputTuple = [from: string, amount: bigint, currency: string];
+  export type OutputTuple = [
+    from: string,
+    amount: bigint,
+    currency: string,
+    wrappedSongs: string[],
+    amounts: bigint[]
+  ];
   export interface OutputObject {
     from: string;
     amount: bigint;
     currency: string;
+    wrappedSongs: string[];
+    amounts: bigint[];
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -577,7 +587,7 @@ export interface DistributorWallet extends BaseContract {
   >;
 
   filters: {
-    "FundsReceived(address,uint256,string)": TypedContractEvent<
+    "FundsReceived(address,uint256,string,address[],uint256[])": TypedContractEvent<
       FundsReceivedEvent.InputTuple,
       FundsReceivedEvent.OutputTuple,
       FundsReceivedEvent.OutputObject
