@@ -87,14 +87,14 @@ describe("ReedemDistribution", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+            await wrappedSongFactory.connect(user).createWrappedSong(
                 mockStablecoin.target,
                 metadata,
                 sharesAmount,
                 { value: creationFee }
             );
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
@@ -120,6 +120,7 @@ describe("ReedemDistribution", function () {
             const pricePerShare = ethers.parseUnits("100", 18);
             const maxSharesPerWallet = 1000;
 
+            // TODO: Need to change this with the new MarketPlace contract
             await newWSTokenManagementContract.connect(user).startSharesSale(
                 sharesForSale,
                 pricePerShare,
@@ -132,6 +133,7 @@ describe("ReedemDistribution", function () {
             const totalPrice = BigInt(sharesToBuy) * pricePerShare;
             await mockStablecoin.connect(deployer).transfer(address2.address, totalPrice);
             await mockStablecoin.connect(address2).approve(newWSTokenManagementAddress, totalPrice);
+            // TODO: Need to change this with the new MarketPlace contract
             await newWSTokenManagementContract.connect(address2).buyShares(sharesToBuy);
 
             // Redeem earnings from distributor wallet to wrapped song
