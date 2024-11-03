@@ -127,7 +127,7 @@ async function main() {
       console.log(`Shares amount:`, sharesAmount);
 
       const createWrappedSongTx =
-        await WrappedSongFactory.createWrappedSongWithMetadata(
+        await WrappedSongFactory.createWrappedSong(
           USDC_ADDRESS,
           songMetadatas[i],
           sharesAmount
@@ -139,7 +139,7 @@ async function main() {
       console.log(`Transaction confirmed`);
 
       console.log(`Fetching owner's wrapped songs...`);
-      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+      const ownerWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(
         deployer.address
       );
       console.log(`Total wrapped songs for owner:`, ownerWrappedSongs.length);
@@ -153,7 +153,7 @@ async function main() {
     }
   }
 
-  const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(
+  const ownerWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(
     deployer.address
   );
 
@@ -208,7 +208,7 @@ async function main() {
       `Requesting metadata update for Wrapped Song at: ${wrappedSongAddress}`
     );
     const requestUpdateTx =
-      await wrappedSong.requestUpdateMetadata(newMetadata);
+      await MetadataModule.requestUpdateMetadata(wrappedSongAddress, newMetadata);
     console.log(`Transaction hash: ${requestUpdateTx.hash}`);
 
     console.log(`Waiting for transaction confirmation...`);

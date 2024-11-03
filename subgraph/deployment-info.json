@@ -1,7 +1,7 @@
 {
   "networkName": "localhost",
-  "protocolModuleAddress": "0xF603439195B937c2281937A028909eDC34A2756E",
-  "wrappedSongFactoryAddress": "0x55c0e90D0c391F9AB488e5dDF6fCd07A5ac636f9",
-  "metadataModuleAddress": "0xC87BC3FDd4f3Dc8d1b4200005cAa60Ce744a0c17",
-  "startBlock": 17192882
+  "protocolModuleAddress": "0xBBd23a238812d2984bA9938D4Ed398a0A9FC77Cd",
+  "wrappedSongFactoryAddress": "0xF2Ea044Aa771dc13Bd5BE60F945bD71eCE3D31be",
+  "metadataModuleAddress": "0x1A088407e4cd3Bc04bfA7c688AbAB7aF9f1A8954",
+  "startBlock": 17211390
 }

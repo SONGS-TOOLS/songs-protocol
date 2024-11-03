@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./../Interfaces/IWrappedSongFactory.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
@@ -12,6 +13,11 @@ import "./../Interfaces/IMetadataModule.sol";
 contract ProtocolModule is Ownable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
+    
+    mapping(address => address[]) public ownerWrappedSongs;
+    mapping(address => address) public smartAccountToWSToken;
+
+    IWrappedSongFactory public wrappedSongFactory;
     IDistributorWalletFactory public distributorWalletFactory;
     IWhitelistingManager public whitelistingManager;
     IERC20Whitelist public erc20whitelist;
@@ -28,6 +34,9 @@ contract ProtocolModule is Ownable {
     mapping(address => address) public pendingDistributorRequests;
 
     mapping(address => bool) public wrappedSongAuthenticity;
+
+    // Authorized contracts
+    mapping(address => bool) public authorizedContracts;
 
     // Add this struct and mapping
     struct ReviewPeriod {
@@ -317,11 +326,68 @@ contract ProtocolModule is Ownable {
         return erc20whitelist.isTokenWhitelisted(token);
     }
 
+    /**
+     * @dev Sets the review period days. Only the owner can set the review period days.
+     * @param _days The number of days for the review period.
+     */
     function setReviewPeriodDays(uint256 _days) external onlyOwner {
         reviewPeriodDays = _days;
     }
 
+    /**
+     * @dev Sets the address of the MetadataModule contract. Only the owner can set the address.
+     * @param _metadataModule The address of the new MetadataModule contract.
+     */
     function setMetadataModule(address _metadataModule) external onlyOwner {
         metadataModule = IMetadataModule(_metadataModule);
+    }
+
+    /**
+     * @dev Checks if a contract is authorized.
+     * @param _contractAddress The address of the contract to check.
+     * @return True if the contract is authorized, false otherwise.
+     */
+    function isAuthorizedContract(address _contractAddress) external view returns (bool) {
+        return authorizedContracts[_contractAddress];
+    }
+
+    /**
+     * @dev Sets the authorization status of a contract.
+     * @param _contractAddress The address of the contract to set the authorization status.
+     * @param _isAuthorized The authorization status to be set.
+     */
+    function setAuthorizedContract(address _contractAddress, bool _isAuthorized) external onlyOwner {
+        authorizedContracts[_contractAddress] = _isAuthorized;
+    }
+
+    /**
+     * @dev Returns the address of the WrappedSongFactory contract.
+     * @return The address of the WrappedSongFactory contract.
+     */
+    function wrappedSongFactoryAddress() external view returns (address) {
+        return address(wrappedSongFactory);
+    }
+
+    /**
+     * @dev Sets the address of the WrappedSongFactory contract. Only the owner can set the address.
+     * @param _wrappedSongFactory The address of the new WrappedSongFactory contract.
+     */
+    function setWrappedSongFactory(address _wrappedSongFactory) external onlyOwner {
+        require(_wrappedSongFactory != address(0), "Invalid factory address");
+        wrappedSongFactory = IWrappedSongFactory(_wrappedSongFactory);
+    }
+
+    function setSmartAccountToWSToken(address smartAccount, address wsToken) external {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can set token mapping");
+        smartAccountToWSToken[smartAccount] = wsToken;
+    }
+
+    function addOwnerWrappedSong(address owner, address wrappedSong) external {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
+        ownerWrappedSongs[owner].push(wrappedSong);
+    }
+
+    function getOwnerWrappedSongs(address owner) external view returns (address[] memory) {
+        return ownerWrappedSongs[owner];
     }
 }

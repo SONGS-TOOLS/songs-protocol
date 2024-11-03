@@ -80,6 +80,8 @@ export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
 export type { Math } from "./@openzeppelin/contracts/utils/math/Math";
 export { Math__factory } from "./factories/@openzeppelin/contracts/utils/math/Math__factory";
+export type { Pausable } from "./@openzeppelin/contracts/utils/Pausable";
+export { Pausable__factory } from "./factories/@openzeppelin/contracts/utils/Pausable__factory";
 export type { ReentrancyGuard } from "./@openzeppelin/contracts/utils/ReentrancyGuard";
 export { ReentrancyGuard__factory } from "./factories/@openzeppelin/contracts/utils/ReentrancyGuard__factory";
 export type { Strings } from "./@openzeppelin/contracts/utils/Strings";
@@ -100,12 +102,16 @@ export type { IDistributorWalletFactory } from "./contracts/protocol/Interfaces/
 export { IDistributorWalletFactory__factory } from "./factories/contracts/protocol/Interfaces/IDistributorWalletFactory__factory";
 export type { IERC20Whitelist } from "./contracts/protocol/Interfaces/IERC20Whitelist";
 export { IERC20Whitelist__factory } from "./factories/contracts/protocol/Interfaces/IERC20Whitelist__factory";
+export type { IMarketPlace } from "./contracts/protocol/Interfaces/IMarketPlace";
+export { IMarketPlace__factory } from "./factories/contracts/protocol/Interfaces/IMarketPlace__factory";
 export type { IMetadataModule } from "./contracts/protocol/Interfaces/IMetadataModule";
 export { IMetadataModule__factory } from "./factories/contracts/protocol/Interfaces/IMetadataModule__factory";
 export type { IProtocolModule } from "./contracts/protocol/Interfaces/IProtocolModule";
 export { IProtocolModule__factory } from "./factories/contracts/protocol/Interfaces/IProtocolModule__factory";
 export type { IWhitelistingManager } from "./contracts/protocol/Interfaces/IWhitelistingManager";
 export { IWhitelistingManager__factory } from "./factories/contracts/protocol/Interfaces/IWhitelistingManager__factory";
+export type { IWrappedSongFactory } from "./contracts/protocol/Interfaces/IWrappedSongFactory";
+export { IWrappedSongFactory__factory } from "./factories/contracts/protocol/Interfaces/IWrappedSongFactory__factory";
 export type { IWrappedSongSmartAccount } from "./contracts/protocol/Interfaces/IWrappedSongSmartAccount";
 export { IWrappedSongSmartAccount__factory } from "./factories/contracts/protocol/Interfaces/IWrappedSongSmartAccount__factory";
 export type { IWSTokenManagement } from "./contracts/protocol/Interfaces/IWSTokenManagement";
@@ -120,6 +126,8 @@ export type { DistributorWalletFactory } from "./contracts/protocol/NonUpgradabl
 export { DistributorWalletFactory__factory } from "./factories/contracts/protocol/NonUpgradable/DistributorWalletFactory__factory";
 export type { ERC20Whitelist } from "./contracts/protocol/NonUpgradable/ERC20Whitelist";
 export { ERC20Whitelist__factory } from "./factories/contracts/protocol/NonUpgradable/ERC20Whitelist__factory";
+export type { MarketPlace } from "./contracts/protocol/NonUpgradable/MarketPlace";
+export { MarketPlace__factory } from "./factories/contracts/protocol/NonUpgradable/MarketPlace__factory";
 export type { MetadataModule } from "./contracts/protocol/NonUpgradable/MetadataModule";
 export { MetadataModule__factory } from "./factories/contracts/protocol/NonUpgradable/MetadataModule__factory";
 export type { ProtocolModule } from "./contracts/protocol/NonUpgradable/ProtocolModule";

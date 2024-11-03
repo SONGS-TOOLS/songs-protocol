@@ -4,48 +4,32 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import './../Interfaces/IMetadataModule.sol';
 import './../Interfaces/IProtocolModule.sol';
 
 contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
-  using SafeERC20 for IERC20;
-
   uint256 private _currentTokenId;
   address private immutable _minter;
 
-  mapping(uint256 => string) private _tokenURIs;
+  mapping(uint256 => bool) private _tokenCreated;
 
   uint256 public constant SONG_CONCEPT_ID = 0;
   uint256 public constant SONG_SHARES_ID = 1;
+  uint256 public constant BUYOUT_TOKEN_ID = 2;
+  uint256 public constant LEGAL_CONTRACT_START_ID = 3;
 
-  
-  uint256 public sharesForSale;
-  uint256 public pricePerShare;
-  bool public saleActive;
   uint256 public totalShares;
+  mapping(uint256 => string) public legalContractURIs;
+  uint256 public currentLegalContractId = LEGAL_CONTRACT_START_ID;
 
-  uint256 public maxSharesPerWallet;
-  IERC20 public stableCoin;
   IMetadataModule public metadataModule;
   IProtocolModule public protocolModule;
 
-  string private _baseURI;
-
   event WSTokensCreated(address indexed smartAccount, address indexed minter);
-  event SharesSaleStarted(
-    uint256 amount,
-    uint256 price,
-    address indexed owner,
-    uint256 maxSharesPerWallet,
-    address stableCoinAddress
-  );
-  event SharesSold(address buyer, uint256 amount);
-  event SharesSaleEnded();
-  event FundsWithdrawn(address indexed to, uint256 amount);
-  event ERC20Received(address token, uint256 amount, address sender);
-  event MetadataUpdated(string newMetadata);
+  event SongSharesCreated(uint256 indexed sharesAmount, address indexed minter);
+  event BuyoutTokenCreated(uint256 indexed amount, address indexed recipient);
+  event LegalContractCreated(uint256 indexed tokenId, address indexed recipient, string contractURI);
+  event LegalContractURIUpdated(uint256 indexed tokenId, string newURI);
 
   modifier onlyMinter() {
     require(msg.sender == _minter, 'Caller is not the minter');
@@ -70,159 +54,94 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     _currentTokenId = 0;
     metadataModule = IMetadataModule(_metadataModuleAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
+
+    // Create song concept NFT to the WrappedSongSmartAccount
+    _mint(_smartAccountAddress, SONG_CONCEPT_ID, 1, '');
+    _tokenCreated[SONG_CONCEPT_ID] = true;
     emit WSTokensCreated(_smartAccountAddress, _minterAddress);
   }
 
   /**
-   * @dev Creates a new song concept NFT and fungible shares for it.
-   * @param sharesAmount The total amount of shares to create.
+   * @dev Creates the fungible song shares.
+   * @param sharesAmount The amount of shares to create.
    */
-  function createSongTokens(
-    uint256 sharesAmount
-  ) public onlyOwner {
-    // Create song concept NFT to the WrappedSongSmartAccount
-    _mint(owner(), SONG_CONCEPT_ID, 1, '');
-    // Create fungible SongShares to the minter
+  function createSongShares(uint256 sharesAmount) external onlyOwner {
+    require(!_tokenCreated[SONG_SHARES_ID], "Token ID already created");
+    require(totalSupply(SONG_SHARES_ID) == 0, "Shares already created");
+    require(sharesAmount > 0, "Invalid shares amount");
+
     _mint(_minter, SONG_SHARES_ID, sharesAmount, '');
     totalShares = sharesAmount;
+    _tokenCreated[SONG_SHARES_ID] = true;
+    emit SongSharesCreated(sharesAmount, _minter);
   }
 
   /**
-   * @dev Starts a sale of song shares.
-   * @param amount The amount of shares to put up for sale.
-   * @param price The price per share in wei or stable coin units.
-   * @param maxShares The maximum shares a wallet can buy. If 0, no restriction.
-   * @param _stableCoin The address of the stable coin to use for the sale. If address(0), use ETH.
+   * @dev Creates a buyout token.
+   * @param amount The amount of buyout tokens to create.
+   * @param recipient The address that will receive the buyout token.
    */
-  function startSharesSale(
-    uint256 amount,
-    uint256 price,
-    uint256 maxShares,
-    address _stableCoin
-  ) external onlyMinter {
-    require(
-      amount > 0 &&
-        price > 0 &&
-        balanceOf(_minter, SONG_SHARES_ID) >= amount &&
-        amount <= totalShares,
-      'Invalid sale parameters'
-    );
-    if (_stableCoin != address(0)) {
-      
-      require(
-        protocolModule.isTokenWhitelisted(_stableCoin),
-        'Stablecoin is not whitelisted'
-      );
+  function createBuyoutToken(uint256 amount, address recipient) external onlyOwner {
+    require(!_tokenCreated[BUYOUT_TOKEN_ID], "Token ID already created");
+    require(amount > 0, "Invalid amount");
+    require(recipient != address(0), "Invalid recipient");
+    require(totalSupply(BUYOUT_TOKEN_ID) == 0, "Buyout token already created");
 
-      require(
-        _stableCoin.code.length > 0 && IERC20(_stableCoin).totalSupply() > 0,
-        'Invalid ERC20 token'
-      );
-      
-      stableCoin = IERC20(_stableCoin);
-    } else {
-      stableCoin = IERC20(address(0));
-    }
-
-    sharesForSale = amount;
-    pricePerShare = price;
-    maxSharesPerWallet = maxShares;
-    saleActive = true;
-    emit SharesSaleStarted(
-      amount,
-      price,
-      owner(),
-      maxSharesPerWallet,
-      _stableCoin
-    );
+    _mint(recipient, BUYOUT_TOKEN_ID, amount, '');
+    _tokenCreated[BUYOUT_TOKEN_ID] = true;
+    emit BuyoutTokenCreated(amount, recipient);
   }
 
   /**
-   * @dev Allows users to buy shares during an active sale.
-   * @param amount The amount of shares to buy.
+   * @dev Creates a new legal contract token with a specific URI.
+   * @param contractURI The URI for the legal contract.
+   * @return tokenId The ID of the newly created legal contract token.
    */
-  function buyShares(uint256 amount) external payable nonReentrant {
-    require(saleActive, 'No active sale');
-    require(amount > 0, 'Amount must be greater than 0');
-    require(amount <= sharesForSale, 'Not enough shares available');
-    uint256 totalCost = amount * pricePerShare;
+  function createLegalContract(
+    string memory contractURI
+  ) external onlyOwner returns (uint256 tokenId) {
+    require(bytes(contractURI).length > 0, "Invalid URI");
 
-    if (address(stableCoin) != address(0)) {
-      require(msg.value == 0, 'ETH not accepted for stable coin sale');
-      stableCoin.safeTransferFrom(msg.sender, address(this), totalCost);
-    } else {
-      require(msg.value == totalCost, 'Incorrect ETH amount');
+    tokenId = currentLegalContractId++;
+    require(!_tokenCreated[tokenId], "Token ID already created");
+
+    _mint(owner(), tokenId, 1, '');
+    legalContractURIs[tokenId] = contractURI;
+    _tokenCreated[tokenId] = true;
+    
+    emit LegalContractCreated(tokenId, owner(), contractURI);
+    return tokenId;
+  }
+
+  function uri(uint256 tokenId) public view virtual override returns (string memory) {
+    if (tokenId >= LEGAL_CONTRACT_START_ID && tokenId < currentLegalContractId) {
+      return legalContractURIs[tokenId];
     }
-
-    if (maxSharesPerWallet > 0) {
-      require(
-        balanceOf(msg.sender, SONG_SHARES_ID) + amount <= maxSharesPerWallet,
-        'Exceeds maximum shares per wallet'
-      );
-    }
-
-    sharesForSale -= amount;
-    _safeTransferFrom(_minter, msg.sender, SONG_SHARES_ID, amount, '');
-
-    if (sharesForSale == 0) {
-      saleActive = false;
-      emit SharesSaleEnded();
-    }
-
-    emit SharesSold(msg.sender, amount);
-  }
-
-  /**
-   * @dev Ends the current share sale.
-   */
-  function endSharesSale() external onlyMinter {
-    require(saleActive, 'No active sale');
-    saleActive = false;
-    sharesForSale = 0;
-    emit SharesSaleEnded();
-  }
-
-  /**
-   * @dev Withdraws the contract's balance to the smart account contract.
-   */
-  function withdrawFunds() external onlyMinter nonReentrant {
-    if (address(stableCoin) != address(0)) {
-      uint256 balance = stableCoin.balanceOf(address(this));
-      require(balance > 0, 'No stable coin funds to withdraw');
-      stableCoin.safeTransfer(_minter, balance);
-      emit FundsWithdrawn(_minter, balance);
-    } else {
-      uint256 balance = address(this).balance;
-      require(balance > 0, 'No ETH funds to withdraw');
-      (bool success, ) = _minter.call{value: balance}('');
-      require(success, 'ETH transfer failed');
-      emit FundsWithdrawn(_minter, balance);
-    }
-  }
-
-  /**
-   * @dev Sets the maximum shares a wallet can buy.
-   * @param maxShares The maximum shares per wallet.
-   */
-  function setMaxSharesPerWallet(uint256 maxShares) external onlyOwner {
-    maxSharesPerWallet = maxShares;
-  }
-
-  // Function to receive ERC20 tokens
-  function onERC20Received(
-    address token,
-    uint256 amount
-  ) external returns (bytes4) {
-    emit ERC20Received(token, amount, msg.sender);
-    return this.onERC20Received.selector;
-  }
-
-  function uri(
-    uint256 tokenId
-  ) public view virtual override returns (string memory) {
     return metadataModule.getTokenURI(owner(), tokenId);
   }
 
-  // Function to allow the contract to receive ETH
-  receive() external payable {}
+  function migrateWrappedSong(address metadataAddress) external onlyOwner {
+    metadataModule = IMetadataModule(metadataAddress);
+  }
+
+
+  /**
+   * @dev Override _beforeTokenTransfer to prevent transfers of non-created tokens.
+   */
+  // TODO: Triple Check
+
+  // function _beforeTokenTransfer(
+  //   address operator,
+  //   address from,
+  //   address to,
+  //   uint256[] memory ids,
+  //   uint256[] memory amounts,
+  //   bytes memory data
+  // ) internal virtual override(ERC1155) {
+  //   super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+    
+  //   for (uint256 i = 0; i < ids.length; i++) {
+  //     require(_tokenCreated[ids[i]], "Token ID not created");
+  //   }
+  // }
 }

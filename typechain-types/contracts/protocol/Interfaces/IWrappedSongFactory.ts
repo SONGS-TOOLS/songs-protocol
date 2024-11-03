@@ -8,7 +8,6 @@ import type {
   FunctionFragment,
   Result,
   Interface,
-  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -18,7 +17,6 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
-  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "../../../common";
@@ -50,12 +48,14 @@ export declare namespace IMetadataModule {
   };
 }
 
-export interface WrappedSongFactoryInterface extends Interface {
+export interface IWrappedSongFactoryInterface extends Interface {
   getFunction(
-    nameOrSignature: "createWrappedSong" | "metadataModule" | "protocolModule"
+    nameOrSignature:
+      | "createWrappedSong"
+      | "metadataModule"
+      | "ownerWrappedSongs"
+      | "smartAccountToWSToken"
   ): FunctionFragment;
-
-  getEvent(nameOrSignatureOrTopic: "WrappedSongCreated"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "createWrappedSong",
@@ -66,8 +66,12 @@ export interface WrappedSongFactoryInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "protocolModule",
-    values?: undefined
+    functionFragment: "ownerWrappedSongs",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "smartAccountToWSToken",
+    values: [AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -79,44 +83,20 @@ export interface WrappedSongFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "protocolModule",
+    functionFragment: "ownerWrappedSongs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "smartAccountToWSToken",
     data: BytesLike
   ): Result;
 }
 
-export namespace WrappedSongCreatedEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    indexedwrappedSongSmartAccount: AddressLike,
-    stablecoin: AddressLike,
-    wsTokenManagement: AddressLike,
-    sharesAmount: BigNumberish
-  ];
-  export type OutputTuple = [
-    owner: string,
-    indexedwrappedSongSmartAccount: string,
-    stablecoin: string,
-    wsTokenManagement: string,
-    sharesAmount: bigint
-  ];
-  export interface OutputObject {
-    owner: string;
-    indexedwrappedSongSmartAccount: string;
-    stablecoin: string;
-    wsTokenManagement: string;
-    sharesAmount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export interface WrappedSongFactory extends BaseContract {
-  connect(runner?: ContractRunner | null): WrappedSongFactory;
+export interface IWrappedSongFactory extends BaseContract {
+  connect(runner?: ContractRunner | null): IWrappedSongFactory;
   waitForDeployment(): Promise<this>;
 
-  interface: WrappedSongFactoryInterface;
+  interface: IWrappedSongFactoryInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -167,7 +147,17 @@ export interface WrappedSongFactory extends BaseContract {
 
   metadataModule: TypedContractMethod<[], [string], "view">;
 
-  protocolModule: TypedContractMethod<[], [string], "view">;
+  ownerWrappedSongs: TypedContractMethod<
+    [owner: AddressLike, index: BigNumberish],
+    [string],
+    "view"
+  >;
+
+  smartAccountToWSToken: TypedContractMethod<
+    [smartAccount: AddressLike],
+    [string],
+    "view"
+  >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
@@ -188,27 +178,15 @@ export interface WrappedSongFactory extends BaseContract {
     nameOrSignature: "metadataModule"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "protocolModule"
-  ): TypedContractMethod<[], [string], "view">;
-
-  getEvent(
-    key: "WrappedSongCreated"
-  ): TypedContractEvent<
-    WrappedSongCreatedEvent.InputTuple,
-    WrappedSongCreatedEvent.OutputTuple,
-    WrappedSongCreatedEvent.OutputObject
+    nameOrSignature: "ownerWrappedSongs"
+  ): TypedContractMethod<
+    [owner: AddressLike, index: BigNumberish],
+    [string],
+    "view"
   >;
+  getFunction(
+    nameOrSignature: "smartAccountToWSToken"
+  ): TypedContractMethod<[smartAccount: AddressLike], [string], "view">;
 
-  filters: {
-    "WrappedSongCreated(address,address,address,address,uint256)": TypedContractEvent<
-      WrappedSongCreatedEvent.InputTuple,
-      WrappedSongCreatedEvent.OutputTuple,
-      WrappedSongCreatedEvent.OutputObject
-    >;
-    WrappedSongCreated: TypedContractEvent<
-      WrappedSongCreatedEvent.InputTuple,
-      WrappedSongCreatedEvent.OutputTuple,
-      WrappedSongCreatedEvent.OutputObject
-    >;
-  };
+  filters: {};
 }
