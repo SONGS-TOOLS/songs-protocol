@@ -60,6 +60,7 @@ contract WrappedSongFactory {
     );
 
     require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+    require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
 
     WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
         _stablecoin,
