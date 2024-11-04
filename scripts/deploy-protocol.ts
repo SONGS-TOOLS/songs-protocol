@@ -133,6 +133,17 @@ async function main() {
   await saveAbi('WSUtils', await wsUtils.getAddress());
 
   /* ////////////////////////////////////////////
+  ////////  MarketPlace contract  ////////
+  //////////////////////////////////////////// */
+
+  console.log('Deploying MarketPlace...');
+  const MarketPlace = await ethers.getContractFactory('MarketPlace');
+  const marketPlace = await MarketPlace.deploy(await protocolModule.getAddress());
+  await marketPlace.waitForDeployment();
+  console.log('MarketPlace deployed to:', await marketPlace.getAddress());
+  await saveAbi('MarketPlace', await marketPlace.getAddress());
+
+  /* ////////////////////////////////////////////
   ////////  WrappedSongFactory contract  ////////
   //////////////////////////////////////////// */
 
@@ -172,6 +183,8 @@ async function main() {
     wrappedSongFactoryStartBlock: (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0,
     metadataModuleAddress: await metadataModule.getAddress(),
     metadataModuleStartBlock: (await metadataModule.deploymentTransaction()?.wait())?.blockNumber || 0,
+    marketPlaceAddress: await marketPlace.getAddress(),
+    marketPlaceStartBlock: (await marketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
   };
 
   fs.writeFileSync(
@@ -187,6 +200,7 @@ async function main() {
     protocolModuleAddress: await protocolModule.getAddress(),
     wrappedSongFactoryAddress: await wrappedSongFactory.getAddress(),
     metadataModuleAddress: await metadataModule.getAddress(),
+    marketPlaceAddress: await marketPlace.getAddress(),
     startBlock: deploymentBlockNumber
   };
 
