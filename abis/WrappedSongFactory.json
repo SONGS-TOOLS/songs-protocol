@@ -27,7 +27,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "wrappedSongSmartAccount",
+        "name": "indexedwrappedSongSmartAccount",
         "type": "address"
       },
       {
@@ -41,63 +41,6 @@
         "internalType": "address",
         "name": "wsTokenManagement",
         "type": "address"
-      }
-    ],
-    "name": "WrappedSongCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "wrappedSongSmartAccount",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "image",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "externalUrl",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "animationUrl",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "attributesIpfsHash",
-            "type": "string"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct IMetadataModule.Metadata",
-        "name": "songMetadata",
-        "type": "tuple"
       },
       {
         "indexed": false,
@@ -106,7 +49,7 @@
         "type": "uint256"
       }
     ],
-    "name": "WrappedSongCreatedWithMetadata",
+    "name": "WrappedSongCreated",
     "type": "event"
   },
   {
@@ -159,7 +102,7 @@
         "type": "uint256"
       }
     ],
-    "name": "createWrappedSongWithMetadata",
+    "name": "createWrappedSong",
     "outputs": [
       {
         "internalType": "address",
@@ -171,54 +114,11 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "name": "getOwnerWrappedSongs",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "metadataModule",
     "outputs": [
       {
         "internalType": "contract IMetadataModule",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "ownerWrappedSongs",
-    "outputs": [
-      {
-        "internalType": "address",
         "name": "",
         "type": "address"
       }

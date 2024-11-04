@@ -59,4 +59,11 @@ interface IProtocolModule {
     function isAuthentic(address wrappedSong) external view returns (bool);
     function isValidToCreateWrappedSong(address creator) external view returns (bool);
     function isTokenWhitelisted(address token) external view returns (bool);
+    function isAuthorizedContract(address contractAddress) external view returns (bool);
+    function setAuthorizedContract(address contractAddress, bool isAuthorized) external;
+    function wrappedSongFactoryAddress() external view returns (address);
+    function setWrappedSongFactory(address _wrappedSongFactory) external;
+    function addOwnerWrappedSong(address owner, address wrappedSong) external;
+    function setSmartAccountToWSToken(address smartAccount, address wsToken) external;
+    function getOwnerWrappedSongs(address owner) external view returns (address[] memory);
 }

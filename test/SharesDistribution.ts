@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
-import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers } from "hardhat";
 
 describe("SharesDistribution", function () {
     async function deployContractFixture() {
@@ -92,7 +92,7 @@ describe("SharesDistribution", function () {
                 { value: creationFee }
             )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
 
             const wrappedSongAddress = userWrappedSongs[0];
@@ -126,7 +126,7 @@ describe("SharesDistribution", function () {
                 { value: creationFee }
             );
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
@@ -174,7 +174,7 @@ describe("SharesDistribution", function () {
                 { value: creationFee }
             );
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
@@ -251,7 +251,7 @@ describe("SharesDistribution", function () {
                 { value: creationFee }
             );
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 

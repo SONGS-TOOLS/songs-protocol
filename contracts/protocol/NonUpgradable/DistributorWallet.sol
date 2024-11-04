@@ -18,7 +18,13 @@ contract DistributorWallet is Ownable {
   event WrappedSongRedeemed(address indexed wrappedSong, uint256 amount);
   event WrappedSongReleaseRejected(address indexed wrappedSong);
   event WrappedSongAcceptedForReview(address indexed wrappedSong);
-  event FundsReceived(address indexed from, uint256 amount, string currency);
+  event FundsReceived(
+    address indexed from,
+    uint256 amount,
+    string currency,
+    address[] wrappedSongs,
+    uint256[] amounts
+  );
 
   /**
    * @dev Constructor to initialize the contract with the given parameters.
@@ -44,7 +50,14 @@ contract DistributorWallet is Ownable {
   function receivePaymentETH(address _wrappedSong) external payable {
     require(msg.value > 0, "No ETH sent");
     wrappedSongTreasury[_wrappedSong] += msg.value;
-    emit FundsReceived(msg.sender, msg.value, "ETH");
+    
+    // Create arrays for single wrapped song
+    address[] memory songs = new address[](1);
+    uint256[] memory amounts = new uint256[](1);
+    songs[0] = _wrappedSong;
+    amounts[0] = msg.value;
+    
+    emit FundsReceived(address(this), msg.value, "ETH", songs, amounts);
   }
 
   /**
@@ -58,7 +71,14 @@ contract DistributorWallet is Ownable {
       'Transfer failed'
     );
     wrappedSongTreasury[_wrappedSong] += _amount;
-    emit FundsReceived(msg.sender, _amount, "Stablecoin");
+    
+    // Create arrays for single wrapped song
+    address[] memory songs = new address[](1);
+    uint256[] memory amounts = new uint256[](1);
+    songs[0] = _wrappedSong;
+    amounts[0] = _amount;
+    
+    emit FundsReceived(address(this), _amount, "Stablecoin", songs, amounts);
   }
 
   /**
@@ -81,7 +101,7 @@ contract DistributorWallet is Ownable {
       wrappedSongTreasury[_wrappedSongs[i]] += _amounts[i];
     }
 
-    emit FundsReceived(msg.sender, totalAmount, "ETH");
+    emit FundsReceived(address(this), totalAmount, "ETH", _wrappedSongs, _amounts);
   }
 
   /**
@@ -105,7 +125,7 @@ contract DistributorWallet is Ownable {
       wrappedSongTreasury[_wrappedSongs[i]] += _amounts[i];
     }
 
-    emit FundsReceived(msg.sender, _totalAmount, "Stablecoin");
+    emit FundsReceived(address(this), _totalAmount, "Stablecoin", _wrappedSongs, _amounts);
   }
 
   // Redemption Functions

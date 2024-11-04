@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
-import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers } from "hardhat";
 
 describe("WrappedSongFactory", function () {
     async function deployContractFixture() {
@@ -48,6 +48,12 @@ describe("WrappedSongFactory", function () {
         const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target, metadataModule.target);
         await wrappedSongFactory.waitForDeployment();
 
+        // Set MetadataModule as authorized caller for WrappedSongFactory
+        await protocolModule.setMetadataModule(await metadataModule.getAddress());
+
+        // Set WrappedSongFactory as authorized caller for ProtocolModule
+        await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
+
         // Deploy a mock stablecoin for testing
         const MockToken = await ethers.getContractFactory("MockToken");
         const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
@@ -85,10 +91,10 @@ describe("WrappedSongFactory", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(mockStablecoin.target, metadata, sharesAmount, { value: creationFee }))
+            await expect(wrappedSongFactory.connect(user).createWrappedSong(mockStablecoin.target, metadata, sharesAmount, { value: creationFee }))
                 .to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
         });
 
@@ -103,7 +109,7 @@ describe("WrappedSongFactory", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(mockStablecoin.target, metadata, 1000, { value: 0 }))
+            await expect(wrappedSongFactory.connect(user).createWrappedSong(mockStablecoin.target, metadata, 1000, { value: 0 }))
                 .to.be.revertedWith("Insufficient creation fee");
         });
 
@@ -120,14 +126,14 @@ describe("WrappedSongFactory", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+            await expect(wrappedSongFactory.connect(user).createWrappedSong(
                 mockStablecoin.target,
                 metadata,
                 sharesAmount,
                 { value: creationFee }
             )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-            const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
 
             const wrappedSongAddress = userWrappedSongs[0];
@@ -165,14 +171,14 @@ describe("WrappedSongFactory", function () {
             const users = [user, address2, address3, address4, address5];
 
             for (const user of users) {
-                await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+                await expect(wrappedSongFactory.connect(user).createWrappedSong(
                     mockStablecoin.target,
                     metadata,
                     sharesAmount,
                     { value: creationFee }
                 )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-                const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+                const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
                 expect(userWrappedSongs.length).to.equal(1);
 
                 const wrappedSongAddress = userWrappedSongs[0];
@@ -213,14 +219,14 @@ describe("WrappedSongFactory", function () {
             const users = [user, address2, address3, address4, address5];
 
             for (const user of users) {
-                await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+                await expect(wrappedSongFactory.connect(user).createWrappedSong(
                     mockStablecoin.target,
                     metadata,
                     sharesAmount,
                     { value: creationFee }
                 )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-                const userWrappedSongs = await wrappedSongFactory.getOwnerWrappedSongs(user.address);
+                const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
                 expect(userWrappedSongs.length).to.equal(1);
 
                 const wrappedSongAddress = userWrappedSongs[0];

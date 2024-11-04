@@ -130,6 +130,57 @@ const _abi = [
         name: "wrappedSong",
         type: "address",
       },
+    ],
+    name: "getTokenMetadata",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "description",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "image",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "externalUrl",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "animationUrl",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "attributesIpfsHash",
+            type: "string",
+          },
+        ],
+        internalType: "struct IMetadataModule.Metadata",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "wrappedSong",
+        type: "address",
+      },
       {
         internalType: "uint256",
         name: "tokenId",
@@ -175,6 +226,19 @@ const _abi = [
       },
     ],
     name: "rejectUpdateMetadata",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "wrappedSong",
+        type: "address",
+      },
+    ],
+    name: "removeMetadata",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

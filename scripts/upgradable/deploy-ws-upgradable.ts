@@ -80,7 +80,7 @@ async function main() {
       );
       await createWrappedSongTx.wait();
 
-      const ownerWrappedSongs = await WrappedSongFactory.getOwnerWrappedSongs(deployer.address);
+      const ownerWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(deployer.address);
       const wrappedSongAddress = ownerWrappedSongs[ownerWrappedSongs.length - 1];
       console.log(`Wrapped Song created at:`, wrappedSongAddress);
       // console.log(`Wrapped Song ${i + 1} created at:`, wrappedSongAddress);
