@@ -233,12 +233,19 @@ export interface MarketPlaceInterface extends Interface {
 
 export namespace ERC20ReceivedEvent {
   export type InputTuple = [
+    wsTokenManagement: AddressLike,
     token: AddressLike,
     amount: BigNumberish,
     sender: AddressLike
   ];
-  export type OutputTuple = [token: string, amount: bigint, sender: string];
+  export type OutputTuple = [
+    wsTokenManagement: string,
+    token: string,
+    amount: bigint,
+    sender: string
+  ];
   export interface OutputObject {
+    wsTokenManagement: string;
     token: string;
     amount: bigint;
     sender: string;
@@ -268,9 +275,18 @@ export namespace EmergencyWithdrawalEvent {
 }
 
 export namespace FundsWithdrawnEvent {
-  export type InputTuple = [to: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [to: string, amount: bigint];
+  export type InputTuple = [
+    wsTokenManagement: AddressLike,
+    to: AddressLike,
+    amount: BigNumberish
+  ];
+  export type OutputTuple = [
+    wsTokenManagement: string,
+    to: string,
+    amount: bigint
+  ];
   export interface OutputObject {
+    wsTokenManagement: string;
     to: string;
     amount: bigint;
   }
@@ -306,9 +322,11 @@ export namespace PausedEvent {
 }
 
 export namespace SharesSaleEndedEvent {
-  export type InputTuple = [];
-  export type OutputTuple = [];
-  export interface OutputObject {}
+  export type InputTuple = [wsTokenManagement: AddressLike];
+  export type OutputTuple = [wsTokenManagement: string];
+  export interface OutputObject {
+    wsTokenManagement: string;
+  }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
   export type Log = TypedEventLog<Event>;
@@ -317,26 +335,29 @@ export namespace SharesSaleEndedEvent {
 
 export namespace SharesSaleStartedEvent {
   export type InputTuple = [
+    wsTokenManagement: AddressLike,
+    owner: AddressLike,
     tokenId: BigNumberish,
     amount: BigNumberish,
     price: BigNumberish,
-    owner: AddressLike,
     maxSharesPerWallet: BigNumberish,
     stableCoinAddress: AddressLike
   ];
   export type OutputTuple = [
+    wsTokenManagement: string,
+    owner: string,
     tokenId: bigint,
     amount: bigint,
     price: bigint,
-    owner: string,
     maxSharesPerWallet: bigint,
     stableCoinAddress: string
   ];
   export interface OutputObject {
+    wsTokenManagement: string;
+    owner: string;
     tokenId: bigint;
     amount: bigint;
     price: bigint;
-    owner: string;
     maxSharesPerWallet: bigint;
     stableCoinAddress: string;
   }
@@ -348,12 +369,19 @@ export namespace SharesSaleStartedEvent {
 
 export namespace SharesSoldEvent {
   export type InputTuple = [
+    wsTokenManagement: AddressLike,
     tokenId: BigNumberish,
     buyer: AddressLike,
     amount: BigNumberish
   ];
-  export type OutputTuple = [tokenId: bigint, buyer: string, amount: bigint];
+  export type OutputTuple = [
+    wsTokenManagement: string,
+    tokenId: bigint,
+    buyer: string,
+    amount: bigint
+  ];
   export interface OutputObject {
+    wsTokenManagement: string;
     tokenId: bigint;
     buyer: string;
     amount: bigint;
@@ -787,7 +815,7 @@ export interface MarketPlace extends BaseContract {
   >;
 
   filters: {
-    "ERC20Received(address,uint256,address)": TypedContractEvent<
+    "ERC20Received(address,address,uint256,address)": TypedContractEvent<
       ERC20ReceivedEvent.InputTuple,
       ERC20ReceivedEvent.OutputTuple,
       ERC20ReceivedEvent.OutputObject
@@ -809,7 +837,7 @@ export interface MarketPlace extends BaseContract {
       EmergencyWithdrawalEvent.OutputObject
     >;
 
-    "FundsWithdrawn(address,uint256)": TypedContractEvent<
+    "FundsWithdrawn(address,address,uint256)": TypedContractEvent<
       FundsWithdrawnEvent.InputTuple,
       FundsWithdrawnEvent.OutputTuple,
       FundsWithdrawnEvent.OutputObject
@@ -842,7 +870,7 @@ export interface MarketPlace extends BaseContract {
       PausedEvent.OutputObject
     >;
 
-    "SharesSaleEnded()": TypedContractEvent<
+    "SharesSaleEnded(address)": TypedContractEvent<
       SharesSaleEndedEvent.InputTuple,
       SharesSaleEndedEvent.OutputTuple,
       SharesSaleEndedEvent.OutputObject
@@ -853,7 +881,7 @@ export interface MarketPlace extends BaseContract {
       SharesSaleEndedEvent.OutputObject
     >;
 
-    "SharesSaleStarted(uint256,uint256,uint256,address,uint256,address)": TypedContractEvent<
+    "SharesSaleStarted(address,address,uint256,uint256,uint256,uint256,address)": TypedContractEvent<
       SharesSaleStartedEvent.InputTuple,
       SharesSaleStartedEvent.OutputTuple,
       SharesSaleStartedEvent.OutputObject
@@ -864,7 +892,7 @@ export interface MarketPlace extends BaseContract {
       SharesSaleStartedEvent.OutputObject
     >;
 
-    "SharesSold(uint256,address,uint256)": TypedContractEvent<
+    "SharesSold(address,uint256,address,uint256)": TypedContractEvent<
       SharesSoldEvent.InputTuple,
       SharesSoldEvent.OutputTuple,
       SharesSoldEvent.OutputObject
