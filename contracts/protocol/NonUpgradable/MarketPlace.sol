@@ -40,21 +40,34 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     mapping(address => bool) public isVerifiedWSToken;
 
     event SharesSaleStarted(
+        address indexed wsTokenManagement,
+        address indexed owner,
         uint256 tokenId,
         uint256 amount,
         uint256 price,
-        address indexed owner,
         uint256 maxSharesPerWallet,
         address stableCoinAddress
     );
     event SharesSold(
+        address indexed wsTokenManagement,
         uint256 tokenId,
         address buyer,
         uint256 amount
     );
-    event SharesSaleEnded();
-    event FundsWithdrawn(address indexed to, uint256 amount);
-    event ERC20Received(address token, uint256 amount, address sender);
+    event SharesSaleEnded(
+        address indexed wsTokenManagement
+    );
+    event FundsWithdrawn(
+        address indexed wsTokenManagement,
+        address indexed to,
+        uint256 amount
+    );
+    event ERC20Received(
+        address indexed wsTokenManagement,
+        address token,
+        uint256 amount,
+        address sender
+    );
 
     // Add reentrancy guard for all fund movements
     mapping(address => mapping(address => bool)) private withdrawalInProgress;
@@ -147,10 +160,11 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         totalSales[wsTokenManagement]++;
 
         emit SharesSaleStarted(
+            wsTokenManagement,
+            msg.sender,
             tokenId,
             amount,
             price,
-            msg.sender,
             maxShares,
             _stableCoin
         );
@@ -184,7 +198,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             require(msg.value == 0, "ETH not accepted for stable coin sale");
             IERC20(sale.stableCoin).safeTransferFrom(msg.sender, address(this), totalCost);
             accumulatedFunds[wsTokenManagement][sale.stableCoin] += totalCost;
-            emit ERC20Received(sale.stableCoin, totalCost, msg.sender);
+            emit ERC20Received(wsTokenManagement, sale.stableCoin, totalCost, msg.sender);
         } else {
             require(msg.value == totalCost, "Incorrect ETH amount");
             accumulatedFunds[wsTokenManagement][address(0)] += msg.value;
@@ -204,10 +218,10 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
         if (sale.sharesForSale == 0) {
             sale.active = false;
-            emit SharesSaleEnded();
+            emit SharesSaleEnded(wsTokenManagement);
         }
 
-        emit SharesSold(sale.tokenId, msg.sender, amount);
+        emit SharesSold(wsTokenManagement, sale.tokenId, msg.sender, amount);
     }
 
     function endSharesSale(
@@ -219,7 +233,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         require(sale.seller == msg.sender, "Not sale creator");
         
         sale.active = false;
-        emit SharesSaleEnded();
+        emit SharesSaleEnded(wsTokenManagement);
     }
 
 
@@ -246,7 +260,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             IERC20(token).safeTransfer(msg.sender, amount);
         }
 
-        emit FundsWithdrawn(msg.sender, amount);
+        emit FundsWithdrawn(wsTokenManagement, msg.sender, amount);
     }
 
     function getSale(
