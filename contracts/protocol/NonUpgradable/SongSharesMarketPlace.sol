@@ -93,6 +93,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         uint256 maxShares,
         address _stableCoin
     ) external whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        
         require(amount > 0 && price > 0, "Invalid sale parameters");
         require(price <= type(uint256).max / amount, "Price too high");
         require(maxShares <= amount, "Max shares per wallet exceeds total");
@@ -206,8 +207,9 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function endSale(
-        address wsTokenManagement
-    ) external onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+        address wrappedSong
+    ) external onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(sale.seller == msg.sender, "Not sale creator");

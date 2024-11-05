@@ -355,7 +355,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "wsTokenManagement",
+        "name": "wrappedSong",
         "type": "address"
       }
     ],
