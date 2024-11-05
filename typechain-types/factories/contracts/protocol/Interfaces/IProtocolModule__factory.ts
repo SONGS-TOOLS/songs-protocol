@@ -375,6 +375,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "maxSaleDuration",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "metadataModule",
     outputs: [
       {
@@ -564,6 +577,19 @@ const _abi = [
       },
     ],
     name: "setERC20Whitelist",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_duration",
+        type: "uint256",
+      },
+    ],
+    name: "setMaxSaleDuration",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

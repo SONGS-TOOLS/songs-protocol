@@ -26,10 +26,8 @@ import type {
 export interface MarketPlaceInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "MAX_SALE_DURATION"
       | "accumulatedFunds"
       | "buyShares"
-      | "currentSaleId"
       | "endSharesSale"
       | "getBuyerPurchases"
       | "getSale"
@@ -45,7 +43,6 @@ export interface MarketPlaceInterface extends Interface {
       | "saleStartTimes"
       | "sales"
       | "startSharesSale"
-      | "totalSales"
       | "transferOwnership"
       | "unpause"
       | "verifyWSToken"
@@ -66,32 +63,24 @@ export interface MarketPlaceInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "MAX_SALE_DURATION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "accumulatedFunds",
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "buyShares",
-    values: [AddressLike, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "currentSaleId",
-    values: [AddressLike]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "endSharesSale",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getBuyerPurchases",
-    values: [AddressLike, BigNumberish, AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getSale",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForShares",
@@ -99,7 +88,7 @@ export interface MarketPlaceInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isSaleExpired",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isVerifiedWSToken",
@@ -122,12 +111,9 @@ export interface MarketPlaceInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "saleStartTimes",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "sales",
-    values: [AddressLike, BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: "sales", values: [AddressLike]): string;
   encodeFunctionData(
     functionFragment: "startSharesSale",
     values: [
@@ -138,10 +124,6 @@ export interface MarketPlaceInterface extends Interface {
       BigNumberish,
       AddressLike
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSales",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -158,18 +140,10 @@ export interface MarketPlaceInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "MAX_SALE_DURATION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "accumulatedFunds",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "buyShares", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "currentSaleId",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "endSharesSale",
     data: BytesLike
@@ -215,7 +189,6 @@ export interface MarketPlaceInterface extends Interface {
     functionFragment: "startSharesSale",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "totalSales", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -447,8 +420,6 @@ export interface MarketPlace extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  MAX_SALE_DURATION: TypedContractMethod<[], [bigint], "view">;
-
   accumulatedFunds: TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike],
     [bigint],
@@ -456,31 +427,25 @@ export interface MarketPlace extends BaseContract {
   >;
 
   buyShares: TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      saleId: BigNumberish,
-      amount: BigNumberish
-    ],
+    [wsTokenManagement: AddressLike, amount: BigNumberish],
     [void],
     "payable"
   >;
 
-  currentSaleId: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-
   endSharesSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;
 
   getBuyerPurchases: TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish, buyer: AddressLike],
+    [wsTokenManagement: AddressLike, buyer: AddressLike],
     [bigint],
     "view"
   >;
 
   getSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
         seller: string;
@@ -503,7 +468,7 @@ export interface MarketPlace extends BaseContract {
   >;
 
   isSaleExpired: TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [boolean],
     "view"
   >;
@@ -530,14 +495,10 @@ export interface MarketPlace extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  saleStartTimes: TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  saleStartTimes: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   sales: TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
+    [arg0: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
         seller: string;
@@ -566,8 +527,6 @@ export interface MarketPlace extends BaseContract {
     "nonpayable"
   >;
 
-  totalSales: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
     [void],
@@ -593,9 +552,6 @@ export interface MarketPlace extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "MAX_SALE_DURATION"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "accumulatedFunds"
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike],
@@ -605,35 +561,28 @@ export interface MarketPlace extends BaseContract {
   getFunction(
     nameOrSignature: "buyShares"
   ): TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      saleId: BigNumberish,
-      amount: BigNumberish
-    ],
+    [wsTokenManagement: AddressLike, amount: BigNumberish],
     [void],
     "payable"
   >;
   getFunction(
-    nameOrSignature: "currentSaleId"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-  getFunction(
     nameOrSignature: "endSharesSale"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "getBuyerPurchases"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish, buyer: AddressLike],
+    [wsTokenManagement: AddressLike, buyer: AddressLike],
     [bigint],
     "view"
   >;
   getFunction(
     nameOrSignature: "getSale"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
         seller: string;
@@ -657,11 +606,7 @@ export interface MarketPlace extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "isSaleExpired"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, saleId: BigNumberish],
-    [boolean],
-    "view"
-  >;
+  ): TypedContractMethod<[wsTokenManagement: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "isVerifiedWSToken"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
@@ -689,15 +634,11 @@ export interface MarketPlace extends BaseContract {
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "saleStartTimes"
-  ): TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "sales"
   ): TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
+    [arg0: AddressLike],
     [
       [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
         seller: string;
@@ -726,9 +667,6 @@ export interface MarketPlace extends BaseContract {
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "totalSales"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;

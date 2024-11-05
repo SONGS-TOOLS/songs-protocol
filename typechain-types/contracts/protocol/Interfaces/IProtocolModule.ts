@@ -59,6 +59,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "isccRegistry"
       | "isrcRegistry"
       | "iswcRegistry"
+      | "maxSaleDuration"
       | "metadataModule"
       | "paused"
       | "pendingDistributorRequests"
@@ -71,6 +72,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "reviewPeriods"
       | "setAuthorizedContract"
       | "setERC20Whitelist"
+      | "setMaxSaleDuration"
       | "setMetadataModule"
       | "setPaused"
       | "setReleaseFee"
@@ -175,6 +177,10 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "maxSaleDuration",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "metadataModule",
     values?: undefined
   ): string;
@@ -218,6 +224,10 @@ export interface IProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setERC20Whitelist",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxSaleDuration",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "setMetadataModule",
@@ -355,6 +365,10 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "maxSaleDuration",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "metadataModule",
     data: BytesLike
   ): Result;
@@ -394,6 +408,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setERC20Whitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxSaleDuration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -624,6 +642,8 @@ export interface IProtocolModule extends BaseContract {
     "view"
   >;
 
+  maxSaleDuration: TypedContractMethod<[], [bigint], "view">;
+
   metadataModule: TypedContractMethod<[], [string], "view">;
 
   paused: TypedContractMethod<[], [boolean], "view">;
@@ -676,6 +696,12 @@ export interface IProtocolModule extends BaseContract {
 
   setERC20Whitelist: TypedContractMethod<
     [_erc20whitelist: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setMaxSaleDuration: TypedContractMethod<
+    [_duration: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -854,6 +880,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "iswcRegistry"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
+    nameOrSignature: "maxSaleDuration"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "metadataModule"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -901,6 +930,9 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "setERC20Whitelist"
   ): TypedContractMethod<[_erc20whitelist: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setMaxSaleDuration"
+  ): TypedContractMethod<[_duration: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setMetadataModule"
   ): TypedContractMethod<[_metadataModule: AddressLike], [void], "nonpayable">;
