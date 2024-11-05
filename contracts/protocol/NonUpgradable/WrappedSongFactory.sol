@@ -77,8 +77,6 @@ contract WrappedSongFactory {
     protocolModule.setSmartAccountToWSToken(newWrappedSongSmartAccountAddress, wsTokenManagementAddress);
     protocolModule.addOwnerWrappedSong(msg.sender, newWrappedSongSmartAccountAddress);
 
-    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
-
     emit WrappedSongCreated(
       msg.sender,
       newWrappedSongSmartAccountAddress,
@@ -87,6 +85,7 @@ contract WrappedSongFactory {
       sharesAmount
     );
 
+    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
 
     return newWrappedSongSmartAccountAddress;
   }
