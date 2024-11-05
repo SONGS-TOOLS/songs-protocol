@@ -14,7 +14,6 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     IProtocolModule public immutable protocolModule;
-
     struct Sale {
         address seller;
         uint256 tokenId;
@@ -27,12 +26,15 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         mapping(address => uint256) buyerPurchases;
     }
 
-    // wsTokenManagement => saleId => Sale
-    mapping(address => mapping(uint256 => Sale)) public sales;
-    // wsTokenManagement => current sale id
-    mapping(address => uint256) public currentSaleId;
-    // wsTokenManagement => total sales count
-    mapping(address => uint256) public totalSales;
+    // Simplified mappings - remove saleId
+    mapping(address => Sale) public sales;
+    // Remove these as they're no longer needed
+    // mapping(address => uint256) public currentSaleId;
+    // mapping(address => uint256) public totalSales;
+    
+    // Update saleStartTimes mapping
+    mapping(address => uint256) public saleStartTimes;
+
     // wsTokenManagement => accumulated funds
     mapping(address => mapping(address => uint256)) public accumulatedFunds;
 
@@ -71,10 +73,6 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     // Add reentrancy guard for all fund movements
     mapping(address => mapping(address => bool)) private withdrawalInProgress;
-
-    // Add maximum sale duration
-    uint256 public constant MAX_SALE_DURATION = 30 days;
-    mapping(address => mapping(uint256 => uint256)) public saleStartTimes;
 
     // Add emergency withdrawal function for contract owner
     event EmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
@@ -142,10 +140,10 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             );
         }
 
-        uint256 saleId = currentSaleId[wsTokenManagement];
-        saleStartTimes[wsTokenManagement][saleId] = block.timestamp;
-
-        Sale storage newSale = sales[wsTokenManagement][saleId];
+        Sale storage newSale = sales[wsTokenManagement];
+        require(!newSale.active, "Sale already active for this token");
+        
+        saleStartTimes[wsTokenManagement] = block.timestamp;
         
         newSale.seller = msg.sender;
         newSale.tokenId = tokenId;
@@ -155,9 +153,6 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         newSale.stableCoin = _stableCoin;
         newSale.active = true;
         newSale.totalSold = 0;
-
-        currentSaleId[wsTokenManagement]++;
-        totalSales[wsTokenManagement]++;
 
         emit SharesSaleStarted(
             wsTokenManagement,
@@ -172,17 +167,16 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     function buyShares(
         address wsTokenManagement,
-        uint256 saleId,
         uint256 amount
     ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wsTokenManagement) {
-        Sale storage sale = sales[wsTokenManagement][saleId];
+        Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
-        require(amount > 0, "Amount must be greater than 0");
-        require(amount <= sale.sharesForSale, "Not enough shares available");
         require(
-            block.timestamp <= saleStartTimes[wsTokenManagement][saleId] + MAX_SALE_DURATION,
+            block.timestamp <= saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration(),
             "Sale expired"
         );
+        require(amount > 0, "Amount must be greater than 0");
+        require(amount <= sale.sharesForSale, "Not enough shares available");
 
         uint256 totalCost = amount * sale.pricePerShare;
         uint256 newPurchaseTotal = sale.buyerPurchases[msg.sender] + amount;
@@ -225,10 +219,9 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function endSharesSale(
-        address wsTokenManagement,
-        uint256 saleId
+        address wsTokenManagement
     ) external onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
-        Sale storage sale = sales[wsTokenManagement][saleId];
+        Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(sale.seller == msg.sender, "Not sale creator");
         
@@ -237,7 +230,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
 
-// TODO: Triple Check
+    // TODO: Triple Check
     function withdrawFunds(
         address wsTokenManagement,
         address token
@@ -264,8 +257,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function getSale(
-        address wsTokenManagement,
-        uint256 saleId
+        address wsTokenManagement
     ) external view returns (
         address seller,
         uint256 tokenId,
@@ -276,7 +268,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         bool active,
         uint256 totalSold
     ) {
-        Sale storage sale = sales[wsTokenManagement][saleId];
+        Sale storage sale = sales[wsTokenManagement];
         return (
             sale.seller,
             sale.tokenId,
@@ -291,10 +283,9 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     function getBuyerPurchases(
         address wsTokenManagement,
-        uint256 saleId,
         address buyer
     ) external view returns (uint256) {
-        return sales[wsTokenManagement][saleId].buyerPurchases[buyer];
+        return sales[wsTokenManagement].buyerPurchases[buyer];
     }
 
     function pause() external onlyOwner {
@@ -319,9 +310,8 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     // Add function to check if a sale has expired
     function isSaleExpired(
-        address wsTokenManagement,
-        uint256 saleId
+        address wsTokenManagement
     ) public view returns (bool) {
-        return block.timestamp > saleStartTimes[wsTokenManagement][saleId] + MAX_SALE_DURATION;
+        return block.timestamp > saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration();
     }
 }
