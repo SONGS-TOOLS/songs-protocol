@@ -100,8 +100,13 @@ contract MetadataModule is Ownable {
      * @param newMetadata The new metadata to be set.
      */
     function updateMetadata(address wrappedSong, Metadata memory newMetadata) external {
-        require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can update");
+        require(
+            IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender || 
+            wrappedSong == msg.sender, 
+            "Only wrapped song or its owner can update"
+        );
         require(!protocolModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
+        require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         
         wrappedSongMetadata[wrappedSong] = newMetadata;
         emit MetadataUpdated(wrappedSong, newMetadata);

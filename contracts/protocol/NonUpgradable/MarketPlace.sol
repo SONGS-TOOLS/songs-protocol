@@ -14,7 +14,6 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     IProtocolModule public immutable protocolModule;
-
     struct Sale {
         address seller;
         uint256 tokenId;
@@ -27,12 +26,15 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         mapping(address => uint256) buyerPurchases;
     }
 
-    // wsTokenManagement => saleId => Sale
-    mapping(address => mapping(uint256 => Sale)) public sales;
-    // wsTokenManagement => current sale id
-    mapping(address => uint256) public currentSaleId;
-    // wsTokenManagement => total sales count
-    mapping(address => uint256) public totalSales;
+    // Simplified mappings - remove saleId
+    mapping(address => Sale) public sales;
+    // Remove these as they're no longer needed
+    // mapping(address => uint256) public currentSaleId;
+    // mapping(address => uint256) public totalSales;
+    
+    // Update saleStartTimes mapping
+    mapping(address => uint256) public saleStartTimes;
+
     // wsTokenManagement => accumulated funds
     mapping(address => mapping(address => uint256)) public accumulatedFunds;
 
@@ -40,28 +42,37 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     mapping(address => bool) public isVerifiedWSToken;
 
     event SharesSaleStarted(
+        address indexed wsTokenManagement,
+        address indexed owner,
         uint256 tokenId,
         uint256 amount,
         uint256 price,
-        address indexed owner,
         uint256 maxSharesPerWallet,
         address stableCoinAddress
     );
     event SharesSold(
+        address indexed wsTokenManagement,
         uint256 tokenId,
         address buyer,
         uint256 amount
     );
-    event SharesSaleEnded();
-    event FundsWithdrawn(address indexed to, uint256 amount);
-    event ERC20Received(address token, uint256 amount, address sender);
+    event SharesSaleEnded(
+        address indexed wsTokenManagement
+    );
+    event FundsWithdrawn(
+        address indexed wsTokenManagement,
+        address indexed to,
+        uint256 amount
+    );
+    event ERC20Received(
+        address indexed wsTokenManagement,
+        address token,
+        uint256 amount,
+        address sender
+    );
 
     // Add reentrancy guard for all fund movements
     mapping(address => mapping(address => bool)) private withdrawalInProgress;
-
-    // Add maximum sale duration
-    uint256 public constant MAX_SALE_DURATION = 30 days;
-    mapping(address => mapping(uint256 => uint256)) public saleStartTimes;
 
     // Add emergency withdrawal function for contract owner
     event EmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
@@ -129,10 +140,10 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             );
         }
 
-        uint256 saleId = currentSaleId[wsTokenManagement];
-        saleStartTimes[wsTokenManagement][saleId] = block.timestamp;
-
-        Sale storage newSale = sales[wsTokenManagement][saleId];
+        Sale storage newSale = sales[wsTokenManagement];
+        require(!newSale.active, "Sale already active for this token");
+        
+        saleStartTimes[wsTokenManagement] = block.timestamp;
         
         newSale.seller = msg.sender;
         newSale.tokenId = tokenId;
@@ -143,14 +154,12 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         newSale.active = true;
         newSale.totalSold = 0;
 
-        currentSaleId[wsTokenManagement]++;
-        totalSales[wsTokenManagement]++;
-
         emit SharesSaleStarted(
+            wsTokenManagement,
+            msg.sender,
             tokenId,
             amount,
             price,
-            msg.sender,
             maxShares,
             _stableCoin
         );
@@ -158,17 +167,16 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     function buyShares(
         address wsTokenManagement,
-        uint256 saleId,
         uint256 amount
     ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wsTokenManagement) {
-        Sale storage sale = sales[wsTokenManagement][saleId];
+        Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
-        require(amount > 0, "Amount must be greater than 0");
-        require(amount <= sale.sharesForSale, "Not enough shares available");
         require(
-            block.timestamp <= saleStartTimes[wsTokenManagement][saleId] + MAX_SALE_DURATION,
+            block.timestamp <= saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration(),
             "Sale expired"
         );
+        require(amount > 0, "Amount must be greater than 0");
+        require(amount <= sale.sharesForSale, "Not enough shares available");
 
         uint256 totalCost = amount * sale.pricePerShare;
         uint256 newPurchaseTotal = sale.buyerPurchases[msg.sender] + amount;
@@ -184,7 +192,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             require(msg.value == 0, "ETH not accepted for stable coin sale");
             IERC20(sale.stableCoin).safeTransferFrom(msg.sender, address(this), totalCost);
             accumulatedFunds[wsTokenManagement][sale.stableCoin] += totalCost;
-            emit ERC20Received(sale.stableCoin, totalCost, msg.sender);
+            emit ERC20Received(wsTokenManagement, sale.stableCoin, totalCost, msg.sender);
         } else {
             require(msg.value == totalCost, "Incorrect ETH amount");
             accumulatedFunds[wsTokenManagement][address(0)] += msg.value;
@@ -204,26 +212,25 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
         if (sale.sharesForSale == 0) {
             sale.active = false;
-            emit SharesSaleEnded();
+            emit SharesSaleEnded(wsTokenManagement);
         }
 
-        emit SharesSold(sale.tokenId, msg.sender, amount);
+        emit SharesSold(wsTokenManagement, sale.tokenId, msg.sender, amount);
     }
 
     function endSharesSale(
-        address wsTokenManagement,
-        uint256 saleId
+        address wsTokenManagement
     ) external onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
-        Sale storage sale = sales[wsTokenManagement][saleId];
+        Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(sale.seller == msg.sender, "Not sale creator");
         
         sale.active = false;
-        emit SharesSaleEnded();
+        emit SharesSaleEnded(wsTokenManagement);
     }
 
 
-// TODO: Triple Check
+    // TODO: Triple Check
     function withdrawFunds(
         address wsTokenManagement,
         address token
@@ -246,12 +253,11 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             IERC20(token).safeTransfer(msg.sender, amount);
         }
 
-        emit FundsWithdrawn(msg.sender, amount);
+        emit FundsWithdrawn(wsTokenManagement, msg.sender, amount);
     }
 
     function getSale(
-        address wsTokenManagement,
-        uint256 saleId
+        address wsTokenManagement
     ) external view returns (
         address seller,
         uint256 tokenId,
@@ -262,7 +268,7 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         bool active,
         uint256 totalSold
     ) {
-        Sale storage sale = sales[wsTokenManagement][saleId];
+        Sale storage sale = sales[wsTokenManagement];
         return (
             sale.seller,
             sale.tokenId,
@@ -277,10 +283,9 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     function getBuyerPurchases(
         address wsTokenManagement,
-        uint256 saleId,
         address buyer
     ) external view returns (uint256) {
-        return sales[wsTokenManagement][saleId].buyerPurchases[buyer];
+        return sales[wsTokenManagement].buyerPurchases[buyer];
     }
 
     function pause() external onlyOwner {
@@ -305,9 +310,8 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     // Add function to check if a sale has expired
     function isSaleExpired(
-        address wsTokenManagement,
-        uint256 saleId
+        address wsTokenManagement
     ) public view returns (bool) {
-        return block.timestamp > saleStartTimes[wsTokenManagement][saleId] + MAX_SALE_DURATION;
+        return block.timestamp > saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration();
     }
 }

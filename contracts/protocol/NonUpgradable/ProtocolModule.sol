@@ -66,6 +66,9 @@ contract ProtocolModule is Ownable {
     event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
     event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
+    // Change from constant to regular state variable
+    uint256 public maxSaleDuration = 30 days;
+
     /**
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
@@ -389,5 +392,14 @@ contract ProtocolModule is Ownable {
 
     function getOwnerWrappedSongs(address owner) external view returns (address[] memory) {
         return ownerWrappedSongs[owner];
+    }
+
+    /**
+     * @dev Updates the maximum duration allowed for sales.
+     * @param _duration The new maximum duration in seconds
+     */
+    function setMaxSaleDuration(uint256 _duration) external onlyOwner {
+        require(_duration > 0, "Duration must be greater than 0");
+        maxSaleDuration = _duration;
     }
 }
