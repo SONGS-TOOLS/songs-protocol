@@ -56,9 +56,11 @@ export interface IProtocolModuleInterface extends Interface {
       | "isReleased"
       | "isTokenWhitelisted"
       | "isValidToCreateWrappedSong"
+      | "isWSTokenFromProtocol"
       | "isccRegistry"
       | "isrcRegistry"
       | "iswcRegistry"
+      | "maxSaleDuration"
       | "metadataModule"
       | "paused"
       | "pendingDistributorRequests"
@@ -71,11 +73,13 @@ export interface IProtocolModuleInterface extends Interface {
       | "reviewPeriods"
       | "setAuthorizedContract"
       | "setERC20Whitelist"
+      | "setMaxSaleDuration"
       | "setMetadataModule"
       | "setPaused"
       | "setReleaseFee"
       | "setReviewPeriodDays"
       | "setSmartAccountToWSToken"
+      | "setWSTokenFromProtocol"
       | "setWhitelistingManager"
       | "setWrappedSongAuthenticity"
       | "setWrappedSongCreationFee"
@@ -163,6 +167,10 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "isWSTokenFromProtocol",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isccRegistry",
     values: [AddressLike]
   ): string;
@@ -173,6 +181,10 @@ export interface IProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "iswcRegistry",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxSaleDuration",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "metadataModule",
@@ -220,6 +232,10 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "setMaxSaleDuration",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMetadataModule",
     values: [AddressLike]
   ): string;
@@ -235,6 +251,10 @@ export interface IProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setSmartAccountToWSToken",
     values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setWSTokenFromProtocol",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setWhitelistingManager",
@@ -343,6 +363,10 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isWSTokenFromProtocol",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isccRegistry",
     data: BytesLike
   ): Result;
@@ -352,6 +376,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "iswcRegistry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxSaleDuration",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -397,6 +425,10 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setMaxSaleDuration",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setMetadataModule",
     data: BytesLike
   ): Result;
@@ -411,6 +443,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setSmartAccountToWSToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setWSTokenFromProtocol",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -606,6 +642,12 @@ export interface IProtocolModule extends BaseContract {
     "view"
   >;
 
+  isWSTokenFromProtocol: TypedContractMethod<
+    [wsTokenManagement: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   isccRegistry: TypedContractMethod<
     [wrappedSong: AddressLike],
     [string],
@@ -623,6 +665,8 @@ export interface IProtocolModule extends BaseContract {
     [string],
     "view"
   >;
+
+  maxSaleDuration: TypedContractMethod<[], [bigint], "view">;
 
   metadataModule: TypedContractMethod<[], [string], "view">;
 
@@ -680,6 +724,12 @@ export interface IProtocolModule extends BaseContract {
     "nonpayable"
   >;
 
+  setMaxSaleDuration: TypedContractMethod<
+    [_duration: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   setMetadataModule: TypedContractMethod<
     [_metadataModule: AddressLike],
     [void],
@@ -702,6 +752,12 @@ export interface IProtocolModule extends BaseContract {
 
   setSmartAccountToWSToken: TypedContractMethod<
     [smartAccount: AddressLike, wsToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setWSTokenFromProtocol: TypedContractMethod<
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -845,6 +901,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "isValidToCreateWrappedSong"
   ): TypedContractMethod<[creator: AddressLike], [boolean], "view">;
   getFunction(
+    nameOrSignature: "isWSTokenFromProtocol"
+  ): TypedContractMethod<[wsTokenManagement: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "isccRegistry"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
@@ -853,6 +912,9 @@ export interface IProtocolModule extends BaseContract {
   getFunction(
     nameOrSignature: "iswcRegistry"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "maxSaleDuration"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "metadataModule"
   ): TypedContractMethod<[], [string], "view">;
@@ -902,6 +964,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "setERC20Whitelist"
   ): TypedContractMethod<[_erc20whitelist: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "setMaxSaleDuration"
+  ): TypedContractMethod<[_duration: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "setMetadataModule"
   ): TypedContractMethod<[_metadataModule: AddressLike], [void], "nonpayable">;
   getFunction(
@@ -917,6 +982,13 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "setSmartAccountToWSToken"
   ): TypedContractMethod<
     [smartAccount: AddressLike, wsToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setWSTokenFromProtocol"
+  ): TypedContractMethod<
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;

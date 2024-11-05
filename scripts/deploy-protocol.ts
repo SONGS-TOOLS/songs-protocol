@@ -133,15 +133,22 @@ async function main() {
   await saveAbi('WSUtils', await wsUtils.getAddress());
 
   /* ////////////////////////////////////////////
-  ////////  MarketPlace contract  ////////
+  ////////  Marketplace Contracts  ////////
   //////////////////////////////////////////// */
 
-  console.log('Deploying MarketPlace...');
-  const MarketPlace = await ethers.getContractFactory('MarketPlace');
-  const marketPlace = await MarketPlace.deploy(await protocolModule.getAddress());
-  await marketPlace.waitForDeployment();
-  console.log('MarketPlace deployed to:', await marketPlace.getAddress());
-  await saveAbi('MarketPlace', await marketPlace.getAddress());
+  console.log('Deploying SongSharesMarketPlace...');
+  const SongSharesMarketPlace = await ethers.getContractFactory('SongSharesMarketPlace');
+  const songSharesMarketPlace = await SongSharesMarketPlace.deploy(await protocolModule.getAddress());
+  await songSharesMarketPlace.waitForDeployment();
+  console.log('SongSharesMarketPlace deployed to:', await songSharesMarketPlace.getAddress());
+  await saveAbi('SongSharesMarketPlace', await songSharesMarketPlace.getAddress());
+
+  console.log('Deploying BuyoutTokenMarketPlace...');
+  const BuyoutTokenMarketPlace = await ethers.getContractFactory('BuyoutTokenMarketPlace');
+  const buyoutTokenMarketPlace = await BuyoutTokenMarketPlace.deploy(await protocolModule.getAddress());
+  await buyoutTokenMarketPlace.waitForDeployment();
+  console.log('BuyoutTokenMarketPlace deployed to:', await buyoutTokenMarketPlace.getAddress());
+  await saveAbi('BuyoutTokenMarketPlace', await buyoutTokenMarketPlace.getAddress());
 
   /* ////////////////////////////////////////////
   ////////  WrappedSongFactory contract  ////////
@@ -183,8 +190,10 @@ async function main() {
     wrappedSongFactoryStartBlock: (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0,
     metadataModuleAddress: await metadataModule.getAddress(),
     metadataModuleStartBlock: (await metadataModule.deploymentTransaction()?.wait())?.blockNumber || 0,
-    marketPlaceAddress: await marketPlace.getAddress(),
-    marketPlaceStartBlock: (await marketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
+    songSharesMarketPlaceAddress: await songSharesMarketPlace.getAddress(),
+    songSharesMarketPlaceStartBlock: (await songSharesMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
+    buyoutTokenMarketPlaceAddress: await buyoutTokenMarketPlace.getAddress(),
+    buyoutTokenMarketPlaceStartBlock: (await buyoutTokenMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
   };
 
   fs.writeFileSync(
@@ -200,7 +209,8 @@ async function main() {
     protocolModuleAddress: await protocolModule.getAddress(),
     wrappedSongFactoryAddress: await wrappedSongFactory.getAddress(),
     metadataModuleAddress: await metadataModule.getAddress(),
-    marketPlaceAddress: await marketPlace.getAddress(),
+    songSharesMarketPlaceAddress: await songSharesMarketPlace.getAddress(),
+    buyoutTokenMarketPlaceAddress: await buyoutTokenMarketPlace.getAddress(),
     startBlock: deploymentBlockNumber
   };
 
