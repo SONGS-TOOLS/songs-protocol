@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
-import './../Interfaces/IWSTokenManagement.sol';
+import './../Interfaces/IWSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
 
@@ -69,15 +69,16 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         protocolModule = IProtocolModule(_protocolModule);
     }
 
-    modifier onlyWrappedSongOwner(address wsTokenManagement) {
+    modifier onlyWrappedSongOwner(address wrappedSong) {
         require(
-            IWrappedSongSmartAccount(wsTokenManagement).owner() == msg.sender,
+            IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender,
             "Not wrapped song owner"
         );
         _;
     }
 
-    modifier onlyVerifiedWSToken(address wsTokenManagement) {
+    modifier onlyVerifiedWSToken(address wrappedSong) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         require(
             protocolModule.isWSTokenFromProtocol(wsTokenManagement),
             "Not a verified protocol WSToken"
@@ -86,25 +87,26 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function startSale(
-        address wsTokenManagement,
+        address wrappedSong,
         uint256 amount,
         uint256 price,
         uint256 maxShares,
         address _stableCoin
-    ) external whenNotPaused onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+    ) external whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        
         require(amount > 0 && price > 0, "Invalid sale parameters");
         require(price <= type(uint256).max / amount, "Price too high");
         require(maxShares <= amount, "Max shares per wallet exceeds total");
-        
+
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         require(
-            IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 1) >= amount,
+            IWSTokensManagement(wsTokenManagement).balanceOf(msg.sender, 1) >= amount,
             "Insufficient shares"
         );
         require(
-            IWSTokenManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
+            IWSTokensManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
             "MarketPlace not approved to transfer shares"
         );
-
         require(!sales[wsTokenManagement].active, "Sale already active");
 
         if (_stableCoin != address(0)) {
@@ -141,12 +143,14 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function buyShares(
-        address wsTokenManagement,
+        address wrappedSong,
         uint256 amount,
         address recipient
-    ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wsTokenManagement) {
+    ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wrappedSong) {
         require(recipient != address(0), "Invalid recipient address");
         
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
+
         Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(
@@ -155,8 +159,9 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         );
         require(amount > 0, "Amount must be greater than 0");
         require(amount <= sale.sharesForSale, "Not enough shares available");
+
         require(
-            IWSTokenManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
+            IWSTokensManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
             "MarketPlace approval revoked"
         );
 
@@ -185,7 +190,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         sale.totalSold += amount;
         buyerPurchases[wsTokenManagement][recipient] = newPurchaseTotal;
 
-        IWSTokenManagement(wsTokenManagement).safeTransferFrom(
+        IWSTokensManagement(wsTokenManagement).safeTransferFrom(
             sale.seller,
             recipient,
             1, // tokenId for shares
@@ -202,8 +207,9 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function endSale(
-        address wsTokenManagement
-    ) external onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+        address wrappedSong
+    ) external onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(sale.seller == msg.sender, "Not sale creator");
@@ -213,8 +219,9 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function withdrawFunds(
-        address wsTokenManagement
-    ) external nonReentrant onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+        address wrappedSong
+    ) external nonReentrant onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         uint256 amount = accumulatedFunds[wsTokenManagement];
         require(amount > 0, "No funds to withdraw");
         
@@ -236,8 +243,9 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function getSale(
-        address wsTokenManagement
+        address wrappedSong
     ) external view returns (Sale memory) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         return sales[wsTokenManagement];
     }
 
@@ -250,15 +258,17 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function isApprovedForShares(
-        address wsTokenManagement, 
+        address wrappedSong, 
         address seller
     ) public view returns (bool) {
-        return IWSTokenManagement(wsTokenManagement).isApprovedForAll(seller, address(this));
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
+        return IWSTokensManagement(wsTokenManagement).isApprovedForAll(seller, address(this));
     }
 
     function isSaleExpired(
-        address wsTokenManagement
+        address wrappedSong
     ) public view returns (bool) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         return block.timestamp > saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration();
     }
 
