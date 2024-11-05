@@ -56,6 +56,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "isReleased"
       | "isTokenWhitelisted"
       | "isValidToCreateWrappedSong"
+      | "isWSTokenFromProtocol"
       | "isccRegistry"
       | "isrcRegistry"
       | "iswcRegistry"
@@ -78,6 +79,7 @@ export interface IProtocolModuleInterface extends Interface {
       | "setReleaseFee"
       | "setReviewPeriodDays"
       | "setSmartAccountToWSToken"
+      | "setWSTokenFromProtocol"
       | "setWhitelistingManager"
       | "setWrappedSongAuthenticity"
       | "setWrappedSongCreationFee"
@@ -165,6 +167,10 @@ export interface IProtocolModuleInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "isWSTokenFromProtocol",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isccRegistry",
     values: [AddressLike]
   ): string;
@@ -245,6 +251,10 @@ export interface IProtocolModuleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setSmartAccountToWSToken",
     values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setWSTokenFromProtocol",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setWhitelistingManager",
@@ -353,6 +363,10 @@ export interface IProtocolModuleInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isWSTokenFromProtocol",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isccRegistry",
     data: BytesLike
   ): Result;
@@ -429,6 +443,10 @@ export interface IProtocolModuleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setSmartAccountToWSToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setWSTokenFromProtocol",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -624,6 +642,12 @@ export interface IProtocolModule extends BaseContract {
     "view"
   >;
 
+  isWSTokenFromProtocol: TypedContractMethod<
+    [wsTokenManagement: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   isccRegistry: TypedContractMethod<
     [wrappedSong: AddressLike],
     [string],
@@ -728,6 +752,12 @@ export interface IProtocolModule extends BaseContract {
 
   setSmartAccountToWSToken: TypedContractMethod<
     [smartAccount: AddressLike, wsToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setWSTokenFromProtocol: TypedContractMethod<
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -871,6 +901,9 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "isValidToCreateWrappedSong"
   ): TypedContractMethod<[creator: AddressLike], [boolean], "view">;
   getFunction(
+    nameOrSignature: "isWSTokenFromProtocol"
+  ): TypedContractMethod<[wsTokenManagement: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "isccRegistry"
   ): TypedContractMethod<[wrappedSong: AddressLike], [string], "view">;
   getFunction(
@@ -949,6 +982,13 @@ export interface IProtocolModule extends BaseContract {
     nameOrSignature: "setSmartAccountToWSToken"
   ): TypedContractMethod<
     [smartAccount: AddressLike, wsToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setWSTokenFromProtocol"
+  ): TypedContractMethod<
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;

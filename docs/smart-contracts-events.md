@@ -59,42 +59,165 @@ Parameters:
 Parameters:
 - `caller` (indexed address) - The address of the authorized caller
 
-## MarketPlace Events
+## SongSharesMarketPlace Events
 
 ### SharesSaleStarted
 Parameters:
-- `tokenId` (uint256) - The ID of the token
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
+- `owner` (indexed address) - The owner of the shares
 - `amount` (uint256) - The amount of shares for sale
 - `price` (uint256) - The price per share
-- `owner` (indexed address) - The owner of the shares
 - `maxSharesPerWallet` (uint256) - Maximum shares per wallet
 - `stableCoinAddress` (address) - The address of the stablecoin
 
+Code:
+```solidity
+event SharesSaleStarted(
+    address indexed wsTokenManagement,
+    address indexed owner,
+    uint256 amount,
+    uint256 price,
+    uint256 maxSharesPerWallet,
+    address stableCoinAddress
+);
+```
+
 ### SharesSold
 Parameters:
-- `tokenId` (uint256) - The ID of the token
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
 - `buyer` (address) - The address of the buyer
 - `amount` (uint256) - The amount of shares sold
 
+Code:
+```solidity
+event SharesSold(
+    address indexed wsTokenManagement,
+    address buyer,
+    uint256 amount
+);
+```
+
 ### SharesSaleEnded
-Parameters: none
+Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
+
+Code:
+```solidity
+event SharesSaleEnded(
+    address indexed wsTokenManagement
+);
+```
 
 ### FundsWithdrawn
 Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
 - `to` (indexed address) - The address receiving the funds
 - `amount` (uint256) - The amount withdrawn
 
+Code:
+```solidity
+event FundsWithdrawn(
+    address indexed wsTokenManagement,
+    address indexed to,
+    uint256 amount
+);
+```
+
 ### ERC20Received
 Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
 - `token` (address) - The address of the ERC20 token
 - `amount` (uint256) - The amount received
 - `sender` (address) - The address of the sender
 
-### EmergencyWithdrawal
+Code:
+```solidity
+event ERC20Received(
+    address indexed wsTokenManagement,
+    address token,
+    uint256 amount,
+    address sender
+);
+```
+
+## BuyoutTokenMarketPlace Events
+
+### BuyoutSaleStarted
 Parameters:
-- `token` (indexed address) - The address of the token
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
+- `owner` (indexed address) - The owner of the tokens
+- `amount` (uint256) - The amount of tokens for sale
+- `price` (uint256) - The price per token
+- `stableCoinAddress` (address) - The address of the stablecoin
+
+Code:
+```solidity
+event BuyoutSaleStarted(
+    address indexed wsTokenManagement,
+    address indexed owner,
+    uint256 amount,
+    uint256 price,
+    address stableCoinAddress
+);
+```
+
+### BuyoutTokenSold
+Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
+- `buyer` (address) - The address of the buyer
+- `amount` (uint256) - The amount of tokens sold (always 1)
+
+Code:
+```solidity
+event BuyoutTokenSold(
+    address indexed wsTokenManagement,
+    address buyer,
+    uint256 amount
+);
+```
+
+### BuyoutSaleEnded
+Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
+
+Code:
+```solidity
+event BuyoutSaleEnded(
+    address indexed wsTokenManagement
+);
+```
+
+### FundsWithdrawn
+Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
 - `to` (indexed address) - The address receiving the funds
 - `amount` (uint256) - The amount withdrawn
+
+Code:
+```solidity
+event FundsWithdrawn(
+    address indexed wsTokenManagement,
+    address indexed to,
+    uint256 amount
+);
+```
+
+### ERC20Received
+Parameters:
+- `wsTokenManagement` (indexed address) - The address of the WSTokenManagement contract
+- `token` (address) - The address of the ERC20 token
+- `amount` (uint256) - The amount received
+- `sender` (address) - The address of the sender
+
+Code:
+```solidity
+event ERC20Received(
+    address indexed wsTokenManagement,
+    address token,
+    uint256 amount,
+    address sender
+);
+```
 
 ## MetadataModule Events
 

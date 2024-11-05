@@ -402,4 +402,16 @@ contract ProtocolModule is Ownable {
         require(_duration > 0, "Duration must be greater than 0");
         maxSaleDuration = _duration;
     }
+
+    // Add mapping to track WSTokenManagement contracts
+    mapping(address => bool) private protocolWSTokens;
+
+    function setWSTokenFromProtocol(address wsTokenManagement) external {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
+        protocolWSTokens[wsTokenManagement] = true;
+    }
+
+    function isWSTokenFromProtocol(address wsTokenManagement) external view returns (bool) {
+        return protocolWSTokens[wsTokenManagement];
+    }
 }

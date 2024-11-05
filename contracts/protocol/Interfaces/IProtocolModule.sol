@@ -68,4 +68,6 @@ interface IProtocolModule {
     function getOwnerWrappedSongs(address owner) external view returns (address[] memory);
     function maxSaleDuration() external view returns (uint256);
     function setMaxSaleDuration(uint256 _duration) external;
+    function isWSTokenFromProtocol(address wsTokenManagement) external view returns (bool);
+    function setWSTokenFromProtocol(address wsTokenManagement) external;
 }

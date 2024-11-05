@@ -120,6 +120,8 @@ export type { IWSTokensManagement } from "./contracts/protocol/Interfaces/IWSTok
 export { IWSTokensManagement__factory } from "./factories/contracts/protocol/Interfaces/IWSTokensManagement__factory";
 export type { IWSUtils } from "./contracts/protocol/Interfaces/IWSUtils";
 export { IWSUtils__factory } from "./factories/contracts/protocol/Interfaces/IWSUtils__factory";
+export type { BuyoutTokenMarketPlace } from "./contracts/protocol/NonUpgradable/BuyoutTokenMarketPlace";
+export { BuyoutTokenMarketPlace__factory } from "./factories/contracts/protocol/NonUpgradable/BuyoutTokenMarketPlace__factory";
 export type { DistributorWallet } from "./contracts/protocol/NonUpgradable/DistributorWallet";
 export { DistributorWallet__factory } from "./factories/contracts/protocol/NonUpgradable/DistributorWallet__factory";
 export type { DistributorWalletFactory } from "./contracts/protocol/NonUpgradable/DistributorWalletFactory";
@@ -132,6 +134,8 @@ export type { MetadataModule } from "./contracts/protocol/NonUpgradable/Metadata
 export { MetadataModule__factory } from "./factories/contracts/protocol/NonUpgradable/MetadataModule__factory";
 export type { ProtocolModule } from "./contracts/protocol/NonUpgradable/ProtocolModule";
 export { ProtocolModule__factory } from "./factories/contracts/protocol/NonUpgradable/ProtocolModule__factory";
+export type { SongSharesMarketPlace } from "./contracts/protocol/NonUpgradable/SongSharesMarketPlace";
+export { SongSharesMarketPlace__factory } from "./factories/contracts/protocol/NonUpgradable/SongSharesMarketPlace__factory";
 export type { WhitelistingManager } from "./contracts/protocol/NonUpgradable/WhitelistingManager";
 export { WhitelistingManager__factory } from "./factories/contracts/protocol/NonUpgradable/WhitelistingManager__factory";
 export type { WrappedSongFactory } from "./contracts/protocol/NonUpgradable/WrappedSongFactory";

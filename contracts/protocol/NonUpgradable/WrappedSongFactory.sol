@@ -74,6 +74,7 @@ contract WrappedSongFactory {
     address newWrappedSongSmartAccountAddress = address(newWrappedSongSmartAccount);
     address wsTokenManagementAddress = newWrappedSongSmartAccount.getWSTokenManagementAddress();
 
+    protocolModule.setWSTokenFromProtocol(wsTokenManagementAddress);
     protocolModule.setSmartAccountToWSToken(newWrappedSongSmartAccountAddress, wsTokenManagementAddress);
     protocolModule.addOwnerWrappedSong(msg.sender, newWrappedSongSmartAccountAddress);
 
