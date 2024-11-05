@@ -6,7 +6,6 @@ export { BuyoutTokenMarketPlace__factory } from "./BuyoutTokenMarketPlace__facto
 export { DistributorWallet__factory } from "./DistributorWallet__factory";
 export { DistributorWalletFactory__factory } from "./DistributorWalletFactory__factory";
 export { ERC20Whitelist__factory } from "./ERC20Whitelist__factory";
-export { MarketPlace__factory } from "./MarketPlace__factory";
 export { MetadataModule__factory } from "./MetadataModule__factory";
 export { ProtocolModule__factory } from "./ProtocolModule__factory";
 export { SongSharesMarketPlace__factory } from "./SongSharesMarketPlace__factory";

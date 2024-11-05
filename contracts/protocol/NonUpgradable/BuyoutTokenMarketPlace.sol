@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
-import './../Interfaces/IWSTokenManagement.sol';
+import './../Interfaces/IWSTokensManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
 
@@ -63,41 +63,40 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     );
 
     constructor(address _protocolModule) Ownable(msg.sender) {
-        require(_protocolModule != address(0) && _protocolModule.code.length > 0, "Invalid protocol");
         protocolModule = IProtocolModule(_protocolModule);
     }
 
-    modifier onlyWrappedSongOwner(address wsTokenManagement) {
+    modifier onlyWrappedSongOwner(address wrappedSong) {
         require(
-            IWrappedSongSmartAccount(wsTokenManagement).owner() == msg.sender,
+            IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender,
             "Not wrapped song owner"
         );
         _;
     }
 
-    modifier onlyVerifiedWSToken(address wsTokenManagement) {
+    modifier onlyVerifiedWSToken(address wrappedSong) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         require(
             protocolModule.isWSTokenFromProtocol(wsTokenManagement),
             "Not a verified protocol WSToken"
         );
         _;
     }
-
     function startSale(
-        address wsTokenManagement,
+        address wrappedSong,
         uint256 amount,
         uint256 price,
         address _stableCoin
-    ) external whenNotPaused onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+    ) external whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
         require(amount > 0 && price > 0, "Invalid sale parameters");
         require(price <= type(uint256).max / amount, "Price too high");
-        
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         require(
-            IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
+            IWSTokensManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
             "Insufficient buyout tokens"
         );
         require(
-            IWSTokenManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
+            IWSTokensManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
             "MarketPlace not approved to transfer tokens"
         );
 
@@ -135,11 +134,12 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function buyToken(
-        address wsTokenManagement,
+        address wrappedSong,
         uint256 amount,
         address recipient
-    ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wsTokenManagement) {
+    ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wrappedSong) {
         require(recipient != address(0), "Invalid recipient address");
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(
@@ -149,7 +149,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         require(amount > 0, "Amount must be greater than 0");
         require(sale.tokensForSale >= amount, "Not enough tokens available");
         require(
-            IWSTokenManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
+            IWSTokensManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
             "MarketPlace approval revoked"
         );
 
@@ -169,7 +169,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         sale.tokensForSale -= amount;
         sale.totalSold += amount;
 
-        IWSTokenManagement(wsTokenManagement).safeTransferFrom(
+        IWSTokensManagement(wsTokenManagement).safeTransferFrom(
             sale.seller,
             recipient,
             2, // tokenId for buyout
@@ -186,8 +186,9 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function endSale(
-        address wsTokenManagement
-    ) external onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+        address wrappedSong
+    ) external onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(sale.seller == msg.sender, "Not sale creator");
@@ -197,12 +198,13 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function withdrawFunds(
-        address wsTokenManagement
+        address wrappedSong
     ) external 
         nonReentrant 
-        onlyWrappedSongOwner(wsTokenManagement) 
-        onlyVerifiedWSToken(wsTokenManagement) 
+        onlyWrappedSongOwner(wrappedSong) 
+        onlyVerifiedWSToken(wrappedSong) 
     {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         uint256 amount = accumulatedFunds[wsTokenManagement];
         require(amount > 0, "No funds to withdraw");
         
@@ -225,8 +227,9 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     function getSale(
-        address wsTokenManagement
+        address wrappedSong
     ) external view returns (Sale memory) {
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         return sales[wsTokenManagement];
     }
 
@@ -240,10 +243,11 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     // Helper functions
     function isApprovedForTokens(
-        address wsTokenManagement, 
+        address wrappedSong, 
         address seller
     ) public view returns (bool) {
-        return IWSTokenManagement(wsTokenManagement).isApprovedForAll(seller, address(this));
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
+        return IWSTokensManagement(wsTokenManagement).isApprovedForAll(seller, address(this));
     }
 
     function isSaleExpired(

@@ -397,11 +397,7 @@ export interface SongSharesMarketPlace extends BaseContract {
   accumulatedFunds: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   buyShares: TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      amount: BigNumberish,
-      recipient: AddressLike
-    ],
+    [wrappedSong: AddressLike, amount: BigNumberish, recipient: AddressLike],
     [void],
     "payable"
   >;
@@ -419,19 +415,19 @@ export interface SongSharesMarketPlace extends BaseContract {
   >;
 
   getSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [SongSharesMarketPlace.SaleStructOutput],
     "view"
   >;
 
   isApprovedForShares: TypedContractMethod<
-    [wsTokenManagement: AddressLike, seller: AddressLike],
+    [wrappedSong: AddressLike, seller: AddressLike],
     [boolean],
     "view"
   >;
 
   isSaleExpired: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [boolean],
     "view"
   >;
@@ -466,7 +462,7 @@ export interface SongSharesMarketPlace extends BaseContract {
 
   startSale: TypedContractMethod<
     [
-      wsTokenManagement: AddressLike,
+      wrappedSong: AddressLike,
       amount: BigNumberish,
       price: BigNumberish,
       maxShares: BigNumberish,
@@ -485,7 +481,7 @@ export interface SongSharesMarketPlace extends BaseContract {
   unpause: TypedContractMethod<[], [void], "nonpayable">;
 
   withdrawFunds: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -500,11 +496,7 @@ export interface SongSharesMarketPlace extends BaseContract {
   getFunction(
     nameOrSignature: "buyShares"
   ): TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      amount: BigNumberish,
-      recipient: AddressLike
-    ],
+    [wrappedSong: AddressLike, amount: BigNumberish, recipient: AddressLike],
     [void],
     "payable"
   >;
@@ -525,20 +517,20 @@ export interface SongSharesMarketPlace extends BaseContract {
   getFunction(
     nameOrSignature: "getSale"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [SongSharesMarketPlace.SaleStructOutput],
     "view"
   >;
   getFunction(
     nameOrSignature: "isApprovedForShares"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, seller: AddressLike],
+    [wrappedSong: AddressLike, seller: AddressLike],
     [boolean],
     "view"
   >;
   getFunction(
     nameOrSignature: "isSaleExpired"
-  ): TypedContractMethod<[wsTokenManagement: AddressLike], [boolean], "view">;
+  ): TypedContractMethod<[wrappedSong: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -578,7 +570,7 @@ export interface SongSharesMarketPlace extends BaseContract {
     nameOrSignature: "startSale"
   ): TypedContractMethod<
     [
-      wsTokenManagement: AddressLike,
+      wrappedSong: AddressLike,
       amount: BigNumberish,
       price: BigNumberish,
       maxShares: BigNumberish,
@@ -595,11 +587,7 @@ export interface SongSharesMarketPlace extends BaseContract {
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "withdrawFunds"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
 
   getEvent(
     key: "ERC20Received"

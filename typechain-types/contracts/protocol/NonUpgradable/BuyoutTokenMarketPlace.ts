@@ -382,29 +382,25 @@ export interface BuyoutTokenMarketPlace extends BaseContract {
   accumulatedFunds: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   buyToken: TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      amount: BigNumberish,
-      recipient: AddressLike
-    ],
+    [wrappedSong: AddressLike, amount: BigNumberish, recipient: AddressLike],
     [void],
     "payable"
   >;
 
   endSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [void],
     "nonpayable"
   >;
 
   getSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [BuyoutTokenMarketPlace.SaleStructOutput],
     "view"
   >;
 
   isApprovedForTokens: TypedContractMethod<
-    [wsTokenManagement: AddressLike, seller: AddressLike],
+    [wrappedSong: AddressLike, seller: AddressLike],
     [boolean],
     "view"
   >;
@@ -444,7 +440,7 @@ export interface BuyoutTokenMarketPlace extends BaseContract {
 
   startSale: TypedContractMethod<
     [
-      wsTokenManagement: AddressLike,
+      wrappedSong: AddressLike,
       amount: BigNumberish,
       price: BigNumberish,
       _stableCoin: AddressLike
@@ -462,7 +458,7 @@ export interface BuyoutTokenMarketPlace extends BaseContract {
   unpause: TypedContractMethod<[], [void], "nonpayable">;
 
   withdrawFunds: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -477,32 +473,24 @@ export interface BuyoutTokenMarketPlace extends BaseContract {
   getFunction(
     nameOrSignature: "buyToken"
   ): TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      amount: BigNumberish,
-      recipient: AddressLike
-    ],
+    [wrappedSong: AddressLike, amount: BigNumberish, recipient: AddressLike],
     [void],
     "payable"
   >;
   getFunction(
     nameOrSignature: "endSale"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "getSale"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike],
+    [wrappedSong: AddressLike],
     [BuyoutTokenMarketPlace.SaleStructOutput],
     "view"
   >;
   getFunction(
     nameOrSignature: "isApprovedForTokens"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, seller: AddressLike],
+    [wrappedSong: AddressLike, seller: AddressLike],
     [boolean],
     "view"
   >;
@@ -547,7 +535,7 @@ export interface BuyoutTokenMarketPlace extends BaseContract {
     nameOrSignature: "startSale"
   ): TypedContractMethod<
     [
-      wsTokenManagement: AddressLike,
+      wrappedSong: AddressLike,
       amount: BigNumberish,
       price: BigNumberish,
       _stableCoin: AddressLike
@@ -563,11 +551,7 @@ export interface BuyoutTokenMarketPlace extends BaseContract {
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "withdrawFunds"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[wrappedSong: AddressLike], [void], "nonpayable">;
 
   getEvent(
     key: "BuyoutSaleEnded"

@@ -96,6 +96,8 @@ export type { MockNFT } from "./contracts/Mock/MockNFT";
 export { MockNFT__factory } from "./factories/contracts/Mock/MockNFT__factory";
 export type { MockToken } from "./contracts/Mock/MockToken";
 export { MockToken__factory } from "./factories/contracts/Mock/MockToken__factory";
+export type { IBuyoutTokenMarketPlace } from "./contracts/protocol/Interfaces/IBuyoutTokenMarketPlace";
+export { IBuyoutTokenMarketPlace__factory } from "./factories/contracts/protocol/Interfaces/IBuyoutTokenMarketPlace__factory";
 export type { IDistributorWallet } from "./contracts/protocol/Interfaces/IDistributorWallet";
 export { IDistributorWallet__factory } from "./factories/contracts/protocol/Interfaces/IDistributorWallet__factory";
 export type { IDistributorWalletFactory } from "./contracts/protocol/Interfaces/IDistributorWalletFactory";
@@ -108,6 +110,8 @@ export type { IMetadataModule } from "./contracts/protocol/Interfaces/IMetadataM
 export { IMetadataModule__factory } from "./factories/contracts/protocol/Interfaces/IMetadataModule__factory";
 export type { IProtocolModule } from "./contracts/protocol/Interfaces/IProtocolModule";
 export { IProtocolModule__factory } from "./factories/contracts/protocol/Interfaces/IProtocolModule__factory";
+export type { ISongSharesMarketPlace } from "./contracts/protocol/Interfaces/ISongSharesMarketPlace";
+export { ISongSharesMarketPlace__factory } from "./factories/contracts/protocol/Interfaces/ISongSharesMarketPlace__factory";
 export type { IWhitelistingManager } from "./contracts/protocol/Interfaces/IWhitelistingManager";
 export { IWhitelistingManager__factory } from "./factories/contracts/protocol/Interfaces/IWhitelistingManager__factory";
 export type { IWrappedSongFactory } from "./contracts/protocol/Interfaces/IWrappedSongFactory";
@@ -128,8 +132,6 @@ export type { DistributorWalletFactory } from "./contracts/protocol/NonUpgradabl
 export { DistributorWalletFactory__factory } from "./factories/contracts/protocol/NonUpgradable/DistributorWalletFactory__factory";
 export type { ERC20Whitelist } from "./contracts/protocol/NonUpgradable/ERC20Whitelist";
 export { ERC20Whitelist__factory } from "./factories/contracts/protocol/NonUpgradable/ERC20Whitelist__factory";
-export type { MarketPlace } from "./contracts/protocol/NonUpgradable/MarketPlace";
-export { MarketPlace__factory } from "./factories/contracts/protocol/NonUpgradable/MarketPlace__factory";
 export type { MetadataModule } from "./contracts/protocol/NonUpgradable/MetadataModule";
 export { MetadataModule__factory } from "./factories/contracts/protocol/NonUpgradable/MetadataModule__factory";
 export type { ProtocolModule } from "./contracts/protocol/NonUpgradable/ProtocolModule";
