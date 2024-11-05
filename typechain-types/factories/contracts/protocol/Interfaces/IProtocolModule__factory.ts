@@ -320,6 +320,25 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "wsTokenManagement",
+        type: "address",
+      },
+    ],
+    name: "isWSTokenFromProtocol",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "wrappedSong",
         type: "address",
       },
@@ -368,6 +387,19 @@ const _abi = [
         internalType: "string",
         name: "",
         type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxSaleDuration",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -571,6 +603,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "_duration",
+        type: "uint256",
+      },
+    ],
+    name: "setMaxSaleDuration",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_metadataModule",
         type: "address",
@@ -634,6 +679,19 @@ const _abi = [
       },
     ],
     name: "setSmartAccountToWSToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "wsTokenManagement",
+        type: "address",
+      },
+    ],
+    name: "setWSTokenFromProtocol",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

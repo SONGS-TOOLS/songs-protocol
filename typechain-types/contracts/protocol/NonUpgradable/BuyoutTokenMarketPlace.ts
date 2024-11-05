@@ -23,26 +23,50 @@ import type {
   TypedContractMethod,
 } from "../../../common";
 
-export interface MarketPlaceInterface extends Interface {
+export declare namespace BuyoutTokenMarketPlace {
+  export type SaleStruct = {
+    active: boolean;
+    seller: AddressLike;
+    tokensForSale: BigNumberish;
+    pricePerToken: BigNumberish;
+    totalSold: BigNumberish;
+    stableCoin: AddressLike;
+  };
+
+  export type SaleStructOutput = [
+    active: boolean,
+    seller: string,
+    tokensForSale: bigint,
+    pricePerToken: bigint,
+    totalSold: bigint,
+    stableCoin: string
+  ] & {
+    active: boolean;
+    seller: string;
+    tokensForSale: bigint;
+    pricePerToken: bigint;
+    totalSold: bigint;
+    stableCoin: string;
+  };
+}
+
+export interface BuyoutTokenMarketPlaceInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "accumulatedFunds"
-      | "buyShares"
-      | "endSharesSale"
-      | "getBuyerPurchases"
+      | "buyToken"
+      | "endSale"
       | "getSale"
-      | "isApprovedForShares"
+      | "isApprovedForTokens"
       | "isSaleExpired"
       | "owner"
       | "pause"
       | "paused"
       | "protocolModule"
-      | "removeWSTokenVerification"
       | "renounceOwnership"
       | "saleStartTimes"
       | "sales"
-      | "startBuyoutSale"
-      | "startSharesSale"
+      | "startSale"
       | "transferOwnership"
       | "unpause"
       | "withdrawFunds"
@@ -50,15 +74,13 @@ export interface MarketPlaceInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "BuyoutSaleEnded"
       | "BuyoutSaleStarted"
+      | "BuyoutTokenSold"
       | "ERC20Received"
-      | "EmergencyWithdrawal"
       | "FundsWithdrawn"
       | "OwnershipTransferred"
       | "Paused"
-      | "SharesSaleEnded"
-      | "SharesSaleStarted"
-      | "SharesSold"
       | "Unpaused"
   ): EventFragment;
 
@@ -67,28 +89,24 @@ export interface MarketPlaceInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "buyShares",
-    values: [AddressLike, BigNumberish, BigNumberish]
+    functionFragment: "buyToken",
+    values: [AddressLike, BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "endSharesSale",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getBuyerPurchases",
-    values: [AddressLike, AddressLike, BigNumberish]
+    functionFragment: "endSale",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "getSale",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "isApprovedForShares",
+    functionFragment: "isApprovedForTokens",
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isSaleExpired",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
@@ -98,28 +116,17 @@ export interface MarketPlaceInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "removeWSTokenVerification",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "saleStartTimes",
-    values: [AddressLike, BigNumberish]
+    values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "sales", values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "sales",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "startBuyoutSale",
-    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "startSharesSale",
-    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, AddressLike]
+    functionFragment: "startSale",
+    values: [AddressLike, BigNumberish, BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -135,18 +142,11 @@ export interface MarketPlaceInterface extends Interface {
     functionFragment: "accumulatedFunds",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "buyShares", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "endSharesSale",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getBuyerPurchases",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "buyToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "endSale", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getSale", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "isApprovedForShares",
+    functionFragment: "isApprovedForTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -161,10 +161,6 @@ export interface MarketPlaceInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeWSTokenVerification",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
@@ -173,14 +169,7 @@ export interface MarketPlaceInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sales", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "startBuyoutSale",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "startSharesSale",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "startSale", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -192,33 +181,70 @@ export interface MarketPlaceInterface extends Interface {
   ): Result;
 }
 
+export namespace BuyoutSaleEndedEvent {
+  export type InputTuple = [wsTokenManagement: AddressLike];
+  export type OutputTuple = [wsTokenManagement: string];
+  export interface OutputObject {
+    wsTokenManagement: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace BuyoutSaleStartedEvent {
   export type InputTuple = [
     wsTokenManagement: AddressLike,
     owner: AddressLike,
-    tokenId: BigNumberish,
     amount: BigNumberish,
     price: BigNumberish,
-    maxSharesPerWallet: BigNumberish,
     stableCoinAddress: AddressLike
   ];
   export type OutputTuple = [
     wsTokenManagement: string,
     owner: string,
-    tokenId: bigint,
     amount: bigint,
     price: bigint,
-    maxSharesPerWallet: bigint,
     stableCoinAddress: string
   ];
   export interface OutputObject {
     wsTokenManagement: string;
     owner: string;
-    tokenId: bigint;
     amount: bigint;
     price: bigint;
-    maxSharesPerWallet: bigint;
     stableCoinAddress: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace BuyoutTokenSoldEvent {
+  export type InputTuple = [
+    wsTokenManagement: AddressLike,
+    buyer: AddressLike,
+    recipient: AddressLike,
+    amount: BigNumberish,
+    totalCost: BigNumberish,
+    paymentToken: AddressLike
+  ];
+  export type OutputTuple = [
+    wsTokenManagement: string,
+    buyer: string,
+    recipient: string,
+    amount: bigint,
+    totalCost: bigint,
+    paymentToken: string
+  ];
+  export interface OutputObject {
+    wsTokenManagement: string;
+    buyer: string;
+    recipient: string;
+    amount: bigint;
+    totalCost: bigint;
+    paymentToken: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -244,24 +270,6 @@ export namespace ERC20ReceivedEvent {
     token: string;
     amount: bigint;
     sender: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace EmergencyWithdrawalEvent {
-  export type InputTuple = [
-    token: AddressLike,
-    to: AddressLike,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [token: string, to: string, amount: bigint];
-  export interface OutputObject {
-    token: string;
-    to: string;
-    amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -316,77 +324,6 @@ export namespace PausedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace SharesSaleEndedEvent {
-  export type InputTuple = [wsTokenManagement: AddressLike];
-  export type OutputTuple = [wsTokenManagement: string];
-  export interface OutputObject {
-    wsTokenManagement: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace SharesSaleStartedEvent {
-  export type InputTuple = [
-    wsTokenManagement: AddressLike,
-    owner: AddressLike,
-    tokenId: BigNumberish,
-    amount: BigNumberish,
-    price: BigNumberish,
-    maxSharesPerWallet: BigNumberish,
-    stableCoinAddress: AddressLike
-  ];
-  export type OutputTuple = [
-    wsTokenManagement: string,
-    owner: string,
-    tokenId: bigint,
-    amount: bigint,
-    price: bigint,
-    maxSharesPerWallet: bigint,
-    stableCoinAddress: string
-  ];
-  export interface OutputObject {
-    wsTokenManagement: string;
-    owner: string;
-    tokenId: bigint;
-    amount: bigint;
-    price: bigint;
-    maxSharesPerWallet: bigint;
-    stableCoinAddress: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace SharesSoldEvent {
-  export type InputTuple = [
-    wsTokenManagement: AddressLike,
-    tokenId: BigNumberish,
-    buyer: AddressLike,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [
-    wsTokenManagement: string,
-    tokenId: bigint,
-    buyer: string,
-    amount: bigint
-  ];
-  export interface OutputObject {
-    wsTokenManagement: string;
-    tokenId: bigint;
-    buyer: string;
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace UnpausedEvent {
   export type InputTuple = [account: AddressLike];
   export type OutputTuple = [account: string];
@@ -399,11 +336,11 @@ export namespace UnpausedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface MarketPlace extends BaseContract {
-  connect(runner?: ContractRunner | null): MarketPlace;
+export interface BuyoutTokenMarketPlace extends BaseContract {
+  connect(runner?: ContractRunner | null): BuyoutTokenMarketPlace;
   waitForDeployment(): Promise<this>;
 
-  interface: MarketPlaceInterface;
+  interface: BuyoutTokenMarketPlaceInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -444,53 +381,36 @@ export interface MarketPlace extends BaseContract {
 
   accumulatedFunds: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-  buyShares: TypedContractMethod<
+  buyToken: TypedContractMethod<
     [
       wsTokenManagement: AddressLike,
-      tokenId: BigNumberish,
-      amount: BigNumberish
+      amount: BigNumberish,
+      recipient: AddressLike
     ],
     [void],
     "payable"
   >;
 
-  endSharesSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike, tokenId: BigNumberish],
+  endSale: TypedContractMethod<
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;
 
-  getBuyerPurchases: TypedContractMethod<
-    [wsTokenManagement: AddressLike, buyer: AddressLike, tokenId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-
   getSale: TypedContractMethod<
-    [wsTokenManagement: AddressLike, tokenId: BigNumberish],
-    [
-      [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
-        seller: string;
-        _tokenId: bigint;
-        sharesForSale: bigint;
-        pricePerShare: bigint;
-        maxSharesPerWallet: bigint;
-        stableCoin: string;
-        active: boolean;
-        totalSold: bigint;
-      }
-    ],
+    [wsTokenManagement: AddressLike],
+    [BuyoutTokenMarketPlace.SaleStructOutput],
     "view"
   >;
 
-  isApprovedForShares: TypedContractMethod<
+  isApprovedForTokens: TypedContractMethod<
     [wsTokenManagement: AddressLike, seller: AddressLike],
     [boolean],
     "view"
   >;
 
   isSaleExpired: TypedContractMethod<
-    [wsTokenManagement: AddressLike, tokenId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [boolean],
     "view"
   >;
@@ -503,55 +423,30 @@ export interface MarketPlace extends BaseContract {
 
   protocolModule: TypedContractMethod<[], [string], "view">;
 
-  removeWSTokenVerification: TypedContractMethod<
-    [wsTokenManagement: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  saleStartTimes: TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  saleStartTimes: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   sales: TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
+    [arg0: AddressLike],
     [
-      [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
-        seller: string;
-        tokenId: bigint;
-        sharesForSale: bigint;
-        pricePerShare: bigint;
-        maxSharesPerWallet: bigint;
-        stableCoin: string;
+      [boolean, string, bigint, bigint, bigint, string] & {
         active: boolean;
+        seller: string;
+        tokensForSale: bigint;
+        pricePerToken: bigint;
         totalSold: bigint;
+        stableCoin: string;
       }
     ],
     "view"
   >;
 
-  startBuyoutSale: TypedContractMethod<
+  startSale: TypedContractMethod<
     [
       wsTokenManagement: AddressLike,
       amount: BigNumberish,
       price: BigNumberish,
-      maxShares: BigNumberish,
-      _stableCoin: AddressLike
-    ],
-    [void],
-    "nonpayable"
-  >;
-
-  startSharesSale: TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      amount: BigNumberish,
-      price: BigNumberish,
-      maxShares: BigNumberish,
       _stableCoin: AddressLike
     ],
     [void],
@@ -580,50 +475,32 @@ export interface MarketPlace extends BaseContract {
     nameOrSignature: "accumulatedFunds"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "buyShares"
+    nameOrSignature: "buyToken"
   ): TypedContractMethod<
     [
       wsTokenManagement: AddressLike,
-      tokenId: BigNumberish,
-      amount: BigNumberish
+      amount: BigNumberish,
+      recipient: AddressLike
     ],
     [void],
     "payable"
   >;
   getFunction(
-    nameOrSignature: "endSharesSale"
+    nameOrSignature: "endSale"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, tokenId: BigNumberish],
+    [wsTokenManagement: AddressLike],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "getBuyerPurchases"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, buyer: AddressLike, tokenId: BigNumberish],
-    [bigint],
-    "view"
-  >;
-  getFunction(
     nameOrSignature: "getSale"
   ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, tokenId: BigNumberish],
-    [
-      [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
-        seller: string;
-        _tokenId: bigint;
-        sharesForSale: bigint;
-        pricePerShare: bigint;
-        maxSharesPerWallet: bigint;
-        stableCoin: string;
-        active: boolean;
-        totalSold: bigint;
-      }
-    ],
+    [wsTokenManagement: AddressLike],
+    [BuyoutTokenMarketPlace.SaleStructOutput],
     "view"
   >;
   getFunction(
-    nameOrSignature: "isApprovedForShares"
+    nameOrSignature: "isApprovedForTokens"
   ): TypedContractMethod<
     [wsTokenManagement: AddressLike, seller: AddressLike],
     [boolean],
@@ -631,11 +508,7 @@ export interface MarketPlace extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "isSaleExpired"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike, tokenId: BigNumberish],
-    [boolean],
-    "view"
-  >;
+  ): TypedContractMethod<[wsTokenManagement: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -649,61 +522,34 @@ export interface MarketPlace extends BaseContract {
     nameOrSignature: "protocolModule"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "removeWSTokenVerification"
-  ): TypedContractMethod<
-    [wsTokenManagement: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "saleStartTimes"
-  ): TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "sales"
   ): TypedContractMethod<
-    [arg0: AddressLike, arg1: BigNumberish],
+    [arg0: AddressLike],
     [
-      [string, bigint, bigint, bigint, bigint, string, boolean, bigint] & {
-        seller: string;
-        tokenId: bigint;
-        sharesForSale: bigint;
-        pricePerShare: bigint;
-        maxSharesPerWallet: bigint;
-        stableCoin: string;
+      [boolean, string, bigint, bigint, bigint, string] & {
         active: boolean;
+        seller: string;
+        tokensForSale: bigint;
+        pricePerToken: bigint;
         totalSold: bigint;
+        stableCoin: string;
       }
     ],
     "view"
   >;
   getFunction(
-    nameOrSignature: "startBuyoutSale"
+    nameOrSignature: "startSale"
   ): TypedContractMethod<
     [
       wsTokenManagement: AddressLike,
       amount: BigNumberish,
       price: BigNumberish,
-      maxShares: BigNumberish,
-      _stableCoin: AddressLike
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "startSharesSale"
-  ): TypedContractMethod<
-    [
-      wsTokenManagement: AddressLike,
-      amount: BigNumberish,
-      price: BigNumberish,
-      maxShares: BigNumberish,
       _stableCoin: AddressLike
     ],
     [void],
@@ -724,6 +570,13 @@ export interface MarketPlace extends BaseContract {
   >;
 
   getEvent(
+    key: "BuyoutSaleEnded"
+  ): TypedContractEvent<
+    BuyoutSaleEndedEvent.InputTuple,
+    BuyoutSaleEndedEvent.OutputTuple,
+    BuyoutSaleEndedEvent.OutputObject
+  >;
+  getEvent(
     key: "BuyoutSaleStarted"
   ): TypedContractEvent<
     BuyoutSaleStartedEvent.InputTuple,
@@ -731,18 +584,18 @@ export interface MarketPlace extends BaseContract {
     BuyoutSaleStartedEvent.OutputObject
   >;
   getEvent(
+    key: "BuyoutTokenSold"
+  ): TypedContractEvent<
+    BuyoutTokenSoldEvent.InputTuple,
+    BuyoutTokenSoldEvent.OutputTuple,
+    BuyoutTokenSoldEvent.OutputObject
+  >;
+  getEvent(
     key: "ERC20Received"
   ): TypedContractEvent<
     ERC20ReceivedEvent.InputTuple,
     ERC20ReceivedEvent.OutputTuple,
     ERC20ReceivedEvent.OutputObject
-  >;
-  getEvent(
-    key: "EmergencyWithdrawal"
-  ): TypedContractEvent<
-    EmergencyWithdrawalEvent.InputTuple,
-    EmergencyWithdrawalEvent.OutputTuple,
-    EmergencyWithdrawalEvent.OutputObject
   >;
   getEvent(
     key: "FundsWithdrawn"
@@ -766,27 +619,6 @@ export interface MarketPlace extends BaseContract {
     PausedEvent.OutputObject
   >;
   getEvent(
-    key: "SharesSaleEnded"
-  ): TypedContractEvent<
-    SharesSaleEndedEvent.InputTuple,
-    SharesSaleEndedEvent.OutputTuple,
-    SharesSaleEndedEvent.OutputObject
-  >;
-  getEvent(
-    key: "SharesSaleStarted"
-  ): TypedContractEvent<
-    SharesSaleStartedEvent.InputTuple,
-    SharesSaleStartedEvent.OutputTuple,
-    SharesSaleStartedEvent.OutputObject
-  >;
-  getEvent(
-    key: "SharesSold"
-  ): TypedContractEvent<
-    SharesSoldEvent.InputTuple,
-    SharesSoldEvent.OutputTuple,
-    SharesSoldEvent.OutputObject
-  >;
-  getEvent(
     key: "Unpaused"
   ): TypedContractEvent<
     UnpausedEvent.InputTuple,
@@ -795,7 +627,18 @@ export interface MarketPlace extends BaseContract {
   >;
 
   filters: {
-    "BuyoutSaleStarted(address,address,uint256,uint256,uint256,uint256,address)": TypedContractEvent<
+    "BuyoutSaleEnded(address)": TypedContractEvent<
+      BuyoutSaleEndedEvent.InputTuple,
+      BuyoutSaleEndedEvent.OutputTuple,
+      BuyoutSaleEndedEvent.OutputObject
+    >;
+    BuyoutSaleEnded: TypedContractEvent<
+      BuyoutSaleEndedEvent.InputTuple,
+      BuyoutSaleEndedEvent.OutputTuple,
+      BuyoutSaleEndedEvent.OutputObject
+    >;
+
+    "BuyoutSaleStarted(address,address,uint256,uint256,address)": TypedContractEvent<
       BuyoutSaleStartedEvent.InputTuple,
       BuyoutSaleStartedEvent.OutputTuple,
       BuyoutSaleStartedEvent.OutputObject
@@ -804,6 +647,17 @@ export interface MarketPlace extends BaseContract {
       BuyoutSaleStartedEvent.InputTuple,
       BuyoutSaleStartedEvent.OutputTuple,
       BuyoutSaleStartedEvent.OutputObject
+    >;
+
+    "BuyoutTokenSold(address,address,address,uint256,uint256,address)": TypedContractEvent<
+      BuyoutTokenSoldEvent.InputTuple,
+      BuyoutTokenSoldEvent.OutputTuple,
+      BuyoutTokenSoldEvent.OutputObject
+    >;
+    BuyoutTokenSold: TypedContractEvent<
+      BuyoutTokenSoldEvent.InputTuple,
+      BuyoutTokenSoldEvent.OutputTuple,
+      BuyoutTokenSoldEvent.OutputObject
     >;
 
     "ERC20Received(address,address,uint256,address)": TypedContractEvent<
@@ -815,17 +669,6 @@ export interface MarketPlace extends BaseContract {
       ERC20ReceivedEvent.InputTuple,
       ERC20ReceivedEvent.OutputTuple,
       ERC20ReceivedEvent.OutputObject
-    >;
-
-    "EmergencyWithdrawal(address,address,uint256)": TypedContractEvent<
-      EmergencyWithdrawalEvent.InputTuple,
-      EmergencyWithdrawalEvent.OutputTuple,
-      EmergencyWithdrawalEvent.OutputObject
-    >;
-    EmergencyWithdrawal: TypedContractEvent<
-      EmergencyWithdrawalEvent.InputTuple,
-      EmergencyWithdrawalEvent.OutputTuple,
-      EmergencyWithdrawalEvent.OutputObject
     >;
 
     "FundsWithdrawn(address,address,uint256)": TypedContractEvent<
@@ -859,39 +702,6 @@ export interface MarketPlace extends BaseContract {
       PausedEvent.InputTuple,
       PausedEvent.OutputTuple,
       PausedEvent.OutputObject
-    >;
-
-    "SharesSaleEnded(address)": TypedContractEvent<
-      SharesSaleEndedEvent.InputTuple,
-      SharesSaleEndedEvent.OutputTuple,
-      SharesSaleEndedEvent.OutputObject
-    >;
-    SharesSaleEnded: TypedContractEvent<
-      SharesSaleEndedEvent.InputTuple,
-      SharesSaleEndedEvent.OutputTuple,
-      SharesSaleEndedEvent.OutputObject
-    >;
-
-    "SharesSaleStarted(address,address,uint256,uint256,uint256,uint256,address)": TypedContractEvent<
-      SharesSaleStartedEvent.InputTuple,
-      SharesSaleStartedEvent.OutputTuple,
-      SharesSaleStartedEvent.OutputObject
-    >;
-    SharesSaleStarted: TypedContractEvent<
-      SharesSaleStartedEvent.InputTuple,
-      SharesSaleStartedEvent.OutputTuple,
-      SharesSaleStartedEvent.OutputObject
-    >;
-
-    "SharesSold(address,uint256,address,uint256)": TypedContractEvent<
-      SharesSoldEvent.InputTuple,
-      SharesSoldEvent.OutputTuple,
-      SharesSoldEvent.OutputObject
-    >;
-    SharesSold: TypedContractEvent<
-      SharesSoldEvent.InputTuple,
-      SharesSoldEvent.OutputTuple,
-      SharesSoldEvent.OutputObject
     >;
 
     "Unpaused(address)": TypedContractEvent<

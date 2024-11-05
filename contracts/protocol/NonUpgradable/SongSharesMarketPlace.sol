@@ -10,72 +10,60 @@ import './../Interfaces/IWSTokenManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
 
-contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
+contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     IProtocolModule public immutable protocolModule;
+    
     struct Sale {
+        bool active;
         address seller;
-        uint256 tokenId;
         uint256 sharesForSale;
         uint256 pricePerShare;
         uint256 maxSharesPerWallet;
-        address stableCoin;
-        bool active;
         uint256 totalSold;
-        mapping(address => uint256) buyerPurchases;
+        address stableCoin;
     }
 
-    // Simplified mappings - remove saleId
-    mapping(address => Sale) public sales;
-    // Remove these as they're no longer needed
-    // mapping(address => uint256) public currentSaleId;
-    // mapping(address => uint256) public totalSales;
-    
-    // Update saleStartTimes mapping
+    mapping(address => Sale) public sales; // wsTokenManagement => Sale
+    mapping(address => mapping(address => uint256)) public buyerPurchases; // wsTokenManagement => buyer => amount
     mapping(address => uint256) public saleStartTimes;
-
-    // wsTokenManagement => accumulated funds
-    mapping(address => mapping(address => uint256)) public accumulatedFunds;
-
-    // Add mapping to track verified WSTokenManagement contracts
-    mapping(address => bool) public isVerifiedWSToken;
+    mapping(address => uint256) public accumulatedFunds;
 
     event SharesSaleStarted(
         address indexed wsTokenManagement,
         address indexed owner,
-        uint256 tokenId,
         uint256 amount,
         uint256 price,
         uint256 maxSharesPerWallet,
         address stableCoinAddress
     );
+    
     event SharesSold(
         address indexed wsTokenManagement,
-        uint256 tokenId,
-        address buyer,
-        uint256 amount
+        address indexed buyer,
+        address indexed recipient,
+        uint256 amount,
+        uint256 totalCost,
+        address paymentToken
     );
+    
     event SharesSaleEnded(
         address indexed wsTokenManagement
     );
+    
     event FundsWithdrawn(
         address indexed wsTokenManagement,
         address indexed to,
         uint256 amount
     );
+    
     event ERC20Received(
         address indexed wsTokenManagement,
         address token,
         uint256 amount,
         address sender
     );
-
-    // Add reentrancy guard for all fund movements
-    mapping(address => mapping(address => bool)) private withdrawalInProgress;
-
-    // Add emergency withdrawal function for contract owner
-    event EmergencyWithdrawal(address indexed token, address indexed to, uint256 amount);
 
     constructor(address _protocolModule) Ownable(msg.sender) {
         protocolModule = IProtocolModule(_protocolModule);
@@ -90,44 +78,34 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
     }
 
     modifier onlyVerifiedWSToken(address wsTokenManagement) {
-        require(isVerifiedWSToken[wsTokenManagement], "Not a verified protocol WSToken");
+        require(
+            protocolModule.isWSTokenFromProtocol(wsTokenManagement),
+            "Not a verified protocol WSToken"
+        );
         _;
     }
 
-    // Add function to verify WSToken through its WrappedSongSmartAccount
-    function verifyWSToken(address wrappedSongAddress) external {
-        // Get WSTokenManagement address from WrappedSongSmartAccount
-        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSongAddress).getWSTokenManagementAddress();
-        
-        // Verify that the WrappedSongSmartAccount is from our protocol
-        require(
-            protocolModule.isReleased(wrappedSongAddress) || 
-            IWrappedSongSmartAccount(wrappedSongAddress).owner() != address(0),
-            "Not a valid protocol wrapped song"
-        );
-
-        isVerifiedWSToken[wsTokenManagement] = true;
-    }
-
-    function startSharesSale(
+    function startSale(
         address wsTokenManagement,
-        uint256 tokenId,
         uint256 amount,
         uint256 price,
         uint256 maxShares,
         address _stableCoin
     ) external whenNotPaused onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
         require(amount > 0 && price > 0, "Invalid sale parameters");
+        require(price <= type(uint256).max / amount, "Price too high");
+        require(maxShares <= amount, "Max shares per wallet exceeds total");
         
-        // Check both balance and allowance for specific tokenId
         require(
-            IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, tokenId) >= amount,
+            IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 1) >= amount,
             "Insufficient shares"
         );
         require(
             IWSTokenManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
             "MarketPlace not approved to transfer shares"
         );
+
+        require(!sales[wsTokenManagement].active, "Sale already active");
 
         if (_stableCoin != address(0)) {
             require(
@@ -139,25 +117,22 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
                 "Invalid ERC20 token"
             );
         }
-
-        Sale storage newSale = sales[wsTokenManagement];
-        require(!newSale.active, "Sale already active for this token");
         
         saleStartTimes[wsTokenManagement] = block.timestamp;
         
-        newSale.seller = msg.sender;
-        newSale.tokenId = tokenId;
-        newSale.sharesForSale = amount;
-        newSale.pricePerShare = price;
-        newSale.maxSharesPerWallet = maxShares;
-        newSale.stableCoin = _stableCoin;
-        newSale.active = true;
-        newSale.totalSold = 0;
-
+        sales[wsTokenManagement] = Sale({
+            active: true,
+            seller: msg.sender,
+            sharesForSale: amount,
+            pricePerShare: price,
+            maxSharesPerWallet: maxShares,
+            totalSold: 0,
+            stableCoin: _stableCoin
+        });
+        
         emit SharesSaleStarted(
             wsTokenManagement,
             msg.sender,
-            tokenId,
             amount,
             price,
             maxShares,
@@ -167,8 +142,11 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
 
     function buyShares(
         address wsTokenManagement,
-        uint256 amount
+        uint256 amount,
+        address recipient
     ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wsTokenManagement) {
+        require(recipient != address(0), "Invalid recipient address");
+        
         Sale storage sale = sales[wsTokenManagement];
         require(sale.active, "No active sale");
         require(
@@ -177,10 +155,15 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         );
         require(amount > 0, "Amount must be greater than 0");
         require(amount <= sale.sharesForSale, "Not enough shares available");
+        require(
+            IWSTokenManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
+            "MarketPlace approval revoked"
+        );
 
         uint256 totalCost = amount * sale.pricePerShare;
-        uint256 newPurchaseTotal = sale.buyerPurchases[msg.sender] + amount;
+        require(totalCost / amount == sale.pricePerShare, "Overflow check");
 
+        uint256 newPurchaseTotal = buyerPurchases[wsTokenManagement][recipient] + amount;
         if (sale.maxSharesPerWallet > 0) {
             require(
                 newPurchaseTotal <= sale.maxSharesPerWallet,
@@ -191,21 +174,21 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         if (sale.stableCoin != address(0)) {
             require(msg.value == 0, "ETH not accepted for stable coin sale");
             IERC20(sale.stableCoin).safeTransferFrom(msg.sender, address(this), totalCost);
-            accumulatedFunds[wsTokenManagement][sale.stableCoin] += totalCost;
+            accumulatedFunds[wsTokenManagement] += totalCost;
             emit ERC20Received(wsTokenManagement, sale.stableCoin, totalCost, msg.sender);
         } else {
             require(msg.value == totalCost, "Incorrect ETH amount");
-            accumulatedFunds[wsTokenManagement][address(0)] += msg.value;
+            accumulatedFunds[wsTokenManagement] += msg.value;
         }
 
         sale.sharesForSale -= amount;
         sale.totalSold += amount;
-        sale.buyerPurchases[msg.sender] = newPurchaseTotal;
+        buyerPurchases[wsTokenManagement][recipient] = newPurchaseTotal;
 
         IWSTokenManagement(wsTokenManagement).safeTransferFrom(
             sale.seller,
-            msg.sender,
-            sale.tokenId,
+            recipient,
+            1, // tokenId for shares
             amount,
             ""
         );
@@ -215,10 +198,10 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
             emit SharesSaleEnded(wsTokenManagement);
         }
 
-        emit SharesSold(wsTokenManagement, sale.tokenId, msg.sender, amount);
+        emit SharesSold(wsTokenManagement, msg.sender, recipient, amount, totalCost, sale.stableCoin);
     }
 
-    function endSharesSale(
+    function endSale(
         address wsTokenManagement
     ) external onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
         Sale storage sale = sales[wsTokenManagement];
@@ -229,63 +212,33 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         emit SharesSaleEnded(wsTokenManagement);
     }
 
-
-    // TODO: Triple Check
     function withdrawFunds(
-        address wsTokenManagement,
-        address token
-    ) external 
-        nonReentrant 
-        onlyWrappedSongOwner(wsTokenManagement) 
-        onlyVerifiedWSToken(wsTokenManagement) 
-    {
-        uint256 amount = accumulatedFunds[wsTokenManagement][token];
+        address wsTokenManagement
+    ) external nonReentrant onlyWrappedSongOwner(wsTokenManagement) onlyVerifiedWSToken(wsTokenManagement) {
+        uint256 amount = accumulatedFunds[wsTokenManagement];
         require(amount > 0, "No funds to withdraw");
+        
+        address stableCoin = sales[wsTokenManagement].stableCoin;
+        address payable recipient = payable(msg.sender);
+        
+        accumulatedFunds[wsTokenManagement] = 0;
 
-        // Update state before external calls
-        accumulatedFunds[wsTokenManagement][token] = 0;
-
-        // Use pull pattern for withdrawals
-        if (token == address(0)) {
-            (bool success, ) = msg.sender.call{value: amount}("");
-            require(success, "ETH transfer failed");
+        if (stableCoin != address(0)) {
+            require(IERC20(stableCoin).balanceOf(address(this)) >= amount, "Insufficient contract balance");
+            IERC20(stableCoin).safeTransfer(recipient, amount);
         } else {
-            IERC20(token).safeTransfer(msg.sender, amount);
+            require(address(this).balance >= amount, "Insufficient ETH balance");
+            (bool success, ) = recipient.call{value: amount}("");
+            require(success, "ETH transfer failed");
         }
-
-        emit FundsWithdrawn(wsTokenManagement, msg.sender, amount);
+        
+        emit FundsWithdrawn(wsTokenManagement, recipient, amount);
     }
 
     function getSale(
         address wsTokenManagement
-    ) external view returns (
-        address seller,
-        uint256 tokenId,
-        uint256 sharesForSale,
-        uint256 pricePerShare,
-        uint256 maxSharesPerWallet,
-        address stableCoin,
-        bool active,
-        uint256 totalSold
-    ) {
-        Sale storage sale = sales[wsTokenManagement];
-        return (
-            sale.seller,
-            sale.tokenId,
-            sale.sharesForSale,
-            sale.pricePerShare,
-            sale.maxSharesPerWallet,
-            sale.stableCoin,
-            sale.active,
-            sale.totalSold
-        );
-    }
-
-    function getBuyerPurchases(
-        address wsTokenManagement,
-        address buyer
-    ) external view returns (uint256) {
-        return sales[wsTokenManagement].buyerPurchases[buyer];
+    ) external view returns (Sale memory) {
+        return sales[wsTokenManagement];
     }
 
     function pause() external onlyOwner {
@@ -296,22 +249,18 @@ contract MarketPlace is Ownable, ReentrancyGuard, Pausable {
         _unpause();
     }
 
-    // Add function to remove verification if needed
-    function removeWSTokenVerification(address wsTokenManagement) external onlyOwner {
-        isVerifiedWSToken[wsTokenManagement] = false;
-    }
-
-    receive() external payable {}
-
-    // Add helper function to check approval status
-    function isApprovedForShares(address wsTokenManagement, address seller) public view returns (bool) {
+    function isApprovedForShares(
+        address wsTokenManagement, 
+        address seller
+    ) public view returns (bool) {
         return IWSTokenManagement(wsTokenManagement).isApprovedForAll(seller, address(this));
     }
 
-    // Add function to check if a sale has expired
     function isSaleExpired(
         address wsTokenManagement
     ) public view returns (bool) {
         return block.timestamp > saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration();
     }
-}
+
+    receive() external payable {}
+} 

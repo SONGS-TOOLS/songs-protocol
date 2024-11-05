@@ -242,6 +242,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWSUtils__factory>;
     getContractFactory(
+      name: "BuyoutTokenMarketPlace",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BuyoutTokenMarketPlace__factory>;
+    getContractFactory(
       name: "DistributorWallet",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DistributorWallet__factory>;
@@ -265,6 +269,10 @@ declare module "hardhat/types/runtime" {
       name: "ProtocolModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ProtocolModule__factory>;
+    getContractFactory(
+      name: "SongSharesMarketPlace",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SongSharesMarketPlace__factory>;
     getContractFactory(
       name: "WhitelistingManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -612,6 +620,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IWSUtils>;
     getContractAt(
+      name: "BuyoutTokenMarketPlace",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BuyoutTokenMarketPlace>;
+    getContractAt(
       name: "DistributorWallet",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -641,6 +654,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.ProtocolModule>;
+    getContractAt(
+      name: "SongSharesMarketPlace",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SongSharesMarketPlace>;
     getContractAt(
       name: "WhitelistingManager",
       address: string | ethers.Addressable,
@@ -946,6 +964,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSUtils>;
     deployContract(
+      name: "BuyoutTokenMarketPlace",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.BuyoutTokenMarketPlace>;
+    deployContract(
       name: "DistributorWallet",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.DistributorWallet>;
@@ -969,6 +991,10 @@ declare module "hardhat/types/runtime" {
       name: "ProtocolModule",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ProtocolModule>;
+    deployContract(
+      name: "SongSharesMarketPlace",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SongSharesMarketPlace>;
     deployContract(
       name: "WhitelistingManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1316,6 +1342,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWSUtils>;
     deployContract(
+      name: "BuyoutTokenMarketPlace",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.BuyoutTokenMarketPlace>;
+    deployContract(
       name: "DistributorWallet",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1345,6 +1376,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ProtocolModule>;
+    deployContract(
+      name: "SongSharesMarketPlace",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.SongSharesMarketPlace>;
     deployContract(
       name: "WhitelistingManager",
       args: any[],
