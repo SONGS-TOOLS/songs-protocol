@@ -48,6 +48,12 @@ describe("ReedemDistribution", function () {
         const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target, metadataModule.target);
         await wrappedSongFactory.waitForDeployment();
 
+        // Set MetadataModule as authorized caller for WrappedSongFactory
+        await protocolModule.setMetadataModule(await metadataModule.getAddress());
+
+        // Set WrappedSongFactory as authorized caller for ProtocolModule
+        await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
+
         // Deploy a mock stablecoin for testing
         const MockToken = await ethers.getContractFactory("MockToken");
         const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
@@ -72,8 +78,8 @@ describe("ReedemDistribution", function () {
     }
 
     describe("redemption process", function () {
-        it("should handle the complete redemption flow", async function () {
-            const { deployer, user, address2, wrappedSongFactory, mockStablecoin, protocolModule, distributorWallet } = await loadFixture(deployContractFixture);
+        it("should allow wrapped song to redeem earnings from distributor wallet", async function () {
+            const { deployer, user, wrappedSongFactory, mockStablecoin, protocolModule, distributorWallet } = await loadFixture(deployContractFixture);
             
             // Create a wrapped song
             const creationFee = await protocolModule.wrappedSongCreationFee();
@@ -98,13 +104,17 @@ describe("ReedemDistribution", function () {
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            // Request and confirm release
+            // Request release
             await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            
+            // Get distributor wallet contract instance
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
+
+            // Confirm release by distributor
             await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
 
-            // Send money to distributor wallet (simulating earnings)
-            const earningsAmount = ethers.parseUnits("1000", 18); // 1000 tokens
+            // Send earnings to distributor wallet
+            const earningsAmount = ethers.parseUnits("1000", 18);
             await mockStablecoin.connect(deployer).approve(distributorWallet[0], earningsAmount);
             await distributorWalletContract.connect(deployer).receivePaymentStablecoin(wrappedSongAddress, earningsAmount);
 
@@ -112,42 +122,112 @@ describe("ReedemDistribution", function () {
             const wrappedSongTreasury = await distributorWalletContract.wrappedSongTreasury(wrappedSongAddress);
             expect(wrappedSongTreasury).to.equal(earningsAmount);
 
-            // Start a sale of 50 shares
-            const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
-            const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
-            
-            const sharesForSale = 50;
-            const pricePerShare = ethers.parseUnits("100", 18);
-            const maxSharesPerWallet = 1000;
+            // Get initial balance of wrapped song contract
+            const initialBalance = await mockStablecoin.balanceOf(wrappedSongAddress);
 
-            // TODO: Need to change this with the new MarketPlace contract
-            await newWSTokenManagementContract.connect(user).startSharesSale(
-                sharesForSale,
-                pricePerShare,
-                maxSharesPerWallet,
-                mockStablecoin.target
+            // Redeem earnings from distributor wallet to wrapped song contract
+            await distributorWalletContract.connect(user).redeemWrappedSongEarnings(wrappedSongAddress);
+
+            // Verify wrapped song contract received the funds
+            const newBalance = await mockStablecoin.balanceOf(wrappedSongAddress);
+            expect(newBalance).to.be.gt(initialBalance);
+            expect(newBalance - initialBalance).to.equal(earningsAmount);
+        });
+
+        it("should allow share holders to claim earnings from wrapped song", async function () {
+            const { deployer, user, wrappedSongFactory, mockStablecoin, protocolModule, distributorWallet } = await loadFixture(deployContractFixture);
+            
+            // Create a wrapped song
+            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const sharesAmount = 10000;
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
+
+            await wrappedSongFactory.connect(user).createWrappedSong(
+                mockStablecoin.target,
+                metadata,
+                sharesAmount,
+                { value: creationFee }
             );
 
-            // Buy shares with address2
-            const sharesToBuy = 20;
-            const totalPrice = BigInt(sharesToBuy) * pricePerShare;
-            await mockStablecoin.connect(deployer).transfer(address2.address, totalPrice);
-            await mockStablecoin.connect(address2).approve(newWSTokenManagementAddress, totalPrice);
-            // TODO: Need to change this with the new MarketPlace contract
-            await newWSTokenManagementContract.connect(address2).buyShares(sharesToBuy);
+            const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
+            const wrappedSongAddress = userWrappedSongs[0];
+            const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            // Redeem earnings from distributor wallet to wrapped song
-            await wrappedSong.connect(user).redeemShares();
+            // Setup distributor and send earnings
+            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
+            await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
 
-            // Verify the wrapped song received the earnings
-            const wrappedSongBalance = await mockStablecoin.balanceOf(wrappedSongAddress);
-            expect(wrappedSongBalance).to.equal(earningsAmount);
+            const earningsAmount = ethers.parseUnits("1000", 18);
+            await mockStablecoin.connect(deployer).approve(distributorWallet[0], earningsAmount);
+            await distributorWalletContract.connect(deployer).receivePaymentStablecoin(wrappedSongAddress, earningsAmount);
 
-            // TODO: Implement share holder earnings redemption once the contract method is available
-            // This part would involve:
-            // 1. Calculating earnings per share
-            // 2. Address2 claiming their portion of earnings based on their share ownership
-            // 3. Verifying the correct amount was received
+            // Redeem earnings to wrapped song contract
+            await distributorWalletContract.connect(user).redeemWrappedSongEarnings(wrappedSongAddress);
+
+            // Get WSTokenManagement instance to check shares
+            const wsTokenManagementAddress = await wrappedSong.newWSTokenManagement();
+            const wsTokenManagement = await ethers.getContractAt("WSTokenManagement", wsTokenManagementAddress);
+
+            // Verify user has shares
+            const userShares = await wsTokenManagement.balanceOf(user.address, 1); // 1 is the shares token ID
+            expect(userShares).to.equal(sharesAmount);
+
+            // Get initial balance of user
+            const userInitialBalance = await mockStablecoin.balanceOf(user.address);
+
+            // Update earnings before claiming
+            await wrappedSong.connect(user).updateEarnings();
+
+            // Claim earnings by user
+            await wrappedSong.connect(user).claimEarnings();
+
+            // Verify user received the funds
+            const userNewBalance = await mockStablecoin.balanceOf(user.address);
+            expect(userNewBalance).to.be.gt(userInitialBalance);
+            expect(userNewBalance - userInitialBalance).to.equal(earningsAmount);
+        });
+
+        it("should fail to redeem if no earnings are available", async function () {
+            const { deployer, user, wrappedSongFactory, mockStablecoin, protocolModule, distributorWallet } = await loadFixture(deployContractFixture);
+            
+            // Create a wrapped song
+            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const metadata = {
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
+            };
+
+            await wrappedSongFactory.connect(user).createWrappedSong(
+                mockStablecoin.target,
+                metadata,
+                10000,
+                { value: creationFee }
+            );
+
+            const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
+            const wrappedSongAddress = userWrappedSongs[0];
+            const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
+
+            // Request and confirm release
+            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
+            await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
+
+            // Try to claim earnings without any earnings available
+            await expect(wrappedSong.connect(user).claimEarnings())
+                .to.be.revertedWith("No earnings to claim");
         });
     });
 });
