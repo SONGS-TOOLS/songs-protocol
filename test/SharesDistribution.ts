@@ -48,6 +48,12 @@ describe("SharesDistribution", function () {
         const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target, metadataModule.target);
         await wrappedSongFactory.waitForDeployment();
 
+        // Set MetadataModule as authorized caller for WrappedSongFactory
+        await protocolModule.setMetadataModule(await metadataModule.getAddress());
+
+        // Set WrappedSongFactory as authorized caller for ProtocolModule
+        await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
+
         // Deploy a mock stablecoin for testing
         const MockToken = await ethers.getContractFactory("MockToken");
         const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
@@ -68,7 +74,12 @@ describe("SharesDistribution", function () {
 
         const distributorWallet = await distributorWalletFactory.getDistributorWallets(deployer.address);
 
-        return { deployer, user, address2, address3, address4, address5, wrappedSongFactory, protocolModule, mockStablecoin, distributorWallet, wsUtils };
+        // Deploy MarketPlace
+        const MarketPlace = await ethers.getContractFactory("MarketPlace");
+        const marketPlace = await MarketPlace.deploy(protocolModule.target);
+        await marketPlace.waitForDeployment();
+
+        return { deployer, user, address2, address3, address4, address5, wrappedSongFactory, protocolModule, mockStablecoin, distributorWallet, wsUtils, marketPlace };
     }
 
     describe("create shares sale", function () {
@@ -85,14 +96,14 @@ describe("SharesDistribution", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await expect(wrappedSongFactory.connect(user).createWrappedSongWithMetadata(
+            await expect(wrappedSongFactory.connect(user).createWrappedSong(
                 mockStablecoin.target,
                 metadata,
                 sharesAmount,
                 { value: creationFee }
             )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
-            const userWrappedSongs = await ProtocolModule.getOwnerWrappedSongs(user.address);
+            const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
             expect(userWrappedSongs.length).to.equal(1);
 
             const wrappedSongAddress = userWrappedSongs[0];
