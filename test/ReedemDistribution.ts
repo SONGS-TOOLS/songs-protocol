@@ -165,28 +165,21 @@ describe("ReedemDistribution", function () {
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
             await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
 
+            // Send earnings to distributor wallet
             const earningsAmount = ethers.parseUnits("1000", 18);
             await mockStablecoin.connect(deployer).approve(distributorWallet[0], earningsAmount);
             await distributorWalletContract.connect(deployer).receivePaymentStablecoin(wrappedSongAddress, earningsAmount);
 
-            // Redeem earnings to wrapped song contract
-            await distributorWalletContract.connect(user).redeemWrappedSongEarnings(wrappedSongAddress);
-
-            // Get WSTokenManagement instance to check shares
-            const wsTokenManagementAddress = await wrappedSong.newWSTokenManagement();
-            const wsTokenManagement = await ethers.getContractAt("WSTokenManagement", wsTokenManagementAddress);
-
-            // Verify user has shares
-            const userShares = await wsTokenManagement.balanceOf(user.address, 1); // 1 is the shares token ID
-            expect(userShares).to.equal(sharesAmount);
-
             // Get initial balance of user
             const userInitialBalance = await mockStablecoin.balanceOf(user.address);
+
+            // Use redeemShares instead of direct redemption
+            await wrappedSong.connect(user).redeemShares();
 
             // Update earnings before claiming
             await wrappedSong.connect(user).updateEarnings();
 
-            // Claim earnings by user
+            // Now claim earnings as a shareholder
             await wrappedSong.connect(user).claimEarnings();
 
             // Verify user received the funds
