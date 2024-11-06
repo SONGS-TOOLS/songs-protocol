@@ -223,7 +223,8 @@ contract WrappedSongSmartAccount is
       IERC20(token).transferFrom(msg.sender, address(this), amount),
       "Transfer failed"
     );
-    // _processEarnings(amount, token);
+    
+    _processEarnings(amount, token);
   }
 
 
@@ -298,23 +299,23 @@ contract WrappedSongSmartAccount is
     );
   }
 
-  // function _processEarnings(uint256 amount, address token) private {
-  //   uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
-  //   require(totalShares > 0, "No shares exist");
+  function _processEarnings(uint256 amount, address token) private {
+     uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
+     require(totalShares > 0, "No shares exist");
 
-  //   uint256 earningsPerShare = (amount * 1e18) / totalShares;
-  //   accumulatedEarningsPerShare += earningsPerShare;
-  //   totalDistributedEarnings += amount;
+     uint256 earningsPerShare = (amount * 1e18) / totalShares;
+     accumulatedEarningsPerShare += earningsPerShare;
+     totalDistributedEarnings += amount;
 
-  //   if (token != address(stablecoin) && token != address(0)) {
-  //     if (!isTokenReceived[token]) {
-  //       receivedTokens.push(token);
-  //       isTokenReceived[token] = true;
-  //     }
-  //   }
+     if (token != address(stablecoin) && token != address(0)) {
+       if (!isTokenReceived[token]) {
+         receivedTokens.push(token);
+         isTokenReceived[token] = true;
+       }
+     }
 
-  //   emit EarningsReceived(token, amount, earningsPerShare);
-  // }
+     emit EarningsReceived(token, amount, earningsPerShare);
+   }
 
   /******************************************************************************
    *                                                                             *

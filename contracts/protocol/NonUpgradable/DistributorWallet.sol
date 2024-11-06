@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
+import './../Interfaces/IWrappedSongSmartAccount.sol';
 
 contract DistributorWallet is Ownable {
   IERC20 public stablecoin;
@@ -108,8 +109,16 @@ contract DistributorWallet is Ownable {
   function redeemWrappedSongEarnings(address _wrappedSong) external {
     uint256 amount = wrappedSongTreasury[_wrappedSong];
     require(amount > 0, 'No earnings to redeem');
+    
+    // First approve the wrapped song to take the tokens
+    require(stablecoin.approve(_wrappedSong, amount), 'Approval failed');
+    
+    // Call receiveERC20 on the wrapped song to properly process earnings
+    IWrappedSongSmartAccount(_wrappedSong).receiveERC20(address(stablecoin), amount);
+    
+    // Clear the treasury balance
     wrappedSongTreasury[_wrappedSong] = 0;
-    require(stablecoin.transfer(_wrappedSong, amount), 'Transfer failed');
+    
     emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
