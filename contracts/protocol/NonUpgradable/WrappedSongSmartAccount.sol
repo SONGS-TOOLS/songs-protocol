@@ -93,6 +93,10 @@ contract WrappedSongSmartAccount is
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
     metadataModule = IMetadataModule(protocolModule.metadataModule());
+    
+    // TODO: get from WSTokenManagement
+    wrappedSongTokenId = 0;
+    songSharesId = 1;
 
     newWSTokenManagement = new WSTokenManagement(
       address(this), // Smart account address that will own the WSTokenManagement contract
@@ -219,22 +223,9 @@ contract WrappedSongSmartAccount is
       IERC20(token).transferFrom(msg.sender, address(this), amount),
       "Transfer failed"
     );
-    _processEarnings(amount, token);
+    // _processEarnings(amount, token);
   }
 
-  /**
-   * @dev Redeems the shares for the WrappedSong as established by the Distributor.
-   */
-  function redeemShares() external nonReentrant notMigrated {
-    address distributor = protocolModule.getWrappedSongDistributor(
-      address(this)
-    );
-    require(
-      distributor != address(0),
-      "No distributor set for this wrapped song"
-    );
-    IDistributorWallet(distributor).redeemWrappedSongEarnings(address(this));
-  }
 
   /**
    * @dev Receives earnings in the form of the wrapped song's stablecoin.
@@ -251,7 +242,7 @@ contract WrappedSongSmartAccount is
 
     require(receivedAmount > 0, "No new earnings received");
 
-    _processEarnings(receivedAmount, address(stablecoin));
+    // _processEarnings(receivedAmount, address(stablecoin));
   }
 
   /**
@@ -260,7 +251,21 @@ contract WrappedSongSmartAccount is
    * @dev Uses a reentrancy guard to prevent reentrancy attacks.
    */
   function claimEarnings() external nonReentrant notMigrated {
-    updateEarnings();
+
+    // GET SHARES FROM WSTokenManagement
+    uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
+
+    uint256 newEarnings = 
+      (shares * accumulatedEarningsPerShare) 
+      /
+      1e18 - lastClaimedEarningsPerShare[msg.sender];
+
+    if (newEarnings > 0) {
+      unclaimedEarnings[msg.sender] += newEarnings;
+      lastClaimedEarningsPerShare[msg.sender] = accumulatedEarningsPerShare;
+      totalEarnings[msg.sender] += newEarnings;
+      emit EarningsUpdated(msg.sender, newEarnings, totalEarnings[msg.sender]);
+    }
 
     uint256 totalAmount = unclaimedEarnings[msg.sender];
     require(totalAmount > 0, "No earnings to claim");
@@ -293,59 +298,23 @@ contract WrappedSongSmartAccount is
     );
   }
 
-  /**
-   * @dev Allows a shareholder to claim their earnings in ETH.
-   */
-  function claimEthEarnings() external notMigrated {
-    updateEarnings();
-    uint256 totalAmount = unclaimedEarnings[msg.sender];
-    require(totalAmount > 0, "No earnings to claim");
+  // function _processEarnings(uint256 amount, address token) private {
+  //   uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
+  //   require(totalShares > 0, "No shares exist");
 
-    uint256 ethShare = (ethBalance * totalAmount) / totalDistributedEarnings;
-    require(ethShare > 0, "No ETH earnings to claim");
+  //   uint256 earningsPerShare = (amount * 1e18) / totalShares;
+  //   accumulatedEarningsPerShare += earningsPerShare;
+  //   totalDistributedEarnings += amount;
 
-    unclaimedEarnings[msg.sender] = 0;
-    redeemedEarnings[msg.sender] += totalAmount;
-    ethBalance -= ethShare;
+  //   if (token != address(stablecoin) && token != address(0)) {
+  //     if (!isTokenReceived[token]) {
+  //       receivedTokens.push(token);
+  //       isTokenReceived[token] = true;
+  //     }
+  //   }
 
-    (bool success, ) = msg.sender.call{value: ethShare}("");
-    require(success, "ETH transfer failed");
-    emit EarningsClaimed(msg.sender, address(0), ethShare, totalAmount);
-  }
-
-  /**
-   * @dev Updates the earnings for the caller.
-   */
-  function updateEarnings() public {
-    uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
-    uint256 newEarnings = (shares * accumulatedEarningsPerShare) /
-      1e18 -
-      lastClaimedEarningsPerShare[msg.sender];
-    if (newEarnings > 0) {
-      unclaimedEarnings[msg.sender] += newEarnings;
-      lastClaimedEarningsPerShare[msg.sender] = accumulatedEarningsPerShare;
-      totalEarnings[msg.sender] += newEarnings;
-      emit EarningsUpdated(msg.sender, newEarnings, totalEarnings[msg.sender]);
-    }
-  }
-
-  function _processEarnings(uint256 amount, address token) private {
-    uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
-    require(totalShares > 0, "No shares exist");
-
-    uint256 earningsPerShare = (amount * 1e18) / totalShares;
-    accumulatedEarningsPerShare += earningsPerShare;
-    totalDistributedEarnings += amount;
-
-    if (token != address(stablecoin) && token != address(0)) {
-      if (!isTokenReceived[token]) {
-        receivedTokens.push(token);
-        isTokenReceived[token] = true;
-      }
-    }
-
-    emit EarningsReceived(token, amount, earningsPerShare);
-  }
+  //   emit EarningsReceived(token, amount, earningsPerShare);
+  // }
 
   /******************************************************************************
    *                                                                             *
@@ -451,6 +420,6 @@ contract WrappedSongSmartAccount is
    * @dev Function to receive ETH. It automatically processes it as earnings.
    */
   receive() external payable {
-    _processEarnings(msg.value, address(0));
+    // _processEarnings(msg.value, address(0));
   }
 }

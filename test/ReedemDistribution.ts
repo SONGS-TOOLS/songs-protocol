@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
-import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers } from "hardhat";
 
 describe("ReedemDistribution", function () {
     async function deployContractFixture() {
@@ -134,6 +134,8 @@ describe("ReedemDistribution", function () {
             expect(newBalance - initialBalance).to.equal(earningsAmount);
         });
 
+        // TODO: send batch of WrappedSongEarnings and their accounting to DistributorWallet
+
         it("should allow share holders to claim earnings from wrapped song", async function () {
             const { deployer, user, wrappedSongFactory, mockStablecoin, protocolModule, distributorWallet } = await loadFixture(deployContractFixture);
             
@@ -174,10 +176,10 @@ describe("ReedemDistribution", function () {
             const userInitialBalance = await mockStablecoin.balanceOf(user.address);
 
             // Use redeemShares instead of direct redemption
-            await wrappedSong.connect(user).redeemShares();
+            await distributorWalletContract.connect(deployer).redeemWrappedSongEarnings(wrappedSongAddress);
 
             // Update earnings before claiming
-            await wrappedSong.connect(user).updateEarnings();
+            // await wrappedSong.connect(user).updateEarnings();
 
             // Now claim earnings as a shareholder
             await wrappedSong.connect(user).claimEarnings();
