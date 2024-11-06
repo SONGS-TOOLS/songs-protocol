@@ -95,10 +95,6 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
             IWSTokensManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
             "Insufficient buyout tokens"
         );
-        require(
-            IWSTokensManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
-            "MarketPlace not approved to transfer tokens"
-        );
 
         require(!sales[wsTokenManagement].active, "Sale already active");
 
@@ -148,10 +144,6 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         );
         require(amount > 0, "Amount must be greater than 0");
         require(sale.tokensForSale >= amount, "Not enough tokens available");
-        require(
-            IWSTokensManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
-            "MarketPlace approval revoked"
-        );
 
         uint256 totalCost = amount * sale.pricePerToken;
         require(totalCost / amount == sale.pricePerToken, "Overflow check");

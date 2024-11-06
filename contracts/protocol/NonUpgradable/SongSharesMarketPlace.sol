@@ -103,10 +103,6 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
             IWSTokensManagement(wsTokenManagement).balanceOf(msg.sender, 1) >= amount,
             "Insufficient shares"
         );
-        require(
-            IWSTokensManagement(wsTokenManagement).isApprovedForAll(msg.sender, address(this)),
-            "MarketPlace not approved to transfer shares"
-        );
         require(!sales[wsTokenManagement].active, "Sale already active");
 
         if (_stableCoin != address(0)) {
@@ -159,11 +155,6 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         );
         require(amount > 0, "Amount must be greater than 0");
         require(amount <= sale.sharesForSale, "Not enough shares available");
-
-        require(
-            IWSTokensManagement(wsTokenManagement).isApprovedForAll(sale.seller, address(this)),
-            "MarketPlace approval revoked"
-        );
 
         uint256 totalCost = amount * sale.pricePerShare;
         require(totalCost / amount == sale.pricePerShare, "Overflow check");
