@@ -29,8 +29,8 @@ contract WrappedSongSmartAccount is
   uint256 public wrappedSongTokenId;
 
   uint256 public accumulatedEarningsPerShare;
-  mapping(address => uint256) public unclaimedEarnings;
-  mapping(address => uint256) public lastClaimedEarningsPerShare;
+  mapping(address => uint256) public userShares;
+  mapping(address => uint256) public earningsPerSharePaid;
   uint256 public totalDistributedEarnings;
   uint256 public ethBalance;
   uint256 public saleFunds;
@@ -42,6 +42,22 @@ contract WrappedSongSmartAccount is
   mapping(address => uint256) public redeemedEarnings;
 
   bool public migrated;
+
+  // Add ETH specific state variables
+  uint256 public accumulatedETHEarningsPerShare;
+  mapping(address => uint256) public unclaimedETHEarnings;
+  mapping(address => uint256) public lastClaimedETHEarningsPerShare;
+  uint256 public totalDistributedETHEarnings;
+
+  // Add ETH specific event
+  event ETHEarningsClaimed(
+    address indexed account,
+    uint256 amount,
+    uint256 totalAmount
+  );
+
+  // Add precision constant
+  uint256 private constant PRECISION = 1e18;
 
   /**
    * @dev Modifier to prevent calls to migrated contracts.
@@ -90,6 +106,8 @@ contract WrappedSongSmartAccount is
     address _owner,
     address _protocolModuleAddress
   ) Ownable(_owner) {
+
+    
     stablecoin = IERC20(_stablecoinAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
     metadataModule = IMetadataModule(protocolModule.metadataModule());
@@ -227,95 +245,107 @@ contract WrappedSongSmartAccount is
     _processEarnings(amount, token);
   }
 
-
-  /**
-   * @dev Receives earnings in the form of the wrapped song's stablecoin.
-   * @notice This function can be called by anyone to add earnings to the contract.
-   */
-  function receiveEarnings() external payable notMigrated {
-    uint256 previousBalance = stablecoin.balanceOf(address(this));
-    require(
-      stablecoin.transferFrom(msg.sender, address(this), msg.value),
-      "Stablecoin transfer failed"
-    );
-    uint256 newBalance = stablecoin.balanceOf(address(this));
-    uint256 receivedAmount = newBalance - previousBalance;
-
-    require(receivedAmount > 0, "No new earnings received");
-
-    // _processEarnings(receivedAmount, address(stablecoin));
-  }
-
   /**
    * @dev Allows a shareholder to claim their earnings in the wrapped song's stablecoin.
    * @notice This function allows shareholders to claim their earnings.
    * @dev Uses a reentrancy guard to prevent reentrancy attacks.
    */
   function claimEarnings() external nonReentrant notMigrated {
-
-    // GET SHARES FROM WSTokenManagement
     uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
+    require(shares > 0, "No shares owned");
 
-    uint256 newEarnings = 
-      (shares * accumulatedEarningsPerShare) 
-      /
-      1e18 - lastClaimedEarningsPerShare[msg.sender];
+    // Calculate share of total earnings directly from shares
+    uint256 payment = (shares * totalDistributedEarnings) / newWSTokenManagement.totalSupply(songSharesId);
+    require(payment > 0, "No payment to claim");
 
-    if (newEarnings > 0) {
-      unclaimedEarnings[msg.sender] += newEarnings;
-      lastClaimedEarningsPerShare[msg.sender] = accumulatedEarningsPerShare;
-      totalEarnings[msg.sender] += newEarnings;
-      emit EarningsUpdated(msg.sender, newEarnings, totalEarnings[msg.sender]);
-    }
+    // Update state
+    earningsPerSharePaid[msg.sender] = accumulatedEarningsPerShare;
+    totalEarnings[msg.sender] += payment;
+    redeemedEarnings[msg.sender] += payment;
 
-    uint256 totalAmount = unclaimedEarnings[msg.sender];
-    require(totalAmount > 0, "No earnings to claim");
+    // Transfer tokens
+    require(stablecoin.transfer(msg.sender, payment), "Transfer failed");
 
-    // Cache state variables in local variables
-    uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
-    uint256 totalDistributed = totalDistributedEarnings;
-
-    // Calculate stablecoin share
-    uint256 stablecoinShare = (stablecoinBalance * totalAmount) /
-      totalDistributed;
-    require(stablecoinShare > 0, "No stablecoin earnings to claim");
-
-    // Update state variables
-    unclaimedEarnings[msg.sender] = 0;
-    redeemedEarnings[msg.sender] += totalAmount;
-
-    // Transfer stablecoins
-    require(
-      stablecoin.transfer(msg.sender, stablecoinShare),
-      "Stablecoin transfer failed"
-    );
-
-    // Emit events
     emit EarningsClaimed(
-      msg.sender,
-      address(stablecoin),
-      stablecoinShare,
-      totalAmount
+        msg.sender,
+        address(stablecoin),
+        payment,
+        payment
     );
   }
 
+  /**
+   * @dev Allows a shareholder to claim their ETH earnings
+   */
+  function claimETHEarnings() external nonReentrant notMigrated {
+    uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
+    require(shares > 0, "No shares owned");
+
+    // Calculate share of total ETH earnings directly from shares
+    uint256 payment = (shares * totalDistributedETHEarnings) / newWSTokenManagement.totalSupply(songSharesId);
+    require(payment > 0, "No ETH to claim");
+
+    // Update state
+    lastClaimedETHEarningsPerShare[msg.sender] = accumulatedETHEarningsPerShare;
+    totalEarnings[msg.sender] += payment;
+    redeemedEarnings[msg.sender] += payment;
+
+    // Transfer ETH
+    (bool success, ) = msg.sender.call{value: payment}("");
+    require(success, "ETH transfer failed");
+
+    emit ETHEarningsClaimed(
+        msg.sender,
+        payment,
+        payment
+    );
+  }
+
+  /**
+   * @dev Modified _processEarnings to handle ETH correctly
+   */
   function _processEarnings(uint256 amount, address token) private {
-     uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
-     require(totalShares > 0, "No shares exist");
+    uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
+    require(totalShares > 0, "No shares exist");
 
-     uint256 earningsPerShare = (amount * 1e18) / totalShares;
-     accumulatedEarningsPerShare += earningsPerShare;
-     totalDistributedEarnings += amount;
+    if (token == address(0)) {
+        // ETH earnings
+        accumulatedETHEarningsPerShare += (amount * 1e18) / totalShares;
+        totalDistributedETHEarnings += amount;
+        ethBalance += amount;
+    } else {
+        // ERC20 earnings
+        accumulatedEarningsPerShare += (amount * 1e18) / totalShares;
+        totalDistributedEarnings += amount;
+    }
 
-     if (token != address(stablecoin) && token != address(0)) {
-       if (!isTokenReceived[token]) {
-         receivedTokens.push(token);
-         isTokenReceived[token] = true;
-       }
-     }
+    emit EarningsReceived(token, amount, amount);
+  }
 
-     emit EarningsReceived(token, amount, earningsPerShare);
-   }
+  /**
+   * @dev Calculate pending earnings for a user
+   */
+  function _pendingEarnings(address user) private view returns (uint256) {
+    uint256 shares = newWSTokenManagement.balanceOf(user, songSharesId);
+    if (shares == 0) return 0;
+
+    return (shares * accumulatedEarningsPerShare) / 1e18 - 
+           earningsPerSharePaid[user];
+  }
+
+  /**
+   * @dev View function to get pending ETH earnings for an account
+   */
+  function getPendingETHEarnings(address account) external view returns (uint256) {
+    uint256 shares = newWSTokenManagement.balanceOf(account, songSharesId);
+    if (shares == 0) return 0;
+
+    uint256 newEarnings = 
+      (shares * accumulatedETHEarningsPerShare) / 
+      1e18 - lastClaimedETHEarningsPerShare[account];
+
+    return unclaimedETHEarnings[account] + newEarnings;
+  }
 
   /******************************************************************************
    *                                                                             *
@@ -421,6 +451,8 @@ contract WrappedSongSmartAccount is
    * @dev Function to receive ETH. It automatically processes it as earnings.
    */
   receive() external payable {
-    // _processEarnings(msg.value, address(0));
+    if(msg.value > 0) {
+      _processEarnings(msg.value, address(0));
+    }
   }
 }
