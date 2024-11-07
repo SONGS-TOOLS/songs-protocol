@@ -74,7 +74,8 @@ describe("Token URI Metadata Tests", function () {
         "external_url",
         "animation_url",
         "attributes",
-        "registryCodes"
+        "registryCodes",
+        "authenticity"
       ]);
 
       expect(decodedMetadata.name).to.equal(`◒ ${metadata.name}`);
@@ -91,6 +92,10 @@ describe("Token URI Metadata Tests", function () {
         "ISWC",
         "ISCC"
       ]);
+
+      // Check authenticity structure
+      expect(decodedMetadata.authenticity).to.have.property('isAuthentic');
+      expect(decodedMetadata.authenticity.isAuthentic).to.be.false; // Default should be false
     });
 
     it("Should return correct metadata format for Token ID 1 (Song Shares)", async function () {
@@ -105,6 +110,7 @@ describe("Token URI Metadata Tests", function () {
       expect(decodedMetadata.name).to.equal(`§ ${metadata.name}`);
       expect(decodedMetadata.description).to.include("These are the SongShares representing your share");
       expect(decodedMetadata.image).to.include(`ipfs://${metadata.image}`);
+      expect(decodedMetadata.authenticity).to.have.property('isAuthentic');
       expect(decodedMetadata.registryCodes).to.have.all.keys([
         "ISRC",
         "UPC",
@@ -113,60 +119,108 @@ describe("Token URI Metadata Tests", function () {
       ]);
     });
 
-  });
-
-  describe("Pause functionality", function () {
-    it("should not allow metadata operations when protocol is paused", async function () {
-      const { deployer, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
-      
-      // Create distributor wallet using the factory
-      await distributorWalletFactory.connect(deployer).createDistributorWallet(
-        mockStablecoin.target,
-        protocolModule.target,
-        distributor.address
-      );
-      
-      // Pause the protocol
-      await protocolModule.connect(deployer).pause();
-      
-      // Try to perform metadata operations
-      await expect(
-        protocolModule.connect(distributor).addISRC(wrappedSong.target, "TEST-ISRC")
-      ).to.be.reverted;
-    });
-
-    it("should allow metadata operations after unpausing", async function () {
+    it("Should update authenticity status correctly through distributor", async function () {
       const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
       
-      // Create distributor wallet using the factory
+      // Create distributor wallet
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
         distributor.address
       );
-      
-      const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
-      const distributorWalletAddress = distributorWallets[0];
 
-      // Request release for the wrapped song
-      await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWalletAddress);
-      
-      // Accept release request and pair with distributor wallet
-      await protocolModule.connect(deployer).acceptWrappedSongForReview(
+      const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
+      const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
+
+      // Request release
+      await protocolModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
+        distributorWallet.target
       );
 
       // Confirm release
-      await protocolModule.connect(deployer).confirmWrappedSongRelease(wrappedSong.target);
+      await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
+
+      // Set authenticity to true
+      await distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true);
+
+      // Get token URI and check authenticity
+      const wsTokensManagement = await ethers.getContractAt(
+        "WSTokenManagement",
+        await wrappedSong.getWSTokenManagementAddress()
+      );
+      const tokenUri = await wsTokensManagement.uri(0);
+      const decodedMetadata = decodeBase64Json(tokenUri);
+
+      expect(decodedMetadata.authenticity.isAuthentic).to.be.true;
+    });
+
+    it("Should not allow setting authenticity when protocol is paused", async function () {
+      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
       
+      // Create distributor wallet
+      await distributorWalletFactory.connect(deployer).createDistributorWallet(
+        mockStablecoin.target,
+        protocolModule.target,
+        distributor.address
+      );
+
+      const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
+      const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
+
+      // Request and confirm release
+      await protocolModule.connect(artist).requestWrappedSongRelease(
+        wrappedSong.target,
+        distributorWallet.target
+      );
+      await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
+
+      // Pause the protocol
+      await protocolModule.connect(deployer).pause();
+
+      // Try to set authenticity while paused
+      await expect(
+        distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
+      ).to.be.revertedWith("Pausable: paused");
+    });
+
+    it("Should allow setting authenticity after unpausing", async function () {
+      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
+      
+      // Create distributor wallet
+      await distributorWalletFactory.connect(deployer).createDistributorWallet(
+        mockStablecoin.target,
+        protocolModule.target,
+        distributor.address
+      );
+
+      const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
+      const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
+
+      // Request and confirm release
+      await protocolModule.connect(artist).requestWrappedSongRelease(
+        wrappedSong.target,
+        distributorWallet.target
+      );
+      await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
+
       // Pause and then unpause the protocol
       await protocolModule.connect(deployer).pause();
       await protocolModule.connect(deployer).unpause();
-      
+
       // Should now work
       await expect(
-        protocolModule.connect(distributor).addISRC(wrappedSong.target, "TEST-ISRC")
+        distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
       ).to.not.be.reverted;
+
+      // Verify authenticity was set
+      const wsTokensManagement = await ethers.getContractAt(
+        "WSTokenManagement",
+        await wrappedSong.getWSTokenManagementAddress()
+      );
+      const tokenUri = await wsTokensManagement.uri(0);
+      const decodedMetadata = decodeBase64Json(tokenUri);
+      expect(decodedMetadata.authenticity.isAuthentic).to.be.true;
     });
   });
 }); 

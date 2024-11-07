@@ -370,7 +370,7 @@
         "type": "address"
       }
     ],
-    "name": "addOwnerWrappedSong",
+    "name": "setOwnerWrappedSong",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1087,6 +1087,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_newFactory",
+        "type": "address"
+      }
+    ],
+    "name": "setDistributorWalletFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_erc20whitelist",
         "type": "address"
       }
@@ -1318,19 +1331,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newFactory",
-        "type": "address"
-      }
-    ],
-    "name": "updateDistributorWalletFactory",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

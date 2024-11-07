@@ -102,6 +102,10 @@ contract ProtocolModule is Ownable, Pausable {
         legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
     }
 
+    /**************************************************************************
+     * Pause
+     *************************************************************************/
+
     // Add a function to toggle the paused state
     function pause() external onlyOwner {
         _pause();
@@ -110,6 +114,10 @@ contract ProtocolModule is Ownable, Pausable {
     function unpause() external onlyOwner {
         _unpause();
     }
+
+    /**************************************************************************
+     * Whitelisting
+     *************************************************************************/
 
     /**
      * @dev whitelists a token.
@@ -127,18 +135,26 @@ contract ProtocolModule is Ownable, Pausable {
         return erc20whitelist.removeTokenFromWhitelist(token);
     }
 
+
+    /**************************************************************************
+     * Release Actions
+     *************************************************************************/
+
     /**
      * @dev Requests the release of a wrapped song by the owner.
      * @param wrappedSong The address of the wrapped song.
      * @param distributor The address of the distributor.
      */
     function requestWrappedSongRelease(address wrappedSong, address distributor) external {
-        // require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can request release");
+        require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can request release");
         require(wrappedSongToDistributor[wrappedSong] == address(0), "Wrapped song already released");
         require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Distributor does not exist"); // Check if distributor exists
+
+
         pendingDistributorRequests[wrappedSong] = distributor;
         emit WrappedSongReleaseRequested(wrappedSong, distributor, msg.sender);
     }
+
 
     /**
      * @dev Removes the release request of a wrapped song by the owner.
@@ -202,6 +218,29 @@ contract ProtocolModule is Ownable, Pausable {
     }
 
     /**
+     * @dev Checks if a wrapped song is released.
+     * @param wrappedSong The address of the wrapped song.
+     * @return True if the wrapped song is released, false otherwise.
+     */
+    function isReleased(address wrappedSong) external view returns (bool) {
+        return wrappedSongToDistributor[wrappedSong] != address(0);
+    }
+
+
+    /**
+     * @dev Sets the review period days. Only the owner can set the review period days.
+     * @param _days The number of days for the review period.
+     */
+    function setReviewPeriodDays(uint256 _days) external onlyOwner {
+        reviewPeriodDays = _days;
+    }
+
+
+    /**************************************************************************
+     * Getters
+     *************************************************************************/
+
+    /**
      * @dev Returns the distributor address for a given wrapped song.
      * @param wrappedSong The address of the wrapped song.
      * @return The address of the distributor.
@@ -219,10 +258,16 @@ contract ProtocolModule is Ownable, Pausable {
         return pendingDistributorRequests[wrappedSong];
     }
 
+    /**************************************************************************
+     * Fees
+     *************************************************************************/
+
+    
     /**
      * @dev Sets the fee for creating a wrapped song. Only the owner can set the fee.
      * @param _fee The new fee for creating a wrapped song.
      */
+
     function setWrappedSongCreationFee(uint256 _fee) external onlyOwner {
         wrappedSongCreationFee = _fee;
     }
@@ -235,11 +280,16 @@ contract ProtocolModule is Ownable, Pausable {
         releaseFee = _fee;
     }
 
+
+    /**************************************************************************
+     * Modifiers
+     *************************************************************************/
+
     /**
      * @dev Updates the address of the DistributorWalletFactory contract. Only the owner can update the address.
      * @param _newFactory The address of the new DistributorWalletFactory contract.
      */
-    function updateDistributorWalletFactory(address _newFactory) external onlyOwner {
+    function setDistributorWalletFactory(address _newFactory) external onlyOwner {
         distributorWalletFactory = IDistributorWalletFactory(_newFactory);
     }
 
@@ -258,6 +308,86 @@ contract ProtocolModule is Ownable, Pausable {
     function setERC20Whitelist(address _erc20whitelist) external onlyOwner {
         erc20whitelist = IERC20Whitelist(_erc20whitelist);
     }
+
+        /**
+     * @dev Sets the address of the MetadataModule contract. Only the owner can set the address.
+     * @param _metadataModule The address of the new MetadataModule contract.
+     */
+    function setMetadataModule(address _metadataModule) external onlyOwner {
+        require(_metadataModule != address(0), "Invalid address");
+        metadataModule = IMetadataModule(_metadataModule);
+    }
+
+    /**
+     * @dev Sets the authorization status of a contract.
+     * @param _contractAddress The address of the contract to set the authorization status.
+     * @param _isAuthorized The authorization status to be set.
+     */
+    function setAuthorizedContract(address _contractAddress, bool _isAuthorized) external onlyOwner {
+        authorizedContracts[_contractAddress] = _isAuthorized;
+    }
+
+
+    /**
+     * @dev Sets the address of the WrappedSongFactory contract. Only the owner can set the address.
+     * @param _wrappedSongFactory The address of the new WrappedSongFactory contract.
+     */
+    function setWrappedSongFactory(address _wrappedSongFactory) external onlyOwner {
+        require(_wrappedSongFactory != address(0), "Invalid factory address");
+        wrappedSongFactory = IWrappedSongFactory(_wrappedSongFactory);
+    }
+
+    function setSmartAccountToWSToken(address smartAccount, address wsToken) external whenNotPaused {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can set token mapping");
+        smartAccountToWSToken[smartAccount] = wsToken;
+    }
+
+    /**
+     * @dev Updates the maximum duration allowed for sales.
+     * @param _duration The new maximum duration in seconds
+     */
+    function setMaxSaleDuration(uint256 _duration) external onlyOwner {
+        require(_duration > 0, "Duration must be greater than 0");
+        maxSaleDuration = _duration;
+    }
+
+
+    function setWSTokenFromProtocol(address wsTokenManagement) external {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
+        protocolWSTokens[wsTokenManagement] = true;
+    }
+
+
+    /**
+     * @dev Sets the base URI for metadata resources
+     * @param _baseURI The new base URI to be used
+     */
+    function setBaseURI(string memory _baseURI) external onlyOwner {
+        baseURI = _baseURI;
+    }
+
+    // Update setter function
+    function setLegalContractMetadata(address _legalContractMetadata) external onlyOwner {
+        require(_legalContractMetadata != address(0), "Invalid address");
+        legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
+    }
+
+
+    // Add new function to set the renderer
+    function setMetadataRenderer(address _renderer) external onlyOwner {
+        require(_renderer != address(0), "Invalid renderer address");
+        metadataRenderer = IMetadataRenderer(_renderer);
+    }
+
+
+    function setOwnerWrappedSong(address owner, address wrappedSong) external whenNotPaused {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
+        ownerWrappedSongs[owner].push(wrappedSong);
+    }
+
+    /**************************************************************************
+     * Identity Registry
+     *************************************************************************/
 
     /**
      * @dev Adds an ISRC to the registry for a given wrapped song. Only callable by the distributor.
@@ -298,15 +428,11 @@ contract ProtocolModule is Ownable, Pausable {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISCC");
         isccRegistry[wrappedSong] = iscc;
     }
-    
-    /**
-     * @dev Checks if a wrapped song is released.
-     * @param wrappedSong The address of the wrapped song.
-     * @return True if the wrapped song is released, false otherwise.
-     */
-    function isReleased(address wrappedSong) external view returns (bool) {
-        return wrappedSongToDistributor[wrappedSong] != address(0);
-    }
+
+    /**************************************************************************
+     * Authenticity
+     *************************************************************************/
+
 
     /**
      * @dev Sets the authenticity status of a wrapped song.
@@ -328,6 +454,10 @@ contract ProtocolModule is Ownable, Pausable {
         return wrappedSongAuthenticity[wrappedSong];
     }
 
+    /**************************************************************************
+     * Data & getters
+     *************************************************************************/
+
     /**
      * @dev Checks if the creator is valid to create a wrapped song based on the NFT requirement.
      * @param creator The address of the creator.
@@ -347,38 +477,12 @@ contract ProtocolModule is Ownable, Pausable {
     }
 
     /**
-     * @dev Sets the review period days. Only the owner can set the review period days.
-     * @param _days The number of days for the review period.
-     */
-    function setReviewPeriodDays(uint256 _days) external onlyOwner {
-        reviewPeriodDays = _days;
-    }
-
-    /**
-     * @dev Sets the address of the MetadataModule contract. Only the owner can set the address.
-     * @param _metadataModule The address of the new MetadataModule contract.
-     */
-    function setMetadataModule(address _metadataModule) external onlyOwner {
-        require(_metadataModule != address(0), "Invalid address");
-        metadataModule = IMetadataModule(_metadataModule);
-    }
-
-    /**
      * @dev Checks if a contract is authorized.
      * @param _contractAddress The address of the contract to check.
      * @return True if the contract is authorized, false otherwise.
      */
     function isAuthorizedContract(address _contractAddress) external view returns (bool) {
         return authorizedContracts[_contractAddress];
-    }
-
-    /**
-     * @dev Sets the authorization status of a contract.
-     * @param _contractAddress The address of the contract to set the authorization status.
-     * @param _isAuthorized The authorization status to be set.
-     */
-    function setAuthorizedContract(address _contractAddress, bool _isAuthorized) external onlyOwner {
-        authorizedContracts[_contractAddress] = _isAuthorized;
     }
 
     /**
@@ -389,55 +493,16 @@ contract ProtocolModule is Ownable, Pausable {
         return address(wrappedSongFactory);
     }
 
-    /**
-     * @dev Sets the address of the WrappedSongFactory contract. Only the owner can set the address.
-     * @param _wrappedSongFactory The address of the new WrappedSongFactory contract.
-     */
-    function setWrappedSongFactory(address _wrappedSongFactory) external onlyOwner {
-        require(_wrappedSongFactory != address(0), "Invalid factory address");
-        wrappedSongFactory = IWrappedSongFactory(_wrappedSongFactory);
-    }
-
-    function setSmartAccountToWSToken(address smartAccount, address wsToken) external whenNotPaused {
-        require(msg.sender == address(wrappedSongFactory), "Only factory can set token mapping");
-        smartAccountToWSToken[smartAccount] = wsToken;
-    }
-
-    function addOwnerWrappedSong(address owner, address wrappedSong) external whenNotPaused {
-        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
-        ownerWrappedSongs[owner].push(wrappedSong);
-    }
 
     function getOwnerWrappedSongs(address owner) external view returns (address[] memory) {
         return ownerWrappedSongs[owner];
-    }
-
-    /**
-     * @dev Updates the maximum duration allowed for sales.
-     * @param _duration The new maximum duration in seconds
-     */
-    function setMaxSaleDuration(uint256 _duration) external onlyOwner {
-        require(_duration > 0, "Duration must be greater than 0");
-        maxSaleDuration = _duration;
-    }
-
-
-    function setWSTokenFromProtocol(address wsTokenManagement) external {
-        require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
-        protocolWSTokens[wsTokenManagement] = true;
     }
 
     function isWSTokenFromProtocol(address wsTokenManagement) external view returns (bool) {
         return protocolWSTokens[wsTokenManagement];
     }
 
-    /**
-     * @dev Sets the base URI for metadata resources
-     * @param _baseURI The new base URI to be used
-     */
-    function setBaseURI(string memory _baseURI) external onlyOwner {
-        baseURI = _baseURI;
-    }
+    
 
     /**
      * @dev Gets the current base URI
@@ -445,12 +510,6 @@ contract ProtocolModule is Ownable, Pausable {
      */
     function getBaseURI() external view returns (string memory) {
         return baseURI;
-    }
-
-    // Update setter function
-    function setLegalContractMetadata(address _legalContractMetadata) external onlyOwner {
-        require(_legalContractMetadata != address(0), "Invalid address");
-        legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
     }
 
     // Update getter function
@@ -466,11 +525,11 @@ contract ProtocolModule is Ownable, Pausable {
         return address(metadataModule);
     }
 
-    // Add new function to set the renderer
-    function setMetadataRenderer(address _renderer) external onlyOwner {
-        require(_renderer != address(0), "Invalid renderer address");
-        metadataRenderer = IMetadataRenderer(_renderer);
-    }
+
+    /**************************************************************************
+     * Wrapped Song Owner
+     *************************************************************************/
+
 
     // Add function to render token URI
     function renderTokenURI(

@@ -58,13 +58,15 @@ contract MetadataRenderer {
             ));
         }
 
-        // Get registry codes directly from protocol module
+        // Get registry codes and authenticity status from protocol module
         string memory isrcCode = protocolModule.isrcRegistry(wrappedSongAddress);
         string memory upcCode = protocolModule.upcRegistry(wrappedSongAddress);
         string memory iswcCode = protocolModule.iswcRegistry(wrappedSongAddress);
         string memory isccCode = protocolModule.isccRegistry(wrappedSongAddress);
+        bool isAuthentic = protocolModule.isAuthentic(wrappedSongAddress);
 
         string memory registryCodes = _composeRegistryCodes(isrcCode, upcCode, iswcCode, isccCode);
+        string memory authenticity = _composeAuthenticity(isAuthentic);
 
         string memory json = Base64.encode(
             bytes(string(abi.encodePacked(
@@ -74,7 +76,8 @@ contract MetadataRenderer {
                 '"external_url": "', metadata.externalUrl, '",',
                 '"animation_url": "', string(abi.encodePacked(baseURI, metadata.animationUrl)), '",',
                 '"attributes": "', string(abi.encodePacked(baseURI, metadata.attributesIpfsHash)), '",',
-                registryCodes,
+                registryCodes, ',',
+                authenticity,
                 '}'
             )))
         );
@@ -126,6 +129,15 @@ contract MetadataRenderer {
             '"UPC": "', bytes(upcCode).length > 0 ? upcCode : '', '",',
             '"ISWC": "', bytes(iswcCode).length > 0 ? iswcCode : '', '",',
             '"ISCC": "', bytes(isccCode).length > 0 ? isccCode : '', '"',
+            '}'
+        ));
+    }
+
+    // Add new helper function for authenticity
+    function _composeAuthenticity(bool isAuthentic) internal pure returns (string memory) {
+        return string(abi.encodePacked(
+            '"authenticity": {',
+            '"isAuthentic": ', isAuthentic ? 'true' : 'false',
             '}'
         ));
     }

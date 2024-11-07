@@ -50,7 +50,7 @@ interface IProtocolModule {
     function handleExpiredReviewPeriod(address wrappedSong) external;
     function setWrappedSongCreationFee(uint256 _fee) external;
     function setReleaseFee(uint256 _fee) external;
-    function updateDistributorWalletFactory(address _newFactory) external;
+    function setDistributorWalletFactory(address _newFactory) external;
     function setWhitelistingManager(address _whitelistingManager) external;
     function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external;
     function setReviewPeriodDays(uint256 _days) external;
@@ -70,7 +70,7 @@ interface IProtocolModule {
     function setAuthorizedContract(address contractAddress, bool isAuthorized) external;
     function wrappedSongFactoryAddress() external view returns (address);
     function setWrappedSongFactory(address _wrappedSongFactory) external;
-    function addOwnerWrappedSong(address owner, address wrappedSong) external;
+    function setOwnerWrappedSong(address owner, address wrappedSong) external;
     function setSmartAccountToWSToken(address smartAccount, address wsToken) external;
     function getOwnerWrappedSongs(address owner) external view returns (address[] memory);
     function maxSaleDuration() external view returns (uint256);

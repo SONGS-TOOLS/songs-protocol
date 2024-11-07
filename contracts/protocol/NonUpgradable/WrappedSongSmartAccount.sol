@@ -205,6 +205,8 @@ contract WrappedSongSmartAccount is
         .checkIsDistributorWallet(_distributorWallet),
       "Invalid distributor wallet: not registered in factory"
     );
+
+    
     metadataModule.updateMetadata(address(this), newMetadata);
     protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
   }
