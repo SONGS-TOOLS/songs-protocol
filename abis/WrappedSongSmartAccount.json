@@ -70,6 +70,31 @@
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ETHEarningsClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
         "indexed": true,
         "internalType": "address",
         "name": "token",
@@ -162,6 +187,19 @@
   },
   {
     "inputs": [],
+    "name": "accumulatedETHEarningsPerShare",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "accumulatedEarningsPerShare",
     "outputs": [
       {
@@ -175,14 +213,14 @@
   },
   {
     "inputs": [],
-    "name": "claimEarnings",
+    "name": "claimETHEarnings",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "claimEthEarnings",
+    "name": "claimEarnings",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -238,8 +276,46 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "earningsPerSharePaid",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "ethBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getPendingETHEarnings",
     "outputs": [
       {
         "internalType": "uint256",
@@ -290,7 +366,7 @@
         "type": "address"
       }
     ],
-    "name": "lastClaimedEarningsPerShare",
+    "name": "lastClaimedETHEarningsPerShare",
     "outputs": [
       {
         "internalType": "uint256",
@@ -481,13 +557,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "receiveEarnings",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -504,13 +573,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "redeemShares",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -662,6 +724,19 @@
   },
   {
     "inputs": [],
+    "name": "totalDistributedETHEarnings",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "totalDistributedEarnings",
     "outputs": [
       {
@@ -713,7 +788,7 @@
         "type": "address"
       }
     ],
-    "name": "unclaimedEarnings",
+    "name": "unclaimedETHEarnings",
     "outputs": [
       {
         "internalType": "uint256",
@@ -725,10 +800,22 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "updateEarnings",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userShares",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
