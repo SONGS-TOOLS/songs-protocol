@@ -5,6 +5,7 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
+import './../Interfaces/IWrappedSongSmartAccount.sol';
 
 contract DistributorWallet is Ownable {
   IERC20 public stablecoin;
@@ -41,24 +42,16 @@ contract DistributorWallet is Ownable {
     stablecoin = IERC20(_stablecoin);
   }
 
-  // Payment Functions
+  /******************************************************************************
+   *                                                                             *
+   *                             EARNINGS FUNCTIONS                               *
+   *                                                                             *
+   * This section contains functions related to receiving and managing earnings  *
+   * for wrapped songs. It includes functionality for receiving individual and   *
+   * batch payments in stablecoin and updating the treasury balances.           *
+   *                                                                             *
+   ******************************************************************************/
 
-  /**
-   * @dev Receives ETH and updates the treasury for the specified wrapped song.
-   * @param _wrappedSong The address of the wrapped song.
-   */
-  function receivePaymentETH(address _wrappedSong) external payable {
-    require(msg.value > 0, "No ETH sent");
-    wrappedSongTreasury[_wrappedSong] += msg.value;
-    
-    // Create arrays for single wrapped song
-    address[] memory songs = new address[](1);
-    uint256[] memory amounts = new uint256[](1);
-    songs[0] = _wrappedSong;
-    amounts[0] = msg.value;
-    
-    emit FundsReceived(address(this), msg.value, "ETH", songs, amounts);
-  }
 
   /**
    * @dev Receives stablecoin and updates the treasury for the specified wrapped song.
@@ -70,6 +63,7 @@ contract DistributorWallet is Ownable {
       stablecoin.transferFrom(msg.sender, address(this), _amount),
       'Transfer failed'
     );
+    
     wrappedSongTreasury[_wrappedSong] += _amount;
     
     // Create arrays for single wrapped song
@@ -81,28 +75,6 @@ contract DistributorWallet is Ownable {
     emit FundsReceived(address(this), _amount, "Stablecoin", songs, amounts);
   }
 
-  /**
-   * @dev Receives ETH and updates the treasury for the specified wrapped songs.
-   * @param _wrappedSongs The addresses of the wrapped songs.
-   * @param _amounts The amounts of ETH to be received for each wrapped song.
-   */
-  function receiveBatchPaymentETH(address[] calldata _wrappedSongs, uint256[] calldata _amounts) external payable onlyOwner {
-    // TODO : Gas controlling on the loop
-    require(_wrappedSongs.length == _amounts.length, "Mismatched input lengths");
-
-    uint256 totalAmount = msg.value;
-    uint256 sum = 0;
-    for (uint256 i = 0; i < _amounts.length; i++) {
-      sum += _amounts[i];
-    }
-    require(sum == totalAmount, "Total amount does not match sum of individual amounts");
-
-    for (uint256 i = 0; i < _wrappedSongs.length; i++) {
-      wrappedSongTreasury[_wrappedSongs[i]] += _amounts[i];
-    }
-
-    emit FundsReceived(address(this), totalAmount, "ETH", _wrappedSongs, _amounts);
-  }
 
   /**
    * @dev Receives stablecoin and updates the treasury for the specified wrapped songs.
@@ -137,34 +109,28 @@ contract DistributorWallet is Ownable {
   function redeemWrappedSongEarnings(address _wrappedSong) external {
     uint256 amount = wrappedSongTreasury[_wrappedSong];
     require(amount > 0, 'No earnings to redeem');
+    
+    // First approve the wrapped song to take the tokens
+    require(stablecoin.approve(_wrappedSong, amount), 'Approval failed');
+    
+    // Call receiveERC20 on the wrapped song to properly process earnings
+    IWrappedSongSmartAccount(_wrappedSong).receiveERC20(address(stablecoin), amount);
+    
+    // Clear the treasury balance
     wrappedSongTreasury[_wrappedSong] = 0;
-    require(stablecoin.transfer(_wrappedSong, amount), 'Transfer failed');
+    
     emit WrappedSongRedeemed(_wrappedSong, amount);
   }
 
-  /**
-   * @dev Redeems the amount for the owner of the wrapped song in ETH.
-   * @param _wrappedSong The address of the wrapped song.
-   */
-  
-  // TODO : Add nonReentrant
-  function redeemETH(address payable _wrappedSong) external {
-    require(
-      msg.sender == Ownable(_wrappedSong).owner(),
-      'Only wrapped song owner can redeem'
-    );
-    uint256 amount = wrappedSongTreasury[_wrappedSong];
-    require(amount > 0, 'No earnings to redeem');
-    wrappedSongTreasury[_wrappedSong] = 0;
-    (bool success, ) = msg.sender.call{value: amount}("");
-    require(success, 'Transfer failed');
-    emit WrappedSongRedeemed(_wrappedSong, amount);
-  }
-
-  // TODO : add Redeem Stable Coin
-
-
- // Metadata Functions
+  /******************************************************************************
+   *                                                                             *
+   *                           METADATA MANAGEMENT                               *
+   *                                                                             *
+   * This section contains functions related to managing metadata for wrapped    *
+   * songs. It includes functionality for confirming and rejecting metadata     *
+   * updates requested by wrapped song owners.                                   *
+   *                                                                             *
+   ******************************************************************************/
 
   /**
    * @dev Confirms the update to the metadata.
@@ -199,7 +165,15 @@ contract DistributorWallet is Ownable {
   }
 
 
-  // Wrapped Song Management Functions
+  /******************************************************************************
+   *                                                                             *
+   *                       WRAPPED SONG MANAGEMENT                               *
+   *                                                                             *
+   * This section contains functions related to managing wrapped songs and       *
+   * their lifecycle. It includes functionality for confirming releases,         *
+   * accepting songs for review, and rejecting release requests.                *
+   *                                                                             *
+   ******************************************************************************/
 
   /**
    * @dev Confirms the release of a wrapped song and adds it to the managed wrapped songs.

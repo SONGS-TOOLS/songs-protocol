@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokensManagement.sol";
-import "hardhat/console.sol";
 
 contract MetadataModule is Ownable {
     IProtocolModule public protocolModule;
@@ -57,15 +56,11 @@ contract MetadataModule is Ownable {
      */
     
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external {
-        console.log("createMetadata called for wrapped song:", wrappedSong);
-        console.log("Caller (msg.sender):", msg.sender);
 
         require(bytes(wrappedSongMetadata[wrappedSong].name).length == 0, "Metadata already exists");
         
         wrappedSongMetadata[wrappedSong] = newMetadata;
         emit MetadataCreated(wrappedSong, newMetadata);
-        
-        console.log("createMetadata completed successfully");
     }
     /**
      * @dev Requests an update to the metadata of a released wrapped song.
@@ -73,25 +68,17 @@ contract MetadataModule is Ownable {
      * @param newMetadata The new metadata to be set.
      */
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external {
-        console.log("requestUpdateMetadata called for wrapped song:", wrappedSong);
-        console.log("Caller (msg.sender):", msg.sender);
 
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
 
         require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can request update");
-        console.log("Owner check passed");
 
         require(protocolModule.isReleased(wrappedSong), "Song not released, update metadata directly");
-        console.log("Release check passed");
         
         pendingMetadataUpdates[wrappedSong] = newMetadata;
         metadataUpdateConfirmed[wrappedSong] = false;
-        console.log("Pending metadata update set");
 
         emit MetadataUpdateRequested(wrappedSong, newMetadata);
-        console.log("MetadataUpdateRequested event emitted");
-
-        console.log("requestUpdateMetadata completed successfully");
     }
 
     /**
