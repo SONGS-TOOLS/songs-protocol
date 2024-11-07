@@ -21,5 +21,10 @@ interface IDistributorWallet {
     function acceptWrappedSongForReview(address wrappedSong) external;
     function rejectWrappedSongRelease(address wrappedSong) external;
 
+    function addISRC(address wrappedSong, string memory isrc) external;
+    function addUPC(address wrappedSong, string memory upc) external;
+    function addISWC(address wrappedSong, string memory iswc) external;
+    function addISCC(address wrappedSong, string memory iscc) external;
+
     function receiveERC20() external;
 }

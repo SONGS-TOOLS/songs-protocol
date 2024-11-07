@@ -225,4 +225,63 @@ contract DistributorWallet is Ownable {
   function receiveERC20() external {
     // Handle ERC20 token reception
   }
+
+  /******************************************************************************
+   *                                                                             *
+   *                           REGISTRY MANAGEMENT                               *
+   *                                                                             *
+   * This section contains functions related to managing registry codes (ISRC,   *
+   * UPC, ISWC, ISCC) for wrapped songs through the protocol module.            *
+   *                                                                             *
+   ******************************************************************************/
+
+  /**
+   * @dev Adds an ISRC code for a wrapped song
+   * @param wrappedSong The address of the wrapped song
+   * @param isrc The ISRC code to add
+   */
+  function addISRC(address wrappedSong, string memory isrc) external onlyOwner {
+    protocolModule.addISRC(wrappedSong, isrc);
+  }
+
+  /**
+   * @dev Adds a UPC code for a wrapped song
+   * @param wrappedSong The address of the wrapped song
+   * @param upc The UPC code to add
+   */
+  function addUPC(address wrappedSong, string memory upc) external onlyOwner {
+    protocolModule.addUPC(wrappedSong, upc);
+  }
+
+  /**
+   * @dev Adds an ISWC code for a wrapped song
+   * @param wrappedSong The address of the wrapped song
+   * @param iswc The ISWC code to add
+   */
+  function addISWC(address wrappedSong, string memory iswc) external onlyOwner {
+    protocolModule.addISWC(wrappedSong, iswc);
+  }
+
+  /**
+   * @dev Adds an ISCC code for a wrapped song
+   * @param wrappedSong The address of the wrapped song
+   * @param iscc The ISCC code to add
+   */
+  function addISCC(address wrappedSong, string memory iscc) external onlyOwner {
+    protocolModule.addISCC(wrappedSong, iscc);
+  }
+
+  /**
+   * @dev Sets the authenticity status for a wrapped song
+   * @param wrappedSong The address of the wrapped song
+   * @param isAuthentic The authenticity status to set
+   */
+  function setWrappedSongAuthenticity(address wrappedSong, bool isAuthentic) external onlyOwner {
+    require(
+      protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
+      "Not the distributor for this wrapped song"
+    );
+    protocolModule.setWrappedSongAuthenticity(wrappedSong, isAuthentic);
+  }
+
 }
