@@ -75,14 +75,14 @@ describe("SharesDistribution", function () {
 
             // Start the sale through marketplace
             await songSharesMarketPlace.connect(artist).startSale(
-                wsTokenManagement,
+                wrappedSongAddress,
                 sharesAmount,
                 pricePerShare,
                 maxSharesPerWallet,
                 mockStablecoin.target
             );
 
-            const sale = await songSharesMarketPlace.getSale(wsTokenManagement);
+            const sale = await songSharesMarketPlace.getSale(wrappedSongAddress);
             expect(sale.active).to.be.true;
             expect(sale.sharesForSale).to.equal(sharesAmount);
             expect(sale.pricePerShare).to.equal(pricePerShare);
@@ -126,7 +126,7 @@ describe("SharesDistribution", function () {
 
             // Start sale
             await songSharesMarketPlace.connect(artist).startSale(
-                wsTokenManagement,
+                wrappedSongAddress,
                 sharesAmount,
                 pricePerShare,
                 maxSharesPerWallet,
@@ -143,7 +143,7 @@ describe("SharesDistribution", function () {
                 await mockStablecoin.connect(buyer).approve(songSharesMarketPlace.target, totalPrice);
 
                 await songSharesMarketPlace.connect(buyer).buyShares(
-                    wsTokenManagement,
+                    wrappedSongAddress,
                     sharesToBuy,
                     buyer.address
                 );
@@ -152,7 +152,7 @@ describe("SharesDistribution", function () {
                 expect(buyerBalance).to.equal(BigInt(sharesToBuy));
             }
 
-            const sale = await songSharesMarketPlace.getSale(wsTokenManagement);
+            const sale = await songSharesMarketPlace.getSale(wrappedSongAddress);
             expect(sale.sharesForSale).to.equal(20); // 50 - (3 * 10) = 20 shares remaining
         });
 
