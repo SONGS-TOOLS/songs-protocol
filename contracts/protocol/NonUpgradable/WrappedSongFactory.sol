@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import './WrappedSongSmartAccount.sol';
-import './../Interfaces/IProtocolModule.sol';
-import './../Interfaces/IMetadataModule.sol';
+import "./WrappedSongSmartAccount.sol";
+import "./../Interfaces/IProtocolModule.sol";
+import "./../Interfaces/IMetadataModule.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
@@ -29,13 +29,13 @@ contract WrappedSongFactory {
    * @param metadata The metadata object to validate.
    * @return bool Returns true if the metadata is valid, false otherwise.
    */
-  function isValidMetadata(IMetadataModule.Metadata memory metadata) internal pure returns (bool) {
-      return (
-          bytes(metadata.name).length > 0 &&
-          bytes(metadata.image).length > 0 &&
-          bytes(metadata.animationUrl).length > 0 &&
-          bytes(metadata.attributesIpfsHash).length > 0
-      );
+  function isValidMetadata(
+    IMetadataModule.Metadata memory metadata
+  ) internal pure returns (bool) {
+    return (bytes(metadata.name).length > 0 &&
+      bytes(metadata.image).length > 0 &&
+      bytes(metadata.animationUrl).length > 0 &&
+      bytes(metadata.attributesIpfsHash).length > 0);
   }
 
   /**
@@ -50,44 +50,56 @@ contract WrappedSongFactory {
     IMetadataModule.Metadata memory songMetadata,
     uint256 sharesAmount
   ) public payable returns (address) {
-
-    require(!protocolModule.paused(), 'Protocol is paused');
-    require(isValidMetadata(songMetadata), "Invalid metadata: All required fields must be non-empty");
+    require(!protocolModule.paused(), "Protocol is paused");
+    require(
+      isValidMetadata(songMetadata),
+      "Invalid metadata: All required fields must be non-empty"
+    );
     require(sharesAmount > 0, "Shares amount must be greater than zero");
 
     uint256 requiredFee = protocolModule.wrappedSongCreationFee();
     console.log("Provided fee:", msg.value);
-    require(
-      msg.value >= requiredFee,
-      'Insufficient creation fee'
-    );
+    require(msg.value >= requiredFee, "Insufficient creation fee");
 
-    require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
-    require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
+    require(
+      protocolModule.isValidToCreateWrappedSong(msg.sender),
+      "Not valid to create Wrapped Song"
+    );
+    require(
+      protocolModule.isTokenWhitelisted(_stablecoin),
+      "Stablecoin is not whitelisted"
+    );
 
     console.log("Creating new WrappedSongSmartAccount...");
     WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
         _stablecoin,
         msg.sender,
         address(protocolModule)
-    );
+      );
 
     console.log("Creating initial shares...");
     newWrappedSongSmartAccount.createSongShares(sharesAmount);
 
-    address newWrappedSongSmartAccountAddress = address(newWrappedSongSmartAccount);
-    address wsTokenManagementAddress = newWrappedSongSmartAccount.getWSTokenManagementAddress();
+    address newWrappedSongSmartAccountAddress = address(
+      newWrappedSongSmartAccount
+    );
+    address wsTokenManagementAddress = newWrappedSongSmartAccount
+      .getWSTokenManagementAddress();
 
     console.log("WSTokenManagement address:", wsTokenManagementAddress);
 
     protocolModule.setWSTokenFromProtocol(wsTokenManagementAddress);
-    protocolModule.setSmartAccountToWSToken(newWrappedSongSmartAccountAddress, wsTokenManagementAddress);
-    protocolModule.addOwnerWrappedSong(msg.sender, newWrappedSongSmartAccountAddress);
+    protocolModule.setSmartAccountToWSToken(
+      newWrappedSongSmartAccountAddress,
+      wsTokenManagementAddress
+    );
+    protocolModule.addOwnerWrappedSong(
+      msg.sender,
+      newWrappedSongSmartAccountAddress
+    );
 
     console.log("Creating metadata...");
-    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
 
-    
     emit WrappedSongCreated(
       msg.sender,
       newWrappedSongSmartAccountAddress,
@@ -95,10 +107,12 @@ contract WrappedSongFactory {
       wsTokenManagementAddress,
       sharesAmount
     );
-
+    metadataModule.createMetadata(
+      newWrappedSongSmartAccountAddress,
+      songMetadata
+    );
 
     console.log("Wrapped song creation completed");
     return newWrappedSongSmartAccountAddress;
   }
-
 }
