@@ -21,14 +21,29 @@ describe("ReedemDistribution", function () {
         const erc20Whitelist = await ERC20Whitelist.deploy(deployer.address);
         await erc20Whitelist.waitForDeployment();
 
+        // Deploy LegalContractMetadata
+        const LegalContractMetadata = await ethers.getContractFactory("LegalContractMetadata");
+        const legalContractMetadata = await LegalContractMetadata.deploy();
+        await legalContractMetadata.waitForDeployment();
+
+        // Deploy MetadataModule
+        const MetadataModule = await ethers.getContractFactory("MetadataModule");
+        const metadataModule = await MetadataModule.deploy();
+        await metadataModule.waitForDeployment();
+
         // Deploy ProtocolModule
         const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
         const protocolModule = await ProtocolModule.deploy(
             distributorWalletFactory.target,
             whitelistingManager.target,
-            erc20Whitelist.target
+            erc20Whitelist.target,
+            metadataModule.target,
+            legalContractMetadata.target
         );
         await protocolModule.waitForDeployment();
+        
+        // Set MetadataModule as authorized caller for ProtocolModule
+        await metadataModule.setProtocolModule(await protocolModule.getAddress());
 
         // Set ProtocolModule as authorized caller for ERC20Whitelist
         await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
@@ -38,14 +53,9 @@ describe("ReedemDistribution", function () {
         const wsUtils = await WSUtils.deploy(protocolModule.target, deployer.address);
         await wsUtils.waitForDeployment();
 
-        // Deploy MetadataModule
-        const MetadataModule = await ethers.getContractFactory("MetadataModule");
-        const metadataModule = await MetadataModule.deploy(protocolModule.target);
-        await metadataModule.waitForDeployment();
-
         // Deploy WrappedSongFactory
         const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
-        const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target, metadataModule.target);
+        const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target);
         await wrappedSongFactory.waitForDeployment();
 
         // Set MetadataModule as authorized caller for WrappedSongFactory

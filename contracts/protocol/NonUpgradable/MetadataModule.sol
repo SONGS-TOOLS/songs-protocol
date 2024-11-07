@@ -6,8 +6,6 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokensManagement.sol";
-import "hardhat/console.sol";
-
 contract MetadataModule is Ownable {
     IProtocolModule public protocolModule;
     bool private isProtocolSet;
@@ -43,11 +41,9 @@ contract MetadataModule is Ownable {
     function setProtocolModule(address _protocolModule) external onlyOwner {
         require(_protocolModule != address(0), "Invalid protocol module address");
         
-        console.log("Setting protocol module address:", _protocolModule);
         protocolModule = IProtocolModule(_protocolModule);
         isProtocolSet = true;
         
-        console.log("Protocol module set successfully");
     }
 
     /**
@@ -69,22 +65,13 @@ contract MetadataModule is Ownable {
      * @param newMetadata The new metadata to be set.
      */
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external {
+        // TODO: Check
         // require(protocolModule.isWSTokenFromProtocol(wsTokenManagement), "Not a valid WSTokenManagement contract");
         // require(bytes(wrappedSongMetadata[wsTokenManagement].name).length == 0, "Metadata already exists");
         require(isValidMetadata(newMetadata), "Invalid metadata");
         
-        console.log("Creating metadata for wrapped song:", wrappedSong);
-        console.log("Metadata name:", newMetadata.name);
-        console.log("Metadata description:", newMetadata.description);
-        console.log("Metadata image:", newMetadata.image);
-        console.log("Metadata external URL:", newMetadata.externalUrl);
-        console.log("Metadata animation URL:", newMetadata.animationUrl);
-        console.log("Metadata attributes IPFS hash:", newMetadata.attributesIpfsHash);
-        
         wrappedSongMetadata[wrappedSong] = newMetadata;
         emit MetadataCreated(wrappedSong, newMetadata);
-        
-        console.log("Metadata created successfully");
     }
     /**
      * @dev Requests an update to the metadata of a released wrapped song.
@@ -148,6 +135,7 @@ contract MetadataModule is Ownable {
         delete metadataUpdateConfirmed[wrappedSong];
         emit MetadataUpdateRejected(wrappedSong);
     }
+    
     /**
      * @dev Retrieves the token URI for a given wrapped song and token ID.
      * @param wrappedSong The address of the wrapped song.
@@ -155,19 +143,12 @@ contract MetadataModule is Ownable {
      * @return The token URI as a string.
      */
     function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory) {
-        console.log("Getting token URI for wrapped song: %s, token ID: %d", wrappedSong, tokenId);
         
         Metadata memory metadata = wrappedSongMetadata[wrappedSong];
         // require(bytes(metadata.name).length > 0, "Metadata does not exist for this token");
         require(tokenId < 3, "Invalid token ID for metadata module"); // Only handle tokens 0-2
         
-        console.log("Getting token URI for wrapped song: %s, token ID: %d", wrappedSong, tokenId);
-        console.log("Metadata name: %s", metadata.name);
-        console.log("Metadata image: %s", metadata.image);
-        console.log("Metadata external URL: %s", metadata.externalUrl);
-        
         string memory uri = _composeTokenURI(metadata, tokenId, wrappedSong);
-        console.log("Composed token URI: %s", uri);
         
         return uri;
     }
@@ -201,7 +182,6 @@ contract MetadataModule is Ownable {
         string memory baseURI = protocolModule.getBaseURI();
         require(bytes(baseURI).length > 0, "Base URI not set");
         
-        console.log("Composing token URI for token ID: %s", tokenId);
         
         string memory tokenType;
         string memory finalImageData;
@@ -211,7 +191,6 @@ contract MetadataModule is Ownable {
             tokenType = unicode"◒";
             finalImageData = string(abi.encodePacked(baseURI, metadata.image));
             description = metadata.description;
-            console.log("Token type 0: Song Concept NFT");
         } else if (tokenId == 1) {
             tokenType = unicode"§";
             finalImageData = _generateSVGImage(metadata.image);
@@ -220,16 +199,11 @@ contract MetadataModule is Ownable {
                 addressToString(wrappedSongAddress),
                 "."
             ));
-            console.log("Token type 1: Song Shares NFT");
         } else {
             tokenType = "Creator-defined NFT";
             finalImageData = string(abi.encodePacked(baseURI, metadata.image));
             description = metadata.description;
-            console.log("Token type 2: Creator-defined NFT");
         }
-
-        console.log("Metadata name: %s", metadata.name);
-        console.log("Final image data: %s", finalImageData);
 
         string memory json = Base64.encode(
             bytes(string(abi.encodePacked(
@@ -243,25 +217,25 @@ contract MetadataModule is Ownable {
         );
 
         string memory uri = string(abi.encodePacked("data:application/json;base64,", json));
-        console.log("Generated URI: %s", uri);
         return uri;
     }
 
     function _generateSVGImage(string memory imageUrl) internal pure returns (string memory) {
-        string memory svgContent = _generateSVGContent(imageUrl);
+        string memory htmlContent = _generateSVGContent(imageUrl);
         return string(abi.encodePacked(
-            'data:image/svg+xml;base64,',
-            Base64.encode(bytes(svgContent))
+            'data:text/html;base64,',
+            Base64.encode(bytes(htmlContent))
         ));
     }
 
     function _generateSVGContent(string memory imageUrl) internal pure returns (string memory) {
         return string(abi.encodePacked(
-            '<svg width="562" height="562" viewBox="0 0 562 562" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',
-
-            '<image id="image0" width="1052" height="1052" xlink:href="', imageUrl, '"/>',
-            
-            '</svg>'
+            '<html><head><style>',
+            '.container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }',
+            '.circle-image { width: 80%; height: 80%; border-radius: 50%; border: 2px solid black; ',
+            'background-image: url("', imageUrl, '"); background-size: cover; background-position: center; }',
+            '</style></head>',
+            '<body><div class="container"><div class="circle-image"></div></div></body></html>'
         ));
     }
 

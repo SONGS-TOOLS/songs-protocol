@@ -158,7 +158,7 @@ async function main() {
         wsTokenManagementAddress
       );
 
-      const tokenIds = [0, 1, 2];
+      const tokenIds = [0, 1];
       for (const tokenId of tokenIds) {
         try {
           const uri = await wsTokenManagement.uri(tokenId);
