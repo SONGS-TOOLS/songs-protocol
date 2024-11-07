@@ -72,7 +72,7 @@ The `ProtocolModule` contract serves as the central hub for managing the protoco
   - **Parameters:**
     - `_fee`: The new fee for releasing a wrapped song.
 
-- **updateDistributorWalletFactory(address _newFactory)**
+- **setDistributorWalletFactory(address _newFactory)**
   - Updates the address of the DistributorWalletFactory contract. Only the owner can update the address.
   - **Parameters:**
     - `_newFactory`: The address of the new DistributorWalletFactory contract.

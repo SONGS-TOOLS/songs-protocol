@@ -19,6 +19,7 @@ export interface ProtocolFixture {
   wrappedSongFactory: any;
   songSharesMarketPlace: any;
   metadataRenderer: any;
+  buyer: HardhatEthersSigner;
 }
 
 export async function deployProtocolFixture(): Promise<ProtocolFixture> {
@@ -116,6 +117,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     mockStablecoin,
     wrappedSongFactory,
     songSharesMarketPlace,
-    metadataRenderer
+    metadataRenderer,
+    buyer: accounts[0]
   };
 }

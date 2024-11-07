@@ -112,10 +112,9 @@ describe("ReedemDistribution", function () {
 
             const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(user.address);
             const wrappedSongAddress = userWrappedSongs[0];
-            const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
             // Request release
-            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            await protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, distributorWallet[0]);
             
             // Get distributor wallet contract instance
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
@@ -173,7 +172,7 @@ describe("ReedemDistribution", function () {
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
             // Setup distributor and send earnings
-            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            await protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, distributorWallet[0]);
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
             await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
 
@@ -223,7 +222,7 @@ describe("ReedemDistribution", function () {
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
             // Request and confirm release
-            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            await protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, distributorWallet[0]);
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
             await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
 
@@ -264,7 +263,7 @@ describe("ReedemDistribution", function () {
             await wsTokenManagement.connect(user).safeTransferFrom(user.address, address3.address, 1, 2000, "0x");
 
             // Setup distributor and send earnings
-            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            await protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, distributorWallet[0]);
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
             await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
 
@@ -343,7 +342,7 @@ describe("ReedemDistribution", function () {
             await wsTokenManagement.connect(user).safeTransferFrom(user.address, address3.address, 1, 2000, "0x");
         
             // Setup distributor and send earnings
-            await wrappedSong.connect(user).requestWrappedSongRelease(distributorWallet[0]);
+            await protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, distributorWallet[0]);
             const distributorWalletContract = await ethers.getContractAt("DistributorWallet", distributorWallet[0]);
             await distributorWalletContract.connect(deployer).confirmWrappedSongRelease(wrappedSongAddress);
         

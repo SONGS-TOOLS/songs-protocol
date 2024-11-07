@@ -90,7 +90,7 @@ contract WrappedSongFactory {
       newWrappedSongSmartAccountAddress,
       wsTokenManagementAddress
     );
-    protocolModule.addOwnerWrappedSong(
+    protocolModule.setOwnerWrappedSong(
       msg.sender,
       newWrappedSongSmartAccountAddress
     );

@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
-import './../Interfaces/IWSTokensManagement.sol';
+import './../Interfaces/IWSTokenManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
 
@@ -24,12 +24,12 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address stableCoin;
     }
 
-    mapping(address => Sale) public sales; // wsTokenManagement => Sale
+    mapping(address => Sale) public sales; // wrappedSong => Sale
     mapping(address => uint256) public saleStartTimes;
     mapping(address => uint256) public accumulatedFunds;
 
     event BuyoutSaleStarted(
-        address indexed wsTokenManagement,
+        address indexed wrappedSong,
         address indexed owner,
         uint256 amount,
         uint256 price,
@@ -37,7 +37,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     );
     
     event BuyoutTokenSold(
-        address indexed wsTokenManagement,
+        address indexed wrappedSong,
         address indexed buyer,
         address indexed recipient,
         uint256 amount,
@@ -46,17 +46,17 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     );
     
     event BuyoutSaleEnded(
-        address indexed wsTokenManagement
+        address indexed wrappedSong
     );
     
     event FundsWithdrawn(
-        address indexed wsTokenManagement,
+        address indexed wrappedSong,
         address indexed to,
         uint256 amount
     );
     
     event ERC20Received(
-        address indexed wsTokenManagement,
+        address indexed wrappedSong,
         address token,
         uint256 amount,
         address sender
@@ -90,13 +90,14 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
     ) external whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
         require(amount > 0 && price > 0, "Invalid sale parameters");
         require(price <= type(uint256).max / amount, "Price too high");
+        
         address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         require(
-            IWSTokensManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
+            IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
             "Insufficient buyout tokens"
         );
 
-        require(!sales[wsTokenManagement].active, "Sale already active");
+        require(!sales[wrappedSong].active, "Sale already active");
 
         if (_stableCoin != address(0)) {
             require(
@@ -109,9 +110,9 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
             );
         }
         
-        saleStartTimes[wsTokenManagement] = block.timestamp;
+        saleStartTimes[wrappedSong] = block.timestamp;
         
-        sales[wsTokenManagement] = Sale({
+        sales[wrappedSong] = Sale({
             active: true,
             seller: msg.sender,
             tokensForSale: amount,
@@ -121,7 +122,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         });
         
         emit BuyoutSaleStarted(
-            wsTokenManagement,
+            wrappedSong,
             msg.sender,
             amount,
             price,
@@ -135,11 +136,11 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address recipient
     ) external payable whenNotPaused nonReentrant onlyVerifiedWSToken(wrappedSong) {
         require(recipient != address(0), "Invalid recipient address");
-        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
-        Sale storage sale = sales[wsTokenManagement];
+        
+        Sale storage sale = sales[wrappedSong];
         require(sale.active, "No active sale");
         require(
-            block.timestamp <= saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration(),
+            block.timestamp <= saleStartTimes[wrappedSong] + protocolModule.maxSaleDuration(),
             "Sale expired"
         );
         require(amount > 0, "Amount must be greater than 0");
@@ -148,20 +149,22 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         uint256 totalCost = amount * sale.pricePerToken;
         require(totalCost / amount == sale.pricePerToken, "Overflow check");
 
+        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
+
         if (sale.stableCoin != address(0)) {
             require(msg.value == 0, "ETH not accepted for stable coin sale");
             IERC20(sale.stableCoin).safeTransferFrom(msg.sender, address(this), totalCost);
-            accumulatedFunds[wsTokenManagement] += totalCost;
-            emit ERC20Received(wsTokenManagement, sale.stableCoin, totalCost, msg.sender);
+            accumulatedFunds[wrappedSong] += totalCost;
+            emit ERC20Received(wrappedSong, sale.stableCoin, totalCost, msg.sender);
         } else {
             require(msg.value == totalCost, "Incorrect ETH amount");
-            accumulatedFunds[wsTokenManagement] += msg.value;
+            accumulatedFunds[wrappedSong] += msg.value;
         }
 
         sale.tokensForSale -= amount;
         sale.totalSold += amount;
 
-        IWSTokensManagement(wsTokenManagement).safeTransferFrom(
+        IWSTokenManagement(wsTokenManagement).safeTransferFrom(
             sale.seller,
             recipient,
             2, // tokenId for buyout
@@ -171,22 +174,21 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
 
         if (sale.tokensForSale == 0) {
             sale.active = false;
-            emit BuyoutSaleEnded(wsTokenManagement);
+            emit BuyoutSaleEnded(wrappedSong);
         }
 
-        emit BuyoutTokenSold(wsTokenManagement, msg.sender, recipient, amount, totalCost, sale.stableCoin);
+        emit BuyoutTokenSold(wrappedSong, msg.sender, recipient, amount, totalCost, sale.stableCoin);
     }
 
     function endSale(
         address wrappedSong
     ) external onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
-        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
-        Sale storage sale = sales[wsTokenManagement];
+        Sale storage sale = sales[wrappedSong];
         require(sale.active, "No active sale");
         require(sale.seller == msg.sender, "Not sale creator");
         
         sale.active = false;
-        emit BuyoutSaleEnded(wsTokenManagement);
+        emit BuyoutSaleEnded(wrappedSong);
     }
 
     function withdrawFunds(
@@ -196,15 +198,14 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         onlyWrappedSongOwner(wrappedSong) 
         onlyVerifiedWSToken(wrappedSong) 
     {
-        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
-        uint256 amount = accumulatedFunds[wsTokenManagement];
+        uint256 amount = accumulatedFunds[wrappedSong];
         require(amount > 0, "No funds to withdraw");
         
-        address stableCoin = sales[wsTokenManagement].stableCoin;
+        address stableCoin = sales[wrappedSong].stableCoin;
         address payable recipient = payable(msg.sender);
         
         // Update state before external calls
-        accumulatedFunds[wsTokenManagement] = 0;
+        accumulatedFunds[wrappedSong] = 0;
 
         if (stableCoin != address(0)) {
             require(IERC20(stableCoin).balanceOf(address(this)) >= amount, "Insufficient contract balance");
@@ -215,14 +216,13 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
             require(success, "ETH transfer failed");
         }
         
-        emit FundsWithdrawn(wsTokenManagement, recipient, amount);
+        emit FundsWithdrawn(wrappedSong, recipient, amount);
     }
 
     function getSale(
         address wrappedSong
     ) external view returns (Sale memory) {
-        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
-        return sales[wsTokenManagement];
+        return sales[wrappedSong];
     }
 
     function pause() external onlyOwner {
@@ -238,14 +238,13 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address wrappedSong, 
         address seller
     ) public view returns (bool) {
-        address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
-        return IWSTokensManagement(wsTokenManagement).isApprovedForAll(seller, address(this));
+        return IWSTokenManagement(IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress()).isApprovedForAll(seller, address(this));
     }
 
     function isSaleExpired(
-        address wsTokenManagement
+        address wrappedSong
     ) public view returns (bool) {
-        return block.timestamp > saleStartTimes[wsTokenManagement] + protocolModule.maxSaleDuration();
+        return block.timestamp > saleStartTimes[wrappedSong] + protocolModule.maxSaleDuration();
     }
 
     receive() external payable {}
