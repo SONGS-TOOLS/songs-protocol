@@ -33,7 +33,7 @@ contract DistributorWalletFactory is Ownable {
       IProtocolModule(_protocolModule).isTokenWhitelisted(_stablecoin),
       "Stablecoin is not whitelisted"
     );
-
+    require(!IProtocolModule(_protocolModule).paused(), "Protocol is paused");
     DistributorWallet newWallet = new DistributorWallet(
       _stablecoin,
       _protocolModule,
@@ -41,7 +41,7 @@ contract DistributorWalletFactory is Ownable {
     );
     address walletAddress = address(newWallet);
 
-    distributorWallets[_owner].push(walletAddress); // Append to the array
+    distributorWallets[_owner].push(walletAddress); // Append to the arra y
     isDistributorWallet[walletAddress] = true; // Mark as a distributor wallet
     
     emit DistributorWalletCreated(_owner, walletAddress); // Corrected event parameter

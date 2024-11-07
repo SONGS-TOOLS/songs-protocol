@@ -17,6 +17,8 @@ export interface ProtocolFixture {
   protocolModule: any;
   mockStablecoin: any;
   wrappedSongFactory: any;
+  songSharesMarketPlace: any;
+  metadataRenderer: any;
 }
 
 export async function deployProtocolFixture(): Promise<ProtocolFixture> {
@@ -45,6 +47,11 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   const erc20Whitelist = await ERC20Whitelist.deploy(deployer.address);
   await erc20Whitelist.waitForDeployment();
 
+  // Deploy MetadataRenderer
+  const MetadataRenderer = await ethers.getContractFactory("MetadataRenderer");
+  const metadataRenderer = await MetadataRenderer.deploy();
+  await metadataRenderer.waitForDeployment();
+
   // Deploy MetadataModule
   const MetadataModule = await ethers.getContractFactory("MetadataModule");
   const metadataModule = await MetadataModule.deploy();
@@ -66,6 +73,11 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   );
   await protocolModule.waitForDeployment();
 
+  // Deploy SongSharesMarketPlace
+  const SongSharesMarketPlace = await ethers.getContractFactory("SongSharesMarketPlace");
+  const songSharesMarketPlace = await SongSharesMarketPlace.deploy(protocolModule.target);
+  await songSharesMarketPlace.waitForDeployment();
+
   // Deploy mock stablecoin
   const MockToken = await ethers.getContractFactory("MockToken");
   const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
@@ -81,6 +93,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   await metadataModule.connect(deployer).transferOwnership(protocolModule.target);
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
   await protocolModule.setMetadataModule(metadataModule.target);
+  await protocolModule.setMetadataRenderer(metadataRenderer.target);
   await protocolModule.setWrappedSongFactory(wrappedSongFactory.target);
   await protocolModule.setWrappedSongCreationFee(ethers.parseEther("0.1"));
   await protocolModule.whitelistToken(mockStablecoin.target);
@@ -101,6 +114,8 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     legalContractMetadata,
     protocolModule,
     mockStablecoin,
-    wrappedSongFactory
+    wrappedSongFactory,
+    songSharesMarketPlace,
+    metadataRenderer
   };
 }

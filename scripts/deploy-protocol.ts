@@ -86,6 +86,17 @@ async function main() {
   await saveAbi('ERC20Whitelist', await erc20Whitelist.getAddress());
 
   /* ////////////////////////////////////////////
+  ////////  MetadataRenderer contract  ////////
+  //////////////////////////////////////////// */
+
+  console.log('Deploying MetadataRenderer...');
+  const MetadataRenderer = await ethers.getContractFactory('MetadataRenderer');
+  const metadataRenderer = await MetadataRenderer.deploy();
+  await metadataRenderer.waitForDeployment();
+  console.log('MetadataRenderer deployed to:', await metadataRenderer.getAddress());
+  await saveAbi('MetadataRenderer', await metadataRenderer.getAddress());
+
+  /* ////////////////////////////////////////////
   ////////  MetadataModule contract  ////////
   //////////////////////////////////////////// */
 
@@ -142,7 +153,7 @@ async function main() {
   console.log('Token whitelisted');
   
   /* ////////////////////////////////////////////
-  ////////  WSUtils contract  ////////
+  ////////  WSUtils contract  ////////////////
   //////////////////////////////////////////// */
 
   console.log('Deploying WSUtils...');
@@ -183,8 +194,12 @@ async function main() {
   console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
   await saveAbi('WrappedSongFactory', await wrappedSongFactory.getAddress());
 
-  // Set MetadataModule in ProtocolModule
+  /* ////////////////////////////////////////////
+  ////////  Setup Protocol Functions  ////////
+  //////////////////////////////////////////// */
+  
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
+  await protocolModule.setMetadataRenderer(await metadataRenderer.getAddress());
   await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
   await protocolModule.setBaseURI("ipfs://");
 
@@ -216,6 +231,8 @@ async function main() {
     songSharesMarketPlaceStartBlock: (await songSharesMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
     buyoutTokenMarketPlaceAddress: await buyoutTokenMarketPlace.getAddress(),
     buyoutTokenMarketPlaceStartBlock: (await buyoutTokenMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
+    metadataRendererAddress: await metadataRenderer.getAddress(),
+    metadataRendererStartBlock: (await metadataRenderer.deploymentTransaction()?.wait())?.blockNumber || 0,
   };
 
   fs.writeFileSync(
@@ -234,6 +251,7 @@ async function main() {
     legalContractMetadataAddress: await legalContractMetadata.getAddress(),
     songSharesMarketPlaceAddress: await songSharesMarketPlace.getAddress(),
     buyoutTokenMarketPlaceAddress: await buyoutTokenMarketPlace.getAddress(),
+    metadataRendererAddress: await metadataRenderer.getAddress(),
     startBlock: deploymentBlockNumber
   };
 
