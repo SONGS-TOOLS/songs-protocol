@@ -361,24 +361,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      }
-    ],
-    "name": "setOwnerWrappedSong",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "wrappedSong",
         "type": "address"
       },
@@ -1157,6 +1139,24 @@
       }
     ],
     "name": "setMetadataRenderer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
+    ],
+    "name": "setOwnerWrappedSong",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

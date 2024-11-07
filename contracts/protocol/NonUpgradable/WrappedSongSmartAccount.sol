@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import "./WSTokensManagement.sol";
+import "./WSTokenManagement.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IDistributorWallet.sol";
 import "./../Interfaces/IMetadataModule.sol";

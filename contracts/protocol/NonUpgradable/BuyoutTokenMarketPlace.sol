@@ -6,7 +6,7 @@ import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/utils/Pausable.sol';
-import './../Interfaces/IWSTokensManagement.sol';
+import './../Interfaces/IWSTokenManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
 
@@ -93,7 +93,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         
         address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         require(
-            IWSTokensManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
+            IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 2) >= amount,
             "Insufficient buyout tokens"
         );
 
@@ -164,7 +164,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         sale.tokensForSale -= amount;
         sale.totalSold += amount;
 
-        IWSTokensManagement(wsTokenManagement).safeTransferFrom(
+        IWSTokenManagement(wsTokenManagement).safeTransferFrom(
             sale.seller,
             recipient,
             2, // tokenId for buyout
@@ -238,7 +238,7 @@ contract BuyoutTokenMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address wrappedSong, 
         address seller
     ) public view returns (bool) {
-        return IWSTokensManagement(IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress()).isApprovedForAll(seller, address(this));
+        return IWSTokenManagement(IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress()).isApprovedForAll(seller, address(this));
     }
 
     function isSaleExpired(

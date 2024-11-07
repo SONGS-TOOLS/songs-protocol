@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
-import "./../Interfaces/IWSTokensManagement.sol";
+import "./../Interfaces/IWSTokenManagement.sol";
 import "./../Interfaces/IMetadataModule.sol";
 
 contract MetadataModule is Ownable, IMetadataModule {
