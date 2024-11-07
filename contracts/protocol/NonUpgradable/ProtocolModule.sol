@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./../Interfaces/IWrappedSongFactory.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
@@ -9,9 +10,10 @@ import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IERC20Whitelist.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import './../Interfaces/ILegalContractMetadata.sol';
+import './../Interfaces/IMetadataRenderer.sol';
 
 
-contract ProtocolModule is Ownable {
+contract ProtocolModule is Ownable, Pausable {
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
     
@@ -24,8 +26,6 @@ contract ProtocolModule is Ownable {
     IERC20Whitelist public erc20whitelist;
     IMetadataModule public metadataModule;
     ILegalContractMetadata public legalContractMetadata;
-
-    bool public paused; // Add paused state variable
 
     mapping(address => string) public isrcRegistry;
     mapping(address => string) public upcRegistry;
@@ -49,6 +49,9 @@ contract ProtocolModule is Ownable {
     mapping(address => ReviewPeriod) public reviewPeriods;
         // Add mapping to track WSTokenManagement contracts
     mapping(address => bool) private protocolWSTokens;
+
+    // Add new state variable
+    IMetadataRenderer public metadataRenderer;
 
 
     modifier onlyOwnerOrAuthorized() {
@@ -97,19 +100,15 @@ contract ProtocolModule is Ownable {
         erc20whitelist = IERC20Whitelist(_erc20whitelist);
         metadataModule = IMetadataModule(_metadataModule);
         legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
-        paused = false; // Initialize paused state
-    }
-
-    // Add a modifier to check if the protocol is paused
-    modifier whenNotPaused() {
-        require(!paused, "Protocol is paused");
-        _;
     }
 
     // Add a function to toggle the paused state
-    function setPaused(bool _paused) external onlyOwner {
-        paused = _paused;
-        emit Paused(_paused);
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /**
@@ -261,38 +260,42 @@ contract ProtocolModule is Ownable {
     }
 
     /**
-     * @dev Adds an ISRC to the registry for a given wrapped song.
+     * @dev Adds an ISRC to the registry for a given wrapped song. Only callable by the distributor.
      * @param wrappedSong The address of the wrapped song.
      * @param isrc The ISRC to be added.
      */
-    function addISRC(address wrappedSong, string memory isrc) external onlyOwner {
+    function addISRC(address wrappedSong, string memory isrc) external whenNotPaused {
+        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISRC");
         isrcRegistry[wrappedSong] = isrc;
     }
 
     /**
-     * @dev Adds a UPC to the registry for a given wrapped song.
+     * @dev Adds a UPC to the registry for a given wrapped song. Only callable by the distributor.
      * @param wrappedSong The address of the wrapped song.
      * @param upc The UPC to be added.
      */
-    function addUPC(address wrappedSong, string memory upc) external onlyOwner {
+    function addUPC(address wrappedSong, string memory upc) external whenNotPaused {
+        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set UPC");
         upcRegistry[wrappedSong] = upc;
     }
 
     /**
-     * @dev Adds an ISWC to the registry for a given wrapped song.
+     * @dev Adds an ISWC to the registry for a given wrapped song. Only callable by the distributor.
      * @param wrappedSong The address of the wrapped song.
      * @param iswc The ISWC to be added.
      */
-    function addISWC(address wrappedSong, string memory iswc) external onlyOwner {
+    function addISWC(address wrappedSong, string memory iswc) external whenNotPaused {
+        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISWC");
         iswcRegistry[wrappedSong] = iswc;
     }
 
     /**
-     * @dev Adds an ISCC to the registry for a given wrapped song.
+     * @dev Adds an ISCC to the registry for a given wrapped song. Only callable by the distributor.
      * @param wrappedSong The address of the wrapped song.
      * @param iscc The ISCC to be added.
      */
-    function addISCC(address wrappedSong, string memory iscc) external onlyOwner {
+    function addISCC(address wrappedSong, string memory iscc) external whenNotPaused {
+        require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISCC");
         isccRegistry[wrappedSong] = iscc;
     }
     
@@ -310,7 +313,7 @@ contract ProtocolModule is Ownable {
      * @param wrappedSong The address of the wrapped song.
      * @param _isAuthentic The authenticity status to be set.
      */
-    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external {
+    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external whenNotPaused {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set authenticity status");
         wrappedSongAuthenticity[wrappedSong] = _isAuthentic;
         emit WrappedSongAuthenticitySet(wrappedSong, _isAuthentic);
@@ -395,12 +398,12 @@ contract ProtocolModule is Ownable {
         wrappedSongFactory = IWrappedSongFactory(_wrappedSongFactory);
     }
 
-    function setSmartAccountToWSToken(address smartAccount, address wsToken) external {
+    function setSmartAccountToWSToken(address smartAccount, address wsToken) external whenNotPaused {
         require(msg.sender == address(wrappedSongFactory), "Only factory can set token mapping");
         smartAccountToWSToken[smartAccount] = wsToken;
     }
 
-    function addOwnerWrappedSong(address owner, address wrappedSong) external {
+    function addOwnerWrappedSong(address owner, address wrappedSong) external whenNotPaused {
         require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
         ownerWrappedSongs[owner].push(wrappedSong);
     }
@@ -461,5 +464,28 @@ contract ProtocolModule is Ownable {
      */
     function getMetadataModule() external view returns (address) {
         return address(metadataModule);
+    }
+
+    // Add new function to set the renderer
+    function setMetadataRenderer(address _renderer) external onlyOwner {
+        require(_renderer != address(0), "Invalid renderer address");
+        metadataRenderer = IMetadataRenderer(_renderer);
+    }
+
+    // Add function to render token URI
+    function renderTokenURI(
+        IMetadataModule.Metadata memory metadata,
+        uint256 tokenId,
+        address wrappedSong
+    ) external view returns (string memory) {
+        require(msg.sender == address(metadataModule), "Only metadata module can render");
+        
+        return metadataRenderer.composeTokenURI(
+            metadata, 
+            tokenId, 
+            wrappedSong, 
+            baseURI,
+            IProtocolModule(address(this))
+        );
     }
 }

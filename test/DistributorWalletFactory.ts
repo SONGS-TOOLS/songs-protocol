@@ -41,4 +41,37 @@ describe("DistributorWalletFactory", function () {
             )).to.be.reverted;
         });
     });
+
+    describe("Pause functionality", function () {
+        it("should not allow creating distributor wallet when protocol is paused", async function () {
+            const { deployer, distributor, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
+            
+            // Pause the protocol using Pause
+            await protocolModule.connect(deployer).pause();
+            
+            await expect(
+                distributorWalletFactory.connect(deployer).createDistributorWallet(
+                    mockStablecoin.target,
+                    protocolModule.target,
+                    distributor.address
+                )
+            ).to.be.revertedWith("Protocol is paused");
+        });
+
+        it("should allow creating distributor wallet after unpausing", async function () {
+            const { deployer, distributor, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
+            
+            // Pause and then unpause the protocol using setPaused
+            await protocolModule.connect(deployer).pause();
+            await protocolModule.connect(deployer).unpause();
+            
+            await expect(
+                distributorWalletFactory.connect(deployer).createDistributorWallet(
+                    mockStablecoin.target,
+                    protocolModule.target,
+                    distributor.address
+                )
+            ).to.emit(distributorWalletFactory, "DistributorWalletCreated");
+        });
+    });
 })
