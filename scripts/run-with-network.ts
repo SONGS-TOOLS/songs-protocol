@@ -14,6 +14,7 @@ const scripts: Scripts = {
   'deploy': `npx hardhat run scripts/deploy.ts --network ${network}`,
   'deploy-ws-2': `npx hardhat run scripts/deploy-ws-2.ts --network ${network}`,
   'deploy-all': `npm run deploy:protocol ${network} && npm run deploy:songs ${network}`,
+  'deploy-one': `npm run deploy:protocol ${network} && npx hardhat run scripts/deploy-ws-one.ts --network ${network}`,
 };
 
 if (!scripts[scriptName]) {

@@ -5,11 +5,6 @@
         "internalType": "address",
         "name": "_protocolModule",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_metadataModule",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",

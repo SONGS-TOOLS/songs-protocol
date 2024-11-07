@@ -15,6 +15,16 @@
         "internalType": "address",
         "name": "_erc20whitelist",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_metadataModule",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_legalContractMetadata",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -367,6 +377,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "baseURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -398,6 +421,45 @@
     "outputs": [
       {
         "internalType": "contract IERC20Whitelist",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getBaseURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLegalContractMetadata",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getMetadataModule",
+    "outputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -648,6 +710,19 @@
   },
   {
     "inputs": [],
+    "name": "legalContractMetadata",
+    "outputs": [
+      {
+        "internalType": "contract ILegalContractMetadata",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "maxSaleDuration",
     "outputs": [
       {
@@ -881,12 +956,38 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_baseURI",
+        "type": "string"
+      }
+    ],
+    "name": "setBaseURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "_erc20whitelist",
         "type": "address"
       }
     ],
     "name": "setERC20Whitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_legalContractMetadata",
+        "type": "address"
+      }
+    ],
+    "name": "setLegalContractMetadata",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import './../Interfaces/IMetadataModule.sol';
 import './../Interfaces/IProtocolModule.sol';
+import './../Interfaces/ILegalContractMetadata.sol';
 
 contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 private _currentTokenId;
@@ -19,41 +20,29 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
   uint256 public constant LEGAL_CONTRACT_START_ID = 3;
 
   uint256 public totalShares;
-  mapping(uint256 => string) public legalContractURIs;
   uint256 public currentLegalContractId = LEGAL_CONTRACT_START_ID;
 
   IMetadataModule public metadataModule;
   IProtocolModule public protocolModule;
+  ILegalContractMetadata public legalContractMetadata;
 
   event WSTokensCreated(address indexed smartAccount, address indexed minter);
   event SongSharesCreated(uint256 indexed sharesAmount, address indexed minter);
   event BuyoutTokenCreated(uint256 indexed amount, address indexed recipient);
   event LegalContractCreated(uint256 indexed tokenId, address indexed recipient, string contractURI);
-  event LegalContractURIUpdated(uint256 indexed tokenId, string newURI);
-
-  modifier onlyMinter() {
-    require(msg.sender == _minter, 'Caller is not the minter');
-    _;
-  }
-
-  modifier onlyMetadataModule() {
-    require(
-      msg.sender == address(metadataModule),
-      'Only MetadataModule can update token URIs'
-    );
-    _;
-  }
 
   constructor(
     address _smartAccountAddress,
     address _minterAddress,
-    address _metadataModuleAddress,
     address _protocolModuleAddress
   ) ERC1155('') Ownable(_smartAccountAddress) {
     _minter = _minterAddress;
     _currentTokenId = 0;
-    metadataModule = IMetadataModule(_metadataModuleAddress);
     protocolModule = IProtocolModule(_protocolModuleAddress);
+    
+    // Load modules from ProtocolModule
+    metadataModule = IMetadataModule(protocolModule.getMetadataModule());
+    legalContractMetadata = ILegalContractMetadata(protocolModule.getLegalContractMetadata());
 
     // Create song concept NFT to the WrappedSongSmartAccount
     _mint(_smartAccountAddress, SONG_CONCEPT_ID, 1, '');
@@ -106,17 +95,26 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     require(!_tokenCreated[tokenId], "Token ID already created");
 
     _mint(owner(), tokenId, 1, '');
-    legalContractURIs[tokenId] = contractURI;
+    legalContractMetadata.setLegalContractURI(address(this), tokenId, contractURI);
     _tokenCreated[tokenId] = true;
     
     emit LegalContractCreated(tokenId, owner(), contractURI);
     return tokenId;
   }
 
+  /**
+   * @dev Returns the URI for a token.
+   * @param tokenId The ID of the token.
+   * @return The URI for the token.
+   */
   function uri(uint256 tokenId) public view virtual override returns (string memory) {
-    if (tokenId >= LEGAL_CONTRACT_START_ID && tokenId < currentLegalContractId) {
-      return legalContractURIs[tokenId];
+    require(_tokenCreated[tokenId], "Token does not exist");
+    
+    if (tokenId >= LEGAL_CONTRACT_START_ID) {
+      return legalContractMetadata.getLegalContractURI(owner(), tokenId);
     }
+    
+    // For tokens 0-2, use the metadata module
     return metadataModule.getTokenURI(owner(), tokenId);
   }
 
@@ -124,24 +122,4 @@ contract WSTokenManagement is ERC1155Supply, Ownable, ReentrancyGuard {
     metadataModule = IMetadataModule(metadataAddress);
   }
 
-
-  /**
-   * @dev Override _beforeTokenTransfer to prevent transfers of non-created tokens.
-   */
-  // TODO: Triple Check
-
-  // function _beforeTokenTransfer(
-  //   address operator,
-  //   address from,
-  //   address to,
-  //   uint256[] memory ids,
-  //   uint256[] memory amounts,
-  //   bytes memory data
-  // ) internal virtual override(ERC1155) {
-  //   super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-    
-  //   for (uint256 i = 0; i < ids.length; i++) {
-  //     require(_tokenCreated[ids[i]], "Token ID not created");
-  //   }
-  // }
 }

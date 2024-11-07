@@ -5,6 +5,7 @@ import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IMetadataModule.sol';
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "hardhat/console.sol";
 
 contract WrappedSongFactory {
   IProtocolModule public immutable protocolModule;
@@ -18,9 +19,9 @@ contract WrappedSongFactory {
     uint256 sharesAmount
   );
 
-  constructor(address _protocolModule, address _metadataModule) {
+  constructor(address _protocolModule) {
     protocolModule = IProtocolModule(_protocolModule);
-    metadataModule = IMetadataModule(_metadataModule);
+    metadataModule = IMetadataModule(protocolModule.getMetadataModule());
   }
 
   /**
@@ -49,11 +50,13 @@ contract WrappedSongFactory {
     IMetadataModule.Metadata memory songMetadata,
     uint256 sharesAmount
   ) public payable returns (address) {
+
     require(!protocolModule.paused(), 'Protocol is paused');
     require(isValidMetadata(songMetadata), "Invalid metadata: All required fields must be non-empty");
     require(sharesAmount > 0, "Shares amount must be greater than zero");
 
     uint256 requiredFee = protocolModule.wrappedSongCreationFee();
+    console.log("Provided fee:", msg.value);
     require(
       msg.value >= requiredFee,
       'Insufficient creation fee'
@@ -62,22 +65,29 @@ contract WrappedSongFactory {
     require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
     require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
 
+    console.log("Creating new WrappedSongSmartAccount...");
     WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
         _stablecoin,
         msg.sender,
         address(protocolModule)
     );
 
-    // Create initial shares
+    console.log("Creating initial shares...");
     newWrappedSongSmartAccount.createSongShares(sharesAmount);
 
     address newWrappedSongSmartAccountAddress = address(newWrappedSongSmartAccount);
     address wsTokenManagementAddress = newWrappedSongSmartAccount.getWSTokenManagementAddress();
 
+    console.log("WSTokenManagement address:", wsTokenManagementAddress);
+
     protocolModule.setWSTokenFromProtocol(wsTokenManagementAddress);
     protocolModule.setSmartAccountToWSToken(newWrappedSongSmartAccountAddress, wsTokenManagementAddress);
     protocolModule.addOwnerWrappedSong(msg.sender, newWrappedSongSmartAccountAddress);
 
+    console.log("Creating metadata...");
+    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
+
+    
     emit WrappedSongCreated(
       msg.sender,
       newWrappedSongSmartAccountAddress,
@@ -86,8 +96,8 @@ contract WrappedSongFactory {
       sharesAmount
     );
 
-    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
 
+    console.log("Wrapped song creation completed");
     return newWrappedSongSmartAccountAddress;
   }
 
