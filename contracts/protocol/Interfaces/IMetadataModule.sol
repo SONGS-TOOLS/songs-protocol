@@ -21,4 +21,5 @@ interface IMetadataModule {
     function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool);
     function getTokenMetadata(address wrappedSong) external view returns (Metadata memory);
     function removeMetadata(address wrappedSong) external;
+    function setProtocolModule(address protocolModule) external;
 }

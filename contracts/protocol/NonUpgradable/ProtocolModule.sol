@@ -8,6 +8,7 @@ import "./../Interfaces/IWhitelistingManager.sol"; // Ensure the path is correct
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IERC20Whitelist.sol";
 import "./../Interfaces/IMetadataModule.sol";
+import './../Interfaces/ILegalContractMetadata.sol';
 
 
 contract ProtocolModule is Ownable {
@@ -22,6 +23,7 @@ contract ProtocolModule is Ownable {
     IWhitelistingManager public whitelistingManager;
     IERC20Whitelist public erc20whitelist;
     IMetadataModule public metadataModule;
+    ILegalContractMetadata public legalContractMetadata;
 
     bool public paused; // Add paused state variable
 
@@ -45,6 +47,9 @@ contract ProtocolModule is Ownable {
         address distributor;
     }
     mapping(address => ReviewPeriod) public reviewPeriods;
+        // Add mapping to track WSTokenManagement contracts
+    mapping(address => bool) private protocolWSTokens;
+
 
     modifier onlyOwnerOrAuthorized() {
         require(msg.sender == owner() || msg.sender == address(erc20whitelist), "Not authorized");
@@ -69,20 +74,29 @@ contract ProtocolModule is Ownable {
     // Change from constant to regular state variable
     uint256 public maxSaleDuration = 30 days;
 
+    // Add new state variable
+    string public baseURI;
+
     /**
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
      * @param _whitelistingManager The address of the WhitelistingManager contract.
      * @param _erc20whitelist The address of the ERC20Whitelist contract.
+     * @param _metadataModule The address of the MetadataModule contract.
+     * @param _legalContractMetadata The address of the LegalContractMetadata contract.
      */
     constructor  (
         address _distributorWalletFactory,
         address _whitelistingManager,
-        address _erc20whitelist
+        address _erc20whitelist,
+        address _metadataModule,
+        address _legalContractMetadata
     ) Ownable(msg.sender) {
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
         erc20whitelist = IERC20Whitelist(_erc20whitelist);
+        metadataModule = IMetadataModule(_metadataModule);
+        legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
         paused = false; // Initialize paused state
     }
 
@@ -342,6 +356,7 @@ contract ProtocolModule is Ownable {
      * @param _metadataModule The address of the new MetadataModule contract.
      */
     function setMetadataModule(address _metadataModule) external onlyOwner {
+        require(_metadataModule != address(0), "Invalid address");
         metadataModule = IMetadataModule(_metadataModule);
     }
 
@@ -403,8 +418,6 @@ contract ProtocolModule is Ownable {
         maxSaleDuration = _duration;
     }
 
-    // Add mapping to track WSTokenManagement contracts
-    mapping(address => bool) private protocolWSTokens;
 
     function setWSTokenFromProtocol(address wsTokenManagement) external {
         require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
@@ -413,5 +426,40 @@ contract ProtocolModule is Ownable {
 
     function isWSTokenFromProtocol(address wsTokenManagement) external view returns (bool) {
         return protocolWSTokens[wsTokenManagement];
+    }
+
+    /**
+     * @dev Sets the base URI for metadata resources
+     * @param _baseURI The new base URI to be used
+     */
+    function setBaseURI(string memory _baseURI) external onlyOwner {
+        baseURI = _baseURI;
+    }
+
+    /**
+     * @dev Gets the current base URI
+     * @return The current base URI
+     */
+    function getBaseURI() external view returns (string memory) {
+        return baseURI;
+    }
+
+    // Update setter function
+    function setLegalContractMetadata(address _legalContractMetadata) external onlyOwner {
+        require(_legalContractMetadata != address(0), "Invalid address");
+        legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
+    }
+
+    // Update getter function
+    function getLegalContractMetadata() external view returns (address) {
+        return address(legalContractMetadata);
+    }
+
+    /**
+     * @dev Gets the address of the MetadataModule contract
+     * @return The address of the MetadataModule contract
+     */
+    function getMetadataModule() external view returns (address) {
+        return address(metadataModule);
     }
 }

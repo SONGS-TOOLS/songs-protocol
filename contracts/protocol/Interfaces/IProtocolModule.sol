@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import "./IMetadataModule.sol";
 import "./IERC20Whitelist.sol";
+import "./ILegalContractMetadata.sol";
+
 interface IProtocolModule {
     // Structs
     struct ReviewPeriod {
@@ -28,6 +30,7 @@ interface IProtocolModule {
     function reviewPeriodDays() external view returns (uint256);
     function metadataModule() external view returns (IMetadataModule);
     function erc20whitelist() external view returns (IERC20Whitelist);
+    function legalContractMetadata() external view returns (ILegalContractMetadata);
 
     // State-changing functions
     function setPaused(bool _paused) external;
@@ -70,4 +73,8 @@ interface IProtocolModule {
     function setMaxSaleDuration(uint256 _duration) external;
     function isWSTokenFromProtocol(address wsTokenManagement) external view returns (bool);
     function setWSTokenFromProtocol(address wsTokenManagement) external;
+    function getBaseURI() external view returns (string memory);
+    function setBaseURI(string memory _baseURI) external;
+    function getLegalContractMetadata() external view returns (address);
+    function getMetadataModule() external view returns (address);
 }

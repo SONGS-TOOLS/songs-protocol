@@ -147,6 +147,26 @@ async function main() {
       const wrappedSongAddress =
         ownerWrappedSongs[ownerWrappedSongs.length - 1];
       console.log(`Wrapped Song ${i} created at:`, wrappedSongAddress);
+
+      const wrappedSong = await ethers.getContractAt(
+        'WrappedSongSmartAccount',
+        wrappedSongAddress
+      );
+      const wsTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
+      const wsTokenManagement = await ethers.getContractAt(
+        'WSTokenManagement',
+        wsTokenManagementAddress
+      );
+
+      const tokenIds = [0, 1, 2];
+      for (const tokenId of tokenIds) {
+        try {
+          const uri = await wsTokenManagement.uri(tokenId);
+          console.log(`URI for token ID ${tokenId}:`, uri);
+        } catch (error) {
+          console.log(`Failed to get URI for token ID ${tokenId}:`, error);
+        }
+      }
     } catch (error) {
       console.error(`Failed to create Wrapped Song ${i}:`, error);
       return;
@@ -194,7 +214,7 @@ async function main() {
     externalUrl: 'https://app.songs-tools.com/wrapped-songs/UpdatedTamago',
     animationUrl: 'QmUpdatedAnimationHash',
     attributesIpfsHash:
-      'https://ipfs.io/ipfs/QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
+      'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
   };
 
   try {

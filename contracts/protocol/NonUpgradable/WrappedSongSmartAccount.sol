@@ -119,7 +119,6 @@ contract WrappedSongSmartAccount is
     newWSTokenManagement = new WSTokenManagement(
       address(this), // Smart account address that will own the WSTokenManagement contract
       _owner, // Minter address that will receive initial song shares
-      address(protocolModule.metadataModule()), // Metadata module address for managing token URIs
       _protocolModuleAddress // Protocol module address for contract verification
     );
   }
@@ -440,6 +439,7 @@ contract WrappedSongSmartAccount is
 
     // Remove metadata from old protocol
     metadataModule.removeMetadata(address(this));
+    // TODO: Remove legal contract metadata
 
     migrated = true;
     emit ContractMigrated(newWrappedSongAddress);

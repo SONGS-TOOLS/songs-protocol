@@ -15,6 +15,7 @@
     "test": "npx hardhat test",
     "serve": "npx hardhat node",
     "deploy:songs": "ts-node scripts/run-with-network.ts deploy-songs",
+    "deploy:one": "ts-node scripts/run-with-network.ts deploy-one",
     "deploy:protocol": "ts-node scripts/run-with-network.ts deploy-protocol",
     "deploy:license": "ts-node scripts/run-with-network.ts deploy-license",
     "deploy": "ts-node scripts/run-with-network.ts deploy",

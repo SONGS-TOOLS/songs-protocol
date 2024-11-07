@@ -86,6 +86,28 @@ async function main() {
   await saveAbi('ERC20Whitelist', await erc20Whitelist.getAddress());
 
   /* ////////////////////////////////////////////
+  ////////  MetadataModule contract  ////////
+  //////////////////////////////////////////// */
+
+  console.log('Deploying MetadataModule...');
+  const MetadataModule = await ethers.getContractFactory('MetadataModule');
+  const metadataModule = await MetadataModule.deploy();
+  await metadataModule.waitForDeployment();
+  console.log('MetadataModule deployed to:', await metadataModule.getAddress());
+  await saveAbi('MetadataModule', await metadataModule.getAddress());
+
+  /* ////////////////////////////////////////////
+  ////////  LegalContractMetadata contract  ////////
+  //////////////////////////////////////////// */
+
+  console.log('Deploying LegalContractMetadata...');
+  const LegalContractMetadata = await ethers.getContractFactory('LegalContractMetadata');
+  const legalContractMetadata = await LegalContractMetadata.deploy();
+  await legalContractMetadata.waitForDeployment();
+  console.log('LegalContractMetadata deployed to:', await legalContractMetadata.getAddress());
+  await saveAbi('LegalContractMetadata', await legalContractMetadata.getAddress());
+
+  /* ////////////////////////////////////////////
   ////////  ProtocolModule contract  ////////
   //////////////////////////////////////////// */
 
@@ -94,11 +116,20 @@ async function main() {
   const protocolModule = await ProtocolModule.connect(deployer).deploy(
     await distributorWalletFactory.getAddress(),
     await whitelistingManager.getAddress(),
-    await erc20Whitelist.getAddress()
+    await erc20Whitelist.getAddress(),
+    await metadataModule.getAddress(),
+    await legalContractMetadata.getAddress()
   );
   await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
+
+  // Transfer Protocol module in metadataModule
+  await metadataModule.setProtocolModule(await protocolModule.getAddress());
+
+  // Transfer MetadataModule ownership to ProtocolModule
+  // TODO: Check 
+  await metadataModule.connect(deployer).transferOwnership(await protocolModule.getAddress());
 
   // Set ProtocolModule as authorized caller for ERC20Whitelist
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
@@ -110,17 +141,6 @@ async function main() {
   await protocolModule.connect(deployer).whitelistToken(tokenAddress);
   console.log('Token whitelisted');
   
-  /* ////////////////////////////////////////////
-  ////////  MetadataModule contract  ////////
-  //////////////////////////////////////////// */
-
-  console.log('Deploying MetadataModule...');
-  const MetadataModule = await ethers.getContractFactory('MetadataModule');
-  const metadataModule = await MetadataModule.deploy(await protocolModule.getAddress());
-  await metadataModule.waitForDeployment();
-  console.log('MetadataModule deployed to:', await metadataModule.getAddress());
-  await saveAbi('MetadataModule', await metadataModule.getAddress());
-
   /* ////////////////////////////////////////////
   ////////  WSUtils contract  ////////
   //////////////////////////////////////////// */
@@ -157,8 +177,7 @@ async function main() {
   console.log('Deploying WrappedSongFactory...');
   const WrappedSongFactory = await ethers.getContractFactory('WrappedSongFactory');
   const wrappedSongFactory = await WrappedSongFactory.deploy(
-    await protocolModule.getAddress(), 
-    await metadataModule.getAddress()
+    await protocolModule.getAddress()
   );
   await wrappedSongFactory.waitForDeployment();
   console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
@@ -167,6 +186,7 @@ async function main() {
   // Set MetadataModule in ProtocolModule
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
   await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
+  await protocolModule.setBaseURI("ipfs://");
 
   // Save the ABI of WrappedSongSmartAccount without deploying it
   await saveAbi('WrappedSongSmartAccount', '0x0000000000000000000000000000000000000000');
@@ -190,6 +210,8 @@ async function main() {
     wrappedSongFactoryStartBlock: (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0,
     metadataModuleAddress: await metadataModule.getAddress(),
     metadataModuleStartBlock: (await metadataModule.deploymentTransaction()?.wait())?.blockNumber || 0,
+    legalContractMetadataAddress: await legalContractMetadata.getAddress(),
+    legalContractMetadataStartBlock: (await legalContractMetadata.deploymentTransaction()?.wait())?.blockNumber || 0,
     songSharesMarketPlaceAddress: await songSharesMarketPlace.getAddress(),
     songSharesMarketPlaceStartBlock: (await songSharesMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0,
     buyoutTokenMarketPlaceAddress: await buyoutTokenMarketPlace.getAddress(),
@@ -209,6 +231,7 @@ async function main() {
     protocolModuleAddress: await protocolModule.getAddress(),
     wrappedSongFactoryAddress: await wrappedSongFactory.getAddress(),
     metadataModuleAddress: await metadataModule.getAddress(),
+    legalContractMetadataAddress: await legalContractMetadata.getAddress(),
     songSharesMarketPlaceAddress: await songSharesMarketPlace.getAddress(),
     buyoutTokenMarketPlaceAddress: await buyoutTokenMarketPlace.getAddress(),
     startBlock: deploymentBlockNumber
