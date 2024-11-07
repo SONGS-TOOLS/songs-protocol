@@ -62,44 +62,6 @@
         "internalType": "address",
         "name": "_wsTokensManagement",
         "type": "address"
-      }
-    ],
-    "name": "getPricePerShare",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wsTokensManagement",
-        "type": "address"
-      }
-    ],
-    "name": "getSharesForSale",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wsTokensManagement",
-        "type": "address"
       },
       {
         "internalType": "address",
@@ -270,7 +232,7 @@
         "type": "address"
       }
     ],
-    "name": "isSaleActive",
+    "name": "isFromProtocol",
     "outputs": [
       {
         "internalType": "bool",
@@ -323,6 +285,30 @@
       }
     ],
     "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_wsTokensManagement",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenExists",
     "outputs": [
       {
         "internalType": "bool",

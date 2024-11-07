@@ -11,15 +11,15 @@ interface IMetadataModule {
         string attributesIpfsHash;
     }
 
+    function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory);
+    function getPendingMetadataUpdate(address wrappedSong) external view returns (Metadata memory);
+    function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool);
+    
+    // Add missing functions from MetadataModule.sol
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external;
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external;
     function updateMetadata(address wrappedSong, Metadata memory newMetadata) external;
     function confirmUpdateMetadata(address wrappedSong) external;
     function rejectUpdateMetadata(address wrappedSong) external;
-    function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory);
-    function getPendingMetadataUpdate(address wrappedSong) external view returns (Metadata memory);
-    function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool);
-    function getTokenMetadata(address wrappedSong) external view returns (Metadata memory);
     function removeMetadata(address wrappedSong) external;
-    function setProtocolModule(address protocolModule) external;
 }

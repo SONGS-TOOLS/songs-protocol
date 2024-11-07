@@ -1,6 +1,6 @@
-import { ethers } from "hardhat";
-import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers } from "hardhat";
 
 describe("DistributorWalletFactory", function () {
     async function deployContractFixture() {
@@ -21,23 +21,31 @@ describe("DistributorWalletFactory", function () {
         const erc20Whitelist = await ERC20Whitelist.deploy(initialOwner.address);
         await erc20Whitelist.waitForDeployment();
 
-        // Deploy ProtocolModule
+        // Deploy MetadataModule
+        const MetadataModule = await ethers.getContractFactory("MetadataModule");
+        const metadataModule = await MetadataModule.deploy();
+        await metadataModule.waitForDeployment();
+
+        // Deploy LegalContractMetadata
+        const LegalContractMetadata = await ethers.getContractFactory("LegalContractMetadata");
+        const legalContractMetadata = await LegalContractMetadata.deploy();
+        await legalContractMetadata.waitForDeployment();
+
+        // Deploy ProtocolModule with all required parameters
         const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
-        const protocolModule = await ProtocolModule.connect(deployer).deploy(
+        const protocolModule = await ProtocolModule.deploy(
             distributorWalletFactory.target,
             whitelistingManager.target,
-            erc20Whitelist.target
+            erc20Whitelist.target,
+            metadataModule.target,
+            legalContractMetadata.target
         );
         await protocolModule.waitForDeployment();
-        
-        // Set ProtocolModule as authorized caller for ERC20Whitelist
-        await erc20Whitelist.connect(initialOwner).setAuthorizedCaller(protocolModule.target);
-        
+
         // Deploy a mock stablecoin for testing
         const MockToken = await ethers.getContractFactory("MockToken");
         const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
         await mockStablecoin.waitForDeployment();
-
 
         // Whitelist the mock stablecoin using ProtocolModule
         await protocolModule.connect(deployer).whitelistToken(mockStablecoin.target);
@@ -80,6 +88,39 @@ describe("DistributorWalletFactory", function () {
                 protocolModule.target,
                 user.address
             )).to.be.reverted;
+        });
+    });
+
+    describe("Pause functionality", function () {
+        it("should not allow creating distributor wallet when protocol is paused", async function () {
+            const { initialOwner, user, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
+            
+            // Pause the protocol using setPaused
+            await protocolModule.connect(initialOwner).setPaused(true);
+            
+            await expect(
+                distributorWalletFactory.connect(initialOwner).createDistributorWallet(
+                    mockStablecoin.target,
+                    protocolModule.target,
+                    user.address
+                )
+            ).to.be.revertedWith("Protocol is paused");
+        });
+
+        it("should allow creating distributor wallet after unpausing", async function () {
+            const { initialOwner, user, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
+            
+            // Pause and then unpause the protocol using setPaused
+            await protocolModule.connect(initialOwner).setPaused(true);
+            await protocolModule.connect(initialOwner).setPaused(false);
+            
+            await expect(
+                distributorWalletFactory.connect(initialOwner).createDistributorWallet(
+                    mockStablecoin.target,
+                    protocolModule.target,
+                    user.address
+                )
+            ).to.emit(distributorWalletFactory, "DistributorWalletCreated");
         });
     });
 })
