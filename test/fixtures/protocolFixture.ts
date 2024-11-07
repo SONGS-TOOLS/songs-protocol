@@ -17,6 +17,7 @@ export interface ProtocolFixture {
   protocolModule: any;
   mockStablecoin: any;
   wrappedSongFactory: any;
+  songSharesMarketPlace: any;
 }
 
 export async function deployProtocolFixture(): Promise<ProtocolFixture> {
@@ -54,6 +55,11 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   const LegalContractMetadata = await ethers.getContractFactory("LegalContractMetadata");
   const legalContractMetadata = await LegalContractMetadata.deploy();
   await legalContractMetadata.waitForDeployment();
+
+  // Deploy SongSharesMarketPlace
+  const SongSharesMarketPlace = await ethers.getContractFactory("SongSharesMarketPlace");
+  const songSharesMarketPlace = await SongSharesMarketPlace.deploy(deployer.address);
+  await songSharesMarketPlace.waitForDeployment();
 
   // Deploy ProtocolModule
   const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
@@ -101,6 +107,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     legalContractMetadata,
     protocolModule,
     mockStablecoin,
-    wrappedSongFactory
+    wrappedSongFactory,
+    songSharesMarketPlace
   };
 }
