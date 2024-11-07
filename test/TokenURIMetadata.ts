@@ -181,7 +181,7 @@ describe("Token URI Metadata Tests", function () {
       // Try to set authenticity while paused
       await expect(
         distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(protocolModule, "EnforcedPause");
     });
 
     it("Should allow setting authenticity after unpausing", async function () {
