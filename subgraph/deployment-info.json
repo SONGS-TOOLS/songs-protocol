@@ -1,11 +1,11 @@
 {
   "networkName": "localhost",
-  "protocolModuleAddress": "0x99F511D321f2AbEf799F0448Ec2daB02b2260E24",
-  "wrappedSongFactoryAddress": "0x75bCACdc68CB8cCcd98ea170e5ef4f845DF78956",
-  "metadataModuleAddress": "0x073f6773592f2812C8f8e01ba7a1411297Bc3057",
-  "legalContractMetadataAddress": "0xe37115365385e842CfA63915526a6B5395b678Dc",
-  "songSharesMarketPlaceAddress": "0x16Ee9B99AB0322a958dDda3e7829c665b6F6327A",
-  "buyoutTokenMarketPlaceAddress": "0xb6CC00B69bff1D88747A15aB39BF811ED7118f17",
-  "metadataRendererAddress": "0x3638745A18D10cB6d6873DD55d288048B643Fd4b",
-  "startBlock": 17547331
+  "protocolModuleAddress": "0xcBbA3386465456fe256B6d7695Cfd81A60b0a72A",
+  "wrappedSongFactoryAddress": "0xdE79713B48d3B8287e56CEAbCdd6D8D0398b9993",
+  "metadataModuleAddress": "0x4d4b12E3D79C8aE64be31751181C127A308e8488",
+  "legalContractMetadataAddress": "0x6ADe096323E998cC5D8dDF778DCc0B32B8f2cbC8",
+  "songSharesMarketPlaceAddress": "0xcBf50a17b97ce6a2cB9db6E98203620671939037",
+  "buyoutTokenMarketPlaceAddress": "0xD76581E1dd644cAD47a5B11b3e7d2D8308719D44",
+  "metadataRendererAddress": "0xDEA446a774dBe62987D4dDAf5A9288257f7CF8bb",
+  "startBlock": 17547989
 }

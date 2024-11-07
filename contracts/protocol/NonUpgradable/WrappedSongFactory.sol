@@ -15,7 +15,8 @@ contract WrappedSongFactory {
     address indexedwrappedSongSmartAccount,
     address stablecoin,
     address wsTokenManagement,
-    uint256 sharesAmount
+    uint256 sharesAmount,
+    IMetadataModule.Metadata metadata
   );
 
   constructor(address _protocolModule) {
@@ -94,15 +95,17 @@ contract WrappedSongFactory {
       newWrappedSongSmartAccountAddress
     );
 
+    // Create metadata and get the returned metadata
+    IMetadataModule.Metadata memory createdMetadata = metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
+
     emit WrappedSongCreated(
       msg.sender,
       newWrappedSongSmartAccountAddress,
       _stablecoin,
       wsTokenManagementAddress,
-      sharesAmount
+      sharesAmount,
+      createdMetadata
     );
-
-    metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
 
     return newWrappedSongSmartAccountAddress;
   }

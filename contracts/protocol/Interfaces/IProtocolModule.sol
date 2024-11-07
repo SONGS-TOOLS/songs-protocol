@@ -87,4 +87,5 @@ interface IProtocolModule {
         address wrappedSong
     ) external view returns (string memory);
     function setMetadataRenderer(address _renderer) external;
+    function smartAccountToWSToken(address smartAccount) external view returns (address);
 }

@@ -15,8 +15,8 @@ interface IMetadataModule {
     function getPendingMetadataUpdate(address wrappedSong) external view returns (Metadata memory);
     function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool);
     
-    // Add missing functions from MetadataModule.sol
-    function createMetadata(address wrappedSong, Metadata memory newMetadata) external;
+    // Update createMetadata to return Metadata
+    function createMetadata(address wrappedSong, Metadata memory newMetadata) external returns (Metadata memory);
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external;
     function updateMetadata(address wrappedSong, Metadata memory newMetadata) external;
     function confirmUpdateMetadata(address wrappedSong) external;

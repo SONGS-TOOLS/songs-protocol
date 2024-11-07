@@ -56,15 +56,18 @@ contract MetadataModule is Ownable, IMetadataModule {
      * @dev Creates initial metadata for a wrapped song token management contract.
      * @param wrappedSong The address of the WrappedSongSmartAccount contract.
      * @param newMetadata The new metadata to be set.
+     * @return The new metadata.
      */
-    function createMetadata(address wrappedSong, Metadata memory newMetadata) external {
-        // TODO: Check
-        // require(protocolModule.isWSTokenFromProtocol(wsTokenManagement), "Not a valid WSTokenManagement contract");
-        // require(bytes(wrappedSongMetadata[wsTokenManagement].name).length == 0, "Metadata already exists");
+    function createMetadata(address wrappedSong, Metadata memory newMetadata) external returns (Metadata memory) {
+        address wsToken = protocolModule.smartAccountToWSToken(wrappedSong);
+        require(wsToken != address(0), "Address not a protocol WS");
+        require(bytes(wrappedSongMetadata[wrappedSong].name).length == 0, "Metadata already exists");
         require(isValidMetadata(newMetadata), "Invalid metadata");
         
         wrappedSongMetadata[wrappedSong] = newMetadata;
         emit MetadataCreated(wrappedSong, newMetadata);
+        
+        return newMetadata;
     }
     /**
      * @dev Requests an update to the metadata of a released wrapped song.
