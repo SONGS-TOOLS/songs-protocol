@@ -1,9 +1,11 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWSTokensManagement.sol';
+import './../Interfaces/IWrappedSongSmartAccount.sol';
 
 /**
  * @title WSUtils
@@ -70,33 +72,6 @@ contract WSUtils is Ownable, ERC165 {
     }
 
     /**
-     * @dev Checks if a share sale is currently active.
-     * @param _wsTokensManagement The address of the IWSTokensManagement.
-     * @return A boolean indicating whether a share sale is active.
-     */
-    function isSaleActive(address _wsTokensManagement) public view returns (bool) {
-        return IWSTokensManagement(_wsTokensManagement).saleActive();
-    }
-
-    /**
-     * @dev Retrieves the current price per share in an active sale.
-     * @param _wsTokensManagement The address of the IWSTokensManagement.
-     * @return The current price per share.
-     */
-    function getPricePerShare(address _wsTokensManagement) public view returns (uint256) {
-        return IWSTokensManagement(_wsTokensManagement).pricePerShare();
-    }
-
-    /**
-     * @dev Retrieves the number of shares available for sale.
-     * @param _wsTokensManagement The address of the IWSTokensManagement.
-     * @return The number of shares available for sale.
-     */
-    function getSharesForSale(address _wsTokensManagement) public view returns (uint256) {
-        return IWSTokensManagement(_wsTokensManagement).sharesForSale();
-    }
-
-    /**
      * @dev Retrieves the total number of shares.
      * @param _wsTokensManagement The address of the IWSTokensManagement.
      * @return The total number of shares.
@@ -122,5 +97,24 @@ contract WSUtils is Ownable, ERC165 {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Checks if a token ID exists in the WSTokensManagement contract.
+     * @param _wsTokensManagement The address of the IWSTokensManagement.
+     * @param tokenId The ID of the token to check.
+     * @return True if the token exists, false otherwise.
+     */
+    function tokenExists(address _wsTokensManagement, uint256 tokenId) public view returns (bool) {
+        return IWSTokensManagement(_wsTokensManagement).totalSupply(tokenId) > 0;
+    }
+
+    /**
+     * @dev Checks if a wrapped song is from the protocol.
+     * @param _wsTokensManagement The address of the IWSTokensManagement.
+     * @return True if the wrapped song is from the protocol, false otherwise.
+     */
+    function isFromProtocol(address _wsTokensManagement) public view returns (bool) {
+        return protocolModule.isWSTokenFromProtocol(_wsTokensManagement);
     }
 }

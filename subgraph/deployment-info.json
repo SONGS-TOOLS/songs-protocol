@@ -1,10 +1,11 @@
 {
-  "networkName": "baseSepolia",
-  "protocolModuleAddress": "0x6c70411F43B689dEa7Ea10299856195e2c671b0f",
-  "wrappedSongFactoryAddress": "0x67e555E35262978fe6C3bc757fEC5d4493C94466",
-  "metadataModuleAddress": "0x440d09288b0Fc150Efd7Dc94315dEC2F048FF828",
-  "legalContractMetadataAddress": "0x2a867d37f651a6Ea6A832cE827565BD2f377BD1d",
-  "songSharesMarketPlaceAddress": "0xcE364b4178C5280347ADAc6274fc6082F4a9664e",
-  "buyoutTokenMarketPlaceAddress": "0x725db27Ab691c428BC4c95AE96991eD0014E2B66",
-  "startBlock": 17604751
+  "networkName": "localhost",
+  "protocolModuleAddress": "0x99F511D321f2AbEf799F0448Ec2daB02b2260E24",
+  "wrappedSongFactoryAddress": "0x75bCACdc68CB8cCcd98ea170e5ef4f845DF78956",
+  "metadataModuleAddress": "0x073f6773592f2812C8f8e01ba7a1411297Bc3057",
+  "legalContractMetadataAddress": "0xe37115365385e842CfA63915526a6B5395b678Dc",
+  "songSharesMarketPlaceAddress": "0x16Ee9B99AB0322a958dDda3e7829c665b6F6327A",
+  "buyoutTokenMarketPlaceAddress": "0xb6CC00B69bff1D88747A15aB39BF811ED7118f17",
+  "metadataRendererAddress": "0x3638745A18D10cB6d6873DD55d288048B643Fd4b",
+  "startBlock": 17547331
 }

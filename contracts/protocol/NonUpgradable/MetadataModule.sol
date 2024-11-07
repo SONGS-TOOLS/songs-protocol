@@ -6,18 +6,11 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokensManagement.sol";
-contract MetadataModule is Ownable {
+import "./../Interfaces/IMetadataModule.sol";
+
+contract MetadataModule is Ownable, IMetadataModule {
     IProtocolModule public protocolModule;
     bool private isProtocolSet;
-
-    struct Metadata {
-        string name;
-        string description;
-        string image;
-        string externalUrl;
-        string animationUrl;
-        string attributesIpfsHash;
-    }
 
     mapping(address => Metadata) private wrappedSongMetadata;
     mapping(address => Metadata) private pendingMetadataUpdates;
@@ -142,15 +135,11 @@ contract MetadataModule is Ownable {
      * @param tokenId The ID of the token.
      * @return The token URI as a string.
      */
-    function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory) {
-        
+    function getTokenURI(address wrappedSong, uint256 tokenId) external view override returns (string memory) {
         Metadata memory metadata = wrappedSongMetadata[wrappedSong];
-        // require(bytes(metadata.name).length > 0, "Metadata does not exist for this token");
         require(tokenId < 3, "Invalid token ID for metadata module"); // Only handle tokens 0-2
         
-        string memory uri = _composeTokenURI(metadata, tokenId, wrappedSong);
-        
-        return uri;
+        return protocolModule.renderTokenURI(metadata, tokenId, wrappedSong);
     }
 
     /**
@@ -158,7 +147,7 @@ contract MetadataModule is Ownable {
      * @param wrappedSong The address of the wrapped song.
      * @return The pending metadata update.
      */
-    function getPendingMetadataUpdate(address wrappedSong) external view returns (Metadata memory) {
+    function getPendingMetadataUpdate(address wrappedSong) external view override returns (Metadata memory) {
         return pendingMetadataUpdates[wrappedSong];
     }
 
@@ -167,89 +156,8 @@ contract MetadataModule is Ownable {
      * @param wrappedSong The address of the wrapped song.
      * @return True if the metadata update is confirmed, false otherwise.
      */
-    function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool) {
+    function isMetadataUpdateConfirmed(address wrappedSong) external view override returns (bool) {
         return metadataUpdateConfirmed[wrappedSong];
-    }
-
-    /**
-     * @dev Composes the token URI from the metadata and token ID.
-     * @param metadata The metadata of the wrapped song.
-     * @param tokenId The ID of the token.
-     * @param wrappedSongAddress The address of the wrapped song.
-     * @return The composed token URI as a string.
-     */
-    function _composeTokenURI(Metadata memory metadata, uint256 tokenId, address wrappedSongAddress) internal view returns (string memory) {
-        string memory baseURI = protocolModule.getBaseURI();
-        require(bytes(baseURI).length > 0, "Base URI not set");
-        
-        
-        string memory tokenType;
-        string memory finalImageData;
-        string memory description;
-
-        if (tokenId == 0) {
-            tokenType = unicode"◒";
-            finalImageData = string(abi.encodePacked(baseURI, metadata.image));
-            description = metadata.description;
-        } else if (tokenId == 1) {
-            tokenType = unicode"§";
-            finalImageData = _generateSVGImage(metadata.image);
-            description = string(abi.encodePacked(
-                "These are the SongShares representing your share on the royalty earnings of the Wrapped Song",
-                addressToString(wrappedSongAddress),
-                "."
-            ));
-        } else {
-            tokenType = "Creator-defined NFT";
-            finalImageData = string(abi.encodePacked(baseURI, metadata.image));
-            description = metadata.description;
-        }
-
-        string memory json = Base64.encode(
-            bytes(string(abi.encodePacked(
-                '{"name": "', tokenType, ' - ', metadata.name, '",',
-                '"description": "', description, '",',
-                '"image": "', finalImageData, '",',
-                '"external_url": "', metadata.externalUrl, '",',
-                '"animation_url": "', string(abi.encodePacked(baseURI, metadata.animationUrl)), '",',
-                '"attributes": "', string(abi.encodePacked(baseURI, metadata.attributesIpfsHash)), '"}'
-            )))
-        );
-
-        string memory uri = string(abi.encodePacked("data:application/json;base64,", json));
-        return uri;
-    }
-
-    function _generateSVGImage(string memory imageUrl) internal pure returns (string memory) {
-        string memory htmlContent = _generateSVGContent(imageUrl);
-        return string(abi.encodePacked(
-            'data:text/html;base64,',
-            Base64.encode(bytes(htmlContent))
-        ));
-    }
-
-    function _generateSVGContent(string memory imageUrl) internal pure returns (string memory) {
-        return string(abi.encodePacked(
-            '<html><head><style>',
-            '.container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }',
-            '.circle-image { width: 80%; height: 80%; border-radius: 50%; border: 2px solid black; ',
-            'background-image: url("', imageUrl, '"); background-size: cover; background-position: center; }',
-            '</style></head>',
-            '<body><div class="container"><div class="circle-image"></div></div></body></html>'
-        ));
-    }
-
-    function addressToString(address _addr) internal pure returns (string memory) {
-        bytes32 value = bytes32(uint256(uint160(_addr)));
-        bytes memory alphabet = "0123456789abcdef";
-        bytes memory str = new bytes(42);
-        str[0] = '0';
-        str[1] = 'x';
-        for (uint256 i = 0; i < 20; i++) {
-            str[2+i*2] = alphabet[uint8(value[i + 12] >> 4)];
-            str[3+i*2] = alphabet[uint8(value[i + 12] & 0x0f)];
-        }
-        return string(str);
     }
 
     /**
