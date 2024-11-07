@@ -147,9 +147,8 @@ describe("WrappedSongFactory", function () {
                 expect(userWrappedSongs.length).to.equal(1);
 
                 const wrappedSongAddress = userWrappedSongs[0];
-                const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-                await expect(wrappedSong.connect(user).requestWrappedSongRelease(wallets[0])).to.emit(protocolModule, "WrappedSongReleaseRequested");
+                await expect(protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0])).to.emit(protocolModule, "WrappedSongReleaseRequested");
             }
         });
     });
