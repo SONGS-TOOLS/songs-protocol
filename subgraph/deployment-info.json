@@ -1,15 +1,40 @@
 {
   "network": "localhost",
-  "protocolModuleAddress": "0x422b0997d22F092422d268Ab9bD918FAc6050262",
-  "protocolModuleStartBlock": 17555564,
-  "wrappedSongFactoryAddress": "0x12bdFF2eCa0f7c83911a21Dd882236CF17535b18",
-  "wrappedSongFactoryStartBlock": 17555568,
-  "wrappedSongTemplateAddress": "0xDd6f4e06e7CB7E18A70b370671e98c28AA6cfd46",
-  "wsTokenTemplateAddress": "0x1928c1835640645cAE2e68A8F47104E03ae6A5Bd",
-  "metadataModuleAddress": "0x0Ce858E3619962823a2D7Ba0b3c0F72AC6d5D346",
-  "metadataModuleStartBlock": 17555562,
-  "legalContractMetadataAddress": "0x79cca2130f38137f4c17486e3174Cb06D0C3F74b",
-  "legalContractMetadataStartBlock": 17555563,
-  "metadataRendererAddress": "0xb22164A141ae887a41cB591cdAA3e3E124326450",
-  "metadataRendererStartBlock": 17555561
+  "startBlock": 17558278,
+  "contracts": {
+    "protocolModule": {
+      "address": "0xE236088EbfECd80DF1Cf958F10C146116f26EaAF",
+      "startBlock": 17558282
+    },
+    "wrappedSongFactory": {
+      "address": "0x8871775FBDDA2eaD832853aC61B01ec487326228",
+      "startBlock": 17558287
+    },
+    "wrappedSongTemplate": {
+      "address": "0x9A245621534cEDa03ca757250B699a2DFDea7B46"
+    },
+    "wsTokenTemplate": {
+      "address": "0x674B9624b1Ce91838C88e4CB4a19aBAb9FCcAD7A"
+    },
+    "metadataModule": {
+      "address": "0x195351f11c1e0457403E2D995c60622A36D42Eca",
+      "startBlock": 17558280
+    },
+    "legalContractMetadata": {
+      "address": "0xf1eFE6ce54669d3E597454A406cB7EE6ae25070c",
+      "startBlock": 17558281
+    },
+    "metadataRenderer": {
+      "address": "0x7dFE31F313795DF9eB18870588Dd1a5D5B5b2664",
+      "startBlock": 17558278
+    },
+    "songSharesMarketPlace": {
+      "address": "0xEBd44735C4e9431B8a0FAD645Bb8895FdF004688",
+      "startBlock": 17558283
+    },
+    "buyoutTokenMarketPlace": {
+      "address": "0x09E68b4A2335A2AAa1944bC3938d285B883f11E1",
+      "startBlock": 17558284
+    }
+  }
 }

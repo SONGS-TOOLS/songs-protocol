@@ -7,7 +7,6 @@ import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
-import "hardhat/console.sol";
 
 contract WrappedSongFactory {
     using Clones for address;
@@ -56,19 +55,16 @@ contract WrappedSongFactory {
 
         // Clone WrappedSongSmartAccount
         address newWrappedSongSmartAccount = wrappedSongTemplate.clone();
-        console.log("Created WrappedSongSmartAccount at:", newWrappedSongSmartAccount);
         
         // Initialize WrappedSongSmartAccount
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).initialize(
             _stablecoin,
-            msg.sender,
+            tx.origin,
             address(protocolModule)
         );
-        console.log("Initialized WrappedSongSmartAccount");
 
         // Clone WSTokenManagement
         address wsTokenManagementAddress = wsTokenTemplate.clone();
-        console.log("Created WSTokenManagement at:", wsTokenManagementAddress);
         
         // Initialize WSTokenManagement
         IWSTokenManagement(wsTokenManagementAddress).initialize(
@@ -76,32 +72,24 @@ contract WrappedSongFactory {
             msg.sender,
             address(protocolModule)
         );
-        console.log("Initialized WSTokenManagement");
 
         // Set protocol relationships first
         protocolModule.setWSTokenFromProtocol(wsTokenManagementAddress);
-        console.log("Set WSToken in protocol");
         
         protocolModule.setSmartAccountToWSToken(
             newWrappedSongSmartAccount,
             wsTokenManagementAddress
         );
-        console.log("Set SmartAccount to WSToken mapping");
         
         protocolModule.setOwnerWrappedSong(
             msg.sender,
             newWrappedSongSmartAccount
         );
-        console.log("Set owner wrapped song");
 
         // Then set WSTokenManagement in WrappedSongSmartAccount
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).setWSTokenManagement(wsTokenManagementAddress);
-        console.log("Set WSTokenManagement in WrappedSongSmartAccount");
-
         // Finally create initial shares
-        console.log("Creating shares amount:", sharesAmount);
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).createSongShares(sharesAmount);
-        console.log("Created initial shares");
 
         // Create metadata
         IMetadataModule.Metadata memory createdMetadata = metadataModule.createMetadata(
@@ -109,11 +97,6 @@ contract WrappedSongFactory {
             songMetadata
         );
 
-        // Debug logs
-        console.log("Factory address:", address(this));
-        console.log("Expected factory from protocol:", protocolModule.wrappedSongFactoryAddress());
-        console.log("Owner of WrappedSong:", IWrappedSongSmartAccount(newWrappedSongSmartAccount).owner());
-        console.log("WSTokenManagement address:", IWrappedSongSmartAccount(newWrappedSongSmartAccount).getWSTokenManagementAddress());
 
         emit WrappedSongCreated(
             msg.sender,

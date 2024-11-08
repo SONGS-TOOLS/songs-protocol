@@ -115,6 +115,30 @@ async function main() {
   await protocolModule.waitForDeployment();
   console.log('ProtocolModule deployed to:', await protocolModule.getAddress());
   await saveAbi('ProtocolModule', await protocolModule.getAddress());
+  
+  /******************************************************************************
+   *                                                                             *
+   *                           MARKETPLACE CONTRACTS                             *
+   *                                                                             *
+   ******************************************************************************/
+
+  console.log('Deploying SongSharesMarketPlace...');
+  const SongSharesMarketPlace = await ethers.getContractFactory('SongSharesMarketPlace');
+  const songSharesMarketPlace = await SongSharesMarketPlace.connect(deployer).deploy(
+    await protocolModule.getAddress()
+  );
+  await songSharesMarketPlace.waitForDeployment();
+  console.log('SongSharesMarketPlace deployed to:', await songSharesMarketPlace.getAddress());
+  await saveAbi('SongSharesMarketPlace', await songSharesMarketPlace.getAddress());
+
+  console.log('Deploying BuyoutTokenMarketPlace...');
+  const BuyoutTokenMarketPlace = await ethers.getContractFactory('BuyoutTokenMarketPlace');
+  const buyoutTokenMarketPlace = await BuyoutTokenMarketPlace.connect(deployer).deploy(
+    await protocolModule.getAddress()
+  );
+  await buyoutTokenMarketPlace.waitForDeployment();
+  console.log('BuyoutTokenMarketPlace deployed to:', await buyoutTokenMarketPlace.getAddress());
+  await saveAbi('BuyoutTokenMarketPlace', await buyoutTokenMarketPlace.getAddress());
 
   /******************************************************************************
    *                                                                             *
@@ -174,6 +198,8 @@ async function main() {
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
   await protocolModule.setMetadataRenderer(await metadataRenderer.getAddress());
   await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
+  
+  
   await protocolModule.setBaseURI("ipfs://");
 
   console.log('ProtocolModule initialized');
@@ -184,29 +210,71 @@ async function main() {
    *                                                                             *
    ******************************************************************************/
 
-  fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
-  fs.writeFileSync(addressesFile2, JSON.stringify(contractAddresses, null, 2));
+  // Get the earliest block number from all deployments
+  const protocolModuleBlock = (await protocolModule.deploymentTransaction()?.wait())?.blockNumber || 0;
+  const wrappedSongFactoryBlock = (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0;
+  const metadataModuleBlock = (await metadataModule.deploymentTransaction()?.wait())?.blockNumber || 0;
+  const legalContractMetadataBlock = (await legalContractMetadata.deploymentTransaction()?.wait())?.blockNumber || 0;
+  const metadataRendererBlock = (await metadataRenderer.deploymentTransaction()?.wait())?.blockNumber || 0;
+
+  // Use the earliest block as the start block
+  const startBlock = Math.min(
+    protocolModuleBlock,
+    wrappedSongFactoryBlock,
+    metadataModuleBlock,
+    legalContractMetadataBlock,
+    metadataRendererBlock
+  );
 
   const deploymentInfo = {
     network: network.name,
-    protocolModuleAddress: await protocolModule.getAddress(),
-    protocolModuleStartBlock: (await protocolModule.deploymentTransaction()?.wait())?.blockNumber || 0,
-    wrappedSongFactoryAddress: await wrappedSongFactory.getAddress(),
-    wrappedSongFactoryStartBlock: (await wrappedSongFactory.deploymentTransaction()?.wait())?.blockNumber || 0,
-    wrappedSongTemplateAddress: await wrappedSongTemplate.getAddress(),
-    wsTokenTemplateAddress: await wsTokenTemplate.getAddress(),
-    metadataModuleAddress: await metadataModule.getAddress(),
-    metadataModuleStartBlock: (await metadataModule.deploymentTransaction()?.wait())?.blockNumber || 0,
-    legalContractMetadataAddress: await legalContractMetadata.getAddress(),
-    legalContractMetadataStartBlock: (await legalContractMetadata.deploymentTransaction()?.wait())?.blockNumber || 0,
-    metadataRendererAddress: await metadataRenderer.getAddress(),
-    metadataRendererStartBlock: (await metadataRenderer.deploymentTransaction()?.wait())?.blockNumber || 0,
+    startBlock,
+    contracts: {
+      protocolModule: {
+        address: await protocolModule.getAddress(),
+        startBlock: protocolModuleBlock
+      },
+      wrappedSongFactory: {
+        address: await wrappedSongFactory.getAddress(),
+        startBlock: wrappedSongFactoryBlock
+      },
+      wrappedSongTemplate: {
+        address: await wrappedSongTemplate.getAddress()
+      },
+      wsTokenTemplate: {
+        address: await wsTokenTemplate.getAddress()
+      },
+      metadataModule: {
+        address: await metadataModule.getAddress(),
+        startBlock: metadataModuleBlock
+      },
+      legalContractMetadata: {
+        address: await legalContractMetadata.getAddress(),
+        startBlock: legalContractMetadataBlock
+      },
+      metadataRenderer: {
+        address: await metadataRenderer.getAddress(),
+        startBlock: metadataRendererBlock
+      },
+      songSharesMarketPlace: {
+        address: await songSharesMarketPlace.getAddress(),
+        startBlock: (await songSharesMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0
+      },
+      buyoutTokenMarketPlace: {
+        address: await buyoutTokenMarketPlace.getAddress(),
+        startBlock: (await buyoutTokenMarketPlace.deploymentTransaction()?.wait())?.blockNumber || 0
+      }
+    }
   };
 
   fs.writeFileSync(
     path.join(__dirname, '../subgraph/deployment-info.json'),
     JSON.stringify(deploymentInfo, null, 2)
   );
+
+  // Save contract addresses
+  fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
+  fs.writeFileSync(addressesFile2, JSON.stringify(contractAddresses, null, 2));
 }
 
 async function saveAbi(contractName: string, contractAddress: string) {

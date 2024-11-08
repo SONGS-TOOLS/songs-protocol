@@ -10,11 +10,6 @@ interface IWrappedSongSmartAccount {
         address _protocolModule
     ) external;
     
-    function requestWrappedSongReleaseWithMetadata(
-        address _distributorWallet, 
-        IMetadataModule.Metadata memory newMetadata
-    ) external;
-    function requestWrappedSongRelease(address _distributorWallet) external;
     function receiveERC20(address token, uint256 amount) external;
     function claimEarnings(address token, uint256 maxEpochs) external;
     function getPendingEarnings(address account, address token) external view returns (uint256);

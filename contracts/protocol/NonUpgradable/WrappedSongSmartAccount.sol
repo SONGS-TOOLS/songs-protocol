@@ -108,7 +108,7 @@ contract WrappedSongSmartAccount is
     function initialize(
         address _stablecoinAddress,
         address _owner,
-        address /* _protocolModuleAddress */ // Kept for interface compatibility but unused
+        address /* _protocolModuleAddress */
     ) external override initializer {
         require(_stablecoinAddress != address(0), "Invalid stablecoin address");
         require(_owner != address(0), "Invalid owner address");
@@ -119,10 +119,9 @@ contract WrappedSongSmartAccount is
         wrappedSongTokenId = 0;
         songSharesId = 1;
     }
+    
     function setWSTokenManagement(address _wsTokenManagement) external {
         require(address(wsTokenManagement) == address(0), "WSToken already set");
-        // require(msg.sender == protocolModule.wrappedSongFactoryAddress(), "Only factory can set WSToken");
-        // require(_wsTokenManagement != address(0), "Invalid WSToken address");
         wsTokenManagement = IWSTokenManagement(_wsTokenManagement);
     }
 
@@ -156,35 +155,6 @@ contract WrappedSongSmartAccount is
             "Legal contract already initialized"
         );
         return wsTokenManagement.createLegalContract(contractURI);
-    }
-
-    function requestWrappedSongReleaseWithMetadata(
-        address _distributorWallet,
-        IMetadataModule.Metadata memory newMetadata
-    ) external onlyOwner {
-        require(
-            _distributorWallet != address(0),
-            "Invalid distributor wallet address"
-        );
-        require(
-            _distributorWallet.code.length > 0,
-            "Distributor wallet must be a contract"
-        );
-        require(
-            IDistributorWalletFactory(protocolModule.distributorWalletFactory())
-                .checkIsDistributorWallet(_distributorWallet),
-            "Invalid distributor wallet: not registered in factory"
-        );
-
-        
-        metadataModule.updateMetadata(address(this), newMetadata);
-        protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
-    }
-
-    function requestWrappedSongRelease(
-        address _distributorWallet
-    ) external onlyOwner {
-        protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
     }
 
 
