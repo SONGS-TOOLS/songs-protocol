@@ -351,12 +351,10 @@ contract ProtocolModule is Ownable, Pausable {
         maxSaleDuration = _duration;
     }
 
-
     function setWSTokenFromProtocol(address wsTokenManagement) external {
         require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
         protocolWSTokens[wsTokenManagement] = true;
     }
-
 
     /**
      * @dev Sets the base URI for metadata resources

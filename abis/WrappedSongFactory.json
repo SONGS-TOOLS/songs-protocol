@@ -5,10 +5,25 @@
         "internalType": "address",
         "name": "_protocolModule",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_wrappedSongTemplate",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_wsTokenTemplate",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "ERC1167FailedCreateClone",
+    "type": "error"
   },
   {
     "anonymous": false,
@@ -20,9 +35,9 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "indexedwrappedSongSmartAccount",
+        "name": "wrappedSongSmartAccount",
         "type": "address"
       },
       {
@@ -165,6 +180,32 @@
     "outputs": [
       {
         "internalType": "contract IProtocolModule",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "wrappedSongTemplate",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "wsTokenTemplate",
+    "outputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }

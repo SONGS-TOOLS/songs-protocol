@@ -1,112 +1,140 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./WrappedSongSmartAccount.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IMetadataModule.sol";
+import "./../Interfaces/IWrappedSongSmartAccount.sol";
+import "./../Interfaces/IWSTokenManagement.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "hardhat/console.sol";
 
 contract WrappedSongFactory {
-  IProtocolModule public immutable protocolModule;
-  IMetadataModule public immutable metadataModule;
+    using Clones for address;
 
-  event WrappedSongCreated(
-    address indexed owner,
-    address indexedwrappedSongSmartAccount,
-    address stablecoin,
-    address wsTokenManagement,
-    uint256 sharesAmount,
-    IMetadataModule.Metadata metadata
-  );
+    IProtocolModule public immutable protocolModule;
+    IMetadataModule public immutable metadataModule;
+    
+    address public immutable wrappedSongTemplate;
+    address public immutable wsTokenTemplate;
 
-  constructor(address _protocolModule) {
-    protocolModule = IProtocolModule(_protocolModule);
-    metadataModule = IMetadataModule(protocolModule.getMetadataModule());
-  }
-
-  /**
-   * @dev Validates the metadata object to ensure all required fields are present and non-empty.
-   * @param metadata The metadata object to validate.
-   * @return bool Returns true if the metadata is valid, false otherwise.
-   */
-  function isValidMetadata(
-    IMetadataModule.Metadata memory metadata
-  ) internal pure returns (bool) {
-    return (bytes(metadata.name).length > 0 &&
-      bytes(metadata.image).length > 0 &&
-      bytes(metadata.animationUrl).length > 0 &&
-      bytes(metadata.attributesIpfsHash).length > 0);
-  }
-
-  /**
-   * @dev Creates a new wrapped song with metadata.
-   * @param _stablecoin The address of the stablecoin contract.
-   * @param songMetadata The metadata for the song NFT.
-   * @param sharesAmount The amount of shares to be created.
-   * @return The address of the created WrappedSongSmartAccount.
-   */
-  function createWrappedSong(
-    address _stablecoin,
-    IMetadataModule.Metadata memory songMetadata,
-    uint256 sharesAmount
-  ) public payable returns (address) {
-
-    require(!protocolModule.paused(), "Protocol is paused");
-    require(isValidMetadata(songMetadata), "Invalid metadata: All required fields must be non-empty");
-    require(sharesAmount > 0, "Shares amount must be greater than zero");
-
-    uint256 requiredFee = protocolModule.wrappedSongCreationFee();
-    require(
-      msg.value >= requiredFee,
-      'Insufficient creation fee'
+    event WrappedSongCreated(
+        address indexed owner,
+        address indexed wrappedSongSmartAccount,
+        address stablecoin,
+        address wsTokenManagement,
+        uint256 sharesAmount,
+        IMetadataModule.Metadata metadata
     );
 
-    require(
-      protocolModule.isValidToCreateWrappedSong(msg.sender),
-      "Not valid to create Wrapped Song"
-    );
-    require(
-      protocolModule.isTokenWhitelisted(_stablecoin),
-      "Stablecoin is not whitelisted"
-    );
+    constructor(
+        address _protocolModule,
+        address _wrappedSongTemplate,
+        address _wsTokenTemplate
+    ) {
+        require(_protocolModule != address(0), "Invalid protocol module");
+        require(_wrappedSongTemplate != address(0), "Invalid wrapped song template");
+        require(_wsTokenTemplate != address(0), "Invalid WSToken template");
+        
+        protocolModule = IProtocolModule(_protocolModule);
+        metadataModule = IMetadataModule(protocolModule.getMetadataModule());
+        wrappedSongTemplate = _wrappedSongTemplate;
+        wsTokenTemplate = _wsTokenTemplate;
+    }
 
-    WrappedSongSmartAccount newWrappedSongSmartAccount = new WrappedSongSmartAccount(
-        _stablecoin,
-        msg.sender,
-        address(protocolModule)
-      );
+    function createWrappedSong(
+        address _stablecoin,
+        IMetadataModule.Metadata memory songMetadata,
+        uint256 sharesAmount
+    ) public payable returns (address) {
+        require(!protocolModule.paused(), "Protocol is paused");
+        require(isValidMetadata(songMetadata), "Invalid metadata");
+        require(sharesAmount > 0, "Shares amount must be greater than zero");
+        require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
+        require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
+        require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
 
-    newWrappedSongSmartAccount.createSongShares(sharesAmount);
+        // Clone WrappedSongSmartAccount
+        address newWrappedSongSmartAccount = wrappedSongTemplate.clone();
+        console.log("Created WrappedSongSmartAccount at:", newWrappedSongSmartAccount);
+        
+        // Initialize WrappedSongSmartAccount
+        IWrappedSongSmartAccount(newWrappedSongSmartAccount).initialize(
+            _stablecoin,
+            msg.sender,
+            address(protocolModule)
+        );
+        console.log("Initialized WrappedSongSmartAccount");
 
-    address newWrappedSongSmartAccountAddress = address(
-      newWrappedSongSmartAccount
-    );
-    address wsTokenManagementAddress = newWrappedSongSmartAccount
-      .getWSTokenManagementAddress();
+        // Clone WSTokenManagement
+        address wsTokenManagementAddress = wsTokenTemplate.clone();
+        console.log("Created WSTokenManagement at:", wsTokenManagementAddress);
+        
+        // Initialize WSTokenManagement
+        IWSTokenManagement(wsTokenManagementAddress).initialize(
+            newWrappedSongSmartAccount,
+            msg.sender,
+            address(protocolModule)
+        );
+        console.log("Initialized WSTokenManagement");
 
+        // Set protocol relationships first
+        protocolModule.setWSTokenFromProtocol(wsTokenManagementAddress);
+        console.log("Set WSToken in protocol");
+        
+        protocolModule.setSmartAccountToWSToken(
+            newWrappedSongSmartAccount,
+            wsTokenManagementAddress
+        );
+        console.log("Set SmartAccount to WSToken mapping");
+        
+        protocolModule.setOwnerWrappedSong(
+            msg.sender,
+            newWrappedSongSmartAccount
+        );
+        console.log("Set owner wrapped song");
 
-    protocolModule.setWSTokenFromProtocol(wsTokenManagementAddress);
-    protocolModule.setSmartAccountToWSToken(
-      newWrappedSongSmartAccountAddress,
-      wsTokenManagementAddress
-    );
-    protocolModule.setOwnerWrappedSong(
-      msg.sender,
-      newWrappedSongSmartAccountAddress
-    );
+        // Then set WSTokenManagement in WrappedSongSmartAccount
+        IWrappedSongSmartAccount(newWrappedSongSmartAccount).setWSTokenManagement(wsTokenManagementAddress);
+        console.log("Set WSTokenManagement in WrappedSongSmartAccount");
 
-    // Create metadata and get the returned metadata
-    IMetadataModule.Metadata memory createdMetadata = metadataModule.createMetadata(newWrappedSongSmartAccountAddress, songMetadata);
+        // Finally create initial shares
+        console.log("Creating shares amount:", sharesAmount);
+        IWrappedSongSmartAccount(newWrappedSongSmartAccount).createSongShares(sharesAmount);
+        console.log("Created initial shares");
 
-    emit WrappedSongCreated(
-      msg.sender,
-      newWrappedSongSmartAccountAddress,
-      _stablecoin,
-      wsTokenManagementAddress,
-      sharesAmount,
-      createdMetadata
-    );
+        // Create metadata
+        IMetadataModule.Metadata memory createdMetadata = metadataModule.createMetadata(
+            newWrappedSongSmartAccount,
+            songMetadata
+        );
 
-    return newWrappedSongSmartAccountAddress;
-  }
+        // Debug logs
+        console.log("Factory address:", address(this));
+        console.log("Expected factory from protocol:", protocolModule.wrappedSongFactoryAddress());
+        console.log("Owner of WrappedSong:", IWrappedSongSmartAccount(newWrappedSongSmartAccount).owner());
+        console.log("WSTokenManagement address:", IWrappedSongSmartAccount(newWrappedSongSmartAccount).getWSTokenManagementAddress());
+
+        emit WrappedSongCreated(
+            msg.sender,
+            newWrappedSongSmartAccount,
+            _stablecoin,
+            wsTokenManagementAddress,
+            sharesAmount,
+            createdMetadata
+        );
+
+        return newWrappedSongSmartAccount;
+    }
+
+    function isValidMetadata(
+        IMetadataModule.Metadata memory metadata
+    ) internal pure returns (bool) {
+        return (
+            bytes(metadata.name).length > 0 &&
+            bytes(metadata.image).length > 0 &&
+            bytes(metadata.animationUrl).length > 0 &&
+            bytes(metadata.attributesIpfsHash).length > 0
+        );
+    }
 }
