@@ -187,6 +187,13 @@ contract WrappedSongSmartAccount is
         protocolModule.requestWrappedSongRelease(address(this), _distributorWallet);
     }
 
+
+    /******************************************************************************
+     *                                                                             *
+     *                           EARNINGS DISTRIBUTION                             *
+     *                                                                             *
+     ******************************************************************************/
+
     receive() external payable {
         if(msg.value > 0) {
             _createEpoch(msg.value, address(0), "External ETH", EpochType.EXTERNAL);
@@ -272,8 +279,8 @@ contract WrappedSongSmartAccount is
         address token,
         uint256 maxEpochs
     ) external nonReentrant notMigrated {
-        uint256 shares = wsTokenManagement.balanceOf(msg.sender, songSharesId);
-        require(shares > 0, "No shares owned");
+        uint256 currentShares = wsTokenManagement.balanceOf(msg.sender, songSharesId);
+        require(currentShares > 0 || wsTokenManagement.balanceOfAt(msg.sender, songSharesId, block.timestamp - 1) > 0, "No shares owned");
 
         EpochBalance storage userBalance = userEpochBalances[msg.sender];
         uint256 startEpoch = token == address(0) ? 
@@ -297,8 +304,11 @@ contract WrappedSongSmartAccount is
         for(uint256 i = startEpoch; i < actualEndEpoch; i++) {
             DistributionEpoch storage epoch = distributionEpochs[i];
             if (epoch.processed && epoch.token == token) {
-                uint256 share = (shares * epoch.earningsPerShare) / PRECISION;
-                totalUnclaimed += share;
+                uint256 historicalShares = wsTokenManagement.balanceOfAt(msg.sender, songSharesId, epoch.timestamp);
+                if (historicalShares > 0) {
+                    uint256 share = (historicalShares * epoch.earningsPerShare) / PRECISION;
+                    totalUnclaimed += share;
+                }
             }
             lastProcessedEpoch = i + 1;
         }

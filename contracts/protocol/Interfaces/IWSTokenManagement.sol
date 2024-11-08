@@ -15,7 +15,7 @@ interface IWSTokenManagement is IERC1155 {
     function createLegalContract(string memory contractURI) external returns (uint256 tokenId);
     function migrateWrappedSong(address metadataAddress) external;
     
-    // Constants - Fixed return types to uint256
+    // Constants
     function SONG_CONCEPT_ID() external view returns (uint256);
     function SONG_SHARES_ID() external view returns (uint256);
     function BUYOUT_TOKEN_ID() external view returns (uint256);
@@ -30,4 +30,5 @@ interface IWSTokenManagement is IERC1155 {
     function legalContractMetadata() external view returns (address);
     function totalSupply(uint256 tokenId) external view returns (uint256);
     function transferOwnership(address newOwner) external;
+    function balanceOfAt(address account, uint256 id, uint256 timestamp) external view returns (uint256);
 }

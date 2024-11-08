@@ -39,6 +39,15 @@ contract WSTokenManagement is
     event BuyoutTokenCreated(uint256 indexed amount, address indexed recipient);
     event LegalContractCreated(uint256 indexed tokenId, address indexed recipient, string contractURI);
 
+    // Add checkpoint struct
+    struct Checkpoint {
+        uint256 timestamp;
+        uint256 value;
+    }
+
+    // Add mapping for historical balances
+    mapping(address => mapping(uint256 => Checkpoint[])) private _balanceCheckpoints;
+
     constructor() ERC1155('') Ownable(msg.sender) {
         _disableInitializers();
     }
@@ -83,7 +92,6 @@ contract WSTokenManagement is
         require(!_tokenCreated[_SONG_SHARES_ID], "Token ID already created");
         require(totalSupply(_SONG_SHARES_ID) == 0, "Shares already created");
         require(sharesAmount > 0, "Invalid shares amount");
-        require(_minter != address(0), "Minter not set");
 
         _mint(_minter, _SONG_SHARES_ID, sharesAmount, '');
         totalShares = sharesAmount;
@@ -136,5 +144,86 @@ contract WSTokenManagement is
 
     function LEGAL_CONTRACT_START_ID() external pure override returns (uint256) {
         return _LEGAL_CONTRACT_START_ID;
+    }
+
+    // Add function to get historical balance
+    function balanceOfAt(
+        address account, 
+        uint256 id, 
+        uint256 timestamp
+    ) public view returns (uint256) {
+        Checkpoint[] storage checkpoints = _balanceCheckpoints[account][id];
+        
+        // If no checkpoints, return current balance if timestamp is current or later
+        if (checkpoints.length == 0) {
+            return timestamp >= block.timestamp ? balanceOf(account, id) : 0;
+        }
+        
+        // If timestamp is after the latest checkpoint, return latest value
+        uint256 lastIndex = checkpoints.length - 1;
+        if (timestamp >= checkpoints[lastIndex].timestamp) {
+            return checkpoints[lastIndex].value;
+        }
+        
+        // If timestamp is before the first checkpoint, return 0
+        if (timestamp < checkpoints[0].timestamp) {
+            return 0;
+        }
+        
+        // Binary search
+        uint256 low = 0;
+        uint256 high = lastIndex;
+        
+        // Optimized binary search with fewer iterations
+        while (high > low) {
+            uint256 mid = (high + low + 1) / 2;
+            if (checkpoints[mid].timestamp <= timestamp) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        
+        return checkpoints[low].value;
+    }
+
+    // Optimize _update to avoid unnecessary checkpoints
+    function _update(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory values
+    ) internal virtual override {
+        super._update(from, to, ids, values);
+        
+        // Add checkpoints for each token transfer
+        for (uint256 i = 0; i < ids.length; i++) {
+            // Only create checkpoints for share tokens
+            if (ids[i] == _SONG_SHARES_ID) {
+                uint256 fromBalance = from != address(0) ? balanceOf(from, ids[i]) : 0;
+                uint256 toBalance = to != address(0) ? balanceOf(to, ids[i]) : 0;
+                
+                // Only create checkpoint if balance changed
+                if (from != address(0)) {
+                    Checkpoint[] storage fromCheckpoints = _balanceCheckpoints[from][ids[i]];
+                    if (fromCheckpoints.length == 0 || fromCheckpoints[fromCheckpoints.length - 1].value != fromBalance) {
+                        fromCheckpoints.push(Checkpoint({
+                            timestamp: block.timestamp,
+                            value: fromBalance
+                        }));
+                    }
+                }
+                
+                if (to != address(0)) {
+                    Checkpoint[] storage toCheckpoints = _balanceCheckpoints[to][ids[i]];
+                    if (toCheckpoints.length == 0 || toCheckpoints[toCheckpoints.length - 1].value != toBalance) {
+                        toCheckpoints.push(Checkpoint({
+                            timestamp: block.timestamp,
+                            value: toBalance
+                        }));
+                    }
+                }
+            }
+        }
     }
 }
