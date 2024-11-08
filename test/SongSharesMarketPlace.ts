@@ -31,10 +31,10 @@ describe("MarketPlace SongShares", function () {
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
-            const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
+            const wsTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
+            const wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagementAddress);
 
-            const balance = await newWSTokenManagementContract.balanceOf(artist.address, 1);
+            const balance = await wsTokenManagementContract.balanceOf(artist.address, 1);
             expect(balance).to.equal(sharesAmount);
         });
 
@@ -63,8 +63,8 @@ describe("MarketPlace SongShares", function () {
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            const wsTokenManagement = await wrappedSong.newWSTokenManagement();
-            const wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagement);
+            const wsTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
+            const wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagementAddress);
 
             // Approve marketplace to handle tokens
             await wsTokenManagementContract.connect(artist).setApprovalForAll(songSharesMarketPlace.target, true);
@@ -114,8 +114,8 @@ describe("MarketPlace SongShares", function () {
             const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(artist.address);
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
-            const wsTokenManagement = await wrappedSong.newWSTokenManagement();
-            const wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagement);
+            const wsTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
+            const wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagementAddress);
 
             // Approve marketplace
             await wsTokenManagementContract.connect(artist).setApprovalForAll(songSharesMarketPlace.target, true);
@@ -196,8 +196,8 @@ describe("MarketPlace SongShares", function () {
             wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
             
-            const wsTokenManagement = await wrappedSong.getWSTokenManagementAddress();
-            wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagement);
+            const wsTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
+            wsTokenManagementContract = await ethers.getContractAt("WSTokenManagement", wsTokenManagementAddress);
 
             // Setup standard sale parameters
             sharesAmount = 50;

@@ -141,20 +141,60 @@ contract ProtocolModule is Ownable, Pausable {
      *************************************************************************/
 
     /**
-     * @dev Requests the release of a wrapped song by the owner.
+     * @dev Requests the release of a wrapped song with metadata update.
+     * @param wrappedSong The address of the wrapped song.
+     * @param distributor The address of the distributor.
+     * @param newMetadata The new metadata for the wrapped song.
+     */
+    function requestWrappedSongReleaseWithMetadata(
+        address wrappedSong,
+        address distributor,
+        IMetadataModule.Metadata memory newMetadata
+    ) external {
+        // Validate basic requirements
+        _validateReleaseRequest(wrappedSong, distributor);
+
+        // Update metadata first
+        metadataModule.updateMetadata(wrappedSong, newMetadata);
+
+        // Process the release request
+        _processReleaseRequest(wrappedSong, distributor);
+    }
+
+    /**
+     * @dev Requests the release of a wrapped song without metadata update.
      * @param wrappedSong The address of the wrapped song.
      * @param distributor The address of the distributor.
      */
-    function requestWrappedSongRelease(address wrappedSong, address distributor) external {
+    function requestWrappedSongRelease(
+        address wrappedSong,
+        address distributor
+    ) external {
+        // Validate basic requirements
+        _validateReleaseRequest(wrappedSong, distributor);
+
+        // Process the release request
+        _processReleaseRequest(wrappedSong, distributor);
+    }
+
+    /**
+     * @dev Internal function to validate release request requirements.
+     */
+    function _validateReleaseRequest(address wrappedSong, address distributor) internal view {
         require(msg.sender == Ownable(wrappedSong).owner(), "Only wrapped song owner can request release");
+        require(distributor != address(0), "Invalid distributor wallet address");
+        require(distributor.code.length > 0, "Distributor wallet must be a contract");
+        require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Invalid distributor wallet: not registered in factory");
         require(wrappedSongToDistributor[wrappedSong] == address(0), "Wrapped song already released");
-        require(distributorWalletFactory.checkIsDistributorWallet(distributor), "Distributor does not exist"); // Check if distributor exists
+    }
 
-
+    /**
+     * @dev Internal function to process the release request.
+     */
+    function _processReleaseRequest(address wrappedSong, address distributor) internal {
         pendingDistributorRequests[wrappedSong] = distributor;
         emit WrappedSongReleaseRequested(wrappedSong, distributor, msg.sender);
     }
-
 
     /**
      * @dev Removes the release request of a wrapped song by the owner.
@@ -351,12 +391,10 @@ contract ProtocolModule is Ownable, Pausable {
         maxSaleDuration = _duration;
     }
 
-
     function setWSTokenFromProtocol(address wsTokenManagement) external {
         require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
         protocolWSTokens[wsTokenManagement] = true;
     }
-
 
     /**
      * @dev Sets the base URI for metadata resources

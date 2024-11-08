@@ -1,11 +1,40 @@
 {
-  "networkName": "localhost",
-  "protocolModuleAddress": "0x1632EBe09ae01eF4Ec393CbB68DD187d5604E884",
-  "wrappedSongFactoryAddress": "0x99A57f2F429cE6aEa796380BED1acf8cEaCc3340",
-  "metadataModuleAddress": "0x13fE5cfDf510Cd4b6171d751660Fc837726719C5",
-  "legalContractMetadataAddress": "0x12B8AaD05880cD3bC61a7f1aE411b3f68b7CB8f4",
-  "songSharesMarketPlaceAddress": "0x6927740487abEDB7218a274a363e90616Ed88a76",
-  "buyoutTokenMarketPlaceAddress": "0x90Ba265C82765cE9498dDC9D0bE14FDeafe9f1a4",
-  "metadataRendererAddress": "0xE7E0e9b1B7347AFD8FE587a08E4B6416575A8Cf1",
-  "startBlock": 17551647
+  "network": "baseSepolia",
+  "startBlock": 17647213,
+  "contracts": {
+    "protocolModule": {
+      "address": "0xCF3Ea9E5ce1B9fE5dDC9246B57134E78CFA4df9f",
+      "startBlock": 17647224
+    },
+    "wrappedSongFactory": {
+      "address": "0x6A77E3341959541172e029Bea08928a22f54E29b",
+      "startBlock": 17647243
+    },
+    "wrappedSongTemplate": {
+      "address": "0x5d4aC7B3F26C70F283C37C7043d2B70D55174d59"
+    },
+    "wsTokenTemplate": {
+      "address": "0x0c730eE16b0636C7001cb49d04A6aaB8D2041F14"
+    },
+    "metadataModule": {
+      "address": "0x758FDf55De85B5abb250a7aDdC70d389E5A76F33",
+      "startBlock": 17647217
+    },
+    "legalContractMetadata": {
+      "address": "0x5ff296c71c3a756232C62E5B1E539AC75a8F3bC6",
+      "startBlock": 17647221
+    },
+    "metadataRenderer": {
+      "address": "0x986930Ac6F49B84255E82Adc6959fb84b2C8862b",
+      "startBlock": 17647213
+    },
+    "songSharesMarketPlace": {
+      "address": "0x1213507F034B0CFCB744d0F892Ec33f3E0c4E523",
+      "startBlock": 17647227
+    },
+    "buyoutTokenMarketPlace": {
+      "address": "0x64bCc0aa17DbABFCba48d304Df4D334fEDE2112A",
+      "startBlock": 17647232
+    }
+  }
 }

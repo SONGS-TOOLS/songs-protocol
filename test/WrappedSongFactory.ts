@@ -67,7 +67,7 @@ describe("WrappedSongFactory", function () {
             const wrappedSongAddress = userWrappedSongs[0];
             const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-            const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
+            const newWSTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
             const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
 
             const balance = await newWSTokenManagementContract.balanceOf(artist.address, 1);
@@ -102,7 +102,7 @@ describe("WrappedSongFactory", function () {
                 const wrappedSongAddress = userWrappedSongs[0];
                 const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", wrappedSongAddress);
 
-                const newWSTokenManagementAddress = await wrappedSong.newWSTokenManagement();
+                const newWSTokenManagementAddress = await wrappedSong.getWSTokenManagementAddress();
                 const newWSTokenManagementContract = await ethers.getContractAt("WSTokenManagement", newWSTokenManagementAddress);
 
                 const balance = await newWSTokenManagementContract.balanceOf(user.address, 1);

@@ -1,22 +1,6 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_smartAccountAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_minterAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_protocolModuleAddress",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -123,6 +107,16 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "InvalidInitialization",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitializing",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -191,6 +185,19 @@
       }
     ],
     "name": "BuyoutTokenCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "version",
+        "type": "uint64"
+      }
+    ],
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -378,7 +385,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -391,7 +398,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -404,12 +411,36 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "SONG_SHARES_ID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "balanceOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -431,9 +462,14 @@
         "internalType": "uint256",
         "name": "id",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "name": "balanceOf",
+    "name": "balanceOfAt",
     "outputs": [
       {
         "internalType": "uint256",
@@ -554,6 +590,29 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_smartAccount",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_minterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_protocolModuleAddress",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       },
@@ -579,7 +638,7 @@
     "name": "legalContractMetadata",
     "outputs": [
       {
-        "internalType": "contract ILegalContractMetadata",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -592,7 +651,7 @@
     "name": "metadataModule",
     "outputs": [
       {
-        "internalType": "contract IMetadataModule",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -631,7 +690,7 @@
     "name": "protocolModule",
     "outputs": [
       {
-        "internalType": "contract IProtocolModule",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }

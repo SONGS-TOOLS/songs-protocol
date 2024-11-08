@@ -5,6 +5,11 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IWSTokenManagement is IERC1155 {
+    function initialize(
+        address _smartAccount,
+        address _minter,
+        address _protocolModule
+    ) external;
     function createSongShares(uint256 sharesAmount) external;
     function createBuyoutToken(uint256 amount, address recipient) external;
     function createLegalContract(string memory contractURI) external returns (uint256 tokenId);
@@ -24,4 +29,6 @@ interface IWSTokenManagement is IERC1155 {
     function protocolModule() external view returns (address);
     function legalContractMetadata() external view returns (address);
     function totalSupply(uint256 tokenId) external view returns (uint256);
+    function transferOwnership(address newOwner) external;
+    function balanceOfAt(address account, uint256 id, uint256 timestamp) external view returns (uint256);
 }
