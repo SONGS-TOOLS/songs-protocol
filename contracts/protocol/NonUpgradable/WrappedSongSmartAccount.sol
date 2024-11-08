@@ -238,11 +238,16 @@ contract WrappedSongSmartAccount is
    * @param amount The amount of tokens being received.
    */
   function receiveERC20(address token, uint256 amount) external notMigrated {
+    // Verify it's our stablecoin
+    require(token == address(stablecoin), "Invalid token");
+    
+    // Transfer tokens first
     require(
-      IERC20(token).transferFrom(msg.sender, address(this), amount),
-      "Transfer failed"
+        IERC20(token).transferFrom(msg.sender, address(this), amount),
+        "Transfer failed"
     );
     
+    // Process earnings after successful transfer
     _processEarnings(amount, token);
   }
 
@@ -255,23 +260,28 @@ contract WrappedSongSmartAccount is
     uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
     require(shares > 0, "No shares owned");
 
-    // Calculate share of total earnings directly from shares
-    uint256 payment = (shares * totalDistributedEarnings) / newWSTokenManagement.totalSupply(songSharesId);
-    require(payment > 0, "No payment to claim");
+    uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
+    
+    // Calculate unclaimed earnings using the same pattern as ETH earnings
+    uint256 currentEarningsPerShare = accumulatedEarningsPerShare;
+    uint256 unclaimedEarnings = (shares * currentEarningsPerShare) / PRECISION - 
+                               (shares * earningsPerSharePaid[msg.sender]) / PRECISION;
+    
+    require(unclaimedEarnings > 0, "No payment to claim");
 
     // Update state
-    earningsPerSharePaid[msg.sender] = accumulatedEarningsPerShare;
-    totalEarnings[msg.sender] += payment;
-    redeemedEarnings[msg.sender] += payment;
+    earningsPerSharePaid[msg.sender] = currentEarningsPerShare;
+    totalEarnings[msg.sender] += unclaimedEarnings;
+    redeemedEarnings[msg.sender] += unclaimedEarnings;
 
     // Transfer tokens
-    require(stablecoin.transfer(msg.sender, payment), "Transfer failed");
+    require(stablecoin.transfer(msg.sender, unclaimedEarnings), "Transfer failed");
 
     emit EarningsClaimed(
         msg.sender,
         address(stablecoin),
-        payment,
-        payment
+        unclaimedEarnings,
+        unclaimedEarnings
     );
   }
 
@@ -282,28 +292,32 @@ contract WrappedSongSmartAccount is
     uint256 shares = newWSTokenManagement.balanceOf(msg.sender, songSharesId);
     require(shares > 0, "No shares owned");
 
-    // Calculate share of total ETH earnings directly from shares
-    uint256 payment = (shares * totalDistributedETHEarnings) / newWSTokenManagement.totalSupply(songSharesId);
-    require(payment > 0, "No ETH to claim");
+    uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
+    
+    // Calculate unclaimed earnings
+    uint256 currentEarningsPerShare = accumulatedETHEarningsPerShare;
+    uint256 unclaimedEarnings = (shares * currentEarningsPerShare) / PRECISION - 
+                               (shares * lastClaimedETHEarningsPerShare[msg.sender]) / PRECISION;
+    
+    require(unclaimedEarnings > 0, "No ETH to claim");
 
-    // Update state
-    lastClaimedETHEarningsPerShare[msg.sender] = accumulatedETHEarningsPerShare;
-    totalEarnings[msg.sender] += payment;
-    redeemedEarnings[msg.sender] += payment;
+    // Update state before transfer
+    lastClaimedETHEarningsPerShare[msg.sender] = currentEarningsPerShare;
+    ethBalance -= unclaimedEarnings;
 
     // Transfer ETH
-    (bool success, ) = msg.sender.call{value: payment}("");
+    (bool success, ) = msg.sender.call{value: unclaimedEarnings}("");
     require(success, "ETH transfer failed");
 
     emit ETHEarningsClaimed(
         msg.sender,
-        payment,
-        payment
+        unclaimedEarnings,
+        unclaimedEarnings
     );
   }
 
   /**
-   * @dev Modified _processEarnings to handle ETH correctly
+   * @dev Modified _processEarnings to handle both ETH and ERC20 consistently
    */
   function _processEarnings(uint256 amount, address token) private {
     uint256 totalShares = newWSTokenManagement.totalSupply(songSharesId);
@@ -311,12 +325,13 @@ contract WrappedSongSmartAccount is
 
     if (token == address(0)) {
         // ETH earnings
-        accumulatedETHEarningsPerShare += (amount * 1e18) / totalShares;
+        accumulatedETHEarningsPerShare += (amount * PRECISION) / totalShares;
         totalDistributedETHEarnings += amount;
         ethBalance += amount;
     } else {
-        // ERC20 earnings
-        accumulatedEarningsPerShare += (amount * 1e18) / totalShares;
+        // ERC20 earnings - use PRECISION for consistent decimal handling
+        uint256 newEarningsPerShare = (amount * PRECISION) / totalShares;
+        accumulatedEarningsPerShare += newEarningsPerShare;
         totalDistributedEarnings += amount;
     }
 
@@ -330,8 +345,9 @@ contract WrappedSongSmartAccount is
     uint256 shares = newWSTokenManagement.balanceOf(user, songSharesId);
     if (shares == 0) return 0;
 
-    return (shares * accumulatedEarningsPerShare) / 1e18 - 
-           earningsPerSharePaid[user];
+    uint256 currentEarningsPerShare = accumulatedEarningsPerShare;
+    return (shares * currentEarningsPerShare) / PRECISION - 
+           (shares * earningsPerSharePaid[user]) / PRECISION;
   }
 
   /**
@@ -456,5 +472,12 @@ contract WrappedSongSmartAccount is
     if(msg.value > 0) {
       _processEarnings(msg.value, address(0));
     }
+  }
+
+  /**
+   * @dev View function to get pending earnings for an account
+   */
+  function getPendingEarnings(address account) external view returns (uint256) {
+    return _pendingEarnings(account);
   }
 }
