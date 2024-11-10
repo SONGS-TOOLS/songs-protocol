@@ -21,9 +21,7 @@ interface IWrappedSongSmartAccount {
     function migrateWrappedSong(address metadataAddress, address newWrappedSongAddress) external;
     function receiveEpochEarnings(
         address token,
-        uint256 amount,
-        uint256 startEpoch,
-        uint256 endEpoch
+        uint256 amount
     ) external;
     function setWSTokenManagement(address _wsTokenManagement) external;
 }

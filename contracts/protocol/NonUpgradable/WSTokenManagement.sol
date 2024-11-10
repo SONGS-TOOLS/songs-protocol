@@ -147,6 +147,7 @@ contract WSTokenManagement is
     }
 
     // Add function to get historical balance
+
     function balanceOfAt(
         address account, 
         uint256 id, 
