@@ -92,17 +92,16 @@ contract DistributorWallet is Ownable {
 
     /**
      * @dev Receives stablecoin and updates the treasury for the specified wrapped songs.
-     * @param _wrappedSongs The addresses of the wrapped songs.
      * @param _amounts The amounts of stablecoin to be received for each wrapped song IMPORTANT ordered by index.
      * @param _totalAmount The total amount of stablecoin to be received.
      */
     function createDistributionEpoch(
         // TODO: why calldata?
-        address[] calldata _wrappedSongs, 
+        // address[] calldata _wrappedSongs, 
         uint256[] calldata _amounts, 
         uint256 _totalAmount
     ) external onlyOwner {
-        require(_wrappedSongs.length == _amounts.length, "Length mismatch");
+        // require(_amounts.length, "Length mismatch");
         // TODO: Estimate gas, estimage max WS list size so upload
         
         // Send totalAmount funds
@@ -149,7 +148,7 @@ contract DistributorWallet is Ownable {
         uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
 
         // Get last sender epoch
-        uint256 storage lastRedeemedEpochId = lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender];
+        uint256 lastRedeemedEpochId = lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender];
 
         uint256 nextEpoch = lastRedeemedEpochId++;
 
@@ -158,8 +157,10 @@ contract DistributorWallet is Ownable {
 
         // BUILD STATE
         uint256 amountToRedeem;
-        uint256[] localAmounts;
-        uint256[] localEpochTimestamps;
+
+        // TODO: Check if storage works correctly
+        uint256[] storage localAmounts;
+        uint256[] storage localEpochTimestamps;
 
         // LOOP to all lacking to redeem epochs
         for(uint256 epochTimestamp = nextEpoch; epochTimestamp < currentEpochId; epochTimestamp++) {
@@ -175,11 +176,11 @@ contract DistributorWallet is Ownable {
         }
 
         // UPDATE the last Redeemed epoch per user
-        lastRedeemedEpochId = currentEpochId;
+        lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender] = currentEpochId;
 
         // SEND FUNDS
         // Transfer to wrapped song with epoch info
-        require(stablecoin.approve(msg.sender, epoch.amounts[wsIndex]), "Approval failed");
+        require(stablecoin.approve(msg.sender, amountToRedeem), "Approval failed");
         // Transfer to wrapped song with epoch info
         require(IERC20(stablecoin).transferFrom(msg.sender, address(this), amountToRedeem),
             "Transfer failed");
@@ -204,7 +205,7 @@ contract DistributorWallet is Ownable {
         uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
 
         // LAST REDEEMED EPOCH PER ACCOUNT
-        uint256 storage lastRedeemedEpochId = lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender];
+        uint256 lastRedeemedEpochId = lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender];
 
         uint256 nextEpoch = lastRedeemedEpochId++;
 
@@ -212,8 +213,10 @@ contract DistributorWallet is Ownable {
         uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
 
         uint256 amountToRedeem;
-        uint256[] localAmounts;
-        uint256[] localEpochTimestamps;
+
+        // TODO: Check if storage works correctly
+        uint256[] storage localAmounts;
+        uint256[] storage localEpochTimestamps;
 
         // LOOP to all lacking to redeem epochs
         for(uint256 epochTimestamp = nextEpoch; epochTimestamp < currentEpochId; epochTimestamp++) {
