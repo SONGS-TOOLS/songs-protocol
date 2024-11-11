@@ -74,23 +74,38 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   );
   await protocolModule.waitForDeployment();
 
-  // Deploy SongSharesMarketPlace
-  const SongSharesMarketPlace = await ethers.getContractFactory("SongSharesMarketPlace");
-  const songSharesMarketPlace = await SongSharesMarketPlace.deploy(protocolModule.target);
-  await songSharesMarketPlace.waitForDeployment();
-
   // Deploy mock stablecoin
   const MockToken = await ethers.getContractFactory("MockToken");
   const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
   await mockStablecoin.waitForDeployment();
 
-  // Deploy WrappedSongFactory
+  // Deploy template contracts
+  const WrappedSongSmartAccount = await ethers.getContractFactory("WrappedSongSmartAccount");
+  const wrappedSongTemplate = await WrappedSongSmartAccount.deploy(
+    protocolModule.target // Only protocolModule is immutable
+  );
+  await wrappedSongTemplate.waitForDeployment();
+
+  const WSTokenManagement = await ethers.getContractFactory("WSTokenManagement");
+  const wsTokenTemplate = await WSTokenManagement.deploy(); // No constructor args needed
+  await wsTokenTemplate.waitForDeployment();
+
+  // Deploy WrappedSongFactory with templates
   const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
-  const wrappedSongFactory = await WrappedSongFactory.deploy(protocolModule.target);
+  const wrappedSongFactory = await WrappedSongFactory.deploy(
+    protocolModule.target,
+    wrappedSongTemplate.target,
+    wsTokenTemplate.target
+  );
   await wrappedSongFactory.waitForDeployment();
 
+  // Deploy SongSharesMarketPlace
+  const SongSharesMarketPlace = await ethers.getContractFactory("SongSharesMarketPlace");
+  const songSharesMarketPlace = await SongSharesMarketPlace.deploy(protocolModule.target);
+  await songSharesMarketPlace.waitForDeployment();
+
   // Setup protocol configurations
-  await metadataModule.setProtocolModule(await protocolModule.getAddress());
+  await metadataModule.setProtocolModule(protocolModule.target);
   await metadataModule.connect(deployer).transferOwnership(protocolModule.target);
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
   await protocolModule.setMetadataModule(metadataModule.target);
