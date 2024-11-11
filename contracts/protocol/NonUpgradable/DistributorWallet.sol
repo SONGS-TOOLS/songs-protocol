@@ -60,8 +60,8 @@ contract DistributorWallet is Ownable {
     event EpochsRedeemed(
         address indexed wrappedSong, 
         address indexed shareHolder, 
-        uint256[] localAmounts,
-        uint256[] localEpochTimestamps,
+        // uint256[] localAmounts,
+        // uint256[] localEpochTimestamps,
         uint256 totalAmount
     );
 
@@ -101,8 +101,8 @@ contract DistributorWallet is Ownable {
         uint256[] calldata _amounts, 
         uint256 _totalAmount
     ) external onlyOwner {
-        // require(_amounts.length, "Length mismatch");
-        // TODO: Estimate gas, estimage max WS list size so upload
+        require(_amounts.length <= 100, "Too many wrapped songs");
+        require(_amounts.length > 0, "Empty amounts array");
         
         // Send totalAmount funds
         require(
@@ -115,7 +115,7 @@ contract DistributorWallet is Ownable {
         // Create onchain epoch
         distributionEpochs[currentEpochId++] = RevenueEpoch({
             epochId: epochId,
-            amountsPerWS: _amounts, // Array ordered by WS index
+            amountsPerWS: _amounts, // Array ordered by WS indexExplain
             totalAmount: _totalAmount,
             timestamp: block.timestamp
         });
@@ -159,8 +159,8 @@ contract DistributorWallet is Ownable {
         uint256 amountToRedeem;
 
         // TODO: Check if storage works correctly
-        uint256[] storage localAmounts;
-        uint256[] storage localEpochTimestamps;
+        // uint256[] storage localAmounts;
+        // uint256[] storage localEpochTimestamps;
 
         // LOOP to all lacking to redeem epochs
         for(uint256 epochTimestamp = nextEpoch; epochTimestamp < currentEpochId; epochTimestamp++) {
@@ -171,8 +171,8 @@ contract DistributorWallet is Ownable {
             uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(msg.sender, 1, epochTimestamp);
             uint256 songShareAmount = (epoch.amountsPerWS[wsIndex] / totalShares) * balanceAtEpoch;
             amountToRedeem = amountToRedeem + songShareAmount;
-            localAmounts.push(songShareAmount);
-            localEpochTimestamps.push(epochTimestamp);
+            // localAmounts.push(songShareAmount);
+            // localEpochTimestamps.push(epochTimestamp);
         }
 
         // UPDATE the last Redeemed epoch per user
@@ -186,7 +186,13 @@ contract DistributorWallet is Ownable {
             "Transfer failed");
 
         // This mapping Seems not necesary
-        emit EpochsRedeemed(_wrappedSong, msg.sender, localAmounts, localEpochTimestamps, amountToRedeem);
+        emit EpochsRedeemed(
+            _wrappedSong,
+         msg.sender, 
+        // localAmounts, 
+        // localEpochTimestamps,
+         amountToRedeem
+         );
     }
 
 

@@ -11,3 +11,4 @@ subgraph/build
 subgraph/generated
 
 typechain-types
+localDocs/
