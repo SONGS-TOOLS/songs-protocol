@@ -2,33 +2,40 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IWSTokenManagement is IERC1155 {
-    function initialize(
-        address _smartAccount,
-        address _minter,
-        address _protocolModule
-    ) external;
-    function createSongShares(uint256 sharesAmount) external;
-    function createBuyoutToken(uint256 amount, address recipient) external;
-    function createLegalContract(string memory contractURI) external returns (uint256 tokenId);
-    function migrateWrappedSong(address metadataAddress) external;
-    
-    // Constants
-    function SONG_CONCEPT_ID() external view returns (uint256);
-    function SONG_SHARES_ID() external view returns (uint256);
-    function BUYOUT_TOKEN_ID() external view returns (uint256);
-    function LEGAL_CONTRACT_START_ID() external view returns (uint256);
-    
-    // View functions
+    // Events
+
+    // View functions - non-ERC1155 functions only
+    function totalSupply(uint256 id) external view returns (uint256);
+    function balanceOfAt(address account, uint256 id, uint256 timestamp) external view returns (uint256);
     function uri(uint256 tokenId) external view returns (string memory);
+    
+    // Token ID getters
+    function SONG_CONCEPT_ID() external pure returns (uint256);
+    function SONG_SHARES_ID() external pure returns (uint256);
+    function BUYOUT_TOKEN_ID() external pure returns (uint256);
+    function LEGAL_CONTRACT_START_ID() external pure returns (uint256);
+    
+    // State variables
     function totalShares() external view returns (uint256);
     function currentLegalContractId() external view returns (uint256);
     function metadataModule() external view returns (address);
     function protocolModule() external view returns (address);
     function legalContractMetadata() external view returns (address);
-    function totalSupply(uint256 tokenId) external view returns (uint256);
+
+    // Token management functions
+    function initialize(
+        address _smartAccount,
+        address _minterAddress,
+        address _protocolModuleAddress
+    ) external;
+    
+    function createSongShares(uint256 sharesAmount) external;
+    function createBuyoutToken(uint256 amount, address recipient) external;
+    function createLegalContract(string memory contractURI) external returns (uint256);
+    
+    // Migration and ownership
+    function migrateWrappedSong(address metadataAddress) external;
     function transferOwnership(address newOwner) external;
-    function balanceOfAt(address account, uint256 id, uint256 timestamp) external view returns (uint256);
 }
