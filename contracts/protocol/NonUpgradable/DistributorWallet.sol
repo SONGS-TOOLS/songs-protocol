@@ -6,313 +6,225 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
+import './../Interfaces/IWSTokenManagement.sol';
 
+/**
+ * @title DistributorWallet
+ * @dev Manages revenue distribution for wrapped songs with support for large-scale distributions
+ * @notice Handles revenue distribution and claims for wrapped song token holders
+ */
 contract DistributorWallet is Ownable {
+    // Constants
+    uint256 public constant CHUNK_SIZE = 1000;
+
+    // Structs
     struct RevenueEpoch {
-        uint256 epochId;
         uint256 totalAmount;
-        uint256[] amountsPerWS;
         uint256 timestamp;
+        uint256 chunksCount;
     }
 
-    uint256 currentEpochId;
-    uint256 wsRedeemIndexStatus;
-
+    // State Variables
+    uint256 public currentEpochId;
     IERC20 public immutable stablecoin;
     IProtocolModule public immutable protocolModule;
 
-    // Track epochs per wrapped song
+    // Mappings
     mapping(uint256 => RevenueEpoch) public distributionEpochs;
-    // Track epochs epochs redemption per wrapped song
-    mapping(uint256 => mapping(uint256 => address)) public epochsRedeemption;
-    // 
+    mapping(uint256 => mapping(uint256 => uint256[])) public amountChunks;
+    mapping(uint256 => mapping(address => bool)) public epochClaims;
     mapping(address => uint256) public wsRedeemIndexList;
-
-    mapping(address => mapping(address => uint256)) public lastRedeemedEpochPerWSPerSender;
-
-    mapping(address => uint256) public lastProcessedEpoch;
-    mapping(address => uint256) public wrappedSongTreasury;
-
     address[] public managedWrappedSongs;
-    uint256 public currentBatchIndex;
 
-    event WrappedSongReleaseRequested(address indexed wrappedSong);
-    event WrappedSongReleased(address indexed wrappedSong);
-    event WrappedSongRedeemed(address indexed wrappedSong, uint256 amount);
-    event WrappedSongReleaseRejected(address indexed wrappedSong);
-    event WrappedSongAcceptedForReview(address indexed wrappedSong);
-
-    event FundsReceived(
-        address indexed from,
-        uint256 amount,
-        string currency,
-        address[] wrappedSongs,
-        uint256[] amounts
-    );
-
+    // Events
     event NewRevenueEpoch(
-        address indexed distributor, 
-        uint256 indexed epochId, 
+        address indexed distributor,
+        uint256 indexed epochId,
         uint256 totalAmount,
         uint256 timestamp
     );
 
-    event EpochsRedeemed(
-        address indexed wrappedSong, 
-        address indexed shareHolder, 
-        // uint256[] localAmounts,
-        // uint256[] localEpochTimestamps,
-        uint256 totalAmount
+    event NewDistributionChunk(
+        uint256 indexed epochId,
+        uint256 indexed chunkIndex,
+        uint256 amountsCount
     );
 
+    event EpochRedeemed(
+        address indexed wrappedSong,
+        address indexed holder,
+        uint256 indexed epochId,
+        uint256 amount
+    );
+
+    event WrappedSongReleased(address indexed wrappedSong);
+    event WrappedSongReleaseRejected(address indexed wrappedSong);
+    event WrappedSongAcceptedForReview(address indexed wrappedSong);
+
     /**
-     * @dev Constructor to initialize the contract with the given parameters.
-     * @param _stablecoin The address of the stablecoin contract.
-     * @param _protocolModule The address of the protocol module contract.
-     * @param _owner The address of the owner.
+     * @dev Constructor
+     * @param _stablecoin Address of the stablecoin contract
+     * @param _protocolModule Address of the protocol module
+     * @param _owner Address of the owner
      */
     constructor(
         address _stablecoin,
         address _protocolModule,
         address _owner
     ) Ownable(_owner) {
-        protocolModule = IProtocolModule(_protocolModule);
+        require(_stablecoin != address(0), "Invalid stablecoin");
+        require(_protocolModule != address(0), "Invalid protocol module");
+        
         stablecoin = IERC20(_stablecoin);
+        protocolModule = IProtocolModule(_protocolModule);
     }
 
-    /******************************************************************************
-     *                                                                             *
-     *                             EARNINGS FUNCTIONS                               *
-     *                                                                             *
-     * This section contains functions related to receiving and managing earnings  *
-     * for wrapped songs. It includes functionality for receiving individual and   *
-     * batch payments in stablecoin and updating the treasury balances.           *
-     *                                                                             *
-     ******************************************************************************/
-
     /**
-     * @dev Receives stablecoin and updates the treasury for the specified wrapped songs.
-     * @param _amounts The amounts of stablecoin to be received for each wrapped song IMPORTANT ordered by index.
-     * @param _totalAmount The total amount of stablecoin to be received.
+     * @dev Creates a new chunk in an epoch distribution
+     * @param epochId The epoch identifier
+     * @param chunkIndex The index of this chunk (0-based)
+     * @param _amounts Array of amounts for this chunk
+     * @param _totalAmount Total amount (only used in first chunk)
+     * @param isFirstChunk Whether this is the first chunk
+     * @param isLastChunk Whether this is the last chunk
      */
-    function createDistributionEpoch(
-        // TODO: why calldata?
-        // address[] calldata _wrappedSongs, 
-        uint256[] calldata _amounts, 
-        uint256 _totalAmount
+    function createDistributionEpochChunk(
+        uint256 epochId,
+        uint256 chunkIndex,
+        uint256[] calldata _amounts,
+        uint256 _totalAmount,
+        bool isFirstChunk,
+        bool isLastChunk
     ) external onlyOwner {
-        require(_amounts.length <= 100, "Too many wrapped songs");
-        require(_amounts.length > 0, "Empty amounts array");
+        require(_amounts.length <= CHUNK_SIZE, "Chunk too large");
+        require(epochId == currentEpochId + 1, "Invalid epoch id");
         
-        // Send totalAmount funds
-        require(
-            stablecoin.transferFrom(msg.sender, address(this), _totalAmount),
-            "Transfer failed"
-        );
+        if (isFirstChunk) {
+            require(_totalAmount > 0, "Invalid total amount");
+            require(
+                stablecoin.transferFrom(msg.sender, address(this), _totalAmount),
+                "Transfer failed"
+            );
 
-        uint256 epochId = currentEpochId++;
-        
-        // Create onchain epoch
-        distributionEpochs[currentEpochId++] = RevenueEpoch({
-            epochId: epochId,
-            amountsPerWS: _amounts, // Array ordered by WS indexExplain
-            totalAmount: _totalAmount,
-            timestamp: block.timestamp
-        });
-
-        // Increase current Distributor Epoch
-        currentEpochId = currentEpochId++;
-
-        emit NewRevenueEpoch(
-            address(this), 
-            epochId, 
-            _totalAmount,
-            block.timestamp
-        );
-    }
-
-    // Redemption Functions
-
-    /**
-     * @dev Redeems the amount for the wrapped song.
-     * @param _wrappedSong The address of the wrapped song.
-     */
-    function claimEarnigsByTokenHolder(address _wrappedSong) external {
-        require(lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender] < currentEpochId, "Nothing to redeem");
-
-        // GET ALL INFO
-        
-        // Get the SONGSHARES balance of the Sender
-        address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
-        uint256 balance = IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 1);
-        uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
-
-        // Get last sender epoch
-        uint256 lastRedeemedEpochId = lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender];
-
-        uint256 nextEpoch = lastRedeemedEpochId++;
-
-        // Get the WS Index in the Epoch
-        uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
-
-        // BUILD STATE
-        uint256 amountToRedeem;
-
-        // TODO: Check if storage works correctly
-        // uint256[] storage localAmounts;
-        // uint256[] storage localEpochTimestamps;
-
-        // LOOP to all lacking to redeem epochs
-        for(uint256 epochTimestamp = nextEpoch; epochTimestamp < currentEpochId; epochTimestamp++) {
-            // GET THE EPOCH
-            RevenueEpoch memory epoch = distributionEpochs[epochTimestamp];
-            
-            // CALCULATE PARTS
-            uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(msg.sender, 1, epochTimestamp);
-            uint256 songShareAmount = (epoch.amountsPerWS[wsIndex] / totalShares) * balanceAtEpoch;
-            amountToRedeem = amountToRedeem + songShareAmount;
-            // localAmounts.push(songShareAmount);
-            // localEpochTimestamps.push(epochTimestamp);
+            distributionEpochs[epochId] = RevenueEpoch({
+                totalAmount: _totalAmount,
+                timestamp: block.timestamp,
+                chunksCount: 0
+            });
         }
 
-        // UPDATE the last Redeemed epoch per user
-        lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender] = currentEpochId;
+        // Store chunk in separate mapping
+        amountChunks[epochId][chunkIndex] = _amounts;
+        
+        if (isLastChunk) {
+            distributionEpochs[epochId].chunksCount = chunkIndex + 1;
+            currentEpochId = epochId;
+            
+            emit NewRevenueEpoch(
+                address(this),
+                epochId,
+                _totalAmount,
+                block.timestamp
+            );
+        }
 
-        // SEND FUNDS
-        // Transfer to wrapped song with epoch info
-        require(stablecoin.approve(msg.sender, amountToRedeem), "Approval failed");
-        // Transfer to wrapped song with epoch info
-        require(IERC20(stablecoin).transferFrom(msg.sender, address(this), amountToRedeem),
-            "Transfer failed");
+        emit NewDistributionChunk(epochId, chunkIndex, _amounts.length);
+    }
 
-        // This mapping Seems not necesary
-        emit EpochsRedeemed(
+    /**
+     * @dev Get amount for a specific wrapped song from chunked storage
+     * @param epochId The epoch to query
+     * @param wsIndex The global index of the wrapped song
+     */
+    function getAmountForWS(uint256 epochId, uint256 wsIndex) public view returns (uint256) {
+        uint256 chunkIndex = wsIndex / CHUNK_SIZE;
+        uint256 indexInChunk = wsIndex % CHUNK_SIZE;
+        
+        require(chunkIndex < distributionEpochs[epochId].chunksCount, "Invalid WS index");
+        
+        return amountChunks[epochId][chunkIndex][indexInChunk];
+    }
+
+    /**
+     * @dev Claims earnings for a token holder
+     * @param _wrappedSong The wrapped song address
+     * @param epochId The epoch to claim from
+     */
+    function claimEpochEarnings(
+        address _wrappedSong,
+        uint256 epochId
+    ) external {
+        require(!epochClaims[epochId][msg.sender], "Already claimed");
+        require(epochId <= currentEpochId, "Invalid epoch");
+
+        RevenueEpoch storage epoch = distributionEpochs[epochId];
+        address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
+        uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
+
+        uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(
+            msg.sender,
+            1,
+            epoch.timestamp
+        );
+        
+        uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
+        
+        // Get amount from chunked storage
+        uint256 wsAmount = getAmountForWS(epochId, wsIndex);
+        uint256 amount = (wsAmount * balanceAtEpoch) / totalShares;
+        
+        epochClaims[epochId][msg.sender] = true;
+
+        require(stablecoin.transfer(msg.sender, amount), "Transfer failed");
+
+        emit EpochRedeemed(
             _wrappedSong,
-         msg.sender, 
-        // localAmounts, 
-        // localEpochTimestamps,
-         amountToRedeem
-         );
+            msg.sender,
+            epochId,
+            amount
+        );
     }
 
-
-    // View function to get unclaimed epochs info
-    function getUnclaimedEpochsEarnings(address _wrappedSong) 
-        external 
-        view 
-        returns (
-            uint256[] memory amounts,
-            uint256[] memory epochTimestamps,
-            uint256 unclaimedEarnings
-        ) 
-    {
-        address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
-        uint256 balance = IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 1);
-        uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
-
-        // LAST REDEEMED EPOCH PER ACCOUNT
-        uint256 lastRedeemedEpochId = lastRedeemedEpochPerWSPerSender[_wrappedSong][msg.sender];
-
-        uint256 nextEpoch = lastRedeemedEpochId++;
-
-        // Get the WS Index in the Epoch
-        uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
-
-        uint256 amountToRedeem;
-
-        // TODO: Check if storage works correctly
-        uint256[] storage localAmounts;
-        uint256[] storage localEpochTimestamps;
-
-        // LOOP to all lacking to redeem epochs
-        for(uint256 epochTimestamp = nextEpoch; epochTimestamp < currentEpochId; epochTimestamp++) {
-            // GET THE EPOCH
-            RevenueEpoch memory epoch = distributionEpochs[epochTimestamp];
-            
-            // GET THE EPOCH
-            uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(msg.sender, 1, epochTimestamp);
-            uint256 songShareAmount = (epoch.amountsPerWS[wsIndex] / totalShares) * balanceAtEpoch;
-            amountToRedeem = amountToRedeem + songShareAmount;
-            localAmounts.push(songShareAmount);
-            localEpochTimestamps.push(epochTimestamp);
+    /**
+     * @dev View function to check claimable amount for a specific epoch
+     */
+    function getClaimableAmount(
+        address _wrappedSong,
+        address _holder,
+        uint256 epochId
+    ) external view returns (uint256) {
+        if (epochClaims[epochId][_holder] || epochId > currentEpochId) {
+            return 0;
         }
 
-        return (
-            localAmounts,
-            epochTimestamps,
-            amountToRedeem
+        address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
+        uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
+        uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(
+            _holder,
+            1,
+            distributionEpochs[epochId].timestamp
         );
-    }
-
-    /******************************************************************************
-     *                                                                             *
-     *                           METADATA MANAGEMENT                               *
-     *                                                                             *
-     * This section contains functions related to managing metadata for wrapped    *
-     * songs. It includes functionality for confirming and rejecting metadata     *
-     * updates requested by wrapped song owners.                                   *
-     *                                                                             *
-     ******************************************************************************/
-
-    /**
-     * @dev Confirms the update to the metadata.
-     * @param wrappedSong The address of the wrapped song.
-     */
-    function confirmUpdateMetadata(address wrappedSong) external onlyOwner {
-        require(
-            !protocolModule.metadataModule().isMetadataUpdateConfirmed(wrappedSong),
-            'No pending metadata update for this wrapped song'
-        );
-        require(
-            protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
-            'Not the distributor for this wrapped song'
-        );
-        protocolModule.metadataModule().confirmUpdateMetadata(wrappedSong);
+        
+        uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
+        uint256 wsAmount = getAmountForWS(epochId, wsIndex);
+        
+        return (wsAmount * balanceAtEpoch) / totalShares;
     }
 
     /**
-     * @dev Rejects the update to the metadata.
-     * @param wrappedSong The address of the wrapped song.
-     */
-    function rejectUpdateMetadata(address wrappedSong) external onlyOwner {
-        require(
-            !protocolModule.metadataModule().isMetadataUpdateConfirmed(wrappedSong),
-            'No pending metadata update for this wrapped song'
-        );
-        require(
-            protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
-            'Not the distributor for this wrapped song'
-        );
-        protocolModule.metadataModule().rejectUpdateMetadata(wrappedSong);
-    }
-
-    /******************************************************************************
-     *                                                                             *
-     *                       WRAPPED SONG MANAGEMENT                               *
-     *                                                                             *
-     * This section contains functions related to managing wrapped songs and       *
-     * their lifecycle. It includes functionality for confirming releases,         *
-     * accepting songs for review, and rejecting release requests.                *
-     *                                                                             *
-     ******************************************************************************/
-
-    /**
-     * @dev Confirms the release of a wrapped song and adds it to the managed wrapped songs.
-     * @param wrappedSong The address of the wrapped song to be released.
+     * @dev Confirms the release of a wrapped song
+     * @param wrappedSong The address of the wrapped song
      */
     function confirmWrappedSongRelease(address wrappedSong) external onlyOwner {
         require(
             protocolModule.getPendingDistributorRequests(wrappedSong) == address(this),
-            'Not the pending distributor for this wrapped song'
+            'Not the pending distributor'
         );
 
         protocolModule.confirmWrappedSongRelease(wrappedSong);
         managedWrappedSongs.push(wrappedSong);
 
-        // Get index of last released Wrapped Song and create the next
-        uint256 newWSIndex = wsRedeemIndexStatus++;
-
-        // Assign new index to WS
+        uint256 newWSIndex = managedWrappedSongs.length - 1;
         wsRedeemIndexList[wrappedSong] = newWSIndex;
 
         emit WrappedSongReleased(wrappedSong);
@@ -328,87 +240,108 @@ contract DistributorWallet is Ownable {
         emit WrappedSongReleaseRejected(wrappedSong);
     }
 
-    // Fallback Functions
-
     /**
-     * @dev Fallback function to receive Ether payments.
+     * @dev Returns the number of managed wrapped songs
      */
-    receive() external payable {
-        // Handle Ether payments
+    function getManagedWrappedSongsCount() external view returns (uint256) {
+        return managedWrappedSongs.length;
     }
 
     /**
-     * @dev Fallback function to handle calls to the contract.
+     * @dev Emergency function to recover stuck tokens
+     * @param token The token to recover
+     * @notice Only owner can call this function
      */
-    fallback() external payable {
-        // Handle other calls
-    }
-
-    // ERC20 Token Handling
-
-    /**
-     * @dev Receives ERC20 tokens.
-     */
-    function receiveERC20() external {
-        // Handle ERC20 token reception
-    }
-
-    /******************************************************************************
-     *                                                                             *
-     *                           REGISTRY MANAGEMENT                               *
-     *                                                                             *
-     * This section contains functions related to managing registry codes (ISRC,   *
-     * UPC, ISWC, ISCC) for wrapped songs through the protocol module.            *
-     *                                                                             *
-     ******************************************************************************/
-
-    /**
-     * @dev Adds an ISRC code for a wrapped song
-     * @param wrappedSong The address of the wrapped song
-     * @param isrc The ISRC code to add
-     */
-    function addISRC(address wrappedSong, string memory isrc) external onlyOwner {
-        protocolModule.addISRC(wrappedSong, isrc);
+    function recoverTokens(address token) external onlyOwner {
+        require(token != address(stablecoin), "Cannot recover stablecoin");
+        uint256 balance = IERC20(token).balanceOf(address(this));
+        require(balance > 0, "No balance to recover");
+        require(IERC20(token).transfer(owner(), balance), "Transfer failed");
     }
 
     /**
-     * @dev Adds a UPC code for a wrapped song
-     * @param wrappedSong The address of the wrapped song
-     * @param upc The UPC code to add
+     * @dev Claims earnings for multiple epochs in a single transaction
+     * @param _wrappedSong The wrapped song address
+     * @param epochIds Array of epoch IDs to claim
      */
-    function addUPC(address wrappedSong, string memory upc) external onlyOwner {
-        protocolModule.addUPC(wrappedSong, upc);
+    function claimMultipleEpochs(
+        address _wrappedSong,
+        uint256[] calldata epochIds
+    ) external {
+        require(epochIds.length > 0, "Empty epochs array");
+        
+        address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
+        uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
+        uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
+        uint256 totalAmount;
+
+        for (uint256 i = 0; i < epochIds.length; i++) {
+            uint256 epochId = epochIds[i];
+            require(epochId <= currentEpochId, "Invalid epoch");
+            require(!epochClaims[epochId][msg.sender], "Epoch already claimed");
+
+            RevenueEpoch storage epoch = distributionEpochs[epochId];
+            
+            uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(
+                msg.sender,
+                1,
+                epoch.timestamp
+            );
+            
+            uint256 wsAmount = getAmountForWS(epochId, wsIndex);
+            uint256 amount = (wsAmount * balanceAtEpoch) / totalShares;
+            
+            totalAmount += amount;
+            epochClaims[epochId][msg.sender] = true;
+
+            emit EpochRedeemed(
+                _wrappedSong,
+                msg.sender,
+                epochId,
+                amount
+            );
+        }
+
+        require(totalAmount > 0, "Nothing to claim");
+        require(stablecoin.transfer(msg.sender, totalAmount), "Transfer failed");
     }
 
     /**
-     * @dev Adds an ISWC code for a wrapped song
-     * @param wrappedSong The address of the wrapped song
-     * @param iswc The ISWC code to add
+     * @dev View function to check claimable amounts for multiple epochs
+     * @param _wrappedSong The wrapped song address
+     * @param _holder The address of the holder
+     * @param epochIds Array of epoch IDs to check
+     * @return amounts Array of claimable amounts corresponding to each epoch
      */
-    function addISWC(address wrappedSong, string memory iswc) external onlyOwner {
-        protocolModule.addISWC(wrappedSong, iswc);
-    }
+    function getMultipleClaimableAmounts(
+        address _wrappedSong,
+        address _holder,
+        uint256[] calldata epochIds
+    ) external view returns (uint256[] memory amounts) {
+        address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
+        uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
+        uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
+        
+        amounts = new uint256[](epochIds.length);
+        
+        for (uint256 i = 0; i < epochIds.length; i++) {
+            uint256 epochId = epochIds[i];
+            if (epochId > currentEpochId || epochClaims[epochId][_holder]) {
+                amounts[i] = 0;
+                continue;
+            }
 
-    /**
-     * @dev Adds an ISCC code for a wrapped song
-     * @param wrappedSong The address of the wrapped song
-     * @param iscc The ISCC code to add
-     */
-    function addISCC(address wrappedSong, string memory iscc) external onlyOwner {
-        protocolModule.addISCC(wrappedSong, iscc);
+            RevenueEpoch storage epoch = distributionEpochs[epochId];
+            uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(
+                _holder,
+                1,
+                epoch.timestamp
+            );
+            
+            uint256 wsAmount = getAmountForWS(epochId, wsIndex);
+            amounts[i] = (wsAmount * balanceAtEpoch) / totalShares;
+        }
+        
+        return amounts;
     }
-
-    /**
-     * @dev Sets the authenticity status for a wrapped song
-     * @param wrappedSong The address of the wrapped song
-     * @param isAuthentic The authenticity status to set
-     */
-    function setWrappedSongAuthenticity(address wrappedSong, bool isAuthentic) external onlyOwner {
-        require(
-            protocolModule.getWrappedSongDistributor(wrappedSong) == address(this),
-            "Not the distributor for this wrapped song"
-        );
-        protocolModule.setWrappedSongAuthenticity(wrappedSong, isAuthentic);
-    }
-
 }

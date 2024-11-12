@@ -83,18 +83,12 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "source",
-        "type": "string"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
+        "internalType": "bool",
+        "name": "isETH",
+        "type": "bool"
       }
     ],
-    "name": "DistributionEpochProcessed",
+    "name": "EarningsEpochProcessed",
     "type": "event"
   },
   {
@@ -169,17 +163,25 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
+        "internalType": "uint256",
+        "name": "maxEpochs",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimETHEarnings",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
         "name": "maxEpochs",
         "type": "uint256"
       }
     ],
-    "name": "claimEarnings",
+    "name": "claimStablecoinEarnings",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -238,11 +240,42 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "donateToWS",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ethBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
-    "name": "distributionEpochs",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "ethEarningsEpochs",
     "outputs": [
       {
         "internalType": "uint256",
@@ -265,37 +298,23 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
-        "name": "processed",
-        "type": "bool"
-      },
-      {
-        "internalType": "string",
-        "name": "source",
-        "type": "string"
-      },
-      {
-        "internalType": "enum WrappedSongSmartAccount.EpochType",
-        "name": "epochType",
-        "type": "uint8"
-      },
-      {
         "internalType": "address",
         "name": "sender",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "ethBalance",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getPendingETHEarnings",
     "outputs": [
       {
         "internalType": "uint256",
@@ -312,14 +331,9 @@
         "internalType": "address",
         "name": "account",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
       }
     ],
-    "name": "getPendingEarnings",
+    "name": "getPendingStablecoinEarnings",
     "outputs": [
       {
         "internalType": "uint256",
@@ -336,14 +350,43 @@
         "internalType": "address",
         "name": "account",
         "type": "address"
+      }
+    ],
+    "name": "getUnclaimedETHEpochs",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "epochIds",
+        "type": "uint256[]"
       },
       {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "timestamps",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "sources",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "token",
+        "name": "account",
         "type": "address"
       }
     ],
-    "name": "getUnclaimedEpochs",
+    "name": "getUnclaimedStablecoinEpochs",
     "outputs": [
       {
         "internalType": "uint256[]",
@@ -519,7 +562,7 @@
         "type": "bytes4"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -558,7 +601,7 @@
         "type": "bytes4"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -606,34 +649,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "startEpoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "endEpoch",
-        "type": "uint256"
-      }
-    ],
-    "name": "receiveEpochEarnings",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
@@ -673,6 +688,45 @@
       {
         "internalType": "contract IERC20",
         "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "stablecoinEarningsEpochs",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "epochId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "earningsPerShare",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
         "type": "address"
       }
     ],

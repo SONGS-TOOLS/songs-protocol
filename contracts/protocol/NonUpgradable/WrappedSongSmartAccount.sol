@@ -38,7 +38,7 @@ contract WrappedSongSmartAccount is
         uint256 lastClaimedETHEpoch;
     }
 
-    mapping(address => EpochBalance) public userEpochBalances;
+    mapping(address => EpochBalance) private _userEpochBalances;
 
     struct EarningsEpoch {
         uint256 epochId;
@@ -48,9 +48,9 @@ contract WrappedSongSmartAccount is
         address sender;
     }
 
-    // Separate arrays for ETH and stablecoin epochs
-    EarningsEpoch[] public ethEarningsEpochs;
-    EarningsEpoch[] public stablecoinEarningsEpochs;
+    // Make arrays private
+    EarningsEpoch[] private _ethEarningsEpochs;
+    EarningsEpoch[] private _stablecoinEarningsEpochs;
 
     uint256 private constant PRECISION = 1e18;
     uint256 private constant MAX_EPOCHS_PER_CLAIM = 50;
@@ -158,9 +158,7 @@ contract WrappedSongSmartAccount is
      ******************************************************************************/
 
     receive() external payable {
-        if(msg.value > 0) {
-            _createETHEpoch(msg.value);
-        }
+        ethBalance += msg.value;
     }
 
     function receiveERC20(address token, uint256 amount) external notMigrated {
@@ -170,102 +168,58 @@ contract WrappedSongSmartAccount is
             IERC20(token).transferFrom(msg.sender, address(this), amount),
             "Transfer failed"
         );
-
-        _createStablecoinEpoch(amount);
-    }
-
-    function donateToWS(uint256 amount, address token) external {
-        if (token == address(0)) {
-            _createETHEpoch(amount);
-        } else {
-            require(token == address(stablecoin), "Invalid token");
-            _createStablecoinEpoch(amount);
-        }
-    }
-
-
-    // External earnings and donations out of distribution earnings
-    function _createETHEpoch(uint256 amount) private {
-        uint256 totalShares = wsTokenManagement.totalSupply(songSharesId);
-        require(totalShares > 0, "No shares exist");
-
-        uint256 newEarningsPerShare = (amount * PRECISION) / totalShares;
-        
-        ethEarningsEpochs.push(EarningsEpoch({
-            epochId: ethEarningsEpochs.length,
-            amount: amount,
-            earningsPerShare: newEarningsPerShare,
-            timestamp: block.timestamp,
-            sender: msg.sender
-        }));
-
-        ethBalance = amount;
-
-        emit EarningsEpochProcessed(
-            ethEarningsEpochs.length - 1,
-            amount,
-            newEarningsPerShare,
-            true
-        );
-    }
-
-    function _createStablecoinEpoch(uint256 amount) private {
-        uint256 totalShares = wsTokenManagement.totalSupply(songSharesId);
-        require(totalShares > 0, "No shares exist");
-
-        uint256 newEarningsPerShare = (amount * PRECISION) / totalShares;
-        
-        stablecoinEarningsEpochs.push(EarningsEpoch({
-            epochId: stablecoinEarningsEpochs.length,
-            amount: amount,
-            earningsPerShare: newEarningsPerShare,
-            timestamp: block.timestamp,
-            sender: msg.sender
-        }));
-
-        emit EarningsEpochProcessed(
-            stablecoinEarningsEpochs.length - 1,
-            amount,
-            newEarningsPerShare,
-            false
-        );
     }
 
     function claimETHEarnings(uint256 maxEpochs) external nonReentrant notMigrated {
         uint256 currentShares = wsTokenManagement.balanceOf(msg.sender, songSharesId);
         require(currentShares > 0 || wsTokenManagement.balanceOfAt(msg.sender, songSharesId, block.timestamp - 1) > 0, "No shares owned");
 
-        EpochBalance storage userBalance = userEpochBalances[msg.sender];
+        EpochBalance storage userBalance = _userEpochBalances[msg.sender];
         uint256 startEpoch = userBalance.lastClaimedETHEpoch;
-        uint256 endEpoch = ethEarningsEpochs.length;
+        uint256 endEpoch = _ethEarningsEpochs.length;
         
         require(endEpoch > startEpoch, "No new epochs");
 
-        uint256 epochsToProcess = maxEpochs > 0 ? maxEpochs : MAX_EPOCHS_PER_CLAIM;
-        uint256 actualEndEpoch = Math.min(startEpoch + epochsToProcess, endEpoch);
+        uint256 epochsToProcess = maxEpochs > 0 ? 
+            Math.min(maxEpochs, endEpoch - startEpoch) : 
+            Math.min(MAX_EPOCHS_PER_CLAIM, endEpoch - startEpoch);
 
-        uint256 totalUnclaimed = 0;
+        uint256 totalUnclaimed;
 
-        for(uint256 i = startEpoch; i < actualEndEpoch; i++) {
-            EarningsEpoch memory epoch = ethEarningsEpochs[i];
-            uint256 historicalShares = wsTokenManagement.balanceOfAt(msg.sender, songSharesId, epoch.timestamp);
+        for(uint256 i = startEpoch; i < startEpoch + epochsToProcess; i++) {
+            EarningsEpoch memory epoch = _ethEarningsEpochs[i];
+            uint256 historicalShares = wsTokenManagement.balanceOfAt(
+                msg.sender, 
+                songSharesId, 
+                epoch.timestamp
+            );
+            
             if (historicalShares > 0) {
-                uint256 share = (historicalShares * epoch.earningsPerShare) / PRECISION;
+                // Safe multiplication and division to prevent overflow
+                uint256 shareMultiplied = historicalShares * epoch.earningsPerShare;
+                require(shareMultiplied / historicalShares == epoch.earningsPerShare, "Multiplication overflow");
+                
+                uint256 share = shareMultiplied / PRECISION;
+                require(share <= epoch.amount, "Share calculation overflow");
+                
                 totalUnclaimed += share;
+                require(totalUnclaimed >= share, "Total unclaimed overflow");
             }
         }
 
         require(totalUnclaimed > 0, "No ETH earnings to claim");
+        require(totalUnclaimed <= ethBalance, "Insufficient contract balance");
 
-        userBalance.lastClaimedETHEpoch = actualEndEpoch;
+        userBalance.lastClaimedETHEpoch = startEpoch + epochsToProcess;
         ethBalance -= totalUnclaimed;
+
         (bool success, ) = msg.sender.call{value: totalUnclaimed}("");
         require(success, "ETH transfer failed");
 
         emit EpochEarningsClaimed(
             msg.sender,
             startEpoch,
-            actualEndEpoch,
+            startEpoch + epochsToProcess,
             totalUnclaimed,
             address(0)
         );
@@ -275,19 +229,27 @@ contract WrappedSongSmartAccount is
         uint256 currentShares = wsTokenManagement.balanceOf(msg.sender, songSharesId);
         require(currentShares > 0 || wsTokenManagement.balanceOfAt(msg.sender, songSharesId, block.timestamp - 1) > 0, "No shares owned");
 
-        EpochBalance storage userBalance = userEpochBalances[msg.sender];
+        EpochBalance storage userBalance = _userEpochBalances[msg.sender];
         uint256 startEpoch = userBalance.lastClaimedEpoch;
-        uint256 endEpoch = stablecoinEarningsEpochs.length;
+        uint256 endEpoch = _stablecoinEarningsEpochs.length;
         
         require(endEpoch > startEpoch, "No new epochs");
 
+        // Limit the number of epochs that can be processed in a single transaction
         uint256 epochsToProcess = maxEpochs > 0 ? maxEpochs : MAX_EPOCHS_PER_CLAIM;
         uint256 actualEndEpoch = Math.min(startEpoch + epochsToProcess, endEpoch);
 
         uint256 totalUnclaimed = 0;
+        uint256 gasCheckpoint = gasleft();
 
         for(uint256 i = startEpoch; i < actualEndEpoch; i++) {
-            EarningsEpoch memory epoch = stablecoinEarningsEpochs[i];
+            // Gas check to prevent out-of-gas errors
+            if (gasleft() < 100000) {  // Conservative gas limit
+                actualEndEpoch = i;
+                break;
+            }
+
+            EarningsEpoch memory epoch = _stablecoinEarningsEpochs[i];
             uint256 historicalShares = wsTokenManagement.balanceOfAt(msg.sender, songSharesId, epoch.timestamp);
             if (historicalShares > 0) {
                 uint256 share = (historicalShares * epoch.earningsPerShare) / PRECISION;
@@ -297,6 +259,7 @@ contract WrappedSongSmartAccount is
 
         require(totalUnclaimed > 0, "No stablecoin earnings to claim");
 
+        // Update the last claimed epoch only if we successfully processed claims
         userBalance.lastClaimedEpoch = actualEndEpoch;
         require(IERC20(stablecoin).transfer(msg.sender, totalUnclaimed), "Transfer failed");
 
@@ -317,13 +280,13 @@ contract WrappedSongSmartAccount is
         uint256 nextEpoch,
         uint256 totalEpochs
     ) {
-        EpochBalance storage userBalance = userEpochBalances[account];
+        EpochBalance storage userBalance = _userEpochBalances[account];
         uint256 startEpoch = token == address(0) ? 
             userBalance.lastClaimedETHEpoch : 
             userBalance.lastClaimedEpoch;
         uint256 endEpoch = token == address(0) ? 
-            ethEarningsEpochs.length : 
-            stablecoinEarningsEpochs.length;
+            _ethEarningsEpochs.length : 
+            _stablecoinEarningsEpochs.length;
 
         if (endEpoch > startEpoch) {
             return (true, startEpoch, endEpoch - startEpoch);
@@ -344,9 +307,9 @@ contract WrappedSongSmartAccount is
             return (new uint256[](0), new uint256[](0), new uint256[](0), new string[](0));
         }
 
-        EpochBalance storage userBalance = userEpochBalances[account];
+        EpochBalance storage userBalance = _userEpochBalances[account];
         uint256 startEpoch = userBalance.lastClaimedETHEpoch;
-        uint256 endEpoch = ethEarningsEpochs.length;
+        uint256 endEpoch = _ethEarningsEpochs.length;
 
         epochIds = new uint256[](endEpoch - startEpoch);
         amounts = new uint256[](endEpoch - startEpoch);
@@ -354,7 +317,7 @@ contract WrappedSongSmartAccount is
         sources = new string[](endEpoch - startEpoch);
 
         for(uint256 i = startEpoch; i < endEpoch; i++) {
-            EarningsEpoch memory epoch = ethEarningsEpochs[i];
+            EarningsEpoch memory epoch = _ethEarningsEpochs[i];
             epochIds[i - startEpoch] = epoch.epochId;
             uint256 historicalShares = wsTokenManagement.balanceOfAt(account, songSharesId, epoch.timestamp);
             amounts[i - startEpoch] = (historicalShares * epoch.earningsPerShare) / PRECISION;
@@ -377,9 +340,9 @@ contract WrappedSongSmartAccount is
             return (new uint256[](0), new uint256[](0), new uint256[](0), new string[](0));
         }
 
-        EpochBalance storage userBalance = userEpochBalances[account];
+        EpochBalance storage userBalance = _userEpochBalances[account];
         uint256 startEpoch = userBalance.lastClaimedEpoch;
-        uint256 endEpoch = stablecoinEarningsEpochs.length;
+        uint256 endEpoch = _stablecoinEarningsEpochs.length;
 
         epochIds = new uint256[](endEpoch - startEpoch);
         amounts = new uint256[](endEpoch - startEpoch);
@@ -387,7 +350,7 @@ contract WrappedSongSmartAccount is
         sources = new string[](endEpoch - startEpoch);
 
         for(uint256 i = startEpoch; i < endEpoch; i++) {
-            EarningsEpoch memory epoch = stablecoinEarningsEpochs[i];
+            EarningsEpoch memory epoch = _stablecoinEarningsEpochs[i];
             epochIds[i - startEpoch] = epoch.epochId;
             uint256 historicalShares = wsTokenManagement.balanceOfAt(account, songSharesId, epoch.timestamp);
             amounts[i - startEpoch] = (historicalShares * epoch.earningsPerShare) / PRECISION;
@@ -401,13 +364,13 @@ contract WrappedSongSmartAccount is
         uint256 shares = wsTokenManagement.balanceOf(account, songSharesId);
         if (shares == 0) return 0;
 
-        EpochBalance storage userBalance = userEpochBalances[account];
+        EpochBalance storage userBalance = _userEpochBalances[account];
         uint256 startEpoch = userBalance.lastClaimedETHEpoch;
-        uint256 endEpoch = ethEarningsEpochs.length;
+        uint256 endEpoch = _ethEarningsEpochs.length;
 
         uint256 totalPending = 0;
         for(uint256 i = startEpoch; i < endEpoch; i++) {
-            EarningsEpoch memory epoch = ethEarningsEpochs[i];
+            EarningsEpoch memory epoch = _ethEarningsEpochs[i];
             uint256 historicalShares = wsTokenManagement.balanceOfAt(account, songSharesId, epoch.timestamp);
             totalPending += (historicalShares * epoch.earningsPerShare) / PRECISION;
         }
@@ -419,13 +382,13 @@ contract WrappedSongSmartAccount is
         uint256 shares = wsTokenManagement.balanceOf(account, songSharesId);
         if (shares == 0) return 0;
 
-        EpochBalance storage userBalance = userEpochBalances[account];
+        EpochBalance storage userBalance = _userEpochBalances[account];
         uint256 startEpoch = userBalance.lastClaimedEpoch;
-        uint256 endEpoch = stablecoinEarningsEpochs.length;
+        uint256 endEpoch = _stablecoinEarningsEpochs.length;
 
         uint256 totalPending = 0;
         for(uint256 i = startEpoch; i < endEpoch; i++) {
-            EarningsEpoch memory epoch = stablecoinEarningsEpochs[i];
+            EarningsEpoch memory epoch = _stablecoinEarningsEpochs[i];
             uint256 historicalShares = wsTokenManagement.balanceOfAt(account, songSharesId, epoch.timestamp);
             totalPending += (historicalShares * epoch.earningsPerShare) / PRECISION;
         }
@@ -466,10 +429,8 @@ contract WrappedSongSmartAccount is
         address newWrappedSongAddress
     ) external onlyOwner {
         require(!migrated, "Contract already migrated");
-        require(
-            protocolModule.isAuthorizedContract(msg.sender),
-            "Not authorized contract"
-        );
+        require(newWrappedSongAddress != address(0), "Invalid new wrapped song address");
+        require(metadataAddress != address(0), "Invalid metadata address");
 
         wsTokenManagement.migrateWrappedSong(metadataAddress);
         wsTokenManagement.transferOwnership(newWrappedSongAddress);
@@ -484,6 +445,88 @@ contract WrappedSongSmartAccount is
     // Add owner() override
     function owner() public view virtual override(Ownable, IWrappedSongSmartAccount) returns (address) {
         return super.owner();
+    }
+
+    // Add function to create ETH distribution epoch
+    function createETHDistributionEpoch() external notMigrated {
+        uint256 amount = ethBalance; // Use accumulated ETH
+        require(amount > 0, "No ETH to distribute");
+        
+        uint256 totalShares = wsTokenManagement.totalSupply(songSharesId);
+        require(totalShares > 0, "No shares exist");
+
+        uint256 newEarningsPerShare = (amount * PRECISION) / totalShares;
+        
+        _ethEarningsEpochs.push(EarningsEpoch({
+            epochId: _ethEarningsEpochs.length,
+            amount: amount,
+            earningsPerShare: newEarningsPerShare,
+            timestamp: block.timestamp,
+            sender: msg.sender
+        }));
+
+        emit EarningsEpochProcessed(
+            _ethEarningsEpochs.length - 1,
+            amount,
+            newEarningsPerShare,
+            true
+        );
+    }
+
+    // Add function to create stablecoin distribution epoch
+    function createStablecoinDistributionEpoch() external notMigrated {
+        uint256 amount = stablecoin.balanceOf(address(this));
+        require(amount > 0, "No stablecoin to distribute");
+        
+        uint256 totalShares = wsTokenManagement.totalSupply(songSharesId);
+        require(totalShares > 0, "No shares exist");
+
+        uint256 newEarningsPerShare = (amount * PRECISION) / totalShares;
+        
+        _stablecoinEarningsEpochs.push(EarningsEpoch({
+            epochId: _stablecoinEarningsEpochs.length,
+            amount: amount,
+            earningsPerShare: newEarningsPerShare,
+            timestamp: block.timestamp,
+            sender: msg.sender
+        }));
+
+        emit EarningsEpochProcessed(
+            _stablecoinEarningsEpochs.length - 1,
+            amount,
+            newEarningsPerShare,
+            false
+        );
+    }
+
+    // Add explicit getter functions
+    function ethEarningsEpochs(uint256 index) external view returns (IWrappedSongTypes.EarningsEpoch memory) {
+        EarningsEpoch storage epoch = _ethEarningsEpochs[index];
+        return IWrappedSongTypes.EarningsEpoch({
+            epochId: epoch.epochId,
+            amount: epoch.amount,
+            earningsPerShare: epoch.earningsPerShare,
+            timestamp: epoch.timestamp,
+            sender: epoch.sender
+        });
+    }
+
+    function stablecoinEarningsEpochs(uint256 index) external view returns (IWrappedSongTypes.EarningsEpoch memory) {
+        EarningsEpoch storage epoch = _stablecoinEarningsEpochs[index];
+        return IWrappedSongTypes.EarningsEpoch({
+            epochId: epoch.epochId,
+            amount: epoch.amount,
+            earningsPerShare: epoch.earningsPerShare,
+            timestamp: epoch.timestamp,
+            sender: epoch.sender
+        });
+    }
+
+    function userEpochBalances(address user) external view returns (IWrappedSongTypes.EpochBalance memory) {
+        return IWrappedSongTypes.EpochBalance({
+            lastClaimedEpoch: _userEpochBalances[user].lastClaimedEpoch,
+            lastClaimedETHEpoch: _userEpochBalances[user].lastClaimedETHEpoch
+        });
     }
 
 }
