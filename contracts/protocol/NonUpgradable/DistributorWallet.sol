@@ -32,7 +32,7 @@ contract DistributorWallet is Ownable {
     // Mappings
     mapping(uint256 => RevenueEpoch) public distributionEpochs;
     mapping(uint256 => mapping(uint256 => uint256[])) public amountChunks;
-    mapping(uint256 => mapping(address => bool)) public epochClaims;
+    mapping(uint256 => mapping(address => mapping(address => bool))) public epochClaims;
     mapping(address => uint256) public wsRedeemIndexList;
     address[] public managedWrappedSongs;
 
@@ -154,7 +154,7 @@ contract DistributorWallet is Ownable {
         address _wrappedSong,
         uint256 epochId
     ) external {
-        require(!epochClaims[epochId][msg.sender], "Already claimed");
+        require(!epochClaims[epochId][msg.sender][_wrappedSong], "Already claimed");
         require(epochId <= currentEpochId, "Invalid epoch");
 
         RevenueEpoch storage epoch = distributionEpochs[epochId];
@@ -173,7 +173,7 @@ contract DistributorWallet is Ownable {
         uint256 wsAmount = getAmountForWS(epochId, wsIndex);
         uint256 amount = (wsAmount * balanceAtEpoch) / totalShares;
         
-        epochClaims[epochId][msg.sender] = true;
+        epochClaims[epochId][msg.sender][_wrappedSong] = true;
 
         require(stablecoin.transfer(msg.sender, amount), "Transfer failed");
 
@@ -193,7 +193,7 @@ contract DistributorWallet is Ownable {
         address _holder,
         uint256 epochId
     ) external view returns (uint256) {
-        if (epochClaims[epochId][_holder] || epochId > currentEpochId) {
+        if (epochClaims[epochId][_holder][_wrappedSong] || epochId > currentEpochId) {
             return 0;
         }
 
@@ -278,7 +278,7 @@ contract DistributorWallet is Ownable {
         for (uint256 i = 0; i < epochIds.length; i++) {
             uint256 epochId = epochIds[i];
             require(epochId <= currentEpochId, "Invalid epoch");
-            require(!epochClaims[epochId][msg.sender], "Epoch already claimed");
+            require(!epochClaims[epochId][msg.sender][_wrappedSong], "Epoch already claimed");
 
             RevenueEpoch storage epoch = distributionEpochs[epochId];
             
@@ -292,7 +292,7 @@ contract DistributorWallet is Ownable {
             uint256 amount = (wsAmount * balanceAtEpoch) / totalShares;
             
             totalAmount += amount;
-            epochClaims[epochId][msg.sender] = true;
+            epochClaims[epochId][msg.sender][_wrappedSong] = true;
 
             emit EpochRedeemed(
                 _wrappedSong,
@@ -326,7 +326,7 @@ contract DistributorWallet is Ownable {
         
         for (uint256 i = 0; i < epochIds.length; i++) {
             uint256 epochId = epochIds[i];
-            if (epochId > currentEpochId || epochClaims[epochId][_holder]) {
+            if (epochId > currentEpochId || epochClaims[epochId][_holder][_wrappedSong]) {
                 amounts[i] = 0;
                 continue;
             }
@@ -343,5 +343,54 @@ contract DistributorWallet is Ownable {
         }
         
         return amounts;
+    }
+
+    /**
+     * @dev Claims earnings for multiple wrapped songs in a single epoch
+     * @param _wrappedSongs Array of wrapped song addresses
+     * @param epochId The epoch to claim from
+     */
+    function claimMultipleWrappedSongsEarnings(
+        address[] calldata _wrappedSongs,
+        uint256 epochId
+    ) external {
+        require(epochId <= currentEpochId, "Invalid epoch");
+        require(_wrappedSongs.length > 0, "Empty wrapped songs array");
+
+        uint256 totalAmount;
+
+        for (uint256 i = 0; i < _wrappedSongs.length; i++) {
+            address _wrappedSong = _wrappedSongs[i];
+            require(!epochClaims[epochId][msg.sender][_wrappedSong], "Already claimed for this wrapped song");
+
+            RevenueEpoch storage epoch = distributionEpochs[epochId];
+            address wsTokenManagement = IWrappedSongSmartAccount(_wrappedSong).getWSTokenManagementAddress();
+            uint256 wsIndex = wsRedeemIndexList[_wrappedSong];
+
+            uint256 balanceAtEpoch = IWSTokenManagement(wsTokenManagement).balanceOfAt(
+                msg.sender,
+                1,
+                epoch.timestamp
+            );
+            
+            uint256 totalShares = IWSTokenManagement(wsTokenManagement).totalShares();
+            
+            // Get amount from chunked storage
+            uint256 wsAmount = getAmountForWS(epochId, wsIndex);
+            uint256 amount = (wsAmount * balanceAtEpoch) / totalShares;
+            
+            totalAmount += amount;
+            epochClaims[epochId][msg.sender][_wrappedSong] = true;
+
+            emit EpochRedeemed(
+                _wrappedSong,
+                msg.sender,
+                epochId,
+                amount
+            );
+        }
+
+        require(totalAmount > 0, "Nothing to claim");
+        require(stablecoin.transfer(msg.sender, totalAmount), "Transfer failed");
     }
 }

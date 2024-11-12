@@ -7,6 +7,8 @@ export interface ProtocolFixture {
   distributor: HardhatEthersSigner;
   artist: HardhatEthersSigner;
   collector: HardhatEthersSigner;
+  collector2: HardhatEthersSigner;
+  collector3: HardhatEthersSigner;
   treasury: HardhatEthersSigner;
   accounts: HardhatEthersSigner[];
   whitelistingManager: any;
@@ -29,6 +31,8 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     distributor,
     artist,
     collector,
+    collector2,
+    collector3,
     treasury,
     ...accounts
   ] = await ethers.getSigners();
@@ -121,6 +125,8 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     distributor,
     artist,
     collector,
+    collector2,
+    collector3,
     treasury,
     accounts,
     whitelistingManager,
