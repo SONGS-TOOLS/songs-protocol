@@ -26,6 +26,8 @@ interface IDistributorWallet {
     function addISWC(address wrappedSong, string memory iswc) external;
     function addISCC(address wrappedSong, string memory iscc) external;
 
+    function owner() external view returns (address);
+
     function receiveERC20() external;
     function setWrappedSongAuthenticity(address wrappedSong, bool isAuthentic) external;
 }

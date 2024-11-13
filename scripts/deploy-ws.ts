@@ -235,7 +235,7 @@ async function main() {
     await requestUpdateTx.wait();
     console.log(`Metadata update requested successfully`);
 
-    const confirmUpdateTx1 = await DistributorWallet.confirmUpdateMetadata(
+    const confirmUpdateTx1 = await MetadataModule.confirmUpdateMetadata(
       ownerWrappedSongs[0]
     );
     await confirmUpdateTx1.wait();

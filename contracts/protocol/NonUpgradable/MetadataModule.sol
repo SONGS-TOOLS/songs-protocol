@@ -7,6 +7,7 @@ import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
 import "./../Interfaces/IMetadataModule.sol";
+import "./../Interfaces/IDistributorWallet.sol";
 
 contract MetadataModule is Ownable, IMetadataModule {
     IProtocolModule public protocolModule;
@@ -108,7 +109,7 @@ contract MetadataModule is Ownable, IMetadataModule {
      */
     function confirmUpdateMetadata(address wrappedSong) external {
         address distributor = protocolModule.getWrappedSongDistributor(wrappedSong);
-        require(msg.sender == distributor, "Only distributor can confirm update");
+        require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can confirm update");
         require(!metadataUpdateConfirmed[wrappedSong], "No pending metadata update");
 
         wrappedSongMetadata[wrappedSong] = pendingMetadataUpdates[wrappedSong];
@@ -125,7 +126,7 @@ contract MetadataModule is Ownable, IMetadataModule {
      */
     function rejectUpdateMetadata(address wrappedSong) external {
         address distributor = protocolModule.getWrappedSongDistributor(wrappedSong);
-        require(msg.sender == distributor, "Only distributor can reject update");
+        require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can reject update");
         
         delete pendingMetadataUpdates[wrappedSong];
         delete metadataUpdateConfirmed[wrappedSong];

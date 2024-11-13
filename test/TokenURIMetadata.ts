@@ -142,7 +142,7 @@ describe("Token URI Metadata Tests", function () {
       await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 
       // Set authenticity to true
-      await distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true);
+      await protocolModule.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true);
 
       // Get token URI and check authenticity
       const wsTokensManagement = await ethers.getContractAt(
@@ -180,7 +180,7 @@ describe("Token URI Metadata Tests", function () {
 
       // Try to set authenticity while paused
       await expect(
-        distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
+        protocolModule.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
       ).to.be.revertedWithCustomError(protocolModule, "EnforcedPause");
     });
 
@@ -210,7 +210,7 @@ describe("Token URI Metadata Tests", function () {
 
       // Should now work
       await expect(
-        distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
+        protocolModule.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
       ).to.not.be.reverted;
 
       // Verify authenticity was set

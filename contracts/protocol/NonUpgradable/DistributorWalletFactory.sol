@@ -10,7 +10,7 @@ contract DistributorWalletFactory is Ownable {
   mapping(address => address) public wrappedSongToDistributor;
   mapping(address => bool) public isDistributorWallet; // New mapping to track distributor wallets
 
-  event DistributorWalletCreated(address indexed distributor, address wallet);
+  event DistributorWalletCreated(address indexed distributor, address wallet, address stablecoin);
   event WrappedSongReleased(
     address indexed wrappedSong,
     address indexed distributor
@@ -44,7 +44,7 @@ contract DistributorWalletFactory is Ownable {
     distributorWallets[_owner].push(walletAddress); // Append to the arra y
     isDistributorWallet[walletAddress] = true; // Mark as a distributor wallet
     
-    emit DistributorWalletCreated(_owner, walletAddress); // Corrected event parameter
+    emit DistributorWalletCreated(_owner, walletAddress, _stablecoin); // Corrected event parameter
 
     return walletAddress;
   }
