@@ -46,6 +46,12 @@
         "internalType": "address",
         "name": "wallet",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "stablecoin",
+        "type": "address"
       }
     ],
     "name": "DistributorWalletCreated",
