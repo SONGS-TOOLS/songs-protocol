@@ -7,6 +7,7 @@ import './WrappedSongSmartAccount.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
 import './../Interfaces/IWSTokenManagement.sol';
+import './../Interfaces/IMetadataModule.sol';
 
 /**
  * @title DistributorWallet
@@ -408,5 +409,33 @@ contract DistributorWallet is Ownable {
         // Call ProtocolModule's setWrappedSongAuthenticity function directly
         // The protocol module will handle the pause check and revert with EnforcedPause if needed
         protocolModule.setWrappedSongAuthenticity(wrappedSong, isAuthentic);
+    }
+
+    /**
+     * @dev Confirms a pending metadata update for a wrapped song
+     * @param wrappedSong The address of the wrapped song
+     */
+    function confirmMetadataUpdate(address wrappedSong) external onlyOwner {
+        require(
+            wsRedeemIndexList[wrappedSong] < managedWrappedSongs.length,
+            "Not a managed wrapped song"
+        );
+        
+        IMetadataModule metadataModule = IMetadataModule(protocolModule.getMetadataModule());
+        metadataModule.confirmUpdateMetadata(wrappedSong);
+    }
+
+    /**
+     * @dev Rejects a pending metadata update for a wrapped song
+     * @param wrappedSong The address of the wrapped song
+     */
+    function rejectMetadataUpdate(address wrappedSong) external onlyOwner {
+        require(
+            wsRedeemIndexList[wrappedSong] < managedWrappedSongs.length,
+            "Not a managed wrapped song"
+        );
+        
+        IMetadataModule metadataModule = IMetadataModule(protocolModule.getMetadataModule());
+        metadataModule.rejectUpdateMetadata(wrappedSong);
     }
 }
