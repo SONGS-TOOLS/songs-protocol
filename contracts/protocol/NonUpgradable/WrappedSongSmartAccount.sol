@@ -428,13 +428,17 @@ contract WrappedSongSmartAccount is
     }
 
     function migrateWrappedSong(
-        address metadataAddress,
+        address newMetadataAddress,
         address newWrappedSongAddress
     ) external onlyOwner {
         require(!migrated, "Contract already migrated");
         require(newWrappedSongAddress != address(0), "Invalid new wrapped song address");
-        require(metadataAddress != address(0), "Invalid metadata address");
+        require(newMetadataAddress != address(0), "Invalid metadata address");
         require(address(wsTokenManagement) != address(0), "WSTokenManagement not set");
+        require(
+            protocolModule.isAuthorizedContract(msg.sender),
+            "Caller not authorized"
+        );
 
         // Mark as migrated first to prevent reentrancy
         migrated = true;

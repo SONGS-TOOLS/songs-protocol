@@ -56,7 +56,7 @@ contract ProtocolModule is Ownable, Pausable {
     // Add new state variable
     IMetadataRenderer public metadataRenderer;
 
-    uint256 public startSaleFee;
+    uint256 private _startSaleFee;
 
     // Add new state variables
     uint256 public withdrawalFeePercentage; // Base 10000 (e.g., 250 = 2.5%)
@@ -603,12 +603,15 @@ contract ProtocolModule is Ownable, Pausable {
         );
     }
 
-    function setStartSaleFee(uint256 _startSaleFee) external onlyOwner {
-        startSaleFee = _startSaleFee;
+    event StartSaleFeeUpdated(uint256 newFee);
+
+    function setStartSaleFee(uint256 newFee) external onlyOwner {
+        _startSaleFee = newFee;
+        emit StartSaleFeeUpdated(newFee);
     }
 
     function getStartSaleFee() external view returns (uint256) {
-        return startSaleFee;
+        return _startSaleFee;
     }
 
     function setWithdrawalFeePercentage(uint256 _feePercentage) external onlyOwner {

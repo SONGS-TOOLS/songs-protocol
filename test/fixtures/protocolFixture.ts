@@ -22,6 +22,7 @@ export interface ProtocolFixture {
   songSharesMarketPlace: any;
   metadataRenderer: any;
   buyer: HardhatEthersSigner;
+  startSaleFee: bigint;
 }
 
 export async function deployProtocolFixture(): Promise<ProtocolFixture> {
@@ -119,6 +120,17 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   await protocolModule.whitelistToken(mockStablecoin.target);
   await protocolModule.setBaseURI("ipfs://");
 
+  // Set the start sale fee explicitly after deployment
+  const startSaleFee = ethers.parseEther("0.1"); // This returns a bigint in ethers v6
+  const setFeeTx = await protocolModule.connect(deployer).setStartSaleFee(startSaleFee);
+  await setFeeTx.wait();
+
+  // Verify the fee was set correctly
+  const verifiedFee = await protocolModule.getStartSaleFee();
+  if (verifiedFee !== startSaleFee) {
+    throw new Error(`Fee not set correctly. Expected ${startSaleFee}, got ${verifiedFee}`);
+  }
+
   return {
     deployer,
     protocolAdmin,
@@ -139,6 +151,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     wrappedSongFactory,
     songSharesMarketPlace,
     metadataRenderer,
-    buyer: accounts[0]
+    buyer: accounts[0],
+    startSaleFee
   };
 }

@@ -138,11 +138,11 @@ describe("Token URI Metadata Tests", function () {
         distributorWallet.target
       );
 
-      // Confirm release
+      // Confirm release through the distributor wallet
       await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 
-      // Set authenticity to true
-      await protocolModule.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true);
+      // Set authenticity through the distributor wallet contract
+      await distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true);
 
       // Get token URI and check authenticity
       const wsTokensManagement = await ethers.getContractAt(
@@ -208,9 +208,9 @@ describe("Token URI Metadata Tests", function () {
       await protocolModule.connect(deployer).pause();
       await protocolModule.connect(deployer).unpause();
 
-      // Should now work
+      // Set authenticity through the distributor wallet
       await expect(
-        protocolModule.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
+        distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
       ).to.not.be.reverted;
 
       // Verify authenticity was set

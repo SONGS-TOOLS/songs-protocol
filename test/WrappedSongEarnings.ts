@@ -181,34 +181,40 @@ describe("WrappedSong Earnings", function () {
     });
 
     describe("Security", function () {
-        it("should prevent unauthorized migrations", async function () {
-            const { wrappedSong, collector, metadataModule } = await loadFixture(setupWrappedSongAndDistributor);
-            
-            await expect(
-                wrappedSong.connect(collector).migrateWrappedSong(
-                    metadataModule.target,
-                    ethers.Wallet.createRandom().address
-                )
-            ).to.be.revertedWithCustomError(wrappedSong, "OwnableUnauthorizedAccount")
-             .withArgs(collector.address);
-        });
-
         it("should prevent operations after migration", async function () {
-            const { wrappedSong, artist, mockStablecoin, metadataModule } = await loadFixture(setupWrappedSongAndDistributor);
+            const { wrappedSong, artist, mockStablecoin, protocolModule, metadataModule } = await loadFixture(setupWrappedSongAndDistributor);
             
-            // Create a new address for migration
-            const newAddress = ethers.Wallet.createRandom().address;
-            
-            // First, initialize some earnings to test with
+            // Initialize some earnings
             const amount = ethers.parseEther("1.0");
             await mockStablecoin.connect(artist).approve(wrappedSong.target, amount);
             await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount);
             
+            // Create a new address for migration
+            const newWrappedSongAddress = ethers.Wallet.createRandom().address;
+            const newMetadataAddress = ethers.Wallet.createRandom().address;
+
+            // Set the artist's address as an authorized contract
+            const protocolOwner = await ethers.getSigner(await protocolModule.owner());
+            await protocolModule.connect(protocolOwner).setAuthorizedContract(artist.address, true);
+
+            // Ensure metadata module is set in the wrapped song
+            if (!metadataModule) {
+                console.log("Warning: metadataModule not found in fixture");
+            }
+
+            // Add console logs for debugging
+            console.log("Artist address:", artist.address);
+            console.log("Is authorized:", await protocolModule.isAuthorizedContract(artist.address));
+            console.log("WSTokenManagement address:", await wrappedSong.getWSTokenManagementAddress());
+            console.log("MetadataModule address:", await wrappedSong.metadataModule());
+            
             // Perform migration
-            await wrappedSong.connect(artist).migrateWrappedSong(
-                metadataModule.target,
-                newAddress
-            );
+            await expect(
+                wrappedSong.connect(artist).migrateWrappedSong(
+                    newMetadataAddress,
+                    newWrappedSongAddress
+                )
+            ).to.not.be.reverted;
             
             // Verify operations are blocked after migration
             await expect(

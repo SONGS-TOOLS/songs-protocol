@@ -41,6 +41,7 @@ describe("MarketPlace SongShares", function () {
         it("should put on sale 50 shares through marketplace", async function () {
             const { artist, wrappedSongFactory, mockStablecoin, protocolModule, songSharesMarketPlace } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
+            const startSaleFee = await protocolModule.getStartSaleFee();
             const totalSharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -71,15 +72,16 @@ describe("MarketPlace SongShares", function () {
 
             const sharesAmount = 50;
             const pricePerShare = ethers.parseUnits("100", 6); // Assuming 6 decimals for the stablecoin
-            const maxSharesPerWallet = 1000;
+            const maxSharesPerWallet = 50;
 
-            // Start the sale through marketplace
+            // Start the sale through marketplace with fee
             await songSharesMarketPlace.connect(artist).startSale(
                 wrappedSongAddress,
                 sharesAmount,
                 pricePerShare,
                 maxSharesPerWallet,
-                mockStablecoin.target
+                mockStablecoin.target,
+                { value: startSaleFee }
             );
 
             const sale = await songSharesMarketPlace.getSale(wrappedSongAddress);
@@ -93,6 +95,7 @@ describe("MarketPlace SongShares", function () {
         it("should buy shares with stablecoin through marketplace", async function () {
             const { artist, deployer, distributor, collector, wrappedSongFactory, mockStablecoin, protocolModule, songSharesMarketPlace } = await loadFixture(deployContractFixture);
             const creationFee = await protocolModule.wrappedSongCreationFee();
+            const startSaleFee = await protocolModule.getStartSaleFee();
             const totalSharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -122,15 +125,16 @@ describe("MarketPlace SongShares", function () {
 
             const sharesAmount = 50;
             const pricePerShare = ethers.parseUnits("100", 6);
-            const maxSharesPerWallet = 1000;
+            const maxSharesPerWallet = 50;
 
-            // Start sale
+            // Start sale with fee
             await songSharesMarketPlace.connect(artist).startSale(
                 wrappedSongAddress,
                 sharesAmount,
                 pricePerShare,
                 maxSharesPerWallet,
-                mockStablecoin.target
+                mockStablecoin.target,
+                { value: startSaleFee }
             );
 
             // Transfer stablecoin to buyers
@@ -163,13 +167,13 @@ describe("MarketPlace SongShares", function () {
     });
 
     describe("MarketPlace SongShares Edge Cases", function () {
+        let fixture: any;
         let wrappedSongAddress: string;
-        let wsTokenManagementContract: any;
+        let startSaleFee: bigint;
         let sharesAmount: number;
         let pricePerShare: bigint;
+        let wsTokenManagementContract: any;
         let maxSharesPerWallet: number;
-        let totalPrice: bigint;
-        let fixture: any;
 
         beforeEach(async function () {
             fixture = await loadFixture(deployContractFixture);
@@ -202,23 +206,31 @@ describe("MarketPlace SongShares", function () {
             // Setup standard sale parameters
             sharesAmount = 50;
             pricePerShare = ethers.parseUnits("100", 6);
-            maxSharesPerWallet = 1000;
-            totalPrice = BigInt(sharesAmount) * pricePerShare;
+            maxSharesPerWallet = sharesAmount;
+            startSaleFee = await fixture.protocolModule.getStartSaleFee();
 
             // Approve marketplace
             await wsTokenManagementContract.connect(artist).setApprovalForAll(fixture.songSharesMarketPlace.target, true);
+
+            // Verify the fee is set correctly at the start of each test
+            startSaleFee = await protocolModule.getStartSaleFee();
+            console.log("Start sale fee:", startSaleFee.toString()); // Debug log
+            expect(startSaleFee).to.be.gt(0n, "Start sale fee not properly initialized");
         });
 
         describe("Sale Creation Edge Cases", function () {
             it("should fail to start sale with zero shares", async function () {
-                const { artist, songSharesMarketPlace, mockStablecoin } = fixture;
+                const { artist, songSharesMarketPlace, mockStablecoin, protocolModule } = fixture;
+                const startSaleFee = await protocolModule.getStartSaleFee();
+
                 await expect(
                     songSharesMarketPlace.connect(artist).startSale(
                         wrappedSongAddress,
-                        0,
+                        0, // Zero shares
                         pricePerShare,
-                        maxSharesPerWallet,
-                        mockStablecoin.target
+                        sharesAmount,
+                        mockStablecoin.target,
+                        { value: startSaleFee } // Include the required fee
                     )
                 ).to.be.revertedWith("Amount must be greater than 0");
             });
@@ -230,14 +242,49 @@ describe("MarketPlace SongShares", function () {
                         wrappedSongAddress,
                         sharesAmount,
                         0,
-                        maxSharesPerWallet,
-                        mockStablecoin.target
+                        sharesAmount,
+                        mockStablecoin.target,
+                        { value: startSaleFee }
                     )
                 ).to.not.be.reverted;
 
                 const sale = await songSharesMarketPlace.getSale(wrappedSongAddress);
                 expect(sale.active).to.be.true;
                 expect(sale.pricePerShare).to.equal(0);
+            });
+
+            it("should fail to start sale with insufficient fee", async function () {
+                const { artist, songSharesMarketPlace, mockStablecoin, protocolModule } = fixture;
+                const startSaleFee = await protocolModule.getStartSaleFee();
+
+                await expect(
+                    songSharesMarketPlace.connect(artist).startSale(
+                        wrappedSongAddress,
+                        sharesAmount,
+                        pricePerShare,
+                        sharesAmount,
+                        mockStablecoin.target,
+                        { value: 0 } // Zero fee
+                    )
+                ).to.be.revertedWith("Insufficient start sale fee");
+            });
+
+            it("should fail to start sale with no fee when fee is required", async function () {
+                const { artist, songSharesMarketPlace, mockStablecoin } = fixture;
+                
+                // Only run this test if there's actually a fee required
+                if (startSaleFee > 0n) {
+                    await expect(
+                        songSharesMarketPlace.connect(artist).startSale(
+                            wrappedSongAddress,
+                            sharesAmount,
+                            pricePerShare,
+                            sharesAmount,
+                            mockStablecoin.target,
+                            { value: 0n }
+                        )
+                    ).to.be.revertedWith("Insufficient start sale fee");
+                }
             });
 
             it("should fail to start sale with shares exceeding balance", async function () {
@@ -250,39 +297,72 @@ describe("MarketPlace SongShares", function () {
                         wrappedSongAddress,
                         excessAmount,
                         pricePerShare,
-                        excessAmount + BigInt(1000), // Make sure maxShares is greater than amount
-                        mockStablecoin.target
+                        excessAmount,
+                        mockStablecoin.target,
+                        { value: startSaleFee }
                     )
                 ).to.be.revertedWith("Insufficient shares");
+            });
+
+            it("should successfully start sale with correct fee", async function () {
+                const { artist, songSharesMarketPlace, mockStablecoin } = fixture;
+                
+                await expect(
+                    songSharesMarketPlace.connect(artist).startSale(
+                        wrappedSongAddress,
+                        sharesAmount,
+                        pricePerShare,
+                        sharesAmount,
+                        mockStablecoin.target,
+                        { value: startSaleFee }
+                    )
+                ).to.not.be.reverted;
+            });
+
+            // Add a positive test case to verify fee setting works
+            it("should successfully set and retrieve start sale fee", async function () {
+                const { protocolModule, deployer } = fixture;
+                const newFee = ethers.parseEther("0.2");
+                
+                await protocolModule.connect(deployer).setStartSaleFee(newFee);
+                const retrievedFee = await protocolModule.getStartSaleFee();
+                
+                expect(retrievedFee).to.equal(newFee);
             });
         });
 
         describe("Share Purchase Edge Cases", function () {
             beforeEach(async function () {
                 const { artist, songSharesMarketPlace, mockStablecoin } = fixture;
+                
                 // Start a standard sale
                 await songSharesMarketPlace.connect(artist).startSale(
                     wrappedSongAddress,
                     sharesAmount,
                     pricePerShare,
-                    maxSharesPerWallet,
-                    mockStablecoin.target
+                    sharesAmount,
+                    mockStablecoin.target,
+                    { value: startSaleFee }
                 );
             });
 
             it("should fail to buy shares with insufficient allowance", async function () {
                 const { buyer, songSharesMarketPlace, mockStablecoin, deployer } = fixture;
+                const sharesToBuy = 10;
+                const totalPrice = pricePerShare * BigInt(sharesToBuy);
                 
                 // Transfer tokens but don't approve
                 await mockStablecoin.connect(deployer).transfer(buyer.address, totalPrice);
                 
+                // Update the expected error message based on the actual error
                 await expect(
                     songSharesMarketPlace.connect(buyer).buyShares(
                         wrappedSongAddress,
-                        10,
+                        sharesToBuy,
                         buyer.address
                     )
-                ).to.be.reverted;
+                ).to.be.revertedWithCustomError(mockStablecoin, "ERC20InsufficientAllowance");
+                // Note: If using OpenZeppelin's latest contracts, they use custom errors instead of strings
             });
 
             it("should handle multiple consecutive purchases correctly", async function () {
@@ -317,8 +397,9 @@ describe("MarketPlace SongShares", function () {
                     wrappedSongAddress,
                     sharesAmount,
                     pricePerShare,
-                    maxSharesPerWallet,
-                    ethers.ZeroAddress // ETH sale
+                    sharesAmount,
+                    ethers.ZeroAddress,
+                    { value: startSaleFee }
                 );
             });
 
