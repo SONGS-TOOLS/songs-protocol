@@ -198,7 +198,10 @@ async function main() {
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
   await protocolModule.setMetadataRenderer(await metadataRenderer.getAddress());
   await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
-  
+  await protocolModule.setReleaseFee(0);
+  await protocolModule.setWrappedSongCreationFee(0);
+  await protocolModule.setStartSaleFee(0);
+  await protocolModule.setWithdrawalFeePercentage(0);
   
   await protocolModule.setBaseURI("ipfs://");
 

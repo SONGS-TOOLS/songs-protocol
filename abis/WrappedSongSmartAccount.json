@@ -205,6 +205,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "createETHDistributionEpoch",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "string",
@@ -237,19 +244,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "donateToWS",
+    "inputs": [],
+    "name": "createStablecoinDistributionEpoch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -271,36 +267,43 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "index",
         "type": "uint256"
       }
     ],
     "name": "ethEarningsEpochs",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "earningsPerShare",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "epochId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "earningsPerShare",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IWrappedSongTypes.EarningsEpoch",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -315,6 +318,19 @@
       }
     ],
     "name": "getPendingETHEarnings",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPendingStablecoinDistribution",
     "outputs": [
       {
         "internalType": "uint256",
@@ -698,36 +714,43 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "index",
         "type": "uint256"
       }
     ],
     "name": "stablecoinEarningsEpochs",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "epochId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "earningsPerShare",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "epochId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "earningsPerShare",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IWrappedSongTypes.EarningsEpoch",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -769,21 +792,28 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "user",
         "type": "address"
       }
     ],
     "name": "userEpochBalances",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "lastClaimedEpoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastClaimedETHEpoch",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "lastClaimedEpoch",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastClaimedETHEpoch",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IWrappedSongTypes.EpochBalance",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",

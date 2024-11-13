@@ -75,7 +75,7 @@ describe("WrappedSong Earnings", function () {
             
             await expect(
                 wrappedSong.createStablecoinDistributionEpoch()
-            ).to.be.revertedWith("No stablecoin to distribute");
+            ).to.be.revertedWith("No new earnings to distribute");
             
             await expect(
                 wrappedSong.createETHDistributionEpoch()
@@ -107,7 +107,14 @@ describe("WrappedSong Earnings", function () {
             await mockStablecoin.mint(artist.address, firstAmount * 2n);
             await mockStablecoin.connect(artist).approve(wrappedSong.target, firstAmount);
             await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, firstAmount);
+            
+            // Verify pending amount
+            expect(await wrappedSong.getPendingStablecoinDistribution()).to.equal(firstAmount);
+            
             await wrappedSong.createStablecoinDistributionEpoch();
+            
+            // Verify pending amount is reset
+            expect(await wrappedSong.getPendingStablecoinDistribution()).to.equal(0);
             
             // Artist claims first epoch before transfer
             await wrappedSong.connect(artist).claimStablecoinEarnings(1);
@@ -130,20 +137,30 @@ describe("WrappedSong Earnings", function () {
             const secondAmount = ethers.parseEther("500");
             await mockStablecoin.connect(artist).approve(wrappedSong.target, secondAmount);
             await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, secondAmount);
+            
+            // Verify new pending amount
+            expect(await wrappedSong.getPendingStablecoinDistribution()).to.equal(secondAmount);
+            
             await wrappedSong.createStablecoinDistributionEpoch();
             
+            // Verify pending amount is reset again
+            expect(await wrappedSong.getPendingStablecoinDistribution()).to.equal(0);
+            
             // Both claim second epoch
-            await wrappedSong.connect(artist).claimStablecoinEarnings(1);
-            await wrappedSong.connect(collector).claimStablecoinEarnings(1);
+            const artistInitialBalance = await mockStablecoin.balanceOf(artist.address);
+            const collectorInitialBalance = await mockStablecoin.balanceOf(collector.address);
             
-            // Verify balances
-            const artistBalance = await mockStablecoin.balanceOf(artist.address);
-            const collectorBalance = await mockStablecoin.balanceOf(collector.address);
+            await wrappedSong.connect(artist).claimStablecoinEarnings(2);
+            await wrappedSong.connect(collector).claimStablecoinEarnings(2);
             
-            // Artist should have received 100% of first epoch and 50% of second epoch
-            expect(artistBalance).to.equal(firstAmount + (secondAmount / 2n));
-            // Collector should have received 50% of second epoch
-            expect(collectorBalance).to.equal(secondAmount / 2n);
+            // Get final balances
+            const artistFinalBalance = await mockStablecoin.balanceOf(artist.address);
+            const collectorFinalBalance = await mockStablecoin.balanceOf(collector.address);
+            
+            // Artist should receive 50% of second epoch
+            expect(artistFinalBalance - artistInitialBalance).to.equal(secondAmount / 2n);
+            // Collector should receive 50% of second epoch
+            expect(collectorFinalBalance - collectorInitialBalance).to.equal(secondAmount / 2n);
         });
 
         it("should handle ETH distributions correctly", async function () {
@@ -179,29 +196,27 @@ describe("WrappedSong Earnings", function () {
         it("should prevent operations after migration", async function () {
             const { wrappedSong, artist, mockStablecoin, metadataModule } = await loadFixture(setupWrappedSongAndDistributor);
             
-            // Ensure WSTokenManagement is set up properly
-            const wsTokenManagement = await ethers.getContractAt(
-                "WSTokenManagement",
-                await wrappedSong.getWSTokenManagementAddress()
-            );
+            // Create a new address for migration
+            const newAddress = ethers.Wallet.createRandom().address;
             
-            // Create a valid new address using getCreateAddress
-            const newAddress = await ethers.getCreateAddress({
-                from: ethers.Wallet.createRandom().address,
-                nonce: 0
-            });
+            // First, initialize some earnings to test with
+            const amount = ethers.parseEther("1.0");
+            await mockStablecoin.connect(artist).approve(wrappedSong.target, amount);
+            await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount);
             
+            // Perform migration
             await wrappedSong.connect(artist).migrateWrappedSong(
                 metadataModule.target,
                 newAddress
             );
             
+            // Verify operations are blocked after migration
             await expect(
                 wrappedSong.createStablecoinDistributionEpoch()
             ).to.be.revertedWith("Contract has been migrated");
             
             await expect(
-                wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, 100)
+                wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount)
             ).to.be.revertedWith("Contract has been migrated");
         });
     });

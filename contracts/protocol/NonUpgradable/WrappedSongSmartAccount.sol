@@ -32,6 +32,7 @@ contract WrappedSongSmartAccount is
     uint256 public wrappedSongTokenId;
 
     uint256 public ethBalance;
+    uint256 private _pendingStablecoinEarnings;
 
     struct EpochBalance {
         uint256 lastClaimedEpoch;
@@ -168,6 +169,8 @@ contract WrappedSongSmartAccount is
             IERC20(token).transferFrom(msg.sender, address(this), amount),
             "Transfer failed"
         );
+        
+        _pendingStablecoinEarnings += amount;
     }
 
     function claimETHEarnings(uint256 maxEpochs) external nonReentrant notMigrated {
@@ -431,14 +434,33 @@ contract WrappedSongSmartAccount is
         require(!migrated, "Contract already migrated");
         require(newWrappedSongAddress != address(0), "Invalid new wrapped song address");
         require(metadataAddress != address(0), "Invalid metadata address");
+        require(address(wsTokenManagement) != address(0), "WSTokenManagement not set");
 
-        wsTokenManagement.migrateWrappedSong(metadataAddress);
+        // Mark as migrated first to prevent reentrancy
+        migrated = true;
+
+        // Transfer WSTokenManagement ownership
         wsTokenManagement.transferOwnership(newWrappedSongAddress);
 
+        // Remove metadata
         metadataModule.removeMetadata(address(this));
-        // TODO: Remove legal contract metadata
 
-        migrated = true;
+        // Transfer any remaining stablecoin balance
+        uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
+        if (stablecoinBalance > 0) {
+            require(
+                stablecoin.transfer(newWrappedSongAddress, stablecoinBalance),
+                "Stablecoin transfer failed"
+            );
+        }
+
+        // Transfer any remaining ETH balance
+        uint256 remainingETH = address(this).balance;
+        if (remainingETH > 0) {
+            (bool success, ) = newWrappedSongAddress.call{value: remainingETH}("");
+            require(success, "ETH transfer failed");
+        }
+
         emit ContractMigrated(newWrappedSongAddress);
     }
 
@@ -475,17 +497,20 @@ contract WrappedSongSmartAccount is
 
     // Add function to create stablecoin distribution epoch
     function createStablecoinDistributionEpoch() external notMigrated {
-        uint256 amount = stablecoin.balanceOf(address(this));
-        require(amount > 0, "No stablecoin to distribute");
+        require(_pendingStablecoinEarnings > 0, "No new earnings to distribute");
         
         uint256 totalShares = wsTokenManagement.totalSupply(songSharesId);
         require(totalShares > 0, "No shares exist");
 
-        uint256 newEarningsPerShare = (amount * PRECISION) / totalShares;
+        uint256 newEarningsPerShare = (_pendingStablecoinEarnings * PRECISION) / totalShares;
+        
+        uint256 currentTotalAmount = _stablecoinEarningsEpochs.length > 0 
+            ? _stablecoinEarningsEpochs[_stablecoinEarningsEpochs.length - 1].amount + _pendingStablecoinEarnings
+            : _pendingStablecoinEarnings;
         
         _stablecoinEarningsEpochs.push(EarningsEpoch({
             epochId: _stablecoinEarningsEpochs.length,
-            amount: amount,
+            amount: currentTotalAmount,
             earningsPerShare: newEarningsPerShare,
             timestamp: block.timestamp,
             sender: msg.sender
@@ -493,10 +518,17 @@ contract WrappedSongSmartAccount is
 
         emit EarningsEpochProcessed(
             _stablecoinEarningsEpochs.length - 1,
-            amount,
+            _pendingStablecoinEarnings,
             newEarningsPerShare,
             false
         );
+
+        _pendingStablecoinEarnings = 0;
+    }
+
+    // Add getter for pending earnings
+    function getPendingStablecoinDistribution() external view returns (uint256) {
+        return _pendingStablecoinEarnings;
     }
 
     // Add explicit getter functions

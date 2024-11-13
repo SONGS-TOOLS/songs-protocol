@@ -393,4 +393,20 @@ contract DistributorWallet is Ownable {
         require(totalAmount > 0, "Nothing to claim");
         require(stablecoin.transfer(msg.sender, totalAmount), "Transfer failed");
     }
+
+    /**
+     * @dev Sets the authenticity status of a wrapped song
+     * @param wrappedSong The address of the wrapped song
+     * @param isAuthentic The authenticity status to set
+     */
+    function setWrappedSongAuthenticity(address wrappedSong, bool isAuthentic) external onlyOwner {
+        require(
+            wsRedeemIndexList[wrappedSong] < managedWrappedSongs.length,
+            "Not a managed wrapped song"
+        );
+
+        // Call ProtocolModule's setWrappedSongAuthenticity function directly
+        // The protocol module will handle the pause check and revert with EnforcedPause if needed
+        protocolModule.setWrappedSongAuthenticity(wrappedSong, isAuthentic);
+    }
 }

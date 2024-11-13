@@ -115,4 +115,10 @@ interface IProtocolModule {
         uint256 tokenId,
         address wrappedSong
     ) external view returns (string memory);
+    function getStartSaleFee() external view returns (uint256);
+    function setStartSaleFee(uint256 _fee) external;
+    function getWithdrawalFeePercentage() external view returns (uint256);
+    function setWithdrawalFeePercentage(uint256 _fee) external;
+    function withdrawAccumulatedFees(address token, address recipient) external;
+
 }

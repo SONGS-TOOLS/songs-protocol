@@ -95,12 +95,14 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         uint256 price,
         uint256 maxShares,
         address _stableCoin
-    ) external whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+    ) external payable whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        require(msg.value >= protocolModule.getStartSaleFee(), "Insufficient start sale fee");
+
         require(wrappedSong != address(0), "Invalid wrapped song address");
         require(amount > 0, "Amount must be greater than 0");
         require(amount <= MAX_SHARES_LIMIT, "Amount exceeds maximum limit");
         require(price <= PRICE_CEILING, "Price exceeds maximum limit");
-        require(maxShares >= amount, "Max shares per wallet less than total");
+        require(maxShares <= amount, "Max shares per wallet less than total");
 
         address wsTokenManagement = IWrappedSongSmartAccount(wrappedSong).getWSTokenManagementAddress();
         uint256 balance = IWSTokenManagement(wsTokenManagement).balanceOf(msg.sender, 1);
@@ -142,6 +144,9 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
             maxShares,
             _stableCoin
         );
+
+        (bool success, ) = payable(address(protocolModule)).call{value: msg.value}("");
+        require(success, "Fee transfer failed");
     }
 
     function buyShares(
@@ -230,6 +235,11 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address stableCoin = sales[wrappedSong].stableCoin;
         address payable recipient = payable(msg.sender);
         
+        // Calculate protocol fee
+        uint256 feePercentage = protocolModule.getWithdrawalFeePercentage();
+        uint256 protocolFee = (amount * feePercentage) / 10000;
+        uint256 userAmount = amount - protocolFee;
+        
         accumulatedFunds[wrappedSong] = 0;
 
         if (stableCoin != address(0)) {
@@ -237,14 +247,28 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
                 IERC20(stableCoin).balanceOf(address(this)) >= amount,
                 "Insufficient contract balance"
             );
-            IERC20(stableCoin).safeTransfer(recipient, amount);
+            // Transfer user amount
+            IERC20(stableCoin).safeTransfer(recipient, userAmount);
+            // Transfer protocol fee
+            if (protocolFee > 0) {
+                IERC20(stableCoin).safeTransfer(address(protocolModule), protocolFee);
+            }
         } else {
             require(address(this).balance >= amount, "Insufficient ETH balance");
-            (bool success, ) = recipient.call{value: amount}("");
-            require(success, "ETH transfer failed");
+            // Transfer user amount
+            (bool successUser, ) = recipient.call{value: userAmount}("");
+            require(successUser, "ETH transfer to user failed");
+            // Transfer protocol fee
+            if (protocolFee > 0) {
+                (bool successProtocol, ) = address(protocolModule).call{value: protocolFee}("");
+                require(successProtocol, "ETH transfer to protocol failed");
+            }
         }
         
-        emit FundsWithdrawn(wrappedSong, recipient, amount);
+        emit FundsWithdrawn(wrappedSong, recipient, userAmount);
+        if (protocolFee > 0) {
+            emit FundsWithdrawn(wrappedSong, address(protocolModule), protocolFee);
+        }
     }
 
     function getSale(

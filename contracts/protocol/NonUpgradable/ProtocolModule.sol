@@ -11,9 +11,12 @@ import "./../Interfaces/IERC20Whitelist.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import './../Interfaces/ILegalContractMetadata.sol';
 import './../Interfaces/IMetadataRenderer.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 
 contract ProtocolModule is Ownable, Pausable {
+    using SafeERC20 for IERC20;
+    
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
     
@@ -53,6 +56,14 @@ contract ProtocolModule is Ownable, Pausable {
     // Add new state variable
     IMetadataRenderer public metadataRenderer;
 
+    uint256 public startSaleFee;
+
+    // Add new state variables
+    uint256 public withdrawalFeePercentage; // Base 10000 (e.g., 250 = 2.5%)
+    uint256 public constant MAX_WITHDRAWAL_FEE = 1000; // 10% maximum fee
+    
+    // Add accumulated fees tracking
+    mapping(address => uint256) public accumulatedFees; // token => amount
 
     modifier onlyOwnerOrAuthorized() {
         require(msg.sender == owner() || msg.sender == address(erc20whitelist), "Not authorized");
@@ -150,7 +161,10 @@ contract ProtocolModule is Ownable, Pausable {
         address wrappedSong,
         address distributor,
         IMetadataModule.Metadata memory newMetadata
-    ) external {
+    ) external payable {
+        // Check if the sent value matches the release fee
+        require(msg.value >= releaseFee, "Insufficient release fee");
+
         // Validate basic requirements
         _validateReleaseRequest(wrappedSong, distributor);
 
@@ -169,7 +183,10 @@ contract ProtocolModule is Ownable, Pausable {
     function requestWrappedSongRelease(
         address wrappedSong,
         address distributor
-    ) external {
+    ) external payable {
+        // Check if the sent value matches the release fee
+        require(msg.value >= releaseFee, "Insufficient release fee");
+
         // Validate basic requirements
         _validateReleaseRequest(wrappedSong, distributor);
 
@@ -585,4 +602,43 @@ contract ProtocolModule is Ownable, Pausable {
             IProtocolModule(address(this))
         );
     }
+
+    function setStartSaleFee(uint256 _startSaleFee) external onlyOwner {
+        startSaleFee = _startSaleFee;
+    }
+
+    function getStartSaleFee() external view returns (uint256) {
+        return startSaleFee;
+    }
+
+    function setWithdrawalFeePercentage(uint256 _feePercentage) external onlyOwner {
+        require(_feePercentage <= MAX_WITHDRAWAL_FEE, "Fee too high");
+        withdrawalFeePercentage = _feePercentage;
+    }
+    
+    function getWithdrawalFeePercentage() external view returns (uint256) {
+        return withdrawalFeePercentage;
+    }
+    
+    function withdrawAccumulatedFees(address token, address recipient) external onlyOwner {
+        uint256 amount = accumulatedFees[token];
+        require(amount > 0, "No fees to withdraw");
+        
+        accumulatedFees[token] = 0;
+        
+        if (token == address(0)) {
+            (bool success, ) = payable(recipient).call{value: amount}("");
+            require(success, "ETH transfer failed");
+        } else {
+            IERC20(token).safeTransfer(recipient, amount);
+        }
+        
+        emit FeesWithdrawn(token, recipient, amount);
+    }
+    
+    // Add event
+    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
+    
+    // Make sure to add receive() function if not present
+    receive() external payable {}
 }
