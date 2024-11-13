@@ -1,16 +1,3 @@
-import { Address, BigInt, Bytes, log, store } from '@graphprotocol/graph-ts';
-import {
-  ShareHolder,
-  WrappedSong,
-  WrappedSongShareHolder,
-  WSTokenManagement,
-} from '../generated/schema';
-import // EarningsRedeemed as EarningsRedeemedEvent,
-// EarningsUpdated as EarningsUpdatedEvent,
-// SongSharesTransferred as SongSharesTransferredEvent,
-// Transfer as TransferEvent,
-'../generated/templates/WrappedSongSmartAccount/WrappedSongSmartAccount';
-
 // export function handleTransfer(event: TransferEvent): void {
 //   let wrappedSongAddress = event.address.toHexString();
 //   let wrappedSong = WrappedSong.load(wrappedSongAddress);

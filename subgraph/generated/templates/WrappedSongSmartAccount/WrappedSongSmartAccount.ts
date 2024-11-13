@@ -10,51 +10,39 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
-export class EarningsClaimed extends ethereum.Event {
-  get params(): EarningsClaimed__Params {
-    return new EarningsClaimed__Params(this);
+export class ContractMigrated extends ethereum.Event {
+  get params(): ContractMigrated__Params {
+    return new ContractMigrated__Params(this);
   }
 }
 
-export class EarningsClaimed__Params {
-  _event: EarningsClaimed;
+export class ContractMigrated__Params {
+  _event: ContractMigrated;
 
-  constructor(event: EarningsClaimed) {
+  constructor(event: ContractMigrated) {
     this._event = event;
   }
 
-  get account(): Address {
+  get newWrappedSongAddress(): Address {
     return this._event.parameters[0].value.toAddress();
   }
+}
 
-  get token(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-
-  get totalAmount(): BigInt {
-    return this._event.parameters[3].value.toBigInt();
+export class EarningsEpochProcessed extends ethereum.Event {
+  get params(): EarningsEpochProcessed__Params {
+    return new EarningsEpochProcessed__Params(this);
   }
 }
 
-export class EarningsReceived extends ethereum.Event {
-  get params(): EarningsReceived__Params {
-    return new EarningsReceived__Params(this);
-  }
-}
+export class EarningsEpochProcessed__Params {
+  _event: EarningsEpochProcessed;
 
-export class EarningsReceived__Params {
-  _event: EarningsReceived;
-
-  constructor(event: EarningsReceived) {
+  constructor(event: EarningsEpochProcessed) {
     this._event = event;
   }
 
-  get token(): Address {
-    return this._event.parameters[0].value.toAddress();
+  get epochId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 
   get amount(): BigInt {
@@ -64,31 +52,61 @@ export class EarningsReceived__Params {
   get earningsPerShare(): BigInt {
     return this._event.parameters[2].value.toBigInt();
   }
-}
 
-export class EarningsUpdated extends ethereum.Event {
-  get params(): EarningsUpdated__Params {
-    return new EarningsUpdated__Params(this);
+  get isETH(): boolean {
+    return this._event.parameters[3].value.toBoolean();
   }
 }
 
-export class EarningsUpdated__Params {
-  _event: EarningsUpdated;
+export class EpochEarningsClaimed extends ethereum.Event {
+  get params(): EpochEarningsClaimed__Params {
+    return new EpochEarningsClaimed__Params(this);
+  }
+}
 
-  constructor(event: EarningsUpdated) {
+export class EpochEarningsClaimed__Params {
+  _event: EpochEarningsClaimed;
+
+  constructor(event: EpochEarningsClaimed) {
     this._event = event;
   }
 
-  get account(): Address {
+  get user(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get newEarnings(): BigInt {
+  get fromEpoch(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get totalEarnings(): BigInt {
+  get toEpoch(): BigInt {
     return this._event.parameters[2].value.toBigInt();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get token(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+}
+
+export class Initialized extends ethereum.Event {
+  get params(): Initialized__Params {
+    return new Initialized__Params(this);
+  }
+}
+
+export class Initialized__Params {
+  _event: Initialized;
+
+  constructor(event: Initialized) {
+    this._event = event;
+  }
+
+  get version(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -114,69 +132,177 @@ export class OwnershipTransferred__Params {
   }
 }
 
-export class SaleFundsReceived extends ethereum.Event {
-  get params(): SaleFundsReceived__Params {
-    return new SaleFundsReceived__Params(this);
-  }
-}
-
-export class SaleFundsReceived__Params {
-  _event: SaleFundsReceived;
-
-  constructor(event: SaleFundsReceived) {
-    this._event = event;
+export class WrappedSongSmartAccount__ethEarningsEpochsResultValue0Struct extends ethereum.Tuple {
+  get epochId(): BigInt {
+    return this[0].toBigInt();
   }
 
   get amount(): BigInt {
-    return this._event.parameters[0].value.toBigInt();
+    return this[1].toBigInt();
+  }
+
+  get earningsPerShare(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get timestamp(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get sender(): Address {
+    return this[4].toAddress();
   }
 }
 
-export class SaleFundsWithdrawn extends ethereum.Event {
-  get params(): SaleFundsWithdrawn__Params {
-    return new SaleFundsWithdrawn__Params(this);
+export class WrappedSongSmartAccount__getUnclaimedETHEpochsResult {
+  value0: Array<BigInt>;
+  value1: Array<BigInt>;
+  value2: Array<BigInt>;
+  value3: Array<string>;
+
+  constructor(
+    value0: Array<BigInt>,
+    value1: Array<BigInt>,
+    value2: Array<BigInt>,
+    value3: Array<string>,
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigIntArray(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigIntArray(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigIntArray(this.value2));
+    map.set("value3", ethereum.Value.fromStringArray(this.value3));
+    return map;
+  }
+
+  getEpochIds(): Array<BigInt> {
+    return this.value0;
+  }
+
+  getAmounts(): Array<BigInt> {
+    return this.value1;
+  }
+
+  getTimestamps(): Array<BigInt> {
+    return this.value2;
+  }
+
+  getSources(): Array<string> {
+    return this.value3;
   }
 }
 
-export class SaleFundsWithdrawn__Params {
-  _event: SaleFundsWithdrawn;
+export class WrappedSongSmartAccount__getUnclaimedStablecoinEpochsResult {
+  value0: Array<BigInt>;
+  value1: Array<BigInt>;
+  value2: Array<BigInt>;
+  value3: Array<string>;
 
-  constructor(event: SaleFundsWithdrawn) {
-    this._event = event;
+  constructor(
+    value0: Array<BigInt>,
+    value1: Array<BigInt>,
+    value2: Array<BigInt>,
+    value3: Array<string>,
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
   }
 
-  get to(): Address {
-    return this._event.parameters[0].value.toAddress();
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigIntArray(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigIntArray(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigIntArray(this.value2));
+    map.set("value3", ethereum.Value.fromStringArray(this.value3));
+    return map;
+  }
+
+  getEpochIds(): Array<BigInt> {
+    return this.value0;
+  }
+
+  getAmounts(): Array<BigInt> {
+    return this.value1;
+  }
+
+  getTimestamps(): Array<BigInt> {
+    return this.value2;
+  }
+
+  getSources(): Array<string> {
+    return this.value3;
+  }
+}
+
+export class WrappedSongSmartAccount__hasMoreEpochsToClaimResult {
+  value0: boolean;
+  value1: BigInt;
+  value2: BigInt;
+
+  constructor(value0: boolean, value1: BigInt, value2: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromBoolean(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    return map;
+  }
+
+  getHasMore(): boolean {
+    return this.value0;
+  }
+
+  getNextEpoch(): BigInt {
+    return this.value1;
+  }
+
+  getTotalEpochs(): BigInt {
+    return this.value2;
+  }
+}
+
+export class WrappedSongSmartAccount__stablecoinEarningsEpochsResultValue0Struct extends ethereum.Tuple {
+  get epochId(): BigInt {
+    return this[0].toBigInt();
   }
 
   get amount(): BigInt {
-    return this._event.parameters[1].value.toBigInt();
+    return this[1].toBigInt();
+  }
+
+  get earningsPerShare(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get timestamp(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get sender(): Address {
+    return this[4].toAddress();
   }
 }
 
-export class SongSharesTransferred extends ethereum.Event {
-  get params(): SongSharesTransferred__Params {
-    return new SongSharesTransferred__Params(this);
-  }
-}
-
-export class SongSharesTransferred__Params {
-  _event: SongSharesTransferred;
-
-  constructor(event: SongSharesTransferred) {
-    this._event = event;
+export class WrappedSongSmartAccount__userEpochBalancesResultValue0Struct extends ethereum.Tuple {
+  get lastClaimedEpoch(): BigInt {
+    return this[0].toBigInt();
   }
 
-  get from(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get to(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
+  get lastClaimedETHEpoch(): BigInt {
+    return this[1].toBigInt();
   }
 }
 
@@ -185,21 +311,21 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return new WrappedSongSmartAccount("WrappedSongSmartAccount", address);
   }
 
-  accumulatedEarningsPerShare(): BigInt {
+  createLegalContract(contractURI: string): BigInt {
     let result = super.call(
-      "accumulatedEarningsPerShare",
-      "accumulatedEarningsPerShare():(uint256)",
-      [],
+      "createLegalContract",
+      "createLegalContract(string):(uint256)",
+      [ethereum.Value.fromString(contractURI)],
     );
 
     return result[0].toBigInt();
   }
 
-  try_accumulatedEarningsPerShare(): ethereum.CallResult<BigInt> {
+  try_createLegalContract(contractURI: string): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "accumulatedEarningsPerShare",
-      "accumulatedEarningsPerShare():(uint256)",
-      [],
+      "createLegalContract",
+      "createLegalContract(string):(uint256)",
+      [ethereum.Value.fromString(contractURI)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -221,6 +347,188 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  ethEarningsEpochs(
+    index: BigInt,
+  ): WrappedSongSmartAccount__ethEarningsEpochsResultValue0Struct {
+    let result = super.call(
+      "ethEarningsEpochs",
+      "ethEarningsEpochs(uint256):((uint256,uint256,uint256,uint256,address))",
+      [ethereum.Value.fromUnsignedBigInt(index)],
+    );
+
+    return changetype<WrappedSongSmartAccount__ethEarningsEpochsResultValue0Struct>(
+      result[0].toTuple(),
+    );
+  }
+
+  try_ethEarningsEpochs(
+    index: BigInt,
+  ): ethereum.CallResult<WrappedSongSmartAccount__ethEarningsEpochsResultValue0Struct> {
+    let result = super.tryCall(
+      "ethEarningsEpochs",
+      "ethEarningsEpochs(uint256):((uint256,uint256,uint256,uint256,address))",
+      [ethereum.Value.fromUnsignedBigInt(index)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      changetype<WrappedSongSmartAccount__ethEarningsEpochsResultValue0Struct>(
+        value[0].toTuple(),
+      ),
+    );
+  }
+
+  getPendingETHEarnings(account: Address): BigInt {
+    let result = super.call(
+      "getPendingETHEarnings",
+      "getPendingETHEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(account)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getPendingETHEarnings(account: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getPendingETHEarnings",
+      "getPendingETHEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(account)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getPendingStablecoinDistribution(): BigInt {
+    let result = super.call(
+      "getPendingStablecoinDistribution",
+      "getPendingStablecoinDistribution():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getPendingStablecoinDistribution(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getPendingStablecoinDistribution",
+      "getPendingStablecoinDistribution():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getPendingStablecoinEarnings(account: Address): BigInt {
+    let result = super.call(
+      "getPendingStablecoinEarnings",
+      "getPendingStablecoinEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(account)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getPendingStablecoinEarnings(
+    account: Address,
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getPendingStablecoinEarnings",
+      "getPendingStablecoinEarnings(address):(uint256)",
+      [ethereum.Value.fromAddress(account)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getUnclaimedETHEpochs(
+    account: Address,
+  ): WrappedSongSmartAccount__getUnclaimedETHEpochsResult {
+    let result = super.call(
+      "getUnclaimedETHEpochs",
+      "getUnclaimedETHEpochs(address):(uint256[],uint256[],uint256[],string[])",
+      [ethereum.Value.fromAddress(account)],
+    );
+
+    return new WrappedSongSmartAccount__getUnclaimedETHEpochsResult(
+      result[0].toBigIntArray(),
+      result[1].toBigIntArray(),
+      result[2].toBigIntArray(),
+      result[3].toStringArray(),
+    );
+  }
+
+  try_getUnclaimedETHEpochs(
+    account: Address,
+  ): ethereum.CallResult<WrappedSongSmartAccount__getUnclaimedETHEpochsResult> {
+    let result = super.tryCall(
+      "getUnclaimedETHEpochs",
+      "getUnclaimedETHEpochs(address):(uint256[],uint256[],uint256[],string[])",
+      [ethereum.Value.fromAddress(account)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new WrappedSongSmartAccount__getUnclaimedETHEpochsResult(
+        value[0].toBigIntArray(),
+        value[1].toBigIntArray(),
+        value[2].toBigIntArray(),
+        value[3].toStringArray(),
+      ),
+    );
+  }
+
+  getUnclaimedStablecoinEpochs(
+    account: Address,
+  ): WrappedSongSmartAccount__getUnclaimedStablecoinEpochsResult {
+    let result = super.call(
+      "getUnclaimedStablecoinEpochs",
+      "getUnclaimedStablecoinEpochs(address):(uint256[],uint256[],uint256[],string[])",
+      [ethereum.Value.fromAddress(account)],
+    );
+
+    return new WrappedSongSmartAccount__getUnclaimedStablecoinEpochsResult(
+      result[0].toBigIntArray(),
+      result[1].toBigIntArray(),
+      result[2].toBigIntArray(),
+      result[3].toStringArray(),
+    );
+  }
+
+  try_getUnclaimedStablecoinEpochs(
+    account: Address,
+  ): ethereum.CallResult<WrappedSongSmartAccount__getUnclaimedStablecoinEpochsResult> {
+    let result = super.tryCall(
+      "getUnclaimedStablecoinEpochs",
+      "getUnclaimedStablecoinEpochs(address):(uint256[],uint256[],uint256[],string[])",
+      [ethereum.Value.fromAddress(account)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new WrappedSongSmartAccount__getUnclaimedStablecoinEpochsResult(
+        value[0].toBigIntArray(),
+        value[1].toBigIntArray(),
+        value[2].toBigIntArray(),
+        value[3].toStringArray(),
+      ),
+    );
   }
 
   getWSTokenManagementAddress(): Address {
@@ -246,52 +554,43 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  isTokenReceived(param0: Address): boolean {
+  hasMoreEpochsToClaim(
+    account: Address,
+    token: Address,
+  ): WrappedSongSmartAccount__hasMoreEpochsToClaimResult {
     let result = super.call(
-      "isTokenReceived",
-      "isTokenReceived(address):(bool)",
-      [ethereum.Value.fromAddress(param0)],
+      "hasMoreEpochsToClaim",
+      "hasMoreEpochsToClaim(address,address):(bool,uint256,uint256)",
+      [ethereum.Value.fromAddress(account), ethereum.Value.fromAddress(token)],
     );
 
-    return result[0].toBoolean();
+    return new WrappedSongSmartAccount__hasMoreEpochsToClaimResult(
+      result[0].toBoolean(),
+      result[1].toBigInt(),
+      result[2].toBigInt(),
+    );
   }
 
-  try_isTokenReceived(param0: Address): ethereum.CallResult<boolean> {
+  try_hasMoreEpochsToClaim(
+    account: Address,
+    token: Address,
+  ): ethereum.CallResult<WrappedSongSmartAccount__hasMoreEpochsToClaimResult> {
     let result = super.tryCall(
-      "isTokenReceived",
-      "isTokenReceived(address):(bool)",
-      [ethereum.Value.fromAddress(param0)],
+      "hasMoreEpochsToClaim",
+      "hasMoreEpochsToClaim(address,address):(bool,uint256,uint256)",
+      [ethereum.Value.fromAddress(account), ethereum.Value.fromAddress(token)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  lastClaimedEarningsPerShare(param0: Address): BigInt {
-    let result = super.call(
-      "lastClaimedEarningsPerShare",
-      "lastClaimedEarningsPerShare(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
+    return ethereum.CallResult.fromValue(
+      new WrappedSongSmartAccount__hasMoreEpochsToClaimResult(
+        value[0].toBoolean(),
+        value[1].toBigInt(),
+        value[2].toBigInt(),
+      ),
     );
-
-    return result[0].toBigInt();
-  }
-
-  try_lastClaimedEarningsPerShare(
-    param0: Address,
-  ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "lastClaimedEarningsPerShare",
-      "lastClaimedEarningsPerShare(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   metadataModule(): Address {
@@ -313,27 +612,19 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  newWSTokenManagement(): Address {
-    let result = super.call(
-      "newWSTokenManagement",
-      "newWSTokenManagement():(address)",
-      [],
-    );
+  migrated(): boolean {
+    let result = super.call("migrated", "migrated():(bool)", []);
 
-    return result[0].toAddress();
+    return result[0].toBoolean();
   }
 
-  try_newWSTokenManagement(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "newWSTokenManagement",
-      "newWSTokenManagement():(address)",
-      [],
-    );
+  try_migrated(): ethereum.CallResult<boolean> {
+    let result = super.tryCall("migrated", "migrated():(bool)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   onERC1155BatchReceived(
@@ -464,67 +755,6 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  receivedTokens(param0: BigInt): Address {
-    let result = super.call(
-      "receivedTokens",
-      "receivedTokens(uint256):(address)",
-      [ethereum.Value.fromUnsignedBigInt(param0)],
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_receivedTokens(param0: BigInt): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "receivedTokens",
-      "receivedTokens(uint256):(address)",
-      [ethereum.Value.fromUnsignedBigInt(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  redeemedEarnings(param0: Address): BigInt {
-    let result = super.call(
-      "redeemedEarnings",
-      "redeemedEarnings(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_redeemedEarnings(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "redeemedEarnings",
-      "redeemedEarnings(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  saleFunds(): BigInt {
-    let result = super.call("saleFunds", "saleFunds():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_saleFunds(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("saleFunds", "saleFunds():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   songSharesId(): BigInt {
     let result = super.call("songSharesId", "songSharesId():(uint256)", []);
 
@@ -555,6 +785,39 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  stablecoinEarningsEpochs(
+    index: BigInt,
+  ): WrappedSongSmartAccount__stablecoinEarningsEpochsResultValue0Struct {
+    let result = super.call(
+      "stablecoinEarningsEpochs",
+      "stablecoinEarningsEpochs(uint256):((uint256,uint256,uint256,uint256,address))",
+      [ethereum.Value.fromUnsignedBigInt(index)],
+    );
+
+    return changetype<WrappedSongSmartAccount__stablecoinEarningsEpochsResultValue0Struct>(
+      result[0].toTuple(),
+    );
+  }
+
+  try_stablecoinEarningsEpochs(
+    index: BigInt,
+  ): ethereum.CallResult<WrappedSongSmartAccount__stablecoinEarningsEpochsResultValue0Struct> {
+    let result = super.tryCall(
+      "stablecoinEarningsEpochs",
+      "stablecoinEarningsEpochs(uint256):((uint256,uint256,uint256,uint256,address))",
+      [ethereum.Value.fromUnsignedBigInt(index)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      changetype<WrappedSongSmartAccount__stablecoinEarningsEpochsResultValue0Struct>(
+        value[0].toTuple(),
+      ),
+    );
+  }
+
   supportsInterface(interfaceId: Bytes): boolean {
     let result = super.call(
       "supportsInterface",
@@ -578,73 +841,37 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  totalDistributedEarnings(): BigInt {
+  userEpochBalances(
+    user: Address,
+  ): WrappedSongSmartAccount__userEpochBalancesResultValue0Struct {
     let result = super.call(
-      "totalDistributedEarnings",
-      "totalDistributedEarnings():(uint256)",
-      [],
+      "userEpochBalances",
+      "userEpochBalances(address):((uint256,uint256))",
+      [ethereum.Value.fromAddress(user)],
     );
 
-    return result[0].toBigInt();
+    return changetype<WrappedSongSmartAccount__userEpochBalancesResultValue0Struct>(
+      result[0].toTuple(),
+    );
   }
 
-  try_totalDistributedEarnings(): ethereum.CallResult<BigInt> {
+  try_userEpochBalances(
+    user: Address,
+  ): ethereum.CallResult<WrappedSongSmartAccount__userEpochBalancesResultValue0Struct> {
     let result = super.tryCall(
-      "totalDistributedEarnings",
-      "totalDistributedEarnings():(uint256)",
-      [],
+      "userEpochBalances",
+      "userEpochBalances(address):((uint256,uint256))",
+      [ethereum.Value.fromAddress(user)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  totalEarnings(param0: Address): BigInt {
-    let result = super.call(
-      "totalEarnings",
-      "totalEarnings(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
+    return ethereum.CallResult.fromValue(
+      changetype<WrappedSongSmartAccount__userEpochBalancesResultValue0Struct>(
+        value[0].toTuple(),
+      ),
     );
-
-    return result[0].toBigInt();
-  }
-
-  try_totalEarnings(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "totalEarnings",
-      "totalEarnings(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  unclaimedEarnings(param0: Address): BigInt {
-    let result = super.call(
-      "unclaimedEarnings",
-      "unclaimedEarnings(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_unclaimedEarnings(param0: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "unclaimedEarnings",
-      "unclaimedEarnings(address):(uint256)",
-      [ethereum.Value.fromAddress(param0)],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   wrappedSongTokenId(): BigInt {
@@ -669,6 +896,29 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
+
+  wsTokenManagement(): Address {
+    let result = super.call(
+      "wsTokenManagement",
+      "wsTokenManagement():(address)",
+      [],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_wsTokenManagement(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "wsTokenManagement",
+      "wsTokenManagement():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
 }
 
 export class ConstructorCall extends ethereum.Call {
@@ -688,20 +938,8 @@ export class ConstructorCall__Inputs {
     this._call = call;
   }
 
-  get _stablecoinAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _owner(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
   get _protocolModuleAddress(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
-
-  get sharesAmount(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
+    return this._call.inputValues[0].value.toAddress();
   }
 }
 
@@ -713,155 +951,285 @@ export class ConstructorCall__Outputs {
   }
 }
 
-export class ClaimEarningsCall extends ethereum.Call {
-  get inputs(): ClaimEarningsCall__Inputs {
-    return new ClaimEarningsCall__Inputs(this);
+export class ClaimETHEarningsCall extends ethereum.Call {
+  get inputs(): ClaimETHEarningsCall__Inputs {
+    return new ClaimETHEarningsCall__Inputs(this);
   }
 
-  get outputs(): ClaimEarningsCall__Outputs {
-    return new ClaimEarningsCall__Outputs(this);
+  get outputs(): ClaimETHEarningsCall__Outputs {
+    return new ClaimETHEarningsCall__Outputs(this);
   }
 }
 
-export class ClaimEarningsCall__Inputs {
-  _call: ClaimEarningsCall;
+export class ClaimETHEarningsCall__Inputs {
+  _call: ClaimETHEarningsCall;
 
-  constructor(call: ClaimEarningsCall) {
+  constructor(call: ClaimETHEarningsCall) {
+    this._call = call;
+  }
+
+  get maxEpochs(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class ClaimETHEarningsCall__Outputs {
+  _call: ClaimETHEarningsCall;
+
+  constructor(call: ClaimETHEarningsCall) {
     this._call = call;
   }
 }
 
-export class ClaimEarningsCall__Outputs {
-  _call: ClaimEarningsCall;
+export class ClaimStablecoinEarningsCall extends ethereum.Call {
+  get inputs(): ClaimStablecoinEarningsCall__Inputs {
+    return new ClaimStablecoinEarningsCall__Inputs(this);
+  }
 
-  constructor(call: ClaimEarningsCall) {
+  get outputs(): ClaimStablecoinEarningsCall__Outputs {
+    return new ClaimStablecoinEarningsCall__Outputs(this);
+  }
+}
+
+export class ClaimStablecoinEarningsCall__Inputs {
+  _call: ClaimStablecoinEarningsCall;
+
+  constructor(call: ClaimStablecoinEarningsCall) {
+    this._call = call;
+  }
+
+  get maxEpochs(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class ClaimStablecoinEarningsCall__Outputs {
+  _call: ClaimStablecoinEarningsCall;
+
+  constructor(call: ClaimStablecoinEarningsCall) {
     this._call = call;
   }
 }
 
-export class ClaimEthEarningsCall extends ethereum.Call {
-  get inputs(): ClaimEthEarningsCall__Inputs {
-    return new ClaimEthEarningsCall__Inputs(this);
+export class CreateBuyoutTokenCall extends ethereum.Call {
+  get inputs(): CreateBuyoutTokenCall__Inputs {
+    return new CreateBuyoutTokenCall__Inputs(this);
   }
 
-  get outputs(): ClaimEthEarningsCall__Outputs {
-    return new ClaimEthEarningsCall__Outputs(this);
+  get outputs(): CreateBuyoutTokenCall__Outputs {
+    return new CreateBuyoutTokenCall__Outputs(this);
   }
 }
 
-export class ClaimEthEarningsCall__Inputs {
-  _call: ClaimEthEarningsCall;
+export class CreateBuyoutTokenCall__Inputs {
+  _call: CreateBuyoutTokenCall;
 
-  constructor(call: ClaimEthEarningsCall) {
+  constructor(call: CreateBuyoutTokenCall) {
+    this._call = call;
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get recipient(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class CreateBuyoutTokenCall__Outputs {
+  _call: CreateBuyoutTokenCall;
+
+  constructor(call: CreateBuyoutTokenCall) {
     this._call = call;
   }
 }
 
-export class ClaimEthEarningsCall__Outputs {
-  _call: ClaimEthEarningsCall;
+export class CreateETHDistributionEpochCall extends ethereum.Call {
+  get inputs(): CreateETHDistributionEpochCall__Inputs {
+    return new CreateETHDistributionEpochCall__Inputs(this);
+  }
 
-  constructor(call: ClaimEthEarningsCall) {
+  get outputs(): CreateETHDistributionEpochCall__Outputs {
+    return new CreateETHDistributionEpochCall__Outputs(this);
+  }
+}
+
+export class CreateETHDistributionEpochCall__Inputs {
+  _call: CreateETHDistributionEpochCall;
+
+  constructor(call: CreateETHDistributionEpochCall) {
     this._call = call;
   }
 }
 
-export class OnERC1155BatchReceivedCall extends ethereum.Call {
-  get inputs(): OnERC1155BatchReceivedCall__Inputs {
-    return new OnERC1155BatchReceivedCall__Inputs(this);
-  }
+export class CreateETHDistributionEpochCall__Outputs {
+  _call: CreateETHDistributionEpochCall;
 
-  get outputs(): OnERC1155BatchReceivedCall__Outputs {
-    return new OnERC1155BatchReceivedCall__Outputs(this);
+  constructor(call: CreateETHDistributionEpochCall) {
+    this._call = call;
   }
 }
 
-export class OnERC1155BatchReceivedCall__Inputs {
-  _call: OnERC1155BatchReceivedCall;
+export class CreateLegalContractCall extends ethereum.Call {
+  get inputs(): CreateLegalContractCall__Inputs {
+    return new CreateLegalContractCall__Inputs(this);
+  }
 
-  constructor(call: OnERC1155BatchReceivedCall) {
+  get outputs(): CreateLegalContractCall__Outputs {
+    return new CreateLegalContractCall__Outputs(this);
+  }
+}
+
+export class CreateLegalContractCall__Inputs {
+  _call: CreateLegalContractCall;
+
+  constructor(call: CreateLegalContractCall) {
     this._call = call;
   }
 
-  get operator(): Address {
+  get contractURI(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+}
+
+export class CreateLegalContractCall__Outputs {
+  _call: CreateLegalContractCall;
+
+  constructor(call: CreateLegalContractCall) {
+    this._call = call;
+  }
+
+  get value0(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
+  }
+}
+
+export class CreateSongSharesCall extends ethereum.Call {
+  get inputs(): CreateSongSharesCall__Inputs {
+    return new CreateSongSharesCall__Inputs(this);
+  }
+
+  get outputs(): CreateSongSharesCall__Outputs {
+    return new CreateSongSharesCall__Outputs(this);
+  }
+}
+
+export class CreateSongSharesCall__Inputs {
+  _call: CreateSongSharesCall;
+
+  constructor(call: CreateSongSharesCall) {
+    this._call = call;
+  }
+
+  get sharesAmount(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class CreateSongSharesCall__Outputs {
+  _call: CreateSongSharesCall;
+
+  constructor(call: CreateSongSharesCall) {
+    this._call = call;
+  }
+}
+
+export class CreateStablecoinDistributionEpochCall extends ethereum.Call {
+  get inputs(): CreateStablecoinDistributionEpochCall__Inputs {
+    return new CreateStablecoinDistributionEpochCall__Inputs(this);
+  }
+
+  get outputs(): CreateStablecoinDistributionEpochCall__Outputs {
+    return new CreateStablecoinDistributionEpochCall__Outputs(this);
+  }
+}
+
+export class CreateStablecoinDistributionEpochCall__Inputs {
+  _call: CreateStablecoinDistributionEpochCall;
+
+  constructor(call: CreateStablecoinDistributionEpochCall) {
+    this._call = call;
+  }
+}
+
+export class CreateStablecoinDistributionEpochCall__Outputs {
+  _call: CreateStablecoinDistributionEpochCall;
+
+  constructor(call: CreateStablecoinDistributionEpochCall) {
+    this._call = call;
+  }
+}
+
+export class InitializeCall extends ethereum.Call {
+  get inputs(): InitializeCall__Inputs {
+    return new InitializeCall__Inputs(this);
+  }
+
+  get outputs(): InitializeCall__Outputs {
+    return new InitializeCall__Outputs(this);
+  }
+}
+
+export class InitializeCall__Inputs {
+  _call: InitializeCall;
+
+  constructor(call: InitializeCall) {
+    this._call = call;
+  }
+
+  get _stablecoinAddress(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get from(): Address {
+  get _owner(): Address {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get ids(): Array<BigInt> {
-    return this._call.inputValues[2].value.toBigIntArray();
-  }
-
-  get values(): Array<BigInt> {
-    return this._call.inputValues[3].value.toBigIntArray();
-  }
-
-  get data(): Bytes {
-    return this._call.inputValues[4].value.toBytes();
+  get value2(): Address {
+    return this._call.inputValues[2].value.toAddress();
   }
 }
 
-export class OnERC1155BatchReceivedCall__Outputs {
-  _call: OnERC1155BatchReceivedCall;
+export class InitializeCall__Outputs {
+  _call: InitializeCall;
 
-  constructor(call: OnERC1155BatchReceivedCall) {
+  constructor(call: InitializeCall) {
+    this._call = call;
+  }
+}
+
+export class MigrateWrappedSongCall extends ethereum.Call {
+  get inputs(): MigrateWrappedSongCall__Inputs {
+    return new MigrateWrappedSongCall__Inputs(this);
+  }
+
+  get outputs(): MigrateWrappedSongCall__Outputs {
+    return new MigrateWrappedSongCall__Outputs(this);
+  }
+}
+
+export class MigrateWrappedSongCall__Inputs {
+  _call: MigrateWrappedSongCall;
+
+  constructor(call: MigrateWrappedSongCall) {
     this._call = call;
   }
 
-  get value0(): Bytes {
-    return this._call.outputValues[0].value.toBytes();
-  }
-}
-
-export class OnERC1155ReceivedCall extends ethereum.Call {
-  get inputs(): OnERC1155ReceivedCall__Inputs {
-    return new OnERC1155ReceivedCall__Inputs(this);
-  }
-
-  get outputs(): OnERC1155ReceivedCall__Outputs {
-    return new OnERC1155ReceivedCall__Outputs(this);
-  }
-}
-
-export class OnERC1155ReceivedCall__Inputs {
-  _call: OnERC1155ReceivedCall;
-
-  constructor(call: OnERC1155ReceivedCall) {
-    this._call = call;
-  }
-
-  get operator(): Address {
+  get metadataAddress(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get from(): Address {
+  get newWrappedSongAddress(): Address {
     return this._call.inputValues[1].value.toAddress();
-  }
-
-  get id(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get value(): BigInt {
-    return this._call.inputValues[3].value.toBigInt();
-  }
-
-  get data(): Bytes {
-    return this._call.inputValues[4].value.toBytes();
   }
 }
 
-export class OnERC1155ReceivedCall__Outputs {
-  _call: OnERC1155ReceivedCall;
+export class MigrateWrappedSongCall__Outputs {
+  _call: MigrateWrappedSongCall;
 
-  constructor(call: OnERC1155ReceivedCall) {
+  constructor(call: MigrateWrappedSongCall) {
     this._call = call;
-  }
-
-  get value0(): Bytes {
-    return this._call.outputValues[0].value.toBytes();
   }
 }
 
@@ -899,58 +1267,6 @@ export class ReceiveERC20Call__Outputs {
   }
 }
 
-export class ReceiveEarningsCall extends ethereum.Call {
-  get inputs(): ReceiveEarningsCall__Inputs {
-    return new ReceiveEarningsCall__Inputs(this);
-  }
-
-  get outputs(): ReceiveEarningsCall__Outputs {
-    return new ReceiveEarningsCall__Outputs(this);
-  }
-}
-
-export class ReceiveEarningsCall__Inputs {
-  _call: ReceiveEarningsCall;
-
-  constructor(call: ReceiveEarningsCall) {
-    this._call = call;
-  }
-}
-
-export class ReceiveEarningsCall__Outputs {
-  _call: ReceiveEarningsCall;
-
-  constructor(call: ReceiveEarningsCall) {
-    this._call = call;
-  }
-}
-
-export class RedeemSharesCall extends ethereum.Call {
-  get inputs(): RedeemSharesCall__Inputs {
-    return new RedeemSharesCall__Inputs(this);
-  }
-
-  get outputs(): RedeemSharesCall__Outputs {
-    return new RedeemSharesCall__Outputs(this);
-  }
-}
-
-export class RedeemSharesCall__Inputs {
-  _call: RedeemSharesCall;
-
-  constructor(call: RedeemSharesCall) {
-    this._call = call;
-  }
-}
-
-export class RedeemSharesCall__Outputs {
-  _call: RedeemSharesCall;
-
-  constructor(call: RedeemSharesCall) {
-    this._call = call;
-  }
-}
-
 export class RenounceOwnershipCall extends ethereum.Call {
   get inputs(): RenounceOwnershipCall__Inputs {
     return new RenounceOwnershipCall__Inputs(this);
@@ -977,153 +1293,33 @@ export class RenounceOwnershipCall__Outputs {
   }
 }
 
-export class RequestUpdateMetadataCall extends ethereum.Call {
-  get inputs(): RequestUpdateMetadataCall__Inputs {
-    return new RequestUpdateMetadataCall__Inputs(this);
+export class SetWSTokenManagementCall extends ethereum.Call {
+  get inputs(): SetWSTokenManagementCall__Inputs {
+    return new SetWSTokenManagementCall__Inputs(this);
   }
 
-  get outputs(): RequestUpdateMetadataCall__Outputs {
-    return new RequestUpdateMetadataCall__Outputs(this);
+  get outputs(): SetWSTokenManagementCall__Outputs {
+    return new SetWSTokenManagementCall__Outputs(this);
   }
 }
 
-export class RequestUpdateMetadataCall__Inputs {
-  _call: RequestUpdateMetadataCall;
+export class SetWSTokenManagementCall__Inputs {
+  _call: SetWSTokenManagementCall;
 
-  constructor(call: RequestUpdateMetadataCall) {
+  constructor(call: SetWSTokenManagementCall) {
     this._call = call;
   }
 
-  get newMetadata(): RequestUpdateMetadataCallNewMetadataStruct {
-    return changetype<RequestUpdateMetadataCallNewMetadataStruct>(
-      this._call.inputValues[0].value.toTuple(),
-    );
-  }
-}
-
-export class RequestUpdateMetadataCall__Outputs {
-  _call: RequestUpdateMetadataCall;
-
-  constructor(call: RequestUpdateMetadataCall) {
-    this._call = call;
-  }
-}
-
-export class RequestUpdateMetadataCallNewMetadataStruct extends ethereum.Tuple {
-  get name(): string {
-    return this[0].toString();
-  }
-
-  get description(): string {
-    return this[1].toString();
-  }
-
-  get image(): string {
-    return this[2].toString();
-  }
-
-  get externalUrl(): string {
-    return this[3].toString();
-  }
-
-  get animationUrl(): string {
-    return this[4].toString();
-  }
-
-  get attributesIpfsHash(): string {
-    return this[5].toString();
-  }
-}
-
-export class RequestWrappedSongReleaseCall extends ethereum.Call {
-  get inputs(): RequestWrappedSongReleaseCall__Inputs {
-    return new RequestWrappedSongReleaseCall__Inputs(this);
-  }
-
-  get outputs(): RequestWrappedSongReleaseCall__Outputs {
-    return new RequestWrappedSongReleaseCall__Outputs(this);
-  }
-}
-
-export class RequestWrappedSongReleaseCall__Inputs {
-  _call: RequestWrappedSongReleaseCall;
-
-  constructor(call: RequestWrappedSongReleaseCall) {
-    this._call = call;
-  }
-
-  get _distributorWallet(): Address {
+  get _wsTokenManagement(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 }
 
-export class RequestWrappedSongReleaseCall__Outputs {
-  _call: RequestWrappedSongReleaseCall;
+export class SetWSTokenManagementCall__Outputs {
+  _call: SetWSTokenManagementCall;
 
-  constructor(call: RequestWrappedSongReleaseCall) {
+  constructor(call: SetWSTokenManagementCall) {
     this._call = call;
-  }
-}
-
-export class RequestWrappedSongReleaseWithMetadataCall extends ethereum.Call {
-  get inputs(): RequestWrappedSongReleaseWithMetadataCall__Inputs {
-    return new RequestWrappedSongReleaseWithMetadataCall__Inputs(this);
-  }
-
-  get outputs(): RequestWrappedSongReleaseWithMetadataCall__Outputs {
-    return new RequestWrappedSongReleaseWithMetadataCall__Outputs(this);
-  }
-}
-
-export class RequestWrappedSongReleaseWithMetadataCall__Inputs {
-  _call: RequestWrappedSongReleaseWithMetadataCall;
-
-  constructor(call: RequestWrappedSongReleaseWithMetadataCall) {
-    this._call = call;
-  }
-
-  get _distributorWallet(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get newMetadata(): RequestWrappedSongReleaseWithMetadataCallNewMetadataStruct {
-    return changetype<RequestWrappedSongReleaseWithMetadataCallNewMetadataStruct>(
-      this._call.inputValues[1].value.toTuple(),
-    );
-  }
-}
-
-export class RequestWrappedSongReleaseWithMetadataCall__Outputs {
-  _call: RequestWrappedSongReleaseWithMetadataCall;
-
-  constructor(call: RequestWrappedSongReleaseWithMetadataCall) {
-    this._call = call;
-  }
-}
-
-export class RequestWrappedSongReleaseWithMetadataCallNewMetadataStruct extends ethereum.Tuple {
-  get name(): string {
-    return this[0].toString();
-  }
-
-  get description(): string {
-    return this[1].toString();
-  }
-
-  get image(): string {
-    return this[2].toString();
-  }
-
-  get externalUrl(): string {
-    return this[3].toString();
-  }
-
-  get animationUrl(): string {
-    return this[4].toString();
-  }
-
-  get attributesIpfsHash(): string {
-    return this[5].toString();
   }
 }
 
@@ -1153,116 +1349,6 @@ export class TransferOwnershipCall__Outputs {
   _call: TransferOwnershipCall;
 
   constructor(call: TransferOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateEarningsCall extends ethereum.Call {
-  get inputs(): UpdateEarningsCall__Inputs {
-    return new UpdateEarningsCall__Inputs(this);
-  }
-
-  get outputs(): UpdateEarningsCall__Outputs {
-    return new UpdateEarningsCall__Outputs(this);
-  }
-}
-
-export class UpdateEarningsCall__Inputs {
-  _call: UpdateEarningsCall;
-
-  constructor(call: UpdateEarningsCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateEarningsCall__Outputs {
-  _call: UpdateEarningsCall;
-
-  constructor(call: UpdateEarningsCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateMetadataCall extends ethereum.Call {
-  get inputs(): UpdateMetadataCall__Inputs {
-    return new UpdateMetadataCall__Inputs(this);
-  }
-
-  get outputs(): UpdateMetadataCall__Outputs {
-    return new UpdateMetadataCall__Outputs(this);
-  }
-}
-
-export class UpdateMetadataCall__Inputs {
-  _call: UpdateMetadataCall;
-
-  constructor(call: UpdateMetadataCall) {
-    this._call = call;
-  }
-
-  get newMetadata(): UpdateMetadataCallNewMetadataStruct {
-    return changetype<UpdateMetadataCallNewMetadataStruct>(
-      this._call.inputValues[0].value.toTuple(),
-    );
-  }
-}
-
-export class UpdateMetadataCall__Outputs {
-  _call: UpdateMetadataCall;
-
-  constructor(call: UpdateMetadataCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateMetadataCallNewMetadataStruct extends ethereum.Tuple {
-  get name(): string {
-    return this[0].toString();
-  }
-
-  get description(): string {
-    return this[1].toString();
-  }
-
-  get image(): string {
-    return this[2].toString();
-  }
-
-  get externalUrl(): string {
-    return this[3].toString();
-  }
-
-  get animationUrl(): string {
-    return this[4].toString();
-  }
-
-  get attributesIpfsHash(): string {
-    return this[5].toString();
-  }
-}
-
-export class WithdrawSaleFundsFromWSTokenManagementCall extends ethereum.Call {
-  get inputs(): WithdrawSaleFundsFromWSTokenManagementCall__Inputs {
-    return new WithdrawSaleFundsFromWSTokenManagementCall__Inputs(this);
-  }
-
-  get outputs(): WithdrawSaleFundsFromWSTokenManagementCall__Outputs {
-    return new WithdrawSaleFundsFromWSTokenManagementCall__Outputs(this);
-  }
-}
-
-export class WithdrawSaleFundsFromWSTokenManagementCall__Inputs {
-  _call: WithdrawSaleFundsFromWSTokenManagementCall;
-
-  constructor(call: WithdrawSaleFundsFromWSTokenManagementCall) {
-    this._call = call;
-  }
-}
-
-export class WithdrawSaleFundsFromWSTokenManagementCall__Outputs {
-  _call: WithdrawSaleFundsFromWSTokenManagementCall;
-
-  constructor(call: WithdrawSaleFundsFromWSTokenManagementCall) {
     this._call = call;
   }
 }

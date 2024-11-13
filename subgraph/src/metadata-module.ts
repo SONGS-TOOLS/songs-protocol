@@ -6,54 +6,57 @@ import {
   MetadataUpdateRequestedNewMetadataStruct,
   MetadataCreatedNewMetadataStruct,
   MetadataUpdatedNewMetadataStruct,
-} from '../generated/templates/MetadataModule/MetadataModule';
+} from "../generated/metadataModule/MetadataModule";
 import {
-  Metadata,
   MetadataUpdateRequest,
   SharesMetadata,
   SongMetadata,
   WrappedSong,
-} from '../generated/schema';
-import { Attributes as AttributesTemplate } from '../generated/templates';
-import { log, store } from '@graphprotocol/graph-ts';
+} from "../generated/schema";
+import { Attributes as AttributesTemplate } from "../generated/templates";
+import { Bytes, log, store } from "@graphprotocol/graph-ts";
+import { createMetadata } from "./helper-functions";
 
-export function handleMetadataCreated(event: MetadataCreatedEvent): void {
-  const wrappedSongId = event.params.wrappedSong;
+// export function handleMetadataCreated(event: MetadataCreatedEvent): void {
+//   const wrappedSongId = event.params.wrappedSong;
 
-  const wrappedSong = WrappedSong.load(wrappedSongId);
-  log.info('DEBUGGGG wrappedSong: {}', [wrappedSongId.toHexString()]);
+//   const wrappedSong = WrappedSong.load(wrappedSongId);
+//   log.info("DEBUGGGG wrappedSong handle metadatacreated: {}", [
+//     wrappedSongId.toHexString(),
+//   ]);
 
-  if (!wrappedSong) {
-    return;
-  }
+//   if (!wrappedSong) {
+//     return;
+//   }
+//   log.info("DEBUGGGG CREATING METADATA inside metadatacreated: {}", [
+//     wrappedSongId.toHexString(),
+//   ]);
 
-  let metadataId = event.block.hash.toHexString();
-  createMetadata(metadataId, event.params.newMetadata);
-
-  wrappedSong.metadata = metadataId;
-  wrappedSong.save();
-}
+//   createMetadata(wrappedSong, event.params.newMetadata);
+//   wrappedSong.save();
+// }
 
 export function handleMetadataUpdated(event: MetadataUpdatedEvent): void {
-  log.info('DEBUGGGG metadataUpdated: {}', [event.block.hash.toHexString()]);
+  log.info("DEBUGGGG metadataUpdated: {}", [event.block.hash.toHexString()]);
   const wrappedSongId = event.params.wrappedSong;
   const wrappedSong = WrappedSong.load(wrappedSongId);
 
   if (!wrappedSong) {
     return;
   }
-  log.info('DEBUGGGG Wrapped songs: {}', [wrappedSongId.toHexString()]);
+  log.info("DEBUGGGG Wrapped songs: {}", [wrappedSongId.toHexString()]);
 
-  let metadataId = wrappedSong.metadata;
+  let songMetadataId = wrappedSong.songMetadata;
+  let sharesMetadataId = wrappedSong.sharesMetadata;
 
-  if (!metadataId) {
+  if (!songMetadataId || !sharesMetadataId) {
     return;
   }
 
   const metadataUpdateRequestId = wrappedSong.pendingMetadataUpdate;
 
   if (metadataUpdateRequestId) {
-    log.info('DEBUGGGG metadataUpdateRequestId: {}', [
+    log.info("DEBUGGGG metadataUpdateRequestId: {}", [
       metadataUpdateRequestId.toHexString(),
     ]);
 
@@ -61,26 +64,28 @@ export function handleMetadataUpdated(event: MetadataUpdatedEvent): void {
       metadataUpdateRequestId
     );
     if (metadataUpdateRequest) {
-      const currentMetadataId = wrappedSong.metadata;
-      wrappedSong.metadata = metadataUpdateRequest.newMetadata;
+      const currentSongMetadataId = wrappedSong.songMetadata;
+      const currentSharesMetadataId = wrappedSong.sharesMetadata;
+      wrappedSong.songMetadata = metadataUpdateRequest.songMetadata;
+      wrappedSong.sharesMetadata = metadataUpdateRequest.sharesMetadata;
 
-      cascadeRemoveMetadata(currentMetadataId);
+      cascadeRemoveMetadata(currentSongMetadataId, currentSharesMetadataId);
       wrappedSong.pendingMetadataUpdate = null;
       store.remove(
-        'MetadataUpdateRequest',
+        "MetadataUpdateRequest",
         metadataUpdateRequestId.toHexString()
       );
 
       wrappedSong.save();
     }
   } else {
-    log.info('DEBUGGGG metadataUpdateddirectly: {}', [
+    log.info("DEBUGGGG metadataUpdateddirectly: {}", [
       event.block.hash.toHexString(),
     ]);
 
     const songMetadataParam = event.params.newMetadata;
 
-    createMetadata(metadataId, songMetadataParam);
+    createMetadata(wrappedSong, songMetadataParam);
 
     wrappedSong.save();
   }
@@ -99,12 +104,10 @@ export function handleMetadataUpdateRequested(
   const metadataUpdateRequest = new MetadataUpdateRequest(
     metadataUpdateRequestId
   );
-  metadataUpdateRequest.status = 'Pending';
+  metadataUpdateRequest.status = "Pending";
   metadataUpdateRequest.createdAt = event.block.timestamp;
-  let metadataId = metadataUpdateRequestId.toHexString() + '-metadata';
 
-  createMetadata(metadataId, event.params.newMetadata);
-  metadataUpdateRequest.newMetadata = metadataId;
+  createMetadata(metadataUpdateRequest, event.params.newMetadata);
   metadataUpdateRequest.save();
 
   wrappedSong.pendingMetadataUpdate = metadataUpdateRequestId;
@@ -127,9 +130,12 @@ export function handleMetadataUpdateRejected(
     );
     if (metadataUpdateRequest) {
       wrappedSong.pendingMetadataUpdate = null;
-      cascadeRemoveMetadata(metadataUpdateRequest.newMetadata);
+      cascadeRemoveMetadata(
+        metadataUpdateRequest.songMetadata,
+        metadataUpdateRequest.sharesMetadata
+      );
       store.remove(
-        'MetadataUpdateRequest',
+        "MetadataUpdateRequest",
         metadataUpdateRequestId.toHexString()
       );
       wrappedSong.save();
@@ -137,82 +143,85 @@ export function handleMetadataUpdateRejected(
   }
 }
 
-function cascadeRemoveMetadata(metadataId: string | null): void {
-  if (metadataId) {
-    const currentMetadata = Metadata.load(metadataId);
-    if (currentMetadata) {
-      const currentSongMetadataId = currentMetadata.songMetadata;
+function cascadeRemoveMetadata(
+  songMetadataId: string | null,
+  sharesMetadataId: string | null
+): void {
+  if (songMetadataId) {
+    const currentSongMetadata = SongMetadata.load(songMetadataId);
+    if (currentSongMetadata) {
+      const currentSongMetadataId = songMetadataId;
       if (currentSongMetadataId) {
         const currentSongMetadata = SongMetadata.load(currentSongMetadataId);
         if (currentSongMetadata) {
           const attributesIpfsHash = currentSongMetadata.attributesIpfsHash;
           if (attributesIpfsHash) {
-            store.remove('Attributes', attributesIpfsHash);
+            store.remove("Attributes", attributesIpfsHash);
           }
-          store.remove('SongMetadata', currentSongMetadataId);
+          store.remove("SongMetadata", currentSongMetadataId);
         }
       }
-
-      const currentSharesMetadataId = currentMetadata.sharesMetadata;
-      if (currentSharesMetadataId) {
-        const currentSharesMetadata = SharesMetadata.load(
-          currentSharesMetadataId
-        );
-        if (currentSharesMetadata) {
-          store.remove('SharesMetadata', currentSharesMetadataId);
-        }
+    }
+  }
+  if (sharesMetadataId) {
+    const currentSharesMetadataId = sharesMetadataId;
+    if (currentSharesMetadataId) {
+      const currentSharesMetadata = SharesMetadata.load(
+        currentSharesMetadataId
+      );
+      if (currentSharesMetadata) {
+        store.remove("SharesMetadata", currentSharesMetadataId);
       }
-      store.remove('Metadata', metadataId);
     }
   }
 }
 
-function createMetadata<T>(
-  metadataId: string | null,
-  songMetadataParam: T
-): void {
-  if (
-    (songMetadataParam instanceof MetadataUpdateRequestedNewMetadataStruct ||
-      songMetadataParam instanceof MetadataCreatedNewMetadataStruct ||
-      songMetadataParam instanceof MetadataUpdatedNewMetadataStruct) &&
-    metadataId !== null
-  ) {
-    let metadata = Metadata.load(metadataId);
-    if (!metadata) {
-      metadata = new Metadata(metadataId);
-    }
-    const name = songMetadataParam.name;
-    const description = songMetadataParam.description;
-    const image = songMetadataParam.image;
-    const externalUrl = songMetadataParam.externalUrl;
-    const animationUrl = songMetadataParam.animationUrl;
-    const attributesIpfsHash = songMetadataParam.attributesIpfsHash;
-    const songMetadataId = metadataId + '-song';
-    let songMetadata = SongMetadata.load(songMetadataId);
-    if (!songMetadata) {
-      songMetadata = new SongMetadata(songMetadataId);
-    }
-    songMetadata.name = name;
-    songMetadata.description = description;
-    songMetadata.image = image;
-    songMetadata.externalUrl = externalUrl;
-    songMetadata.animationUrl = animationUrl;
-    songMetadata.attributesIpfsHash = attributesIpfsHash;
-    songMetadata.attributes = attributesIpfsHash;
-    AttributesTemplate.create(attributesIpfsHash);
-    songMetadata.save();
+// function createMetadata<T, U>(parent: T, songMetadataParam: U): void {
+//   log.info("DEBUGGGG createMetadata", []);
+//   if (
+//     (songMetadataParam instanceof MetadataUpdateRequestedNewMetadataStruct ||
+//       songMetadataParam instanceof MetadataCreatedNewMetadataStruct ||
+//       songMetadataParam instanceof MetadataUpdatedNewMetadataStruct) &&
+//     (parent instanceof WrappedSong || parent instanceof MetadataUpdateRequest)
+//   ) {
+//     log.info("DEBUGGGG inside create metadata", []);
 
-    const sharesMetadataId = metadataId + '-shares';
-    let sharesMetadata = SharesMetadata.load(sharesMetadataId);
-    if (!sharesMetadata) {
-      sharesMetadata = new SharesMetadata(sharesMetadataId);
-    }
-    sharesMetadata.name = name + ' - SongShares';
-    sharesMetadata.image = image;
-    sharesMetadata.save();
+//     const name = songMetadataParam.name;
+//     const description = songMetadataParam.description;
+//     const image = songMetadataParam.image;
+//     const externalUrl = songMetadataParam.externalUrl;
+//     const animationUrl = songMetadataParam.animationUrl;
+//     const attributesIpfsHash = songMetadataParam.attributesIpfsHash;
+//     const songMetadataId = parent.id.toHexString() + "-songmetadata";
+//     let songMetadata = SongMetadata.load(songMetadataId);
+//     if (!songMetadata) {
+//       songMetadata = new SongMetadata(songMetadataId);
+//     }
+//     songMetadata.name = name;
+//     songMetadata.description = description;
+//     songMetadata.image = image;
+//     songMetadata.externalUrl = externalUrl;
+//     songMetadata.animationUrl = animationUrl;
+//     songMetadata.attributesIpfsHash = attributesIpfsHash;
+//     songMetadata.attributes = attributesIpfsHash;
+//     AttributesTemplate.create(attributesIpfsHash);
+//     songMetadata.save();
 
-    metadata.songMetadata = songMetadataId;
-    metadata.sharesMetadata = sharesMetadataId;
-    metadata.save();
-  }
-}
+//     const sharesMetadataId = parent.id.toHexString() + "-sharesmetadata";
+//     let sharesMetadata = SharesMetadata.load(sharesMetadataId);
+//     if (!sharesMetadata) {
+//       sharesMetadata = new SharesMetadata(sharesMetadataId);
+//     }
+//     sharesMetadata.name = name + " - SongShares";
+//     sharesMetadata.image = image;
+//     sharesMetadata.save();
+//     log.info("DEBUGGGG saving shares metadata to parent: {}", [
+//       parent.id.toHexString(),
+//     ]);
+
+//     parent.songMetadata = songMetadataId;
+//     parent.sharesMetadata = sharesMetadataId;
+
+//     parent.save();
+//   }
+// }

@@ -6,6 +6,20 @@ import {
   DataSourceContext,
 } from "@graphprotocol/graph-ts";
 
+export class DistributorWallet extends DataSourceTemplate {
+  static create(address: Address): void {
+    DataSourceTemplate.create("DistributorWallet", [address.toHex()]);
+  }
+
+  static createWithContext(address: Address, context: DataSourceContext): void {
+    DataSourceTemplate.createWithContext(
+      "DistributorWallet",
+      [address.toHex()],
+      context,
+    );
+  }
+}
+
 export class WrappedSongSmartAccount extends DataSourceTemplate {
   static create(address: Address): void {
     DataSourceTemplate.create("WrappedSongSmartAccount", [address.toHex()]);

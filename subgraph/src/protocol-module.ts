@@ -1,4 +1,4 @@
-import { BigInt, store } from '@graphprotocol/graph-ts';
+import { BigInt, store } from "@graphprotocol/graph-ts";
 import {
   DistributorAcceptedReview as DistributorAcceptedReviewEvent,
   ReviewPeriodExpired as ReviewPeriodExpiredEvent,
@@ -6,8 +6,8 @@ import {
   WrappedSongReleased as WrappedSongReleasedEvent,
   WrappedSongReleaseRejected as WrappedSongReleaseRejectedEvent,
   WrappedSongReleaseRequested as WrappedSongRequestedEvent,
-} from '../generated/ProtocolModule/ProtocolModule';
-import { Distributor, ReleaseRequest, WrappedSong } from '../generated/schema';
+} from "../generated/ProtocolModule/ProtocolModule";
+import { Distributor, ReleaseRequest, WrappedSong } from "../generated/schema";
 
 export function handleWrappedSongReleaseRequested(
   event: WrappedSongRequestedEvent
@@ -23,10 +23,10 @@ export function handleWrappedSongReleaseRequested(
     return;
   }
 
-  wrappedSong.status = 'Requested';
+  wrappedSong.status = "Requested";
 
   const releaseRequest = new ReleaseRequest(releaseRequestId);
-  releaseRequest.status = 'Pending';
+  releaseRequest.status = "Pending";
   releaseRequest.createdAt = event.block.timestamp;
   releaseRequest.save();
 
@@ -53,11 +53,17 @@ export function handleWrappedSongReleased(
     return;
   }
 
-  wrappedSong.status = 'Released';
+  wrappedSong.status = "Released";
   wrappedSong.releasedAt = event.block.timestamp;
   wrappedSong.releaseRequest = null;
+  wrappedSong.releaseDistributor = distributorId;
+  wrappedSong.wsIndex = distributor.currentWSIndex;
+  distributor.currentWSIndex = distributor.currentWSIndex.plus(
+    BigInt.fromI32(1)
+  );
+  distributor.save();
   wrappedSong.save();
-  store.remove('ReleaseRequest', releaseRequestId.toHexString());
+  store.remove("ReleaseRequest", releaseRequestId.toHexString());
 }
 
 export function handleDistributorAcceptedReview(
@@ -79,14 +85,14 @@ export function handleDistributorAcceptedReview(
     return;
   }
 
-  releaseRequest.status = 'InReview';
+  releaseRequest.status = "InReview";
   releaseRequest.reviewStartedAt = event.block.timestamp;
   releaseRequest.reviewEndTime = event.block.timestamp.plus(
     BigInt.fromI32(7 * 86400)
   ); // Assuming 7 days review period
   releaseRequest.save();
 
-  wrappedSong.status = 'InReview';
+  wrappedSong.status = "InReview";
 }
 
 export function handleReviewPeriodExpired(
@@ -109,10 +115,10 @@ export function handleReviewPeriodExpired(
     return;
   }
 
-  wrappedSong.status = 'Requested';
+  wrappedSong.status = "Requested";
   wrappedSong.save();
 
-  releaseRequest.status = 'Pending';
+  releaseRequest.status = "Pending";
   releaseRequest.reviewStartedAt = null;
   releaseRequest.reviewEndTime = null;
   releaseRequest.save();
@@ -132,12 +138,12 @@ export function handleWrappedSongReleaseRejected(
     return;
   }
 
-  wrappedSong.status = 'Created';
+  wrappedSong.status = "Created";
   wrappedSong.releaseRequest = null;
   wrappedSong.distributor = null;
   wrappedSong.save();
 
-  store.remove('ReleaseRequest', releaseRequestId.toHexString());
+  store.remove("ReleaseRequest", releaseRequestId.toHexString());
 }
 
 export function handleWrappedSongAuthenticitySet(

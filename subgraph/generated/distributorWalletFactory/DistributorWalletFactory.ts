@@ -30,6 +30,10 @@ export class DistributorWalletCreated__Params {
   get wallet(): Address {
     return this._event.parameters[1].value.toAddress();
   }
+
+  get stablecoin(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
 }
 
 export class OwnershipTransferred extends ethereum.Event {

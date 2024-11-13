@@ -10,8 +10,10 @@ type WrappedSong @entity {
   status: String!
   stablecoinAddress: Bytes
   createdAt: BigInt!
-  metadata: Metadata
+  songMetadata: SongMetadata
+  sharesMetadata: SharesMetadata
   distributor: Distributor
+  releaseDistributor: Distributor
   pendingMetadataUpdate: MetadataUpdateRequest
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
@@ -20,6 +22,7 @@ type WrappedSong @entity {
   shareholders: [WrappedSongShareHolder!]! @derivedFrom(field: "wrappedSong")
   wsTokenManagement: WSTokenManagement!
   isAuthentic: Boolean!
+  wsIndex: BigInt
 }
 
 type Attributes @entity {
@@ -44,16 +47,10 @@ type SharesMetadata @entity {
   name: String!
 }
 
-type Metadata @entity {
-  id: ID!
-  songMetadata: SongMetadata!
-  sharesMetadata: SharesMetadata!
-  wrappedSong: WrappedSong! @derivedFrom(field: "metadata")
-}
-
 type MetadataUpdateRequest @entity {
   id: Bytes!
-  newMetadata: Metadata!
+  songMetadata: SongMetadata!
+  sharesMetadata: SharesMetadata!
   status: String!
   createdAt: BigInt!
   confirmedAt: BigInt
@@ -64,6 +61,20 @@ type Distributor @entity {
   address: Bytes!
   owner: Bytes!
   wrappedSongs: [WrappedSong!]! @derivedFrom(field: "distributor")
+  releasedWrappedSongs: [WrappedSong!]!
+    @derivedFrom(field: "releaseDistributor")
+  epochs: [DistributorEpoch!]! @derivedFrom(field: "distributor")
+  currentEpochId: BigInt!
+  currentWSIndex: BigInt!
+  stablecoinAddress: Bytes!
+}
+
+type DistributorEpoch @entity {
+  id: String!
+  epochId: BigInt!
+  totalAmount: BigInt!
+  timestamp: BigInt!
+  distributor: Distributor!
 }
 
 type ReleaseRequest @entity {
@@ -115,9 +126,18 @@ type ShareHolder @entity {
   wsTokenManagement: WSTokenManagement!
 }
 
+# type Checkpoint @entity {
+#   id: Bytes!
+#   timestamp: BigInt!
+#   value: BigInt!
+#   wrappedSongShareHolder: WrappedSongShareHolder!
+# }
+
 type WrappedSongShareHolder @entity {
   id: Bytes!
   wrappedSong: WrappedSong!
   shareHolder: ShareHolder!
   shares: BigInt!
+  lastEpochClaimed: BigInt!
+  # checkpoints: [Checkpoint!]! @derivedFrom(field: "wrappedSongShareHolder")
 }

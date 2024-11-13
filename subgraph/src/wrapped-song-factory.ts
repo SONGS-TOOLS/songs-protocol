@@ -1,20 +1,23 @@
-import { BigInt, Bytes, log } from '@graphprotocol/graph-ts';
-import { WrappedSongCreated as WrappedSongCreatedEvent } from '../generated/WrappedSongFactory/WrappedSongFactory';
-import { WrappedSong, WSTokenManagement } from '../generated/schema';
+import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { WrappedSongCreated as WrappedSongCreatedEvent } from "../generated/WrappedSongFactory/WrappedSongFactory";
+import { WrappedSong, WSTokenManagement } from "../generated/schema";
 import {
   WrappedSongSmartAccount,
   WSTokenManagement as WSTokenManagementTemplate,
   Attributes as AttributesTemplate,
-} from '../generated/templates';
+} from "../generated/templates";
+import { createMetadata } from "./helper-functions";
 
 export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   const wrappedSongId = event.params.wrappedSongSmartAccount;
   let wrappedSong = new WrappedSong(wrappedSongId);
   wrappedSong.creator = event.params.owner;
-  wrappedSong.status = 'Created';
+  wrappedSong.status = "Created";
   wrappedSong.address = wrappedSongId;
 
-  log.info('DEBUGGGG stablecoin: {}', [event.params.stablecoin.toHexString()]);
+  log.info("DEBUGGGG wrappedSongId: {}", [wrappedSongId.toHexString()]);
+
+  log.info("DEBUGGGG stablecoin: {}", [event.params.stablecoin.toHexString()]);
 
   //TODO: Remove this once we have a real stablecoin
   wrappedSong.stablecoinAddress = event.params.stablecoin;
@@ -33,6 +36,11 @@ export function handleWrappedSongCreated(event: WrappedSongCreatedEvent): void {
   wsTokenManagement.save();
   WSTokenManagementTemplate.create(event.params.wsTokenManagement);
   wrappedSong.wsTokenManagement = event.params.wsTokenManagement;
+
+  const metadata = event.params.metadata;
+
+  createMetadata(wrappedSong, metadata);
+
   wrappedSong.save();
 
   // Create a new instance of the WrappedSongSmartAccount template
