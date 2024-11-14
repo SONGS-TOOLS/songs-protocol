@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: ProtocolModule
-    network: base-sepolia
+    network: base
     source:
-      address: "0x9b1E8074F90e90DeaF585ac2Eac3c9258A80684b"
+      address: "0x016A9C8D52CD7b6068122720260B834673EBe886"
       abi: ProtocolModule
-      startBlock: 17862482
+      startBlock: 22391900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -38,11 +38,11 @@ dataSources:
       file: ProtocolModule/ProtocolModule.wasm
   - kind: ethereum
     name: WrappedSongFactory
-    network: base-sepolia
+    network: base
     source:
-      address: "0xE38ee11758daCb83c722cb604114337fd8BEbF76"
+      address: "0x6D599BdA8640A6A90798E448C3350B37F18A3AB6"
       abi: WrappedSongFactory
-      startBlock: 17862482
+      startBlock: 22391900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -60,11 +60,11 @@ dataSources:
       file: WrappedSongFactory/WrappedSongFactory.wasm
   - kind: ethereum
     name: distributorWalletFactory
-    network: base-sepolia
+    network: base
     source:
-      address: "0x3Be0cC7dA7b4179554c83f87BCCfb673dED32366"
+      address: "0x0abBB462B82d0C80e370b2c06163401b24565Ec8"
       abi: DistributorWalletFactory
-      startBlock: 17862482
+      startBlock: 22391900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -80,11 +80,11 @@ dataSources:
       file: distributorWalletFactory/distributorWalletFactory.wasm
   - kind: ethereum
     name: metadataModule
-    network: base-sepolia
+    network: base
     source:
-      address: "0x25DDb423A824d25272dFfF6B166E0feEb43d9e6C"
+      address: "0x238B0409E60057c3a0c0Ae83666600755Ccd275F"
       abi: MetadataModule
-      startBlock: 17862482
+      startBlock: 22391900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -108,11 +108,11 @@ dataSources:
           handler: handleMetadataUpdateRejected
   - kind: ethereum
     name: SongSharesMarketPlace
-    network: base-sepolia
+    network: base
     source:
-      address: "0x855888051255Eb17fC17bD0680885a3892e0F94E"
+      address: "0x6dCb3b449bFCbb073d4C66F6Bb5040Fd83c0D160"
       abi: SongSharesMarketPlace
-      startBlock: 17862482
+      startBlock: 22391900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -138,7 +138,7 @@ dataSources:
 templates:
   - name: DistributorWallet
     kind: ethereum/contract
-    network: base-sepolia
+    network: base
     source:
       abi: DistributorWallet
     mapping:
@@ -159,7 +159,7 @@ templates:
           handler: handleEpochRedeemed
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
-    network: base-sepolia
+    network: base
     source:
       abi: WrappedSongSmartAccount
     mapping:
@@ -174,7 +174,7 @@ templates:
           file: abis/WrappedSongSmartAccount.json
   - name: Attributes
     kind: file/ipfs
-    network: base-sepolia
+    network: base
     mapping:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
@@ -187,7 +187,7 @@ templates:
           file: abis/WrappedSongSmartAccount.json
   - name: WSTokenManagement
     kind: ethereum/contract
-    network: base-sepolia
+    network: base
     source:
       abi: WSTokenManagement
     mapping:

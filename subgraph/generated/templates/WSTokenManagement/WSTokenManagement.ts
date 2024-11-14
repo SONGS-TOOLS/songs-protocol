@@ -893,8 +893,12 @@ export class MigrateWrappedSongCall__Inputs {
     this._call = call;
   }
 
-  get metadataAddress(): Address {
+  get newMetadataAddress(): Address {
     return this._call.inputValues[0].value.toAddress();
+  }
+
+  get newWrappedSongAddress(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 }
 

@@ -515,7 +515,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "metadataAddress",
+        "name": "newMetadataAddress",
         "type": "address"
       },
       {

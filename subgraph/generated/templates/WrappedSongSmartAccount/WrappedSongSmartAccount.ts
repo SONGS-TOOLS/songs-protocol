@@ -1216,7 +1216,7 @@ export class MigrateWrappedSongCall__Inputs {
     this._call = call;
   }
 
-  get metadataAddress(): Address {
+  get newMetadataAddress(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
