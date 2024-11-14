@@ -93,7 +93,7 @@ contract MetadataModule is Ownable, IMetadataModule {
     function updateMetadata(address wrappedSong, Metadata memory newMetadata) external {
         require(
             IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender || 
-            wrappedSong == msg.sender, 
+            msg.sender == address(protocolModule), 
             "Only wrapped song or its owner can update"
         );
         require(!protocolModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
