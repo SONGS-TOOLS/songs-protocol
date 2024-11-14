@@ -663,7 +663,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "metadataAddress",
+        "name": "newMetadataAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "newWrappedSongAddress",
         "type": "address"
       }
     ],

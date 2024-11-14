@@ -126,8 +126,9 @@ contract WSTokenManagement is
         return tokenId;
     }
 
-    function migrateWrappedSong(address metadataAddress) external override onlyOwner {
-        metadataModule = metadataAddress;
+    function migrateWrappedSong(address newMetadataAddress, address newWrappedSongAddress) external onlyOwner {
+        _transferOwnership(newWrappedSongAddress);
+        metadataModule = newMetadataAddress;
     }
 
     function SONG_CONCEPT_ID() external pure override returns (uint256) {

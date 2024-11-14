@@ -17,6 +17,7 @@
     "deploy:songs": "ts-node scripts/run-with-network.ts deploy-songs",
     "deploy:one": "ts-node scripts/run-with-network.ts deploy-one",
     "deploy:protocol": "ts-node scripts/run-with-network.ts deploy-protocol",
+    "deploy:protocol-main": "ts-node scripts/run-with-network.ts deploy-protocol-main",
     "deploy:license": "ts-node scripts/run-with-network.ts deploy-license",
     "deploy": "ts-node scripts/run-with-network.ts deploy",
     "deploy:ws-2": "ts-node scripts/run-with-network.ts deploy-ws-2",

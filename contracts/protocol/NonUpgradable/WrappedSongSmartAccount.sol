@@ -444,10 +444,7 @@ contract WrappedSongSmartAccount is
         migrated = true;
 
         // Transfer WSTokenManagement ownership
-        wsTokenManagement.transferOwnership(newWrappedSongAddress);
-
-        // Remove metadata
-        metadataModule.removeMetadata(address(this));
+        wsTokenManagement.migrateWrappedSong(newWrappedSongAddress, newMetadataAddress);
 
         // Transfer any remaining stablecoin balance
         uint256 stablecoinBalance = stablecoin.balanceOf(address(this));

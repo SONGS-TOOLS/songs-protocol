@@ -79,7 +79,7 @@ interface IWrappedSongSmartAccount {
     
     // Migration function
     function migrateWrappedSong(
-        address metadataAddress,
+        address newMetadataAddress,
         address newWrappedSongAddress
     ) external;
 } 

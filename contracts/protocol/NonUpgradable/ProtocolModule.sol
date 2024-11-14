@@ -91,6 +91,12 @@ contract ProtocolModule is Ownable, Pausable {
     // Add new state variable
     string public baseURI;
 
+    // Add new state variable
+    bool public releasesEnabled = true;
+
+    // Add event for tracking changes
+    event ReleasesEnabledChanged(bool enabled);
+
     /**
      * @dev Initializes the contract with the given parameters.
      * @param _distributorWalletFactory The address of the DistributorWalletFactory contract.
@@ -162,7 +168,7 @@ contract ProtocolModule is Ownable, Pausable {
         address distributor,
         IMetadataModule.Metadata memory newMetadata
     ) external payable {
-        // Check if the sent value matches the release fee
+        require(releasesEnabled, "Releases are currently disabled");
         require(msg.value >= releaseFee, "Insufficient release fee");
 
         // Validate basic requirements
@@ -184,7 +190,7 @@ contract ProtocolModule is Ownable, Pausable {
         address wrappedSong,
         address distributor
     ) external payable {
-        // Check if the sent value matches the release fee
+        require(releasesEnabled, "Releases are currently disabled");
         require(msg.value >= releaseFee, "Insufficient release fee");
 
         // Validate basic requirements
@@ -644,4 +650,10 @@ contract ProtocolModule is Ownable, Pausable {
     
     // Make sure to add receive() function if not present
     receive() external payable {}
+
+    // Add new function to control releases
+    function setReleasesEnabled(bool _enabled) external onlyOwner {
+        releasesEnabled = _enabled;
+        emit ReleasesEnabledChanged(_enabled);
+    }
 }

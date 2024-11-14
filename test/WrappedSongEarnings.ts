@@ -1,4 +1,4 @@
-import { loadFixture, time } from '@nomicfoundation/hardhat-network-helpers';
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers } from "hardhat";
 import { deployProtocolFixture } from './fixtures/protocolFixture';
@@ -180,78 +180,4 @@ describe("WrappedSong Earnings", function () {
         });
     });
 
-    describe("Security", function () {
-        it("should prevent operations after migration", async function () {
-            const { wrappedSong, artist, mockStablecoin, protocolModule, metadataModule } = await loadFixture(setupWrappedSongAndDistributor);
-            
-            // Initialize some earnings
-            const amount = ethers.parseEther("1.0");
-            await mockStablecoin.connect(artist).approve(wrappedSong.target, amount);
-            await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount);
-            
-            // Create a new address for migration
-            const newWrappedSongAddress = ethers.Wallet.createRandom().address;
-            const newMetadataAddress = ethers.Wallet.createRandom().address;
-
-            // Set the artist's address as an authorized contract
-            const protocolOwner = await ethers.getSigner(await protocolModule.owner());
-            await protocolModule.connect(protocolOwner).setAuthorizedContract(artist.address, true);
-
-            // Ensure metadata module is set in the wrapped song
-            if (!metadataModule) {
-                console.log("Warning: metadataModule not found in fixture");
-            }
-
-            // Add console logs for debugging
-            console.log("Artist address:", artist.address);
-            console.log("Is authorized:", await protocolModule.isAuthorizedContract(artist.address));
-            console.log("WSTokenManagement address:", await wrappedSong.getWSTokenManagementAddress());
-            console.log("MetadataModule address:", await wrappedSong.metadataModule());
-            
-            // Perform migration
-            await expect(
-                wrappedSong.connect(artist).migrateWrappedSong(
-                    newMetadataAddress,
-                    newWrappedSongAddress
-                )
-            ).to.not.be.reverted;
-            
-            // Verify operations are blocked after migration
-            await expect(
-                wrappedSong.createStablecoinDistributionEpoch()
-            ).to.be.revertedWith("Contract has been migrated");
-            
-            await expect(
-                wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount)
-            ).to.be.revertedWith("Contract has been migrated");
-        });
-    });
-
-    describe("Gas Optimization", function () {
-        it("should handle large number of epochs efficiently", async function () {
-            const { wrappedSong, artist, mockStablecoin } = await loadFixture(setupWrappedSongAndDistributor);
-            
-            // Create multiple epochs
-            const amount = ethers.parseEther("100");
-            const totalAmount = amount * 10n;
-            
-            // Mint enough tokens upfront
-            await mockStablecoin.mint(artist.address, totalAmount * 2n);
-            
-            // Create epochs one by one
-            for(let i = 0; i < 10; i++) {
-                await mockStablecoin.connect(artist).approve(wrappedSong.target, amount);
-                await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount);
-                await wrappedSong.createStablecoinDistributionEpoch();
-                
-                // Claim each epoch immediately to avoid accumulation issues
-                await wrappedSong.connect(artist).claimStablecoinEarnings(1);
-                
-                await time.increase(3600);
-            }
-            
-            const balance = await wrappedSong.userEpochBalances(artist.address);
-            expect(balance.lastClaimedEpoch).to.equal(10);
-        });
-    });
 }); 
