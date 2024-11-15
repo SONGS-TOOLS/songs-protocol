@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "EnumerableSet",
+  "sourceName": "@openzeppelin/contracts/utils/structs/EnumerableSet.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212208f437bc3b34d1ad591701e123ea0e492dd3618d71324cde2dfc250c26fe1845564736f6c63430008140033",
+  "deployedBytecode": "0x600080fdfea26469706673582212208f437bc3b34d1ad591701e123ea0e492dd3618d71324cde2dfc250c26fe1845564736f6c63430008140033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

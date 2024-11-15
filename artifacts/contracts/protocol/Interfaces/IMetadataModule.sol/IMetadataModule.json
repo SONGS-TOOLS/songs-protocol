@@ -1,0 +1,332 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IMetadataModule",
+  "sourceName": "contracts/protocol/Interfaces/IMetadataModule.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "confirmUpdateMetadata",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "newMetadata",
+          "type": "tuple"
+        }
+      ],
+      "name": "createMetadata",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "getPendingMetadataUpdate",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "isMetadataUpdateConfirmed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "rejectUpdateMetadata",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "removeMetadata",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "newMetadata",
+          "type": "tuple"
+        }
+      ],
+      "name": "requestUpdateMetadata",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "newMetadata",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateMetadata",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

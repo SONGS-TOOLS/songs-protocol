@@ -1,0 +1,82 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IMetadataRenderer",
+  "sourceName": "contracts/protocol/Interfaces/IMetadataRenderer.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "metadata",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "wrappedSongAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "baseURI",
+          "type": "string"
+        },
+        {
+          "internalType": "contract IProtocolModule",
+          "name": "protocolModule",
+          "type": "address"
+        }
+      ],
+      "name": "composeTokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
