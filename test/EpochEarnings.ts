@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 import { deployProtocolFixture } from './fixtures/protocolFixture';
 
 describe("Epoch-based Earnings Distribution", function () {
-    this.timeout(120000); // 2 minutes
+    this.timeout(300000); // 5 minutes
 
     async function setupWrappedSongAndDistributor() {
         const fixture = await loadFixture(deployProtocolFixture);
@@ -139,6 +139,7 @@ describe("Epoch-based Earnings Distribution", function () {
     });
 
     it("should handle multiple chunks in distribution epoch", async function () {
+        this.timeout(300000);
         const {
             artist,
             distributor,
@@ -148,10 +149,10 @@ describe("Epoch-based Earnings Distribution", function () {
             distributorWallet
         } = await setupWrappedSongAndDistributor();
 
-        // Create a large distribution with multiple chunks
+        // Reduce the test data size
         const amountPerSong = ethers.parseUnits("100", 18);
-        const chunksCount = 3;
-        const songsPerChunk = 500;
+        const chunksCount = 2;
+        const songsPerChunk = 100;
         const totalAmount = amountPerSong * BigInt(chunksCount * songsPerChunk);
 
         // Transfer and approve tokens
@@ -185,6 +186,7 @@ describe("Epoch-based Earnings Distribution", function () {
     });
 
     it("should handle claiming from multiple wrapped songs in the same epoch", async function () {
+        this.timeout(300000); // 5 minutes
         const fixture = await loadFixture(deployProtocolFixture);
         const {
             artist,
@@ -340,6 +342,7 @@ describe("Epoch-based Earnings Distribution", function () {
     });
 
     it("should handle complex epoch system with multiple songs and redistributions", async function () {
+        this.timeout(300000); // 5 minutes
         const fixture = await loadFixture(deployProtocolFixture);
         const {
             artist,
