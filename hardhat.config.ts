@@ -43,10 +43,6 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 5000,
       },
-      forking: {
-        url: process.env.FORKING_URL || "",
-        enabled: process.env.FORKING === "true",
-      },
     },
     ropsten: {
       url: process.env.ROPSTEN || '',
