@@ -731,4 +731,17 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         releaseFeeStable = _fee;
         emit StableFeesUpdated(wrappedSongCreationFeeStable, releaseFeeStable);
     }
+
+    function receiveCreationFee(address token, uint256 amount) external payable {
+        require(msg.sender == address(wrappedSongFactory), "Only factory can call");
+        
+        if (token == address(0)) {
+            require(msg.value == amount, "Invalid ETH amount");
+            accumulatedFees[address(0)] += amount;
+        } else {
+            require(msg.value == 0, "ETH not needed for token fee");
+            require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Fee transfer failed");
+            accumulatedFees[token] += amount;
+        }
+    }
 }

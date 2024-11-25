@@ -27,7 +27,9 @@ interface IProtocolModule {
 
     // View functions
     function wrappedSongCreationFee() external view returns (uint256);
+    function wrappedSongCreationFeeStable() external view returns (uint256);
     function releaseFee() external view returns (uint256);
+    function releaseFeeStable() external view returns (uint256);
     function distributorWalletFactory() external view returns (address);
     function whitelistingManager() external view returns (address);
     function wrappedSongToDistributor(address wrappedSong) external view returns (address);
@@ -59,7 +61,10 @@ interface IProtocolModule {
 
     // Fee management
     function setWrappedSongCreationFee(uint256 _fee) external;
+    function setWrappedSongCreationFeeStable(uint256 _fee) external;
     function setReleaseFee(uint256 _fee) external;
+    function setReleaseFeeStable(uint256 _fee) external;
+    function receiveCreationFee(address token, uint256 amount) external payable;
 
     // Contract setters
     function setDistributorWalletFactory(address _newFactory) external;

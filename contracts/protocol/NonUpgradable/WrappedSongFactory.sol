@@ -7,6 +7,7 @@ import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract WrappedSongFactory {
     using Clones for address;
@@ -49,9 +50,36 @@ contract WrappedSongFactory {
         require(!protocolModule.paused(), "Protocol is paused");
         require(isValidMetadata(songMetadata), "Invalid metadata");
         require(sharesAmount > 0, "Shares amount must be greater than zero");
-        require(msg.value >= protocolModule.wrappedSongCreationFee(), "Insufficient creation fee");
         require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
         require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
+
+        // If msg.value is 0, user will pay in stablecoin
+        if (msg.value == 0) {
+            uint256 stablecoinFee = protocolModule.wrappedSongCreationFeeStable();
+            require(IERC20(_stablecoin).allowance(msg.sender, address(this)) >= stablecoinFee, 
+                "Insufficient stablecoin allowance");
+            require(
+                IERC20(_stablecoin).transferFrom(msg.sender, address(this), stablecoinFee),
+                "Stablecoin fee transfer failed"
+            );
+            
+            // Transfer fee to protocol and update accumulated fees
+            IERC20(_stablecoin).approve(address(protocolModule), stablecoinFee);
+            protocolModule.receiveCreationFee(_stablecoin, stablecoinFee);
+        } else {
+            // User is paying in ETH
+            uint256 ethFee = protocolModule.wrappedSongCreationFee();
+            require(msg.value >= ethFee, "Insufficient ETH for creation fee");
+            
+            // Transfer ETH fee to protocol and update accumulated fees
+            protocolModule.receiveCreationFee{value: ethFee}(address(0), ethFee);
+            
+            // Refund excess ETH if any
+            if (msg.value > ethFee) {
+                (bool refundSuccess, ) = msg.sender.call{value: msg.value - ethFee}("");
+                require(refundSuccess, "ETH refund failed");
+            }
+        }
 
         // Clone WrappedSongSmartAccount
         address newWrappedSongSmartAccount = wrappedSongTemplate.clone();
