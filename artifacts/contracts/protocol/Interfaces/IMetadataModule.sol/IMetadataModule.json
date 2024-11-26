@@ -13,7 +13,7 @@
       ],
       "name": "confirmUpdateMetadata",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -320,6 +320,24 @@
         }
       ],
       "name": "updateMetadata",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawAccumulatedFees",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

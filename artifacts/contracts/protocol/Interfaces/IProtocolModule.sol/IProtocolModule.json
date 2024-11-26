@@ -4,6 +4,31 @@
   "sourceName": "contracts/protocol/Interfaces/IProtocolModule.sol",
   "abi": [
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ReleaseFeeCollected",
+      "type": "event"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -99,6 +124,32 @@
       "name": "confirmWrappedSongRelease",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "currentStablecoinIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "distributorCreationFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -474,6 +525,19 @@
     },
     {
       "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "pause",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -482,6 +546,19 @@
     {
       "inputs": [],
       "name": "paused",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "payInStablecoin",
       "outputs": [
         {
           "internalType": "bool",
@@ -527,19 +604,6 @@
     {
       "inputs": [],
       "name": "releaseFee",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "releaseFeeStable",
       "outputs": [
         {
           "internalType": "uint256",
@@ -707,7 +771,7 @@
       ],
       "name": "requestWrappedSongReleaseWithMetadata",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -786,6 +850,32 @@
         }
       ],
       "name": "setBaseURI",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "setCurrentStablecoinIndex",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setDistributorCreationFee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -889,12 +979,12 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_fee",
-          "type": "uint256"
+          "internalType": "bool",
+          "name": "_enabled",
+          "type": "bool"
         }
       ],
-      "name": "setReleaseFee",
+      "name": "setPayInStablecoin",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -907,7 +997,7 @@
           "type": "uint256"
         }
       ],
-      "name": "setReleaseFeeStable",
+      "name": "setReleaseFee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -952,6 +1042,19 @@
         }
       ],
       "name": "setStartSaleFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setUpdateMetadataFee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1029,19 +1132,6 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_fee",
-          "type": "uint256"
-        }
-      ],
-      "name": "setWrappedSongCreationFeeStable",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "_wrappedSongFactory",
           "type": "address"
@@ -1092,6 +1182,19 @@
           "internalType": "string",
           "name": "",
           "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "updateMetadataFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -1163,19 +1266,6 @@
     {
       "inputs": [],
       "name": "wrappedSongCreationFee",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "wrappedSongCreationFeeStable",
       "outputs": [
         {
           "internalType": "uint256",
