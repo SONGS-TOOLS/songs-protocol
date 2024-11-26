@@ -41,6 +41,9 @@ interface IProtocolModule {
     function metadataModule() external view returns (IMetadataModule);
     function erc20whitelist() external view returns (IERC20Whitelist);
     function legalContractMetadata() external view returns (ILegalContractMetadata);
+    function payInStablecoin() external view returns (bool);
+    function currentStablecoinIndex() external view returns (uint256);
+    function owner() external view returns (address);
 
     // State-changing functions
     function pause() external;

@@ -200,7 +200,7 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
                 emit ReleaseFeeCollected(wrappedSong, stablecoin, releaseFee);
             } else {
                 // Check if correct ETH amount was sent
-                require(msg.value == releaseFee, "Incorrect ETH fee amount");
+                require(msg.value >= releaseFee, "Incorrect ETH fee amount");
                 
                 // Add to accumulated fees for ETH (address(0))
                 accumulatedFees[address(0)] += msg.value;
