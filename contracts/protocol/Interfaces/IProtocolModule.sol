@@ -51,7 +51,7 @@ interface IProtocolModule {
         address wrappedSong,
         address distributor,
         IMetadataModule.Metadata memory newMetadata
-    ) external;
+    ) external payable;
     function requestWrappedSongRelease(address wrappedSong, address distributor) external;
     function removeWrappedSongReleaseRequest(address wrappedSong) external;
     function acceptWrappedSongForReview(address wrappedSong) external;
@@ -61,11 +61,9 @@ interface IProtocolModule {
 
     // Fee management
     function setWrappedSongCreationFee(uint256 _fee) external;
-    function setWrappedSongCreationFeeStable(uint256 _fee) external;
     function setReleaseFee(uint256 _fee) external;
-    function setReleaseFeeStable(uint256 _fee) external;
-    function receiveCreationFee(address token, uint256 amount) external payable;
-
+    function setPaymentInStablecoin(bool _enabled) external;
+    function setCurrentStablecoinIndex(uint256 _index) external;
     // Contract setters
     function setDistributorWalletFactory(address _newFactory) external;
     function setWhitelistingManager(address _whitelistingManager) external;
@@ -125,5 +123,8 @@ interface IProtocolModule {
     function getWithdrawalFeePercentage() external view returns (uint256);
     function setWithdrawalFeePercentage(uint256 _fee) external;
     function withdrawAccumulatedFees(address token, address recipient) external;
+
+    // Add this event
+    event ReleaseFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
 
 }
