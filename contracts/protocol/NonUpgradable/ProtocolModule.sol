@@ -20,8 +20,12 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
-    uint256 public wrappedSongCreationFeeStable;
-    uint256 public releaseFeeStable;
+    uint256 public distributorCreationFee;
+    uint256 public updateMetadataFee;
+
+    bool public payInStablecoin;
+
+    uint256 public currentStablecoinIndex;
 
     mapping(address => address[]) public ownerWrappedSongs;
     mapping(address => address) public smartAccountToWSToken;
@@ -88,6 +92,10 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
     event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
+    event DistributorCreationFeeUpdated(uint256 newFee);
+    event UpdateMetadataFeeUpdated(uint256 newFee);
+    event PayInStablecoinUpdated(bool newPayInStablecoin);
+
     // Change from constant to regular state variable
     uint256 public maxSaleDuration = 30 days;
 
@@ -118,6 +126,9 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     event IdentityRegistryUpdated(address indexed wrappedSong, string registryType, string value);
     event SmartAccountToWSTokenMapped(address indexed smartAccount, address indexed wsToken);
     event OwnerWrappedSongAdded(address indexed owner, address indexed wrappedSong);
+
+    // Add this event at the top with other events
+    event ReleaseFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
 
     /**
      * @dev Initializes the contract with the given parameters.
@@ -179,6 +190,41 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
      * Release Actions
      *************************************************************************/
 
+    // Add this internal function to handle release fees
+    function _handleReleaseFee(address wrappedSong) internal {
+        if (releaseFee > 0) {
+            if (payInStablecoin) {
+                // Get the first whitelisted stablecoin
+                address stablecoin = erc20whitelist.getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                require(stablecoin != address(0), "No whitelisted stablecoin available");
+
+                // Transfer stablecoin fee from user to this contract
+                IERC20(stablecoin).safeTransferFrom(msg.sender, address(this), releaseFee);
+                
+                // Add to accumulated fees
+                accumulatedFees[stablecoin] += releaseFee;
+                
+                emit ReleaseFeeCollected(wrappedSong, stablecoin, releaseFee);
+            } else {
+                // Check if correct ETH amount was sent
+                require(msg.value >= releaseFee, "Incorrect ETH fee amount");
+                
+                // Add to accumulated fees for ETH (address(0))
+                accumulatedFees[address(0)] += msg.value;
+
+                // Refund excess ETH if any
+                if (msg.value > releaseFee) {
+                    (bool refundSuccess, ) = msg.sender.call{value: msg.value - releaseFee}("");
+                    require(refundSuccess, "ETH refund failed");
+                }
+                
+                emit ReleaseFeeCollected(wrappedSong, address(0), msg.value);
+            }
+        } else {
+            require(msg.value == 0, "Fee not required");
+        }
+    }
+
     /**
      * @dev Requests the release of a wrapped song with metadata update.
      * @param wrappedSong The address of the wrapped song.
@@ -188,25 +234,15 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     function requestWrappedSongReleaseWithMetadata(
         address wrappedSong,
         address distributor,
-        IMetadataModule.Metadata memory newMetadata,
-        bool useStableCoin,
-        address stableCoinToUse
+        IMetadataModule.Metadata memory newMetadata
     ) external payable {
         require(releasesEnabled, "Releases are currently disabled");
-        
-        if (useStableCoin) {
-            require(erc20whitelist.isTokenWhitelisted(stableCoinToUse), "Stablecoin not whitelisted");
-            require(IERC20(stableCoinToUse).allowance(msg.sender, address(this)) >= releaseFeeStable, 
-                "Insufficient stablecoin allowance");
-            IERC20(stableCoinToUse).safeTransferFrom(msg.sender, address(this), releaseFeeStable);
-            accumulatedFees[stableCoinToUse] += releaseFeeStable;
-        } else {
-            require(msg.value >= releaseFee, "Insufficient release fee");
-            accumulatedFees[address(0)] += msg.value;
-        }
 
         // Validate basic requirements
         _validateReleaseRequest(wrappedSong, distributor);
+
+        // Handle release fee
+        _handleReleaseFee(wrappedSong);
 
         // Update metadata first
         metadataModule.updateMetadata(wrappedSong, newMetadata);
@@ -222,25 +258,15 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
      */
     function requestWrappedSongRelease(
         address wrappedSong,
-        address distributor,
-        bool useStableCoin,
-        address stableCoinToUse
+        address distributor
     ) external payable {
         require(releasesEnabled, "Releases are currently disabled");
-        
-        if (useStableCoin) {
-            require(erc20whitelist.isTokenWhitelisted(stableCoinToUse), "Stablecoin not whitelisted");
-            require(IERC20(stableCoinToUse).allowance(msg.sender, address(this)) >= releaseFeeStable, 
-                "Insufficient stablecoin allowance");
-            IERC20(stableCoinToUse).safeTransferFrom(msg.sender, address(this), releaseFeeStable);
-            accumulatedFees[stableCoinToUse] += releaseFeeStable;
-        } else {
-            require(msg.value >= releaseFee, "Insufficient release fee");
-            accumulatedFees[address(0)] += msg.value;
-        }
 
         // Validate basic requirements
         _validateReleaseRequest(wrappedSong, distributor);
+
+        // Handle release fee
+        _handleReleaseFee(wrappedSong);
 
         // Process the release request
         _processReleaseRequest(wrappedSong, distributor);
@@ -389,6 +415,21 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     function setReleaseFee(uint256 _fee) external onlyOwner {
         releaseFee = _fee;
         emit ReleaseFeeUpdated(_fee);
+    }
+
+    function setDistributorCreationFee(uint256 _fee) external onlyOwner {
+        distributorCreationFee = _fee;
+        emit DistributorCreationFeeUpdated(_fee);
+    }
+
+    function setUpdateMetadataFee(uint256 _fee) external onlyOwner {
+        updateMetadataFee = _fee;
+        emit UpdateMetadataFeeUpdated(_fee);
+    }
+
+    function setPayInStablecoin(bool _payInStablecoin) external onlyOwner {
+        payInStablecoin = _payInStablecoin;
+        emit PayInStablecoinUpdated(_payInStablecoin);
     }
 
 
@@ -721,14 +762,11 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         emit ReleasesEnabledChanged(_enabled);
     }
 
-    // Add setter for stable fees
-    function setWrappedSongCreationFeeStable(uint256 _fee) external onlyOwner {
-        wrappedSongCreationFeeStable = _fee;
-        emit StableFeesUpdated(wrappedSongCreationFeeStable, releaseFeeStable);
+    function setPaymentInStablecoin(bool _enabled) external onlyOwner {
+        payInStablecoin = _enabled;
     }
 
-    function setReleaseFeeStable(uint256 _fee) external onlyOwner {
-        releaseFeeStable = _fee;
-        emit StableFeesUpdated(wrappedSongCreationFeeStable, releaseFeeStable);
+    function setCurrentStablecoinIndex(uint256 _index) external onlyOwner {
+        currentStablecoinIndex = _index;
     }
 }

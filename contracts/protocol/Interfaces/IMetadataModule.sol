@@ -18,8 +18,9 @@ interface IMetadataModule {
     // Update createMetadata to return Metadata
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external returns (Metadata memory);
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external;
-    function updateMetadata(address wrappedSong, Metadata memory newMetadata) external;
-    function confirmUpdateMetadata(address wrappedSong) external;
+    function updateMetadata(address wrappedSong, Metadata memory newMetadata) external payable;
+    function confirmUpdateMetadata(address wrappedSong) external payable;
     function rejectUpdateMetadata(address wrappedSong) external;
     function removeMetadata(address wrappedSong) external;
+    function withdrawAccumulatedFees(address token, address recipient) external;
 }
