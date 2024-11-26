@@ -20,6 +20,9 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
+    uint256 public distributorCreationFee;
+    uint256 public updateMetadataFee;
+
     bool public payInStablecoin;
 
     uint256 public currentStablecoinIndex;
@@ -88,6 +91,10 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     event DistributorAcceptedReview(address indexed wrappedSong, address indexed distributor);
     event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
     event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
+
+    event DistributorCreationFeeUpdated(uint256 newFee);
+    event UpdateMetadataFeeUpdated(uint256 newFee);
+    event PayInStablecoinUpdated(bool newPayInStablecoin);
 
     // Change from constant to regular state variable
     uint256 public maxSaleDuration = 30 days;
@@ -408,6 +415,21 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     function setReleaseFee(uint256 _fee) external onlyOwner {
         releaseFee = _fee;
         emit ReleaseFeeUpdated(_fee);
+    }
+
+    function setDistributorCreationFee(uint256 _fee) external onlyOwner {
+        distributorCreationFee = _fee;
+        emit DistributorCreationFeeUpdated(_fee);
+    }
+
+    function setUpdateMetadataFee(uint256 _fee) external onlyOwner {
+        updateMetadataFee = _fee;
+        emit UpdateMetadataFeeUpdated(_fee);
+    }
+
+    function setPayInStablecoin(bool _payInStablecoin) external onlyOwner {
+        payInStablecoin = _payInStablecoin;
+        emit PayInStablecoinUpdated(_payInStablecoin);
     }
 
 
