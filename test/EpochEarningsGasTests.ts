@@ -34,10 +34,12 @@ describe("Epoch Distribution Gas Tests", function () {
         } = fixture;
 
         // Create distributor wallet
+        const distributorCreationFee = await fixture.protocolModule.distributorCreationFee();
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             fixture.protocolModule.target,
-            distributor.address
+            distributor.address,
+            { value: distributorCreationFee }
         );
         
         const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);

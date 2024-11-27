@@ -37,18 +37,21 @@ describe("Epoch-based Earnings Distribution", function () {
         // Get wrapped song instance
         const artistWrappedSongs = await protocolModule.getOwnerWrappedSongs(artist.address);
         const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[0]);
+        const distributorCreationFee = await protocolModule.distributorCreationFee();
 
         // Create and setup distributor wallet
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             protocolModule.target,
-            distributor.address
+            distributor.address,
+            { value: distributorCreationFee }
         );
         const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
         // Setup release
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target);
+        const releaseFee = await protocolModule.releaseFee();
+        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 
         return {
@@ -235,17 +238,20 @@ describe("Epoch-based Earnings Distribution", function () {
         const wrappedSong2 = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[1]);
 
         // Create and setup distributor wallet
+        const distributorCreationFee = await protocolModule.distributorCreationFee();
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             protocolModule.target,
-            distributor.address
+            distributor.address,
+            { value: distributorCreationFee }
         );
         const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
         // Setup release for both wrapped songs
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong1.target, distributorWallet.target);
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong2.target, distributorWallet.target);
+        const releaseFee = await protocolModule.releaseFee();   
+        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong1.target, distributorWallet.target, { value: releaseFee });
+        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong2.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong1.target);
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong2.target);
 
@@ -373,10 +379,12 @@ describe("Epoch-based Earnings Distribution", function () {
         );
 
         // Setup distributor
+        const distributorCreationFee = await protocolModule.distributorCreationFee();
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             protocolModule.target,
-            distributor.address
+            distributor.address,
+            { value: distributorCreationFee }
         );
         const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
@@ -384,7 +392,8 @@ describe("Epoch-based Earnings Distribution", function () {
         // Get WS1 instance and setup
         const artistWrappedSongs = await protocolModule.getOwnerWrappedSongs(artist.address);
         const ws1 = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[0]);
-        await protocolModule.connect(artist).requestWrappedSongRelease(ws1.target, distributorWallet.target);
+        const releaseFee = await protocolModule.releaseFee();
+        await protocolModule.connect(artist).requestWrappedSongRelease(ws1.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(ws1.target);
 
         // Create Epoch 1 with only WS1
@@ -434,8 +443,8 @@ describe("Epoch-based Earnings Distribution", function () {
         const ws2 = await ethers.getContractAt("WrappedSongSmartAccount", allWrappedSongs[1]);
         const ws3 = await ethers.getContractAt("WrappedSongSmartAccount", allWrappedSongs[2]);
 
-        await protocolModule.connect(artist).requestWrappedSongRelease(ws2.target, distributorWallet.target);
-        await protocolModule.connect(artist).requestWrappedSongRelease(ws3.target, distributorWallet.target);
+        await protocolModule.connect(artist).requestWrappedSongRelease(ws2.target, distributorWallet.target, { value: releaseFee });
+        await protocolModule.connect(artist).requestWrappedSongRelease(ws3.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(ws2.target);
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(ws3.target);
 

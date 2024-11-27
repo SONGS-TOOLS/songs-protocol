@@ -126,10 +126,12 @@ describe("WrappedSongFactory", function () {
             };
             const users = [artist, deployer, distributor, collector, protocolAdmin];
 
+            const distributorCreationFee = await protocolModule.distributorCreationFee();
             await expect(distributorWalletFactory.connect(deployer).createDistributorWallet(
                 mockStablecoin.target,
                 protocolModule.target,
-                distributor.address
+                distributor.address,
+                { value: distributorCreationFee }
             )).to.emit(distributorWalletFactory, "DistributorWalletCreated");
 
             const wallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
@@ -148,7 +150,8 @@ describe("WrappedSongFactory", function () {
 
                 const wrappedSongAddress = userWrappedSongs[0];
 
-                await expect(protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0])).to.emit(protocolModule, "WrappedSongReleaseRequested");
+                const releaseFee = await protocolModule.releaseFee();
+                await expect(protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0], { value: releaseFee })).to.emit(protocolModule, "WrappedSongReleaseRequested");
             }
         });
     });
