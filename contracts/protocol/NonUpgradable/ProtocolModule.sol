@@ -714,6 +714,10 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         );
     }
 
+    /**************************************************************************
+     * Fees
+     *************************************************************************/
+
     event StartSaleFeeUpdated(uint256 newFee);
 
     function setStartSaleFee(uint256 newFee) external onlyOwner {
@@ -734,6 +738,9 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         return withdrawalFeePercentage;
     }
     
+    // Add event
+    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
+    
     function withdrawAccumulatedFees(address token, address recipient) external onlyOwner nonReentrant {
         uint256 amount = accumulatedFees[token];
         require(amount > 0, "No fees to withdraw");
@@ -749,14 +756,11 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         
         emit FeesWithdrawn(token, recipient, amount);
     }
-    
-    // Add event
-    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
-    
-    // Make sure to add receive() function if not present
-    receive() external payable {}
 
-    // Add new function to control releases
+    /**************************************************************************
+     * Globals
+     *************************************************************************/
+    
     function setReleasesEnabled(bool _enabled) external onlyOwner {
         releasesEnabled = _enabled;
         emit ReleasesEnabledChanged(_enabled);
@@ -769,4 +773,7 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     function setCurrentStablecoinIndex(uint256 _index) external onlyOwner {
         currentStablecoinIndex = _index;
     }
+
+
+    receive() external payable {}
 }

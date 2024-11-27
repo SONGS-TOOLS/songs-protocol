@@ -129,7 +129,4 @@ interface IProtocolModule {
     function setWithdrawalFeePercentage(uint256 _fee) external;
     function withdrawAccumulatedFees(address token, address recipient) external;
 
-    // Add this event
-    event ReleaseFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
-
 }
