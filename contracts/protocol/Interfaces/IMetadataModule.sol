@@ -23,4 +23,5 @@ interface IMetadataModule {
     function rejectUpdateMetadata(address wrappedSong) external;
     function removeMetadata(address wrappedSong) external;
     function withdrawAccumulatedFees(address token, address recipient) external;
+    function getWrappedSongMetadata(address wrappedSong) external view returns (Metadata memory);
 }

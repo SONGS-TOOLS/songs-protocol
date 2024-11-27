@@ -202,6 +202,9 @@ async function main() {
   await protocolModule.setWrappedSongCreationFee(0);
   await protocolModule.setStartSaleFee(0);
   await protocolModule.setWithdrawalFeePercentage(0);
+  await protocolModule.setReleaseFee(ethers.parseEther("0"));
+  await protocolModule.setDistributorCreationFee(ethers.parseEther("0"));
+  await protocolModule.setUpdateMetadataFee(ethers.parseEther("0"));
   
   await protocolModule.setBaseURI("ipfs://");
 

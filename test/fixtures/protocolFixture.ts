@@ -86,6 +86,8 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
 
   // Deploy template contracts
   const WrappedSongSmartAccount = await ethers.getContractFactory("WrappedSongSmartAccount");
+
+  console.log("PROTOCOL target:", protocolModule.target);
   const wrappedSongTemplate = await WrappedSongSmartAccount.deploy(
     protocolModule.target // Only protocolModule is immutable
   );

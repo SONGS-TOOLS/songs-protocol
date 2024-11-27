@@ -248,5 +248,14 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
         emit FeesWithdrawn(token, recipient, amount);
     }
 
+    /**
+     * @dev Gets the metadata for a wrapped song.
+     * @param wrappedSong The address of the wrapped song.
+     * @return The metadata for the wrapped song.
+     */
+    function getWrappedSongMetadata(address wrappedSong) external view returns (Metadata memory) {
+        return wrappedSongMetadata[wrappedSong];
+    }
+
     receive() external payable {}
 }

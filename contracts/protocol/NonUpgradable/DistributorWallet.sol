@@ -289,11 +289,24 @@ contract DistributorWallet is Ownable {
                 epoch.timestamp
             );
             
+            // Mark as claimed regardless of balance
+            epochClaims[epochId][msg.sender][_wrappedSong] = true;
+
+            // Skip adding to total if balance was 0
+            if (balanceAtEpoch == 0) {
+                emit EpochRedeemed(
+                    _wrappedSong,
+                    msg.sender,
+                    epochId,
+                    0
+                );
+                continue;
+            }
+            
             uint256 wsAmount = getAmountForWS(epochId, wsIndex);
             uint256 amount = (wsAmount * balanceAtEpoch) / totalShares;
             
             totalAmount += amount;
-            epochClaims[epochId][msg.sender][_wrappedSong] = true;
 
             emit EpochRedeemed(
                 _wrappedSong,
@@ -303,8 +316,10 @@ contract DistributorWallet is Ownable {
             );
         }
 
-        require(totalAmount > 0, "Nothing to claim");
-        require(stablecoin.transfer(msg.sender, totalAmount), "Transfer failed");
+        // Only transfer if there's an amount to transfer
+        if (totalAmount > 0) {
+            require(stablecoin.transfer(msg.sender, totalAmount), "Transfer failed");
+        }
     }
 
     /**
