@@ -38,7 +38,7 @@ describe("WrappedSongFactory", function () {
             };
 
             await expect(wrappedSongFactory.connect(artist).createWrappedSong(mockStablecoin.target, metadata, 1000, { value: 0 }))
-                .to.be.revertedWith("Insufficient creation fee");
+                .to.be.revertedWith("Incorrect ETH fee amount");
         });
 
         it("should create a wrapped song with metadata and 10000 song shares", async function () {

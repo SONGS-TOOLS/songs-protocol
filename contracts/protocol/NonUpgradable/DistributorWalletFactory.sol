@@ -88,7 +88,7 @@ contract DistributorWalletFactory is Ownable {
     address _stablecoin,
     address _protocolModule,
     address _owner
-  ) external onlyOwner returns (address) {
+  ) external payable onlyOwner returns (address) {
     // Check if the stablecoin is whitelisted
     require(
       IProtocolModule(_protocolModule).isTokenWhitelisted(_stablecoin),

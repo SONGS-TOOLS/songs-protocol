@@ -117,6 +117,9 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   await protocolModule.setMetadataRenderer(metadataRenderer.target);
   await protocolModule.setWrappedSongFactory(wrappedSongFactory.target);
   await protocolModule.setWrappedSongCreationFee(ethers.parseEther("0.1"));
+  await protocolModule.setReleaseFee(ethers.parseEther("0.1"));
+  await protocolModule.setDistributorCreationFee(ethers.parseEther("0.1"));
+  await protocolModule.setUpdateMetadataFee(ethers.parseEther("0.1"));
   await protocolModule.whitelistToken(mockStablecoin.target);
   await protocolModule.setBaseURI("ipfs://");
 
