@@ -86,6 +86,8 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can request update");
         require(protocolModule.isReleased(wrappedSong), "Song not released, update metadata directly");
+
+        _handleUpdateFee();
         
         pendingMetadataUpdates[wrappedSong] = newMetadata;
         metadataUpdateConfirmed[wrappedSong] = false;
@@ -106,8 +108,6 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
         require(!protocolModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         
-        _handleUpdateFee();
-        
         wrappedSongMetadata[wrappedSong] = newMetadata;
         emit MetadataUpdated(wrappedSong, newMetadata);
     }
@@ -121,7 +121,8 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
         require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can confirm update");
         require(!metadataUpdateConfirmed[wrappedSong], "No pending metadata update");
 
-        _handleUpdateFee();
+        // Do we need this here?
+        // _handleUpdateFee();
 
         wrappedSongMetadata[wrappedSong] = pendingMetadataUpdates[wrappedSong];
         

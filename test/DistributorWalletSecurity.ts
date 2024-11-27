@@ -18,12 +18,14 @@ describe("DistributorWallet Security Tests", function () {
             protocolModule,
             distributorWalletFactory
         } = fixture;
+        const distributorCreationFee = await protocolModule.distributorCreationFee();
 
         // Create distributor wallet
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             protocolModule.target,
-            distributor.address
+            distributor.address,
+            { value: distributorCreationFee }
         );
         const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
@@ -48,7 +50,8 @@ describe("DistributorWallet Security Tests", function () {
         const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[0]);
 
         // Setup release
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target);
+        const releaseFee = await protocolModule.releaseFee();
+        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 
         return {
