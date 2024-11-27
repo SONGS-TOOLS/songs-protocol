@@ -14,7 +14,6 @@ import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
-import "hardhat/console.sol";
 contract WrappedSongSmartAccount is
     Ownable,
     IERC1155Receiver,
@@ -434,74 +433,40 @@ contract WrappedSongSmartAccount is
         address newMetadataAddress,
         address newWrappedSongAddress
     ) external {
-        console.log("\nStarting WrappedSongSmartAccount migration:");
-        console.log("New metadata address:", newMetadataAddress);
-        console.log("New wrapped song address:", newWrappedSongAddress);
-        console.log("Current contract:", address(this));
-        console.log("Caller:", msg.sender);
-        console.log("WSTokenManagement:", address(wsTokenManagement));
-        console.log("Is migrated?", migrated);
-
         require(!migrated, "Contract already migrated");
         require(newWrappedSongAddress != address(0), "Invalid new wrapped song address");
         require(newMetadataAddress != address(0), "Invalid metadata address");
         require(address(wsTokenManagement) != address(0), "WSTokenManagement not set");
 
-        console.log("Checking if caller is authorized...");
-        console.log("Protocol Module:", address(protocolModule));
-        console.log("Is caller authorized?", protocolModule.isAuthorizedContract(msg.sender));
-        
         require(
             protocolModule.isAuthorizedContract(msg.sender),
             "Caller not authorized"
         );
 
-        console.log("All checks passed, proceeding with migration");
-
         // Mark as migrated first to prevent reentrancy
         migrated = true;
-        console.log("Contract marked as migrated");
 
         // Transfer WSTokenManagement ownership
-        console.log("Transferring WSTokenManagement ownership...");
-        try wsTokenManagement.migrateWrappedSong( newMetadataAddress, newWrappedSongAddress) {
-            console.log("WSTokenManagement ownership transferred");
-        } catch Error(string memory reason) {
-            console.log("WSTokenManagement migration failed:", reason);
-            revert(string(abi.encodePacked("WSTokenManagement migration failed: ", reason)));
-        } catch {
-            console.log("WSTokenManagement migration failed with unknown error");
-            revert("WSTokenManagement migration failed with unknown error");
-        }
+        wsTokenManagement.migrateWrappedSong( newMetadataAddress, newWrappedSongAddress);
 
         // Transfer any remaining stablecoin balance
         uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
-        console.log("Stablecoin balance to transfer:", stablecoinBalance);
         
         if (stablecoinBalance > 0) {
-            try stablecoin.transfer(newWrappedSongAddress, stablecoinBalance) returns (bool success) {
-                console.log("Stablecoin transfer successful");
-            } catch {
-                console.log("Stablecoin transfer failed");
-                revert("Stablecoin transfer failed");
-            }
+            stablecoin.transfer(newWrappedSongAddress, stablecoinBalance);
         }
 
         // Transfer any remaining ETH balance
         uint256 remainingETH = address(this).balance;
-        console.log("ETH balance to transfer:", remainingETH);
         
         if (remainingETH > 0) {
             (bool success, ) = newWrappedSongAddress.call{value: remainingETH}("");
             if (!success) {
-                console.log("ETH transfer failed");
                 revert("ETH transfer failed");
             }
-            console.log("ETH transfer successful");
         }
 
         emit ContractMigrated(newWrappedSongAddress);
-        console.log("Migration completed successfully");
     }
 
     // Add owner() override

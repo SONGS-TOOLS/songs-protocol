@@ -62,6 +62,7 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   const MetadataModule = await ethers.getContractFactory("MetadataModule");
   const metadataModule = await MetadataModule.deploy();
   await metadataModule.waitForDeployment();
+  console.log("MetadataModule V2 deployed at:", metadataModule.target);
 
   // Deploy LegalContractMetadata
   const LegalContractMetadata = await ethers.getContractFactory("LegalContractMetadata");

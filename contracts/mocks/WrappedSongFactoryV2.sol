@@ -261,6 +261,10 @@ contract WrappedSongFactoryV2 {
         // Get and migrate metadata
         IMetadataModule.Metadata memory oldMetadata = IMetadataModule(oldMetadataModule_).getWrappedSongMetadata(oldWrappedSong_);
         console.log("Old metadata retrieved");
+        console.log("Old metadata name:", oldMetadata.name);
+        console.log("Old metadata image:", oldMetadata.image);
+        console.log("Old metadata animationUrl:", oldMetadata.animationUrl);
+        console.log("Old metadata attributesIpfsHash:", oldMetadata.attributesIpfsHash);
         IMetadataModule(metadataModule).createMetadata(newWrappedSongSmartAccount, oldMetadata);
         console.log("New metadata created");
 
