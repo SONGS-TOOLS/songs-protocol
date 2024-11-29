@@ -25,7 +25,7 @@ async function getTokenAddress() {
     
     return mockTokenAddress;
   }
-  
+  // USDC contract on base mainnet
   const usdcAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
   contractAddresses['USDC'] = usdcAddress;
   return usdcAddress;
@@ -193,6 +193,9 @@ async function main() {
   await protocolModule.setWrappedSongCreationFee(0);
   await protocolModule.setStartSaleFee(0);
   await protocolModule.setWithdrawalFeePercentage(0);
+  await protocolModule.setReleaseFee(ethers.parseEther("0"));
+  await protocolModule.setDistributorCreationFee(ethers.parseEther("0"));
+  await protocolModule.setUpdateMetadataFee(ethers.parseEther("0"));
   
   await protocolModule.setBaseURI("ipfs://");
 

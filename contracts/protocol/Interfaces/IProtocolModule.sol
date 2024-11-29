@@ -28,6 +28,8 @@ interface IProtocolModule {
     // View functions
     function wrappedSongCreationFee() external view returns (uint256);
     function releaseFee() external view returns (uint256);
+    function distributorCreationFee() external view returns (uint256);
+    function updateMetadataFee() external view returns (uint256);
     function distributorWalletFactory() external view returns (address);
     function whitelistingManager() external view returns (address);
     function wrappedSongToDistributor(address wrappedSong) external view returns (address);
@@ -39,6 +41,9 @@ interface IProtocolModule {
     function metadataModule() external view returns (IMetadataModule);
     function erc20whitelist() external view returns (IERC20Whitelist);
     function legalContractMetadata() external view returns (ILegalContractMetadata);
+    function payInStablecoin() external view returns (bool);
+    function currentStablecoinIndex() external view returns (uint256);
+    function owner() external view returns (address);
 
     // State-changing functions
     function pause() external;
@@ -49,7 +54,7 @@ interface IProtocolModule {
         address wrappedSong,
         address distributor,
         IMetadataModule.Metadata memory newMetadata
-    ) external;
+    ) external payable;
     function requestWrappedSongRelease(address wrappedSong, address distributor) external;
     function removeWrappedSongReleaseRequest(address wrappedSong) external;
     function acceptWrappedSongForReview(address wrappedSong) external;
@@ -60,7 +65,10 @@ interface IProtocolModule {
     // Fee management
     function setWrappedSongCreationFee(uint256 _fee) external;
     function setReleaseFee(uint256 _fee) external;
-
+    function setDistributorCreationFee(uint256 _fee) external;
+    function setUpdateMetadataFee(uint256 _fee) external;
+    function setPayInStablecoin(bool _enabled) external;
+    function setCurrentStablecoinIndex(uint256 _index) external;
     // Contract setters
     function setDistributorWalletFactory(address _newFactory) external;
     function setWhitelistingManager(address _whitelistingManager) external;

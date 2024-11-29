@@ -1,22 +1,83 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import './DistributorWallet.sol';
-import './../Interfaces/IProtocolModule.sol';
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./DistributorWallet.sol";
+import "./../Interfaces/IProtocolModule.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract DistributorWalletFactory is Ownable {
-  mapping(address => address[]) public distributorWallets; 
+  using SafeERC20 for IERC20;
+
+  mapping(address => address[]) public distributorWallets;
   mapping(address => address) public wrappedSongToDistributor;
   mapping(address => bool) public isDistributorWallet; // New mapping to track distributor wallets
 
-  event DistributorWalletCreated(address indexed distributor, address wallet, address stablecoin);
+  mapping(address => uint256) public accumulatedFees;
+
+  event DistributorWalletCreated(
+    address indexed distributor,
+    address wallet,
+    address stablecoin
+  );
   event WrappedSongReleased(
     address indexed wrappedSong,
     address indexed distributor
   );
 
-  constructor(address initialOwner) Ownable(initialOwner) {
+  event FeesWithdrawn(
+    address indexed token,
+    address indexed recipient,
+    uint256 amount
+  );
+
+  event CreationFeeCollected(
+    address indexed wrappedSong,
+    address indexed token,
+    uint256 amount
+  );
+
+  constructor(address initialOwner) Ownable(initialOwner) {}
+
+  function _handleCreationFee(
+    address _protocolModule,
+    address _stablecoin
+  ) internal {
+    uint256 creationFee = IProtocolModule(_protocolModule)
+      .distributorCreationFee();
+    bool payInStablecoin = IProtocolModule(_protocolModule).payInStablecoin();
+
+    if (creationFee > 0) {
+      if (payInStablecoin) {
+        // Transfer stablecoin fee from user to this contract
+        IERC20(_stablecoin).safeTransferFrom(
+          msg.sender,
+          address(this),
+          creationFee
+        );
+
+        // Add to accumulated fees
+        accumulatedFees[_stablecoin] += creationFee;
+
+        emit CreationFeeCollected(address(0), _stablecoin, creationFee); // address(0) since wrapped song not created yet
+      } else {
+        // Check if correct ETH amount was sent
+        require(msg.value >= creationFee, "Incorrect ETH fee amount");
+
+        // Add to accumulated fees for ETH (address(0))
+        accumulatedFees[address(0)] += msg.value;
+
+        // Refund excess ETH if any
+        if (msg.value > creationFee) {
+          (bool refundSuccess, ) = msg.sender.call{
+            value: msg.value - creationFee
+          }("");
+          require(refundSuccess, "ETH refund failed");
+        }
+
+        emit CreationFeeCollected(address(0), address(0), msg.value);
+      }
+    }
   }
 
   /**
@@ -27,13 +88,16 @@ contract DistributorWalletFactory is Ownable {
     address _stablecoin,
     address _protocolModule,
     address _owner
-  ) external onlyOwner returns (address) {
+  ) external payable onlyOwner returns (address) {
     // Check if the stablecoin is whitelisted
     require(
       IProtocolModule(_protocolModule).isTokenWhitelisted(_stablecoin),
       "Stablecoin is not whitelisted"
     );
     require(!IProtocolModule(_protocolModule).paused(), "Protocol is paused");
+
+    _handleCreationFee(_protocolModule, _stablecoin);
+
     DistributorWallet newWallet = new DistributorWallet(
       _stablecoin,
       _protocolModule,
@@ -43,7 +107,7 @@ contract DistributorWalletFactory is Ownable {
 
     distributorWallets[_owner].push(walletAddress); // Append to the arra y
     isDistributorWallet[walletAddress] = true; // Mark as a distributor wallet
-    
+
     emit DistributorWalletCreated(_owner, walletAddress, _stablecoin); // Corrected event parameter
 
     return walletAddress;
@@ -76,7 +140,34 @@ contract DistributorWalletFactory is Ownable {
    * @param wallet The address to check.
    * @return True if the address is a distributor wallet, false otherwise.
    */
-  function checkIsDistributorWallet(address wallet) external view returns (bool) {
+  function checkIsDistributorWallet(
+    address wallet
+  ) external view returns (bool) {
     return isDistributorWallet[wallet];
+  }
+
+  function withdrawAccumulatedFees(
+    address token,
+    address recipient,
+    address _protocolModule
+  ) external {
+    require(
+      msg.sender == address(IProtocolModule(_protocolModule).owner()),
+      "Only protocol owner can withdraw fees"
+    );
+
+    uint256 amount = accumulatedFees[token];
+    require(amount > 0, "No fees to withdraw");
+
+    accumulatedFees[token] = 0;
+
+    if (token == address(0)) {
+      (bool success, ) = payable(recipient).call{value: amount}("");
+      require(success, "ETH transfer failed");
+    } else {
+      IERC20(token).safeTransfer(recipient, amount);
+    }
+
+    emit FeesWithdrawn(token, recipient, amount);
   }
 }

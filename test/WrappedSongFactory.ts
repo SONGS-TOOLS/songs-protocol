@@ -38,7 +38,7 @@ describe("WrappedSongFactory", function () {
             };
 
             await expect(wrappedSongFactory.connect(artist).createWrappedSong(mockStablecoin.target, metadata, 1000, { value: 0 }))
-                .to.be.revertedWith("Insufficient creation fee");
+                .to.be.revertedWith("Incorrect ETH fee amount");
         });
 
         it("should create a wrapped song with metadata and 10000 song shares", async function () {
@@ -126,10 +126,12 @@ describe("WrappedSongFactory", function () {
             };
             const users = [artist, deployer, distributor, collector, protocolAdmin];
 
+            const distributorCreationFee = await protocolModule.distributorCreationFee();
             await expect(distributorWalletFactory.connect(deployer).createDistributorWallet(
                 mockStablecoin.target,
                 protocolModule.target,
-                distributor.address
+                distributor.address,
+                { value: distributorCreationFee }
             )).to.emit(distributorWalletFactory, "DistributorWalletCreated");
 
             const wallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
@@ -148,7 +150,8 @@ describe("WrappedSongFactory", function () {
 
                 const wrappedSongAddress = userWrappedSongs[0];
 
-                await expect(protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0])).to.emit(protocolModule, "WrappedSongReleaseRequested");
+                const releaseFee = await protocolModule.releaseFee();
+                await expect(protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0], { value: releaseFee })).to.emit(protocolModule, "WrappedSongReleaseRequested");
             }
         });
     });

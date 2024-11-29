@@ -13,7 +13,7 @@
       ],
       "name": "confirmUpdateMetadata",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -187,6 +187,57 @@
           "type": "address"
         }
       ],
+      "name": "getWrappedSongMetadata",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "image",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "externalUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "animationUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "attributesIpfsHash",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct IMetadataModule.Metadata",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
       "name": "isMetadataUpdateConfirmed",
       "outputs": [
         {
@@ -320,6 +371,24 @@
         }
       ],
       "name": "updateMetadata",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawAccumulatedFees",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

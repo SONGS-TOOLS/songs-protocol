@@ -102,11 +102,13 @@ contract WrappedSongSmartAccount is
     function initialize(
         address _stablecoinAddress,
         address _owner,
-        address /* _protocolModuleAddress */
+        address _protocolModuleAddress
     ) external override initializer {
+        require(_protocolModuleAddress != address(0), "Invalid protocol module address");
         require(_stablecoinAddress != address(0), "Invalid stablecoin address");
         require(_owner != address(0), "Invalid owner address");
         
+        protocolModule = IProtocolModule(_protocolModuleAddress);
         _transferOwnership(_owner);
         stablecoin = IERC20(_stablecoinAddress);
         
@@ -430,11 +432,12 @@ contract WrappedSongSmartAccount is
     function migrateWrappedSong(
         address newMetadataAddress,
         address newWrappedSongAddress
-    ) external onlyOwner {
+    ) external {
         require(!migrated, "Contract already migrated");
         require(newWrappedSongAddress != address(0), "Invalid new wrapped song address");
         require(newMetadataAddress != address(0), "Invalid metadata address");
         require(address(wsTokenManagement) != address(0), "WSTokenManagement not set");
+
         require(
             protocolModule.isAuthorizedContract(msg.sender),
             "Caller not authorized"
@@ -444,22 +447,23 @@ contract WrappedSongSmartAccount is
         migrated = true;
 
         // Transfer WSTokenManagement ownership
-        wsTokenManagement.migrateWrappedSong(newWrappedSongAddress, newMetadataAddress);
+        wsTokenManagement.migrateWrappedSong( newMetadataAddress, newWrappedSongAddress);
 
         // Transfer any remaining stablecoin balance
         uint256 stablecoinBalance = stablecoin.balanceOf(address(this));
+        
         if (stablecoinBalance > 0) {
-            require(
-                stablecoin.transfer(newWrappedSongAddress, stablecoinBalance),
-                "Stablecoin transfer failed"
-            );
+            stablecoin.transfer(newWrappedSongAddress, stablecoinBalance);
         }
 
         // Transfer any remaining ETH balance
         uint256 remainingETH = address(this).balance;
+        
         if (remainingETH > 0) {
             (bool success, ) = newWrappedSongAddress.call{value: remainingETH}("");
-            require(success, "ETH transfer failed");
+            if (!success) {
+                revert("ETH transfer failed");
+            }
         }
 
         emit ContractMigrated(newWrappedSongAddress);

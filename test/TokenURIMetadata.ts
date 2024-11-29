@@ -123,19 +123,23 @@ describe("Token URI Metadata Tests", function () {
       const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
       
       // Create distributor wallet
+      const distributorCreationFee = await protocolModule.distributorCreationFee();
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
-        distributor.address
+        distributor.address,
+        { value: distributorCreationFee }
       );
 
       const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
       const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
       // Request release
+      const releaseFee = await protocolModule.releaseFee();
       await protocolModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
-        distributorWallet.target
+        distributorWallet.target,
+        { value: releaseFee }
       );
 
       // Confirm release through the distributor wallet
@@ -159,22 +163,24 @@ describe("Token URI Metadata Tests", function () {
       const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
       
       // Create distributor wallet
+      const distributorCreationFee = await protocolModule.distributorCreationFee();
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
-        distributor.address
+        distributor.address,
+        { value: distributorCreationFee }
       );
 
       const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
       const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
       // Request and confirm release
+      const releaseFee = await protocolModule.releaseFee();
       await protocolModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
-        distributorWallet.target
+        distributorWallet.target,
+        { value: releaseFee }
       );
-      await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
-
       // Pause the protocol
       await protocolModule.connect(deployer).pause();
 
@@ -188,19 +194,23 @@ describe("Token URI Metadata Tests", function () {
       const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
       
       // Create distributor wallet
+      const distributorCreationFee = await protocolModule.distributorCreationFee();
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
-        distributor.address
+        distributor.address,
+        { value: distributorCreationFee }
       );
 
       const distributorWallets = await distributorWalletFactory.getDistributorWallets(distributor.address);
       const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
       // Request and confirm release
+      const releaseFee = await protocolModule.releaseFee();
       await protocolModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
-        distributorWallet.target
+        distributorWallet.target,
+        { value: releaseFee }
       );
       await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 

@@ -12,14 +12,21 @@ import "./../Interfaces/IMetadataModule.sol";
 import './../Interfaces/ILegalContractMetadata.sol';
 import './../Interfaces/IMetadataRenderer.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 
-contract ProtocolModule is Ownable, Pausable {
+contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     
     uint256 public wrappedSongCreationFee;
     uint256 public releaseFee;
-    
+    uint256 public distributorCreationFee;
+    uint256 public updateMetadataFee;
+
+    bool public payInStablecoin;
+
+    uint256 public currentStablecoinIndex;
+
     mapping(address => address[]) public ownerWrappedSongs;
     mapping(address => address) public smartAccountToWSToken;
 
@@ -85,6 +92,10 @@ contract ProtocolModule is Ownable, Pausable {
     event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
     event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
+    event DistributorCreationFeeUpdated(uint256 newFee);
+    event UpdateMetadataFeeUpdated(uint256 newFee);
+    event PayInStablecoinUpdated(bool newPayInStablecoin);
+
     // Change from constant to regular state variable
     uint256 public maxSaleDuration = 30 days;
 
@@ -96,6 +107,28 @@ contract ProtocolModule is Ownable, Pausable {
 
     // Add event for tracking changes
     event ReleasesEnabledChanged(bool enabled);
+
+    // Add new events
+    event StableFeesUpdated(uint256 newCreationFee, uint256 newReleaseFee);
+
+    // Add these events near the top with other events
+    event WrappedSongCreationFeeUpdated(uint256 newFee);
+    event ReleaseFeeUpdated(uint256 newFee);
+    event DistributorWalletFactoryUpdated(address newFactory);
+    event WhitelistingManagerUpdated(address newManager);
+    event ERC20WhitelistUpdated(address newWhitelist);
+    event MetadataModuleUpdated(address newModule);
+    event ReviewPeriodDaysUpdated(uint256 newDays);
+    event LegalContractMetadataUpdated(address newContract);
+    event MetadataRendererUpdated(address newRenderer);
+    event MaxSaleDurationUpdated(uint256 newDuration);
+    event WithdrawalFeePercentageUpdated(uint256 newPercentage);
+    event IdentityRegistryUpdated(address indexed wrappedSong, string registryType, string value);
+    event SmartAccountToWSTokenMapped(address indexed smartAccount, address indexed wsToken);
+    event OwnerWrappedSongAdded(address indexed owner, address indexed wrappedSong);
+
+    // Add this event at the top with other events
+    event ReleaseFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
 
     /**
      * @dev Initializes the contract with the given parameters.
@@ -157,6 +190,41 @@ contract ProtocolModule is Ownable, Pausable {
      * Release Actions
      *************************************************************************/
 
+    // Add this internal function to handle release fees
+    function _handleReleaseFee(address wrappedSong) internal {
+        if (releaseFee > 0) {
+            if (payInStablecoin) {
+                // Get the first whitelisted stablecoin
+                address stablecoin = erc20whitelist.getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                require(stablecoin != address(0), "No whitelisted stablecoin available");
+
+                // Transfer stablecoin fee from user to this contract
+                IERC20(stablecoin).safeTransferFrom(msg.sender, address(this), releaseFee);
+                
+                // Add to accumulated fees
+                accumulatedFees[stablecoin] += releaseFee;
+                
+                emit ReleaseFeeCollected(wrappedSong, stablecoin, releaseFee);
+            } else {
+                // Check if correct ETH amount was sent
+                require(msg.value >= releaseFee, "Incorrect ETH fee amount");
+                
+                // Add to accumulated fees for ETH (address(0))
+                accumulatedFees[address(0)] += msg.value;
+
+                // Refund excess ETH if any
+                if (msg.value > releaseFee) {
+                    (bool refundSuccess, ) = msg.sender.call{value: msg.value - releaseFee}("");
+                    require(refundSuccess, "ETH refund failed");
+                }
+                
+                emit ReleaseFeeCollected(wrappedSong, address(0), msg.value);
+            }
+        } else {
+            require(msg.value == 0, "Fee not required");
+        }
+    }
+
     /**
      * @dev Requests the release of a wrapped song with metadata update.
      * @param wrappedSong The address of the wrapped song.
@@ -169,10 +237,12 @@ contract ProtocolModule is Ownable, Pausable {
         IMetadataModule.Metadata memory newMetadata
     ) external payable {
         require(releasesEnabled, "Releases are currently disabled");
-        require(msg.value >= releaseFee, "Insufficient release fee");
 
         // Validate basic requirements
         _validateReleaseRequest(wrappedSong, distributor);
+
+        // Handle release fee
+        _handleReleaseFee(wrappedSong);
 
         // Update metadata first
         metadataModule.updateMetadata(wrappedSong, newMetadata);
@@ -191,10 +261,12 @@ contract ProtocolModule is Ownable, Pausable {
         address distributor
     ) external payable {
         require(releasesEnabled, "Releases are currently disabled");
-        require(msg.value >= releaseFee, "Insufficient release fee");
 
         // Validate basic requirements
         _validateReleaseRequest(wrappedSong, distributor);
+
+        // Handle release fee
+        _handleReleaseFee(wrappedSong);
 
         // Process the release request
         _processReleaseRequest(wrappedSong, distributor);
@@ -333,6 +405,7 @@ contract ProtocolModule is Ownable, Pausable {
 
     function setWrappedSongCreationFee(uint256 _fee) external onlyOwner {
         wrappedSongCreationFee = _fee;
+        emit WrappedSongCreationFeeUpdated(_fee);
     }
 
     /**
@@ -341,6 +414,22 @@ contract ProtocolModule is Ownable, Pausable {
      */
     function setReleaseFee(uint256 _fee) external onlyOwner {
         releaseFee = _fee;
+        emit ReleaseFeeUpdated(_fee);
+    }
+
+    function setDistributorCreationFee(uint256 _fee) external onlyOwner {
+        distributorCreationFee = _fee;
+        emit DistributorCreationFeeUpdated(_fee);
+    }
+
+    function setUpdateMetadataFee(uint256 _fee) external onlyOwner {
+        updateMetadataFee = _fee;
+        emit UpdateMetadataFeeUpdated(_fee);
+    }
+
+    function setPayInStablecoin(bool _payInStablecoin) external onlyOwner {
+        payInStablecoin = _payInStablecoin;
+        emit PayInStablecoinUpdated(_payInStablecoin);
     }
 
 
@@ -353,7 +442,9 @@ contract ProtocolModule is Ownable, Pausable {
      * @param _newFactory The address of the new DistributorWalletFactory contract.
      */
     function setDistributorWalletFactory(address _newFactory) external onlyOwner {
+        require(_newFactory != address(0), "Invalid address");
         distributorWalletFactory = IDistributorWalletFactory(_newFactory);
+        emit DistributorWalletFactoryUpdated(_newFactory);
     }
 
     /**
@@ -361,7 +452,9 @@ contract ProtocolModule is Ownable, Pausable {
      * @param _whitelistingManager The address of the new WhitelistingManager contract.
      */
     function setWhitelistingManager(address _whitelistingManager) external onlyOwner {
+        require(_whitelistingManager != address(0), "Invalid address");
         whitelistingManager = IWhitelistingManager(_whitelistingManager);
+        emit WhitelistingManagerUpdated(_whitelistingManager);
     }
 
     /**
@@ -369,7 +462,9 @@ contract ProtocolModule is Ownable, Pausable {
      * @param _erc20whitelist The address of the new ERC20Whitelist contract.
      */
     function setERC20Whitelist(address _erc20whitelist) external onlyOwner {
+        require(_erc20whitelist != address(0), "Invalid address");
         erc20whitelist = IERC20Whitelist(_erc20whitelist);
+        emit ERC20WhitelistUpdated(_erc20whitelist);
     }
 
         /**
@@ -379,6 +474,7 @@ contract ProtocolModule is Ownable, Pausable {
     function setMetadataModule(address _metadataModule) external onlyOwner {
         require(_metadataModule != address(0), "Invalid address");
         metadataModule = IMetadataModule(_metadataModule);
+        emit MetadataModuleUpdated(_metadataModule);
     }
 
     /**
@@ -403,6 +499,7 @@ contract ProtocolModule is Ownable, Pausable {
     function setSmartAccountToWSToken(address smartAccount, address wsToken) external whenNotPaused {
         require(msg.sender == address(wrappedSongFactory), "Only factory can set token mapping");
         smartAccountToWSToken[smartAccount] = wsToken;
+        emit SmartAccountToWSTokenMapped(smartAccount, wsToken);
     }
 
     /**
@@ -412,6 +509,7 @@ contract ProtocolModule is Ownable, Pausable {
     function setMaxSaleDuration(uint256 _duration) external onlyOwner {
         require(_duration > 0, "Duration must be greater than 0");
         maxSaleDuration = _duration;
+        emit MaxSaleDurationUpdated(_duration);
     }
 
     function setWSTokenFromProtocol(address wsTokenManagement) external {
@@ -431,6 +529,7 @@ contract ProtocolModule is Ownable, Pausable {
     function setLegalContractMetadata(address _legalContractMetadata) external onlyOwner {
         require(_legalContractMetadata != address(0), "Invalid address");
         legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
+        emit LegalContractMetadataUpdated(_legalContractMetadata);
     }
 
 
@@ -438,12 +537,14 @@ contract ProtocolModule is Ownable, Pausable {
     function setMetadataRenderer(address _renderer) external onlyOwner {
         require(_renderer != address(0), "Invalid renderer address");
         metadataRenderer = IMetadataRenderer(_renderer);
+        emit MetadataRendererUpdated(_renderer);
     }
 
 
     function setOwnerWrappedSong(address owner, address wrappedSong) external whenNotPaused {
         require(msg.sender == address(wrappedSongFactory), "Only factory can add wrapped song");
         ownerWrappedSongs[owner].push(wrappedSong);
+        emit OwnerWrappedSongAdded(owner, wrappedSong);
     }
 
     /**************************************************************************
@@ -458,6 +559,7 @@ contract ProtocolModule is Ownable, Pausable {
     function addISRC(address wrappedSong, string memory isrc) external whenNotPaused {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISRC");
         isrcRegistry[wrappedSong] = isrc;
+        emit IdentityRegistryUpdated(wrappedSong, "ISRC", isrc);
     }
 
     /**
@@ -468,6 +570,7 @@ contract ProtocolModule is Ownable, Pausable {
     function addUPC(address wrappedSong, string memory upc) external whenNotPaused {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set UPC");
         upcRegistry[wrappedSong] = upc;
+        emit IdentityRegistryUpdated(wrappedSong, "UPC", upc);
     }
 
     /**
@@ -478,6 +581,7 @@ contract ProtocolModule is Ownable, Pausable {
     function addISWC(address wrappedSong, string memory iswc) external whenNotPaused {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISWC");
         iswcRegistry[wrappedSong] = iswc;
+        emit IdentityRegistryUpdated(wrappedSong, "ISWC", iswc);
     }
 
     /**
@@ -488,6 +592,7 @@ contract ProtocolModule is Ownable, Pausable {
     function addISCC(address wrappedSong, string memory iscc) external whenNotPaused {
         require(wrappedSongToDistributor[wrappedSong] == msg.sender, "Only distributor can set ISCC");
         isccRegistry[wrappedSong] = iscc;
+        emit IdentityRegistryUpdated(wrappedSong, "ISCC", iscc);
     }
 
     /**************************************************************************
@@ -609,6 +714,10 @@ contract ProtocolModule is Ownable, Pausable {
         );
     }
 
+    /**************************************************************************
+     * Fees
+     *************************************************************************/
+
     event StartSaleFeeUpdated(uint256 newFee);
 
     function setStartSaleFee(uint256 newFee) external onlyOwner {
@@ -629,7 +738,10 @@ contract ProtocolModule is Ownable, Pausable {
         return withdrawalFeePercentage;
     }
     
-    function withdrawAccumulatedFees(address token, address recipient) external onlyOwner {
+    // Add event
+    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
+    
+    function withdrawAccumulatedFees(address token, address recipient) external onlyOwner nonReentrant {
         uint256 amount = accumulatedFees[token];
         require(amount > 0, "No fees to withdraw");
         
@@ -644,16 +756,24 @@ contract ProtocolModule is Ownable, Pausable {
         
         emit FeesWithdrawn(token, recipient, amount);
     }
-    
-    // Add event
-    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
-    
-    // Make sure to add receive() function if not present
-    receive() external payable {}
 
-    // Add new function to control releases
+    /**************************************************************************
+     * Globals
+     *************************************************************************/
+    
     function setReleasesEnabled(bool _enabled) external onlyOwner {
         releasesEnabled = _enabled;
         emit ReleasesEnabledChanged(_enabled);
     }
+
+    function setPaymentInStablecoin(bool _enabled) external onlyOwner {
+        payInStablecoin = _enabled;
+    }
+
+    function setCurrentStablecoinIndex(uint256 _index) external onlyOwner {
+        currentStablecoinIndex = _index;
+    }
+
+
+    receive() external payable {}
 }

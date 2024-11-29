@@ -3,25 +3,32 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IDistributorWallet.sol";
 
-contract MetadataModule is Ownable, IMetadataModule {
+contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
+    using SafeERC20 for IERC20;
+
     IProtocolModule public protocolModule;
     bool private isProtocolSet;
 
     mapping(address => Metadata) private wrappedSongMetadata;
     mapping(address => Metadata) private pendingMetadataUpdates;
     mapping(address => bool) private metadataUpdateConfirmed;
+    mapping(address => uint256) private accumulatedFees;
 
     event MetadataCreated(address indexed wrappedSong, Metadata newMetadata);
     event MetadataUpdateRequested(address indexed wrappedSong, Metadata newMetadata);
     event MetadataUpdated(address indexed wrappedSong, Metadata newMetadata);
     event MetadataUpdateRejected(address indexed wrappedSong);
     event MetadataRemoved(address indexed wrappedSong);
+    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
+    event UpdateFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
 
     /**
      * @dev Initializes the contract.
@@ -79,6 +86,8 @@ contract MetadataModule is Ownable, IMetadataModule {
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can request update");
         require(protocolModule.isReleased(wrappedSong), "Song not released, update metadata directly");
+
+        _handleUpdateFee();
         
         pendingMetadataUpdates[wrappedSong] = newMetadata;
         metadataUpdateConfirmed[wrappedSong] = false;
@@ -90,7 +99,7 @@ contract MetadataModule is Ownable, IMetadataModule {
      * @param wrappedSong The address of the wrapped song.
      * @param newMetadata The new metadata to be set.
      */
-    function updateMetadata(address wrappedSong, Metadata memory newMetadata) external {
+    function updateMetadata(address wrappedSong, Metadata memory newMetadata) external payable {
         require(
             IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender || 
             msg.sender == address(protocolModule), 
@@ -107,10 +116,13 @@ contract MetadataModule is Ownable, IMetadataModule {
      * @dev Confirms a pending metadata update for a released wrapped song.
      * @param wrappedSong The address of the wrapped song.
      */
-    function confirmUpdateMetadata(address wrappedSong) external {
+    function confirmUpdateMetadata(address wrappedSong) external payable {
         address distributor = protocolModule.getWrappedSongDistributor(wrappedSong);
         require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can confirm update");
         require(!metadataUpdateConfirmed[wrappedSong], "No pending metadata update");
+
+        // Do we need this here?
+        // _handleUpdateFee();
 
         wrappedSongMetadata[wrappedSong] = pendingMetadataUpdates[wrappedSong];
         
@@ -181,4 +193,69 @@ contract MetadataModule is Ownable, IMetadataModule {
 
         emit MetadataRemoved(wrappedSong);
     }
+
+    function _handleUpdateFee() internal {
+        uint256 updateFee = protocolModule.updateMetadataFee();
+        bool payInStablecoin = protocolModule.payInStablecoin();
+        
+        if (updateFee > 0) {
+            if (payInStablecoin) {
+                // Get the current stablecoin from protocol
+                uint256 currentStablecoinIndex = protocolModule.currentStablecoinIndex();
+                address stablecoin = protocolModule.erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                require(stablecoin != address(0), "No whitelisted stablecoin available");
+
+                // Transfer stablecoin fee from user to this contract
+                IERC20(stablecoin).safeTransferFrom(msg.sender, address(this), updateFee);
+                
+                // Add to accumulated fees
+                accumulatedFees[stablecoin] += updateFee;
+                
+                emit UpdateFeeCollected(msg.sender, stablecoin, updateFee);
+            } else {
+                // Check if correct ETH amount was sent
+                require(msg.value >= updateFee, "Incorrect ETH fee amount");
+                
+                // Add to accumulated fees for ETH (address(0))
+                accumulatedFees[address(0)] += msg.value;
+
+                // Refund excess ETH if any
+                if (msg.value > updateFee) {
+                    (bool refundSuccess, ) = msg.sender.call{value: msg.value - updateFee}("");
+                    require(refundSuccess, "ETH refund failed");
+                }
+                
+                emit UpdateFeeCollected(msg.sender, address(0), msg.value);
+            }
+        } else {
+            require(msg.value == 0, "Fee not required");
+        }
+    }
+
+    function withdrawAccumulatedFees(address token, address recipient) external onlyOwner nonReentrant {
+        uint256 amount = accumulatedFees[token];
+        require(amount > 0, "No fees to withdraw");
+        
+        accumulatedFees[token] = 0;
+        
+        if (token == address(0)) {
+            (bool success, ) = payable(recipient).call{value: amount}("");
+            require(success, "ETH transfer failed");
+        } else {
+            IERC20(token).safeTransfer(recipient, amount);
+        }
+        
+        emit FeesWithdrawn(token, recipient, amount);
+    }
+
+    /**
+     * @dev Gets the metadata for a wrapped song.
+     * @param wrappedSong The address of the wrapped song.
+     * @return The metadata for the wrapped song.
+     */
+    function getWrappedSongMetadata(address wrappedSong) external view returns (Metadata memory) {
+        return wrappedSongMetadata[wrappedSong];
+    }
+
+    receive() external payable {}
 }

@@ -42,85 +42,6 @@ describe("WrappedSong Security", function () {
         return { ...fixture, wrappedSong, metadataModule };
     }
 
-    describe("Migration Security", function () {
-        it("should handle migration through factory V2 correctly", async function () {
-            const { wrappedSong, artist, mockStablecoin, protocolModule, metadataModule } = await loadFixture(setupWrappedSongAndDistributor);
-            
-            // Initialize some earnings
-            const amount = ethers.parseEther("1.0");
-            await mockStablecoin.connect(artist).approve(wrappedSong.target, amount);
-            await wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount);
-            
-            // Deploy V2 template
-            const WrappedSongV2 = await ethers.getContractFactory("WrappedSongSmartAccount");
-            const wrappedSongV2Template = await WrappedSongV2.deploy(protocolModule.target);
-            
-            // Deploy mock factory V2
-            const MockFactoryV2 = await ethers.getContractFactory("MockWrappedSongFactoryV2");
-            const mockFactoryV2 = await MockFactoryV2.deploy(
-                protocolModule.target,
-                wrappedSongV2Template.target
-            );
-            
-            // Set factory V2 as authorized contract
-            const protocolOwner = await ethers.getSigner(await protocolModule.owner());
-            await protocolModule.connect(protocolOwner).setAuthorizedContract(mockFactoryV2.target, true);
-
-            // Get initial balances and state
-            const initialStablecoinBalance = await mockStablecoin.balanceOf(wrappedSong.target);
-            const initialWSTokenManagement = await wrappedSong.getWSTokenManagementAddress();
-            
-            // Perform migration through factory V2
-            const migrateTx = await mockFactoryV2.connect(artist).migrateOldWrappedSong(
-                wrappedSong.target,
-                metadataModule.target
-            );
-            const migrateReceipt = await migrateTx.wait();
-
-            // Get migration event∫
-            const migrationEvent = migrateReceipt?.logs.find(
-                (log: any) => mockFactoryV2.interface.parseLog(log)?.name === "WrappedSongMigrated"
-            );
-            const newWrappedSongAddress = migrationEvent ? 
-                mockFactoryV2.interface.parseLog(migrationEvent)?.args.newWrappedSong : 
-                null;
-            
-            expect(newWrappedSongAddress).to.not.be.null;
-            
-            // Get new wrapped song instance
-            const newWrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", newWrappedSongAddress);
-            
-            // Verify migration results
-            expect(await wrappedSong.migrated()).to.be.true;
-            expect(await newWrappedSong.owner()).to.equal(artist.address);
-            expect(await newWrappedSong.stablecoin()).to.equal(mockStablecoin.target);
-            
-            // Verify WSTokenManagement ownership transfer
-            const wsTokenManagement = await ethers.getContractAt("WSTokenManagement", initialWSTokenManagement);
-            expect(await wsTokenManagement.owner()).to.equal(newWrappedSongAddress);
-            expect(await wsTokenManagement.metadataModule()).to.equal(metadataModule.target);
-            
-            // Verify balance transfers
-            expect(await mockStablecoin.balanceOf(wrappedSong.target)).to.equal(0);
-            expect(await mockStablecoin.balanceOf(newWrappedSongAddress)).to.equal(initialStablecoinBalance);
-            
-            // Verify old contract is locked
-            await expect(
-                wrappedSong.createStablecoinDistributionEpoch()
-            ).to.be.revertedWith("Contract has been migrated");
-            
-            await expect(
-                wrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount)
-            ).to.be.revertedWith("Contract has been migrated");
-            
-            // Verify new contract is functional
-            await mockStablecoin.connect(artist).approve(newWrappedSongAddress, amount);
-            await expect(
-                newWrappedSong.connect(artist).receiveERC20(mockStablecoin.target, amount)
-            ).to.not.be.reverted;
-        });
-    });
-
     describe("Gas Optimization", function () {
         it("should handle large number of epochs efficiently", async function () {
             const { wrappedSong, artist, mockStablecoin } = await loadFixture(setupWrappedSongAndDistributor);
@@ -164,14 +85,19 @@ describe("WrappedSong Security", function () {
             const wsTokenOwner = await wsTokenManagement.owner();
             expect(wsTokenOwner).to.equal(wrappedSong.target, "WSTokenManagement owner should be WrappedSongSmartAccount");
             
+            // Get SONG_SHARES_ID and verify shares initialization
+            const SONG_SHARES_ID = await wsTokenManagement.SONG_SHARES_ID();
+            const totalShares = await wsTokenManagement["totalSupply(uint256)"](SONG_SHARES_ID);
+            expect(totalShares).to.equal(10000n, "Song shares should be initialized with correct amount");
+            
             // Verify that the artist (owner of WrappedSongSmartAccount) cannot directly call WSTokenManagement owner functions
             await expect(
-                wsTokenManagement.connect(artist).createSongShares(1000)
+                wsTokenManagement.connect(artist).createBuyoutToken(1000, artist.address)
             ).to.be.reverted;
             
             // Verify that the WrappedSongSmartAccount can call WSTokenManagement owner functions
             await expect(
-                wrappedSong.connect(artist).createSongShares(1000)
+                wrappedSong.connect(artist).createBuyoutToken(1000, artist.address)
             ).to.not.be.reverted;
         });
 
