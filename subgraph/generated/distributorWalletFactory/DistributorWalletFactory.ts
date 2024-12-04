@@ -10,6 +10,32 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
+export class CreationFeeCollected extends ethereum.Event {
+  get params(): CreationFeeCollected__Params {
+    return new CreationFeeCollected__Params(this);
+  }
+}
+
+export class CreationFeeCollected__Params {
+  _event: CreationFeeCollected;
+
+  constructor(event: CreationFeeCollected) {
+    this._event = event;
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get token(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class DistributorWalletCreated extends ethereum.Event {
   get params(): DistributorWalletCreated__Params {
     return new DistributorWalletCreated__Params(this);
@@ -33,6 +59,32 @@ export class DistributorWalletCreated__Params {
 
   get stablecoin(): Address {
     return this._event.parameters[2].value.toAddress();
+  }
+}
+
+export class FeesWithdrawn extends ethereum.Event {
+  get params(): FeesWithdrawn__Params {
+    return new FeesWithdrawn__Params(this);
+  }
+}
+
+export class FeesWithdrawn__Params {
+  _event: FeesWithdrawn;
+
+  constructor(event: FeesWithdrawn) {
+    this._event = event;
+  }
+
+  get token(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get recipient(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -85,6 +137,29 @@ export class DistributorWalletFactory extends ethereum.SmartContract {
     return new DistributorWalletFactory("DistributorWalletFactory", address);
   }
 
+  accumulatedFees(param0: Address): BigInt {
+    let result = super.call(
+      "accumulatedFees",
+      "accumulatedFees(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_accumulatedFees(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "accumulatedFees",
+      "accumulatedFees(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   checkIsDistributorWallet(wallet: Address): boolean {
     let result = super.call(
       "checkIsDistributorWallet",
@@ -106,45 +181,6 @@ export class DistributorWalletFactory extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  createDistributorWallet(
-    _stablecoin: Address,
-    _protocolModule: Address,
-    _owner: Address,
-  ): Address {
-    let result = super.call(
-      "createDistributorWallet",
-      "createDistributorWallet(address,address,address):(address)",
-      [
-        ethereum.Value.fromAddress(_stablecoin),
-        ethereum.Value.fromAddress(_protocolModule),
-        ethereum.Value.fromAddress(_owner),
-      ],
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_createDistributorWallet(
-    _stablecoin: Address,
-    _protocolModule: Address,
-    _owner: Address,
-  ): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "createDistributorWallet",
-      "createDistributorWallet(address,address,address):(address)",
-      [
-        ethereum.Value.fromAddress(_stablecoin),
-        ethereum.Value.fromAddress(_protocolModule),
-        ethereum.Value.fromAddress(_owner),
-      ],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   distributorWallets(param0: Address, param1: BigInt): Address {
@@ -415,6 +451,44 @@ export class TransferOwnershipCall__Outputs {
   _call: TransferOwnershipCall;
 
   constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class WithdrawAccumulatedFeesCall extends ethereum.Call {
+  get inputs(): WithdrawAccumulatedFeesCall__Inputs {
+    return new WithdrawAccumulatedFeesCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawAccumulatedFeesCall__Outputs {
+    return new WithdrawAccumulatedFeesCall__Outputs(this);
+  }
+}
+
+export class WithdrawAccumulatedFeesCall__Inputs {
+  _call: WithdrawAccumulatedFeesCall;
+
+  constructor(call: WithdrawAccumulatedFeesCall) {
+    this._call = call;
+  }
+
+  get token(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get recipient(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get _protocolModule(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+}
+
+export class WithdrawAccumulatedFeesCall__Outputs {
+  _call: WithdrawAccumulatedFeesCall;
+
+  constructor(call: WithdrawAccumulatedFeesCall) {
     this._call = call;
   }
 }

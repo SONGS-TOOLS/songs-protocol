@@ -5,7 +5,6 @@ import path from 'path';
 const abisDirectory = path.join(__dirname, '..', '..', 'songs-app', 'src', 'contracts');
 const localAbisDirectory = path.join(__dirname, '..', 'abis');
 const networkName = network.name;
-
 const addressesFile = path.join(abisDirectory, `protocolContractAddresses-${networkName}.json`);
 const addressesFile2 = path.join(localAbisDirectory, `protocolContractAddresses-${networkName}.json`);
 
@@ -42,6 +41,35 @@ async function main() {
   if (!fs.existsSync(localAbisDirectory)) {
     fs.mkdirSync(localAbisDirectory, { recursive: true });
   }
+
+
+  /******************************************************************************
+   *                                                                             *
+   *                           PROTOCOL MODULE CONTRACTS                           *
+   *                                                                             *
+   ******************************************************************************/
+
+  console.log('Deploying FeesModule...');
+  const FeesModule = await ethers.getContractFactory('FeesModule');
+  const feesModule = await FeesModule.deploy(deployer.address);
+  await feesModule.waitForDeployment();
+  console.log('FeesModule deployed to:', await feesModule.getAddress());
+  await saveAbi('FeesModule', await feesModule.getAddress());
+
+  console.log('Deploying ReleaseModule...');
+  const ReleaseModule = await ethers.getContractFactory('ReleaseModule');
+  const releaseModule = await ReleaseModule.deploy();
+  await releaseModule.waitForDeployment();
+  console.log('ReleaseModule deployed to:', await releaseModule.getAddress());
+  await saveAbi('ReleaseModule', await releaseModule.getAddress());
+
+  console.log('Deploying IdentityModule...');
+  const IdentityModule = await ethers.getContractFactory('IdentityModule');
+  const identityModule = await IdentityModule.deploy(await releaseModule.getAddress());
+  await identityModule.waitForDeployment();
+  console.log('IdentityModule deployed to:', await identityModule.getAddress());
+  await saveAbi('IdentityModule', await identityModule.getAddress());
+  
 
   /******************************************************************************
    *                                                                             *
@@ -183,6 +211,24 @@ async function main() {
 
   /******************************************************************************
    *                                                                             *
+   *                           PROTOCOL REGISTRY CONTRACT                           *
+   *                                                                             *
+   ******************************************************************************/
+
+  console.log('Deploying RegistryModule...');
+  const RegistryModule = await ethers.getContractFactory('RegistryModule');
+  const registryModule = await RegistryModule.deploy(
+    await protocolModule.getAddress(),
+    await feesModule.getAddress(),
+    await releaseModule.getAddress(),
+    await identityModule.getAddress()
+  );
+  await registryModule.waitForDeployment();
+  console.log('RegistryModule deployed to:', await registryModule.getAddress());
+  await saveAbi('RegistryModule', await registryModule.getAddress());
+
+  /******************************************************************************
+   *                                                                             *
    *                           PROTOCOL CONFIGURATION                            *
    *                                                                             *
    ******************************************************************************/
@@ -231,6 +277,7 @@ async function main() {
     legalContractMetadataBlock,
     metadataRendererBlock
   );
+  
 
   const deploymentInfo = {
     network: network.name,
@@ -278,7 +325,7 @@ async function main() {
     JSON.stringify(deploymentInfo, null, 2)
   );
 
-  // Save contract addresses
+
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
   fs.writeFileSync(addressesFile2, JSON.stringify(contractAddresses, null, 2));
 }

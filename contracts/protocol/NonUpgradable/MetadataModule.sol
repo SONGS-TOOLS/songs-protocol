@@ -10,11 +10,14 @@ import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IDistributorWallet.sol";
-
+import "./../Interfaces/IRegistryModule.sol";
 contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IProtocolModule public protocolModule;
+    IReleaseModule releaseModule;
+    IFeesModule feesModule;
+
     bool private isProtocolSet;
 
     mapping(address => Metadata) private wrappedSongMetadata;
@@ -33,7 +36,10 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     /**
      * @dev Initializes the contract.
      */
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) {
+        releaseModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).releaseModule();
+        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
+    }
 
     /**
      * @dev Sets the protocol module address. Can only be called once by the owner.
@@ -85,7 +91,8 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external {
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can request update");
-        require(protocolModule.isReleased(wrappedSong), "Song not released, update metadata directly");
+        
+        require(releaseModule.isReleased(wrappedSong), "Song not released, update metadata directly");
 
         _handleUpdateFee();
         
@@ -105,7 +112,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
             msg.sender == address(protocolModule), 
             "Only wrapped song or its owner can update"
         );
-        require(!protocolModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
+        require(!releaseModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         
         wrappedSongMetadata[wrappedSong] = newMetadata;
@@ -117,7 +124,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param wrappedSong The address of the wrapped song.
      */
     function confirmUpdateMetadata(address wrappedSong) external payable {
-        address distributor = protocolModule.getWrappedSongDistributor(wrappedSong);
+        address distributor = releaseModule.getWrappedSongDistributor(wrappedSong);
         require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can confirm update");
         require(!metadataUpdateConfirmed[wrappedSong], "No pending metadata update");
 
@@ -137,7 +144,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param wrappedSong The address of the wrapped song.
      */
     function rejectUpdateMetadata(address wrappedSong) external {
-        address distributor = protocolModule.getWrappedSongDistributor(wrappedSong);
+        address distributor = releaseModule.getWrappedSongDistributor(wrappedSong);
         require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can reject update");
         
         delete pendingMetadataUpdates[wrappedSong];
@@ -195,13 +202,13 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     }
 
     function _handleUpdateFee() internal {
-        uint256 updateFee = protocolModule.updateMetadataFee();
-        bool payInStablecoin = protocolModule.payInStablecoin();
+        uint256 updateFee = feesModule.getUpdateMetadataFee();
+        bool payInStablecoin = feesModule.isPayInStablecoin();
         
         if (updateFee > 0) {
             if (payInStablecoin) {
                 // Get the current stablecoin from protocol
-                uint256 currentStablecoinIndex = protocolModule.currentStablecoinIndex();
+                uint256 currentStablecoinIndex = feesModule.getCurrentStablecoinIndex();
                 address stablecoin = protocolModule.erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 

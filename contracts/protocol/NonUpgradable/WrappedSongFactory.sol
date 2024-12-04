@@ -8,8 +8,10 @@ import "./../Interfaces/IWSTokenManagement.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./../Interfaces/IRegistryModule.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract WrappedSongFactory {
+contract WrappedSongFactory is Ownable {
     using Clones for address;
     using SafeERC20 for IERC20;
 
@@ -34,29 +36,30 @@ contract WrappedSongFactory {
 
     event CreationFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
 
+    // Add a reference to the ModuleRegistry
+    IRegistryModule public registryModule;
+
     constructor(
-        address _protocolModule,
         address _wrappedSongTemplate,
-        address _wsTokenTemplate
-    ) {
-        require(_protocolModule != address(0), "Invalid protocol module");
-        require(_wrappedSongTemplate != address(0), "Invalid wrapped song template");
-        require(_wsTokenTemplate != address(0), "Invalid WSToken template");
-        
-        protocolModule = IProtocolModule(_protocolModule);
-        metadataModule = IMetadataModule(protocolModule.getMetadataModule());
+        address _wsTokenTemplate,
+        address _protocolModule    
+    ) Ownable(msg.sender) {
         wrappedSongTemplate = _wrappedSongTemplate;
         wsTokenTemplate = _wsTokenTemplate;
+        protocolModule = IProtocolModule(_protocolModule);
+        metadataModule = IMetadataModule(protocolModule.getMetadataModule());
     }
 
     function _handleCreationFee() internal {
-        uint256 creationFee = protocolModule.wrappedSongCreationFee();
-        bool payInStablecoin = protocolModule.payInStablecoin();
+        // Access the FeesModule through the registryModule
+        IFeesModule feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
+        uint256 creationFee = feesModule.getWrappedSongCreationFee();
+        bool payInStablecoin = feesModule.isPayInStablecoin();
         
         if (creationFee > 0) {
             if (payInStablecoin) {
                 // Get the current stablecoin from protocol
-                uint256 currentStablecoinIndex = protocolModule.currentStablecoinIndex();
+                uint256 currentStablecoinIndex = feesModule.getCurrentStablecoinIndex();
                 address stablecoin = protocolModule.erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 

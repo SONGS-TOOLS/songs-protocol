@@ -32,6 +32,60 @@ export class DistributorAcceptedReview__Params {
   }
 }
 
+export class DistributorCreationFeeUpdated extends ethereum.Event {
+  get params(): DistributorCreationFeeUpdated__Params {
+    return new DistributorCreationFeeUpdated__Params(this);
+  }
+}
+
+export class DistributorCreationFeeUpdated__Params {
+  _event: DistributorCreationFeeUpdated;
+
+  constructor(event: DistributorCreationFeeUpdated) {
+    this._event = event;
+  }
+
+  get newFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class DistributorWalletFactoryUpdated extends ethereum.Event {
+  get params(): DistributorWalletFactoryUpdated__Params {
+    return new DistributorWalletFactoryUpdated__Params(this);
+  }
+}
+
+export class DistributorWalletFactoryUpdated__Params {
+  _event: DistributorWalletFactoryUpdated;
+
+  constructor(event: DistributorWalletFactoryUpdated) {
+    this._event = event;
+  }
+
+  get newFactory(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class ERC20WhitelistUpdated extends ethereum.Event {
+  get params(): ERC20WhitelistUpdated__Params {
+    return new ERC20WhitelistUpdated__Params(this);
+  }
+}
+
+export class ERC20WhitelistUpdated__Params {
+  _event: ERC20WhitelistUpdated;
+
+  constructor(event: ERC20WhitelistUpdated) {
+    this._event = event;
+  }
+
+  get newWhitelist(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
 export class FeesWithdrawn extends ethereum.Event {
   get params(): FeesWithdrawn__Params {
     return new FeesWithdrawn__Params(this);
@@ -55,6 +109,104 @@ export class FeesWithdrawn__Params {
 
   get amount(): BigInt {
     return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class IdentityRegistryUpdated extends ethereum.Event {
+  get params(): IdentityRegistryUpdated__Params {
+    return new IdentityRegistryUpdated__Params(this);
+  }
+}
+
+export class IdentityRegistryUpdated__Params {
+  _event: IdentityRegistryUpdated;
+
+  constructor(event: IdentityRegistryUpdated) {
+    this._event = event;
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get registryType(): string {
+    return this._event.parameters[1].value.toString();
+  }
+
+  get value(): string {
+    return this._event.parameters[2].value.toString();
+  }
+}
+
+export class LegalContractMetadataUpdated extends ethereum.Event {
+  get params(): LegalContractMetadataUpdated__Params {
+    return new LegalContractMetadataUpdated__Params(this);
+  }
+}
+
+export class LegalContractMetadataUpdated__Params {
+  _event: LegalContractMetadataUpdated;
+
+  constructor(event: LegalContractMetadataUpdated) {
+    this._event = event;
+  }
+
+  get newContract(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class MaxSaleDurationUpdated extends ethereum.Event {
+  get params(): MaxSaleDurationUpdated__Params {
+    return new MaxSaleDurationUpdated__Params(this);
+  }
+}
+
+export class MaxSaleDurationUpdated__Params {
+  _event: MaxSaleDurationUpdated;
+
+  constructor(event: MaxSaleDurationUpdated) {
+    this._event = event;
+  }
+
+  get newDuration(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class MetadataModuleUpdated extends ethereum.Event {
+  get params(): MetadataModuleUpdated__Params {
+    return new MetadataModuleUpdated__Params(this);
+  }
+}
+
+export class MetadataModuleUpdated__Params {
+  _event: MetadataModuleUpdated;
+
+  constructor(event: MetadataModuleUpdated) {
+    this._event = event;
+  }
+
+  get newModule(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class MetadataRendererUpdated extends ethereum.Event {
+  get params(): MetadataRendererUpdated__Params {
+    return new MetadataRendererUpdated__Params(this);
+  }
+}
+
+export class MetadataRendererUpdated__Params {
+  _event: MetadataRendererUpdated;
+
+  constructor(event: MetadataRendererUpdated) {
+    this._event = event;
+  }
+
+  get newRenderer(): Address {
+    return this._event.parameters[0].value.toAddress();
   }
 }
 
@@ -107,6 +259,28 @@ export class MetadataUpdated__Params {
 
   get newMetadata(): string {
     return this._event.parameters[2].value.toString();
+  }
+}
+
+export class OwnerWrappedSongAdded extends ethereum.Event {
+  get params(): OwnerWrappedSongAdded__Params {
+    return new OwnerWrappedSongAdded__Params(this);
+  }
+}
+
+export class OwnerWrappedSongAdded__Params {
+  _event: OwnerWrappedSongAdded;
+
+  constructor(event: OwnerWrappedSongAdded) {
+    this._event = event;
+  }
+
+  get owner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -168,6 +342,104 @@ export class Paused1__Params {
   }
 }
 
+export class PayInStablecoinUpdated extends ethereum.Event {
+  get params(): PayInStablecoinUpdated__Params {
+    return new PayInStablecoinUpdated__Params(this);
+  }
+}
+
+export class PayInStablecoinUpdated__Params {
+  _event: PayInStablecoinUpdated;
+
+  constructor(event: PayInStablecoinUpdated) {
+    this._event = event;
+  }
+
+  get newPayInStablecoin(): boolean {
+    return this._event.parameters[0].value.toBoolean();
+  }
+}
+
+export class ReleaseFeeCollected extends ethereum.Event {
+  get params(): ReleaseFeeCollected__Params {
+    return new ReleaseFeeCollected__Params(this);
+  }
+}
+
+export class ReleaseFeeCollected__Params {
+  _event: ReleaseFeeCollected;
+
+  constructor(event: ReleaseFeeCollected) {
+    this._event = event;
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get token(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class ReleaseFeeUpdated extends ethereum.Event {
+  get params(): ReleaseFeeUpdated__Params {
+    return new ReleaseFeeUpdated__Params(this);
+  }
+}
+
+export class ReleaseFeeUpdated__Params {
+  _event: ReleaseFeeUpdated;
+
+  constructor(event: ReleaseFeeUpdated) {
+    this._event = event;
+  }
+
+  get newFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class ReleasesEnabledChanged extends ethereum.Event {
+  get params(): ReleasesEnabledChanged__Params {
+    return new ReleasesEnabledChanged__Params(this);
+  }
+}
+
+export class ReleasesEnabledChanged__Params {
+  _event: ReleasesEnabledChanged;
+
+  constructor(event: ReleasesEnabledChanged) {
+    this._event = event;
+  }
+
+  get enabled(): boolean {
+    return this._event.parameters[0].value.toBoolean();
+  }
+}
+
+export class ReviewPeriodDaysUpdated extends ethereum.Event {
+  get params(): ReviewPeriodDaysUpdated__Params {
+    return new ReviewPeriodDaysUpdated__Params(this);
+  }
+}
+
+export class ReviewPeriodDaysUpdated__Params {
+  _event: ReviewPeriodDaysUpdated;
+
+  constructor(event: ReviewPeriodDaysUpdated) {
+    this._event = event;
+  }
+
+  get newDays(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
 export class ReviewPeriodExpired extends ethereum.Event {
   get params(): ReviewPeriodExpired__Params {
     return new ReviewPeriodExpired__Params(this);
@@ -190,6 +462,68 @@ export class ReviewPeriodExpired__Params {
   }
 }
 
+export class SmartAccountToWSTokenMapped extends ethereum.Event {
+  get params(): SmartAccountToWSTokenMapped__Params {
+    return new SmartAccountToWSTokenMapped__Params(this);
+  }
+}
+
+export class SmartAccountToWSTokenMapped__Params {
+  _event: SmartAccountToWSTokenMapped;
+
+  constructor(event: SmartAccountToWSTokenMapped) {
+    this._event = event;
+  }
+
+  get smartAccount(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get wsToken(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class StableFeesUpdated extends ethereum.Event {
+  get params(): StableFeesUpdated__Params {
+    return new StableFeesUpdated__Params(this);
+  }
+}
+
+export class StableFeesUpdated__Params {
+  _event: StableFeesUpdated;
+
+  constructor(event: StableFeesUpdated) {
+    this._event = event;
+  }
+
+  get newCreationFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get newReleaseFee(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class StartSaleFeeUpdated extends ethereum.Event {
+  get params(): StartSaleFeeUpdated__Params {
+    return new StartSaleFeeUpdated__Params(this);
+  }
+}
+
+export class StartSaleFeeUpdated__Params {
+  _event: StartSaleFeeUpdated;
+
+  constructor(event: StartSaleFeeUpdated) {
+    this._event = event;
+  }
+
+  get newFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
 export class Unpaused extends ethereum.Event {
   get params(): Unpaused__Params {
     return new Unpaused__Params(this);
@@ -205,6 +539,60 @@ export class Unpaused__Params {
 
   get account(): Address {
     return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class UpdateMetadataFeeUpdated extends ethereum.Event {
+  get params(): UpdateMetadataFeeUpdated__Params {
+    return new UpdateMetadataFeeUpdated__Params(this);
+  }
+}
+
+export class UpdateMetadataFeeUpdated__Params {
+  _event: UpdateMetadataFeeUpdated;
+
+  constructor(event: UpdateMetadataFeeUpdated) {
+    this._event = event;
+  }
+
+  get newFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class WhitelistingManagerUpdated extends ethereum.Event {
+  get params(): WhitelistingManagerUpdated__Params {
+    return new WhitelistingManagerUpdated__Params(this);
+  }
+}
+
+export class WhitelistingManagerUpdated__Params {
+  _event: WhitelistingManagerUpdated;
+
+  constructor(event: WhitelistingManagerUpdated) {
+    this._event = event;
+  }
+
+  get newManager(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class WithdrawalFeePercentageUpdated extends ethereum.Event {
+  get params(): WithdrawalFeePercentageUpdated__Params {
+    return new WithdrawalFeePercentageUpdated__Params(this);
+  }
+}
+
+export class WithdrawalFeePercentageUpdated__Params {
+  _event: WithdrawalFeePercentageUpdated;
+
+  constructor(event: WithdrawalFeePercentageUpdated) {
+    this._event = event;
+  }
+
+  get newPercentage(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -227,6 +615,24 @@ export class WrappedSongAuthenticitySet__Params {
 
   get isAuthentic(): boolean {
     return this._event.parameters[1].value.toBoolean();
+  }
+}
+
+export class WrappedSongCreationFeeUpdated extends ethereum.Event {
+  get params(): WrappedSongCreationFeeUpdated__Params {
+    return new WrappedSongCreationFeeUpdated__Params(this);
+  }
+}
+
+export class WrappedSongCreationFeeUpdated__Params {
+  _event: WrappedSongCreationFeeUpdated;
+
+  constructor(event: WrappedSongCreationFeeUpdated) {
+    this._event = event;
+  }
+
+  get newFee(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -445,6 +851,52 @@ export class ProtocolModule extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  currentStablecoinIndex(): BigInt {
+    let result = super.call(
+      "currentStablecoinIndex",
+      "currentStablecoinIndex():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_currentStablecoinIndex(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "currentStablecoinIndex",
+      "currentStablecoinIndex():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  distributorCreationFee(): BigInt {
+    let result = super.call(
+      "distributorCreationFee",
+      "distributorCreationFee():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_distributorCreationFee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "distributorCreationFee",
+      "distributorCreationFee():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   distributorWalletFactory(): Address {
@@ -1020,6 +1472,25 @@ export class ProtocolModule extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
+  payInStablecoin(): boolean {
+    let result = super.call("payInStablecoin", "payInStablecoin():(bool)", []);
+
+    return result[0].toBoolean();
+  }
+
+  try_payInStablecoin(): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "payInStablecoin",
+      "payInStablecoin():(bool)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   pendingDistributorRequests(param0: Address): Address {
     let result = super.call(
       "pendingDistributorRequests",
@@ -1058,6 +1529,25 @@ export class ProtocolModule extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  releasesEnabled(): boolean {
+    let result = super.call("releasesEnabled", "releasesEnabled():(bool)", []);
+
+    return result[0].toBoolean();
+  }
+
+  try_releasesEnabled(): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "releasesEnabled",
+      "releasesEnabled():(bool)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   renderTokenURI(
@@ -1180,21 +1670,6 @@ export class ProtocolModule extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  startSaleFee(): BigInt {
-    let result = super.call("startSaleFee", "startSaleFee():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_startSaleFee(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("startSaleFee", "startSaleFee():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
   upcRegistry(param0: Address): string {
     let result = super.call("upcRegistry", "upcRegistry(address):(string)", [
       ethereum.Value.fromAddress(param0),
@@ -1212,6 +1687,29 @@ export class ProtocolModule extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  updateMetadataFee(): BigInt {
+    let result = super.call(
+      "updateMetadataFee",
+      "updateMetadataFee():(uint256)",
+      [],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_updateMetadataFee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "updateMetadataFee",
+      "updateMetadataFee():(uint256)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   whitelistingManager(): Address {
@@ -1954,6 +2452,66 @@ export class SetBaseURICall__Outputs {
   }
 }
 
+export class SetCurrentStablecoinIndexCall extends ethereum.Call {
+  get inputs(): SetCurrentStablecoinIndexCall__Inputs {
+    return new SetCurrentStablecoinIndexCall__Inputs(this);
+  }
+
+  get outputs(): SetCurrentStablecoinIndexCall__Outputs {
+    return new SetCurrentStablecoinIndexCall__Outputs(this);
+  }
+}
+
+export class SetCurrentStablecoinIndexCall__Inputs {
+  _call: SetCurrentStablecoinIndexCall;
+
+  constructor(call: SetCurrentStablecoinIndexCall) {
+    this._call = call;
+  }
+
+  get _index(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetCurrentStablecoinIndexCall__Outputs {
+  _call: SetCurrentStablecoinIndexCall;
+
+  constructor(call: SetCurrentStablecoinIndexCall) {
+    this._call = call;
+  }
+}
+
+export class SetDistributorCreationFeeCall extends ethereum.Call {
+  get inputs(): SetDistributorCreationFeeCall__Inputs {
+    return new SetDistributorCreationFeeCall__Inputs(this);
+  }
+
+  get outputs(): SetDistributorCreationFeeCall__Outputs {
+    return new SetDistributorCreationFeeCall__Outputs(this);
+  }
+}
+
+export class SetDistributorCreationFeeCall__Inputs {
+  _call: SetDistributorCreationFeeCall;
+
+  constructor(call: SetDistributorCreationFeeCall) {
+    this._call = call;
+  }
+
+  get _fee(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetDistributorCreationFeeCall__Outputs {
+  _call: SetDistributorCreationFeeCall;
+
+  constructor(call: SetDistributorCreationFeeCall) {
+    this._call = call;
+  }
+}
+
 export class SetDistributorWalletFactoryCall extends ethereum.Call {
   get inputs(): SetDistributorWalletFactoryCall__Inputs {
     return new SetDistributorWalletFactoryCall__Inputs(this);
@@ -2168,6 +2726,36 @@ export class SetOwnerWrappedSongCall__Outputs {
   }
 }
 
+export class SetPayInStablecoinCall extends ethereum.Call {
+  get inputs(): SetPayInStablecoinCall__Inputs {
+    return new SetPayInStablecoinCall__Inputs(this);
+  }
+
+  get outputs(): SetPayInStablecoinCall__Outputs {
+    return new SetPayInStablecoinCall__Outputs(this);
+  }
+}
+
+export class SetPayInStablecoinCall__Inputs {
+  _call: SetPayInStablecoinCall;
+
+  constructor(call: SetPayInStablecoinCall) {
+    this._call = call;
+  }
+
+  get _payInStablecoin(): boolean {
+    return this._call.inputValues[0].value.toBoolean();
+  }
+}
+
+export class SetPayInStablecoinCall__Outputs {
+  _call: SetPayInStablecoinCall;
+
+  constructor(call: SetPayInStablecoinCall) {
+    this._call = call;
+  }
+}
+
 export class SetReleaseFeeCall extends ethereum.Call {
   get inputs(): SetReleaseFeeCall__Inputs {
     return new SetReleaseFeeCall__Inputs(this);
@@ -2194,6 +2782,36 @@ export class SetReleaseFeeCall__Outputs {
   _call: SetReleaseFeeCall;
 
   constructor(call: SetReleaseFeeCall) {
+    this._call = call;
+  }
+}
+
+export class SetReleasesEnabledCall extends ethereum.Call {
+  get inputs(): SetReleasesEnabledCall__Inputs {
+    return new SetReleasesEnabledCall__Inputs(this);
+  }
+
+  get outputs(): SetReleasesEnabledCall__Outputs {
+    return new SetReleasesEnabledCall__Outputs(this);
+  }
+}
+
+export class SetReleasesEnabledCall__Inputs {
+  _call: SetReleasesEnabledCall;
+
+  constructor(call: SetReleasesEnabledCall) {
+    this._call = call;
+  }
+
+  get _enabled(): boolean {
+    return this._call.inputValues[0].value.toBoolean();
+  }
+}
+
+export class SetReleasesEnabledCall__Outputs {
+  _call: SetReleasesEnabledCall;
+
+  constructor(call: SetReleasesEnabledCall) {
     this._call = call;
   }
 }
@@ -2279,7 +2897,7 @@ export class SetStartSaleFeeCall__Inputs {
     this._call = call;
   }
 
-  get _startSaleFee(): BigInt {
+  get newFee(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 }
@@ -2288,6 +2906,36 @@ export class SetStartSaleFeeCall__Outputs {
   _call: SetStartSaleFeeCall;
 
   constructor(call: SetStartSaleFeeCall) {
+    this._call = call;
+  }
+}
+
+export class SetUpdateMetadataFeeCall extends ethereum.Call {
+  get inputs(): SetUpdateMetadataFeeCall__Inputs {
+    return new SetUpdateMetadataFeeCall__Inputs(this);
+  }
+
+  get outputs(): SetUpdateMetadataFeeCall__Outputs {
+    return new SetUpdateMetadataFeeCall__Outputs(this);
+  }
+}
+
+export class SetUpdateMetadataFeeCall__Inputs {
+  _call: SetUpdateMetadataFeeCall;
+
+  constructor(call: SetUpdateMetadataFeeCall) {
+    this._call = call;
+  }
+
+  get _fee(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetUpdateMetadataFeeCall__Outputs {
+  _call: SetUpdateMetadataFeeCall;
+
+  constructor(call: SetUpdateMetadataFeeCall) {
     this._call = call;
   }
 }
