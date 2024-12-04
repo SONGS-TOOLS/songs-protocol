@@ -254,7 +254,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
             IERC20(stableCoin).safeTransfer(recipient, userAmount);
             // Transfer protocol fee
             if (protocolFee > 0) {
-                IERC20(stableCoin).safeTransfer(address(protocolModule), protocolFee);
+                IERC20(stableCoin).safeTransfer(protocolModule.getStablecoinFeeReceiver(), protocolFee);
             }
         } else {
             require(address(this).balance >= amount, "Insufficient ETH balance");
@@ -270,7 +270,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         
         emit FundsWithdrawn(wrappedSong, recipient, userAmount);
         if (protocolFee > 0) {
-            emit FundsWithdrawn(wrappedSong, address(protocolModule), protocolFee);
+            emit FundsWithdrawn(wrappedSong, protocolModule.getStablecoinFeeReceiver(), protocolFee);
         }
     }
 

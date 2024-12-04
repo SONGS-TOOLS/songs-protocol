@@ -54,7 +54,7 @@ contract DistributorWalletFactory is Ownable {
         // Transfer stablecoin fee from user to this contract
         IERC20(_stablecoin).safeTransferFrom(
           msg.sender,
-          address(this),
+          IProtocolModule(_protocolModule).getStablecoinFeeReceiver(),
           creationFee
         );
 
@@ -69,7 +69,7 @@ contract DistributorWalletFactory is Ownable {
         // Add to accumulated fees for ETH (address(0))
         accumulatedFees[address(0)] += msg.value;
 
-        // Refund excess ETH if any
+        // Refund excess ETH if anyza
         if (msg.value > creationFee) {
           (bool refundSuccess, ) = msg.sender.call{
             value: msg.value - creationFee
@@ -172,4 +172,8 @@ contract DistributorWalletFactory is Ownable {
 
     emit FeesWithdrawn(token, recipient, amount);
   }
+
+  receive() external payable {}
+
+  fallback() external payable {}
 }

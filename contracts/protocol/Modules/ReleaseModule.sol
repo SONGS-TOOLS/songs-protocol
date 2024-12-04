@@ -34,7 +34,9 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
     bool public releasesEnabled = true;
     uint256 public reviewPeriodDays = 7;
 
-    event ReleaseFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
+    address public stablecoinFeeReceiver;
+
+    event ReleaseFeeCollected(address indexed creator, address indexed token, uint256 amount);
     event WrappedSongReleased(address indexed wrappedSong, address indexed distributor);
     event WrappedSongReleaseRequested(address indexed wrappedSong, address indexed distributor, address indexed creator);
     event WrappedSongReleaseRejected(address indexed wrappedSong, address indexed distributor);
@@ -163,6 +165,22 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
         emit WrappedSongReleaseRejected(wrappedSong, msg.sender);
     }
 
+    function updateWrappedSongDistributor(
+    address wrappedSong,
+    address newDistributor
+) external {
+    address currentDistributor = wrappedSongToDistributor[wrappedSong];
+    require(currentDistributor != address(0), "Wrapped song not released yet");
+    require(msg.sender == currentDistributor, "Only current distributor can update distributor");
+    require(newDistributor != address(0), "Invalid new distributor address");
+    require(newDistributor.code.length > 0, "New distributor must be a contract");
+
+    wrappedSongToDistributor[wrappedSong] = newDistributor;
+
+        emit WrappedSongDistributorUpdated(wrappedSong, currentDistributor, newDistributor);
+    }
+    
+
     function isReleased(address wrappedSong) external view returns (bool) {
         return wrappedSongToDistributor[wrappedSong] != address(0);
     }
@@ -176,10 +194,18 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
         emit ReleasesEnabledChanged(_enabled);
     }
 
+    function setStablecoinFeeReceiver(address newReceiver) external onlyOwner {
+        require(newReceiver != address(0), "Invalid receiver address");
+        stablecoinFeeReceiver = newReceiver;
+    }
 
     /**************************************************************************
    * Getters
    *************************************************************************/
+
+   function getStablecoinFeeReceiver() external view returns (address) {
+    return stablecoinFeeReceiver;
+   }
 
   /**
    * @dev Returns the distributor address for a given wrapped song.
@@ -219,10 +245,10 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
                 address stablecoin = erc20whitelist.getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 
-                IERC20(stablecoin).safeTransferFrom(msg.sender, address(this), feeAmount);
+                IERC20(stablecoin).safeTransferFrom(msg.sender, stablecoinFeeReceiver, feeAmount);
                 accumulatedFees[stablecoin] += feeAmount;
 
-                emit ReleaseFeeCollected(wrappedSong, stablecoin, feeAmount);
+                emit ReleaseFeeCollected(msg.sender, stablecoin, feeAmount);
             } else {
                 require(msg.value >= feeAmount, "Incorrect ETH fee amount");
                 accumulatedFees[address(0)] += msg.value;
@@ -232,7 +258,7 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
                     require(refundSuccess, "ETH refund failed");
                 }
 
-                emit ReleaseFeeCollected(wrappedSong, address(0), msg.value);
+                emit ReleaseFeeCollected(msg.sender, address(0), msg.value);
             }
         } else {
             require(msg.value == 0, "Fee not required");

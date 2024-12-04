@@ -62,7 +62,7 @@ contract WrappedSongFactory is Ownable {
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 
                 // Transfer stablecoin fee from user to this contract
-                IERC20(stablecoin).safeTransferFrom(msg.sender, address(this), creationFee);
+                IERC20(stablecoin).safeTransferFrom(msg.sender, IProtocolModule(protocolModule).getStablecoinFeeReceiver(), creationFee);
                 
                 // Add to accumulated fees
                 accumulatedFees[stablecoin] += creationFee;

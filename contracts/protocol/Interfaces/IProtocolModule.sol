@@ -52,6 +52,8 @@ interface IProtocolModule {
     // URI management
     function getBaseURI() external view returns (string memory);
     function setBaseURI(string memory _baseURI) external;
+    function getStablecoinFeeReceiver() external view returns (address);
+    function setStablecoinFeeReceiver(address newReceiver) external;
 
     // Metadata management
     function getLegalContractMetadata() external view returns (address);
