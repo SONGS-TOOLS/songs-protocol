@@ -130,7 +130,7 @@ contract WrappedSongFactory is Ownable {
         );
         
         protocolModule.setOwnerWrappedSong(
-            msg.sender,
+            wsOwner,
             newWrappedSongSmartAccount
         );
 
@@ -147,7 +147,7 @@ contract WrappedSongFactory is Ownable {
 
 
         emit WrappedSongCreated(
-            msg.sender,
+            wsOwner,
             newWrappedSongSmartAccount,
             _stablecoin,
             wsTokenManagementAddress,

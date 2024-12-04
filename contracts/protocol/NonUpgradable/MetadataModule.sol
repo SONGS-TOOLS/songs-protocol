@@ -104,13 +104,14 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param newMetadata The new metadata to be set.
      */
     function updateMetadata(address wrappedSong, Metadata memory newMetadata) external payable {
+        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
+        
         require(
             IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender || 
-            msg.sender == address(protocolModule), 
+            msg.sender == address(releaseModule), 
             "Only wrapped song or its owner can update"
         );
         
-        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
 
         require(!releaseModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
