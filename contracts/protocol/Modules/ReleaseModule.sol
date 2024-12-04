@@ -65,7 +65,6 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
         erc20whitelist = IERC20Whitelist(_erc20whitelist);
         distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
         metadataModule = IMetadataModule(_metadataModule);
-
     }
 
     function requestWrappedSongReleaseWithMetadata(

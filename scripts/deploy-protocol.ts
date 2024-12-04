@@ -243,15 +243,14 @@ async function main() {
   await protocolModule.setRegistryModule(await registryModule.getAddress());
   console.log('RegistryModule set in ProtocolModule');
   
-  await metadataModule.initialize(await protocolModule.getAddress());
-  console.log('MetadataModule initialized');
-
   console.log('Initializing RegistryModule...');
   await registryModule.initialize(
     await feesModule.getAddress(),
     await releaseModule.getAddress(),
     await identityModule.getAddress(),
-    await metadataModule.getAddress()
+    await metadataModule.getAddress(),
+    await legalContractMetadata.getAddress(),
+    await erc20Whitelist.getAddress()
   );
   console.log('RegistryModule initialized');
 

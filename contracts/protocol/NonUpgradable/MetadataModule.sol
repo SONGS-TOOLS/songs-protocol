@@ -36,22 +36,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     /**
      * @dev Initializes the contract.
      */
-    constructor(address _initialOwner) Ownable(_initialOwner) {}
-
-    /**
-     * @dev Initializes the contract with required module references.
-     * @param _protocolModule The address of the protocol module
-     */
-    function initialize(address _protocolModule) external {
-        require(!isProtocolSet, "Already initialized");
-        require(_protocolModule != address(0), "Invalid protocol module");
-        
-        protocolModule = IProtocolModule(_protocolModule);
-        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
-        feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
-        erc20whitelist = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist();
-        
-        isProtocolSet = true;
+    constructor(address _initialOwner) Ownable(_initialOwner) {
     }
 
     /**
@@ -60,10 +45,8 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      */
     function setProtocolModule(address _protocolModule) external onlyOwner {
         require(_protocolModule != address(0), "Invalid protocol module address");
-        
         protocolModule = IProtocolModule(_protocolModule);
         isProtocolSet = true;
-        
     }
 
     /**
@@ -102,9 +85,10 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param newMetadata The new metadata to be set.
      */
     function requestUpdateMetadata(address wrappedSong, Metadata memory newMetadata) external {
+        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
+
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         require(IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender, "Only wrapped song owner can request update");
-        
         require(releaseModule.isReleased(wrappedSong), "Song not released, update metadata directly");
 
         _handleUpdateFee();
@@ -125,6 +109,9 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
             msg.sender == address(protocolModule), 
             "Only wrapped song or its owner can update"
         );
+        
+        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
+
         require(!releaseModule.isReleased(wrappedSong), "Cannot update metadata directly after release");
         require(isValidMetadata(newMetadata), "Invalid metadata: All required fields must be non-empty");
         
@@ -137,6 +124,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param wrappedSong The address of the wrapped song.
      */
     function confirmUpdateMetadata(address wrappedSong) external payable {
+        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
         address distributor = releaseModule.getWrappedSongDistributor(wrappedSong);
         require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can confirm update");
         require(!metadataUpdateConfirmed[wrappedSong], "No pending metadata update");
@@ -157,6 +145,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param wrappedSong The address of the wrapped song.
      */
     function rejectUpdateMetadata(address wrappedSong) external {
+        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
         address distributor = releaseModule.getWrappedSongDistributor(wrappedSong);
         require(msg.sender == IDistributorWallet(distributor).owner(), "Only distributor can reject update");
         
@@ -215,8 +204,10 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     }
 
     function _handleUpdateFee() internal {
+        feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
         uint256 updateFee = feesModule.getUpdateMetadataFee();
         bool payInStablecoin = feesModule.isPayInStablecoin();
+        erc20whitelist = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist();
         
         if (updateFee > 0) {
             if (payInStablecoin) {

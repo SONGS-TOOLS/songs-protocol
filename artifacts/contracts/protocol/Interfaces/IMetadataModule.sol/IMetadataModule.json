@@ -234,19 +234,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_protocolModule",
-          "type": "address"
-        }
-      ],
-      "name": "initialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "wrappedSong",
           "type": "address"
         }

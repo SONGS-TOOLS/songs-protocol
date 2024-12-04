@@ -14,7 +14,6 @@ interface IMetadataModule {
     function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory);
     function getPendingMetadataUpdate(address wrappedSong) external view returns (Metadata memory);
     function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool);
-    function initialize(address _protocolModule) external;
 
     // Update createMetadata to return Metadata
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external returns (Metadata memory);
