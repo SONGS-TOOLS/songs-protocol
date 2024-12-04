@@ -23,6 +23,11 @@ export interface ProtocolV2Fixture {
   metadataRenderer: any;
   buyer: HardhatEthersSigner;
   startSaleFee: bigint;
+  feesModule: any;
+  releaseModule: any;
+  identityModule: any;
+  registryModule: any;
+  buyoutTokenMarketPlace: any;
 }
 
 export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
@@ -60,7 +65,7 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
 
   // Deploy MetadataModule
   const MetadataModule = await ethers.getContractFactory("MetadataModule");
-  const metadataModule = await MetadataModule.deploy();
+  const metadataModule = await MetadataModule.deploy(deployer.address);
   await metadataModule.waitForDeployment();
   console.log("MetadataModule V2 deployed at:", metadataModule.target);
 
@@ -69,7 +74,24 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   const legalContractMetadata = await LegalContractMetadata.deploy();
   await legalContractMetadata.waitForDeployment();
 
-  // Deploy ProtocolModule
+  // Add new contract instances
+  const FeesModule = await ethers.getContractFactory("FeesModule");
+  const feesModule = await FeesModule.deploy(deployer.address);
+  await feesModule.waitForDeployment();
+
+  const ReleaseModule = await ethers.getContractFactory("ReleaseModule");
+  const releaseModule = await ReleaseModule.deploy();
+  await releaseModule.waitForDeployment();
+
+  const IdentityModule = await ethers.getContractFactory("IdentityModule");
+  const identityModule = await IdentityModule.deploy(releaseModule.target);
+  await identityModule.waitForDeployment();
+
+  const RegistryModule = await ethers.getContractFactory("RegistryModule");
+  const registryModule = await RegistryModule.deploy();
+  await registryModule.waitForDeployment();
+
+  // Update ProtocolModule deployment to include new modules
   const ProtocolModule = await ethers.getContractFactory("ProtocolModule");
   const protocolModule = await ProtocolModule.deploy(
     distributorWalletFactory.target,
@@ -80,6 +102,23 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   );
   await protocolModule.waitForDeployment();
 
+  // Initialize new modules
+  await registryModule.initialize(
+    feesModule.target,
+    releaseModule.target,
+    identityModule.target,
+    metadataModule.target,
+    legalContractMetadata.target,
+    erc20Whitelist.target
+  );
+
+  await releaseModule.initialize(
+    feesModule.target,
+    erc20Whitelist.target,
+    distributorWalletFactory.target,
+    metadataModule.target
+  );
+
   // Deploy mock stablecoin
   const MockToken = await ethers.getContractFactory("MockToken");
   const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
@@ -87,7 +126,7 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
 
   // Deploy V2 template contracts
   const WrappedSongV2 = await ethers.getContractFactory("WrappedSongSmartAccount");
-  const wrappedSongV2Template = await WrappedSongV2.deploy(protocolModule.target);
+  const wrappedSongV2Template = await WrappedSongV2.deploy();
   await wrappedSongV2Template.waitForDeployment();
 
   const WSTokenManagementV2 = await ethers.getContractFactory("WSTokenManagement");
@@ -108,27 +147,38 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   const songSharesMarketPlace = await SongSharesMarketPlace.deploy(protocolModule.target);
   await songSharesMarketPlace.waitForDeployment();
 
+  // Deploy BuyoutTokenMarketPlace
+  const BuyoutTokenMarketPlace = await ethers.getContractFactory("BuyoutTokenMarketPlace");
+  const buyoutTokenMarketPlace = await BuyoutTokenMarketPlace.deploy(protocolModule.target);
+  await buyoutTokenMarketPlace.waitForDeployment();
+
   // Setup protocol configurations
   await metadataModule.setProtocolModule(protocolModule.target);
   await metadataModule.connect(deployer).transferOwnership(protocolModule.target);
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
   await protocolModule.setMetadataModule(metadataModule.target);
   await protocolModule.setMetadataRenderer(metadataRenderer.target);
-  await protocolModule.setWrappedSongFactory(wrappedSongFactoryV2.target);
-  await protocolModule.setWrappedSongCreationFee(ethers.parseEther("0.1"));
-  await protocolModule.setReleaseFee(ethers.parseEther("0.1"));
-  await protocolModule.setDistributorCreationFee(ethers.parseEther("0.1"));
-  await protocolModule.setUpdateMetadataFee(ethers.parseEther("0.1"));
+  await protocolModule.setWrappedSongFactory(wrappedSongFactoryV2.target);  
   await protocolModule.whitelistToken(mockStablecoin.target);
   await protocolModule.setBaseURI("ipfs://");
 
-  // Set the start sale fee
+  // Set FeesModule fees
+  await feesModule.setReleaseFee(ethers.parseEther("0.1"));
+  await feesModule.setWrappedSongCreationFee(ethers.parseEther("0.1"));
+  await feesModule.setStartSaleFee(ethers.parseEther("0.1"));
+  await feesModule.setWithdrawalFeePercentage(0);
+  await feesModule.setDistributorCreationFee(ethers.parseEther("0.1"));
+  await feesModule.setUpdateMetadataFee(ethers.parseEther("0.1"));
+
   const startSaleFee = ethers.parseEther("0.1");
-  await protocolModule.connect(deployer).setStartSaleFee(startSaleFee);
+  await feesModule.connect(deployer).setStartSaleFee(startSaleFee);
 
   // Additional V2-specific configurations
   await protocolModule.setAuthorizedContract(wrappedSongFactoryV2.target, true);
   await protocolModule.connect(deployer).transferOwnership(deployer.address);
+
+  // Initialize SongSharesMarketPlace
+  await songSharesMarketPlace.initialize();
 
 
   return {
@@ -152,6 +202,11 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
     songSharesMarketPlace,
     metadataRenderer,
     buyer: accounts[0],
-    startSaleFee
+    startSaleFee,
+    feesModule,
+    releaseModule,
+    identityModule,
+    registryModule,
+    buyoutTokenMarketPlace
   };
 } 

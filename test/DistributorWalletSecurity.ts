@@ -16,9 +16,11 @@ describe("DistributorWallet Security Tests", function () {
             mockStablecoin,
             wrappedSongFactory,
             protocolModule,
+            feesModule,
+            releaseModule,
             distributorWalletFactory
         } = fixture;
-        const distributorCreationFee = await protocolModule.distributorCreationFee();
+        const distributorCreationFee = await feesModule.distributorCreationFee();
 
         // Create distributor wallet
         await distributorWalletFactory.createDistributorWallet(
@@ -31,7 +33,7 @@ describe("DistributorWallet Security Tests", function () {
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
         // Create wrapped song
-        const creationFee = await protocolModule.wrappedSongCreationFee();
+        const creationFee = await feesModule.wrappedSongCreationFee();
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
@@ -50,8 +52,8 @@ describe("DistributorWallet Security Tests", function () {
         const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[0]);
 
         // Setup release
-        const releaseFee = await protocolModule.releaseFee();
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target, { value: releaseFee });
+        const releaseFee = await feesModule.releaseFee();
+        await releaseModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 
         return {

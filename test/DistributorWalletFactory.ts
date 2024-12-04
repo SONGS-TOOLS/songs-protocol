@@ -1,7 +1,7 @@
-import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { deployProtocolFixture as deployContractFixture } from './fixtures/protocolFixture';
+import { expect } from 'chai';
 import { ethers } from "hardhat";
+import { deployProtocolFixture as deployContractFixture } from './fixtures/protocolFixture';
 
 describe("DistributorWalletFactory", function () {
 
@@ -81,13 +81,13 @@ describe("DistributorWalletFactory", function () {
 
     describe("withdrawAccumulatedFees", function () {
         it("should withdraw accumulated fees", async function () {
-            const { deployer, distributor, distributorWalletFactory, protocolModule, mockStablecoin } = await loadFixture(deployContractFixture);
+            const { deployer, distributor, distributorWalletFactory, protocolModule, mockStablecoin, feesModule } = await loadFixture(deployContractFixture);
             
             // Create 5 distributor wallets with incrementing fees
             for (let i = 0; i < 5; i++) {
                 // Set new creation fee before each wallet creation (0.1 increment)
                 const newFee = ethers.parseEther((0.1 * (i + 1)).toString());
-                await protocolModule.connect(deployer).setDistributorCreationFee(newFee);
+                await feesModule.connect(deployer).setDistributorCreationFee(newFee);
                 
                 // Create distributor wallet
                 await distributorWalletFactory.connect(deployer).createDistributorWallet(
