@@ -15,6 +15,13 @@ interface IReleaseModule {
         address distributor
     ) external payable;
 
+    function initialize(
+        address _feesModule,
+        address _erc20whitelist,
+        address _distributorWalletFactory,
+        address _metadataModule
+    ) external;
+
     function removeWrappedSongReleaseRequest(address wrappedSong) external;
 
     function acceptWrappedSongForReview(address wrappedSong) external;

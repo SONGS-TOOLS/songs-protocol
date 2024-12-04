@@ -14,6 +14,7 @@ interface IWrappedSongFactory {
     function createWrappedSong(
         address _stablecoin,
         IMetadataModule.Metadata memory songMetadata,
-        uint256 sharesAmount
+        uint256 sharesAmount,
+        address wsOwner
     ) external payable returns (address);
 } 

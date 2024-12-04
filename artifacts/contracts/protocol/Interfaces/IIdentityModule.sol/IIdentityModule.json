@@ -1,0 +1,196 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IIdentityModule",
+  "sourceName": "contracts/protocol/Interfaces/IIdentityModule.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "iscc",
+          "type": "string"
+        }
+      ],
+      "name": "addISCC",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "isrc",
+          "type": "string"
+        }
+      ],
+      "name": "addISRC",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "iswc",
+          "type": "string"
+        }
+      ],
+      "name": "addISWC",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "upc",
+          "type": "string"
+        }
+      ],
+      "name": "addUPC",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "getIsccCode",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "getIsrcCode",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "getIswcCode",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "getUpcCode",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        }
+      ],
+      "name": "isAuthentic",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_isAuthentic",
+          "type": "bool"
+        }
+      ],
+      "name": "setWrappedSongAuthenticity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -116,8 +116,7 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     address _whitelistingManager,
     address _erc20whitelist,
     address _metadataModule,
-    address _legalContractMetadata,
-    address _registryModule
+    address _legalContractMetadata
   ) Ownable(msg.sender) {
     distributorWalletFactory = IDistributorWalletFactory(
       _distributorWalletFactory
@@ -126,8 +125,8 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     erc20whitelist = IERC20Whitelist(_erc20whitelist);
     metadataModule = IMetadataModule(_metadataModule);
     legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
-    registryModule = IRegistryModule(_registryModule);
   }
+
 
   /**************************************************************************
    * Pause

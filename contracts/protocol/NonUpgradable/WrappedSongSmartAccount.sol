@@ -14,6 +14,9 @@ import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IDistributorWalletFactory.sol";
 import "./../Interfaces/IWrappedSongSmartAccount.sol";
 import "./../Interfaces/IWSTokenManagement.sol";
+import "./../Interfaces/IRegistryModule.sol";
+import "./../Interfaces/IReleaseModule.sol";
+
 contract WrappedSongSmartAccount is
     Ownable,
     IERC1155Receiver,
@@ -27,7 +30,7 @@ contract WrappedSongSmartAccount is
     IERC20 public stablecoin;
     IProtocolModule public protocolModule;
     IMetadataModule public metadataModule;
-
+    IReleaseModule public releaseModule;
     uint256 public songSharesId;
     uint256 public wrappedSongTokenId;
 
@@ -84,18 +87,14 @@ contract WrappedSongSmartAccount is
     modifier onlyOwnerOrDistributor() {
         require(
             msg.sender == owner() ||
-                msg.sender == protocolModule.getWrappedSongDistributor(address(this)),
+                msg.sender == releaseModule.getWrappedSongDistributor(address(this)),
             "Caller is not owner or wrapped song distributor"
         );
         _;
     }
 
     constructor(
-        address _protocolModuleAddress
     ) Ownable(msg.sender) {
-        require(_protocolModuleAddress != address(0), "Invalid protocol module");
-        protocolModule = IProtocolModule(_protocolModuleAddress);
-        metadataModule = IMetadataModule(IProtocolModule(_protocolModuleAddress).metadataModule());
         _disableInitializers();
     }
 
@@ -109,6 +108,9 @@ contract WrappedSongSmartAccount is
         require(_owner != address(0), "Invalid owner address");
         
         protocolModule = IProtocolModule(_protocolModuleAddress);
+        metadataModule = IMetadataModule(IProtocolModule(_protocolModuleAddress).metadataModule());
+        releaseModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).releaseModule();
+        
         _transferOwnership(_owner);
         stablecoin = IERC20(_stablecoinAddress);
         

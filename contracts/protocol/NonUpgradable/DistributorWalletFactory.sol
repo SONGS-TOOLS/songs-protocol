@@ -38,20 +38,14 @@ contract DistributorWalletFactory is Ownable {
     uint256 amount
   );
 
-  IProtocolModule public immutable protocolModule;
-
-  constructor(
-    address initialOwner, 
-    address _protocolModule
-    ) Ownable(initialOwner) {
-    protocolModule = IProtocolModule(_protocolModule);
-  }
+  constructor(address initialOwner) Ownable(initialOwner) {}
 
   function _handleCreationFee(
+    address _protocolModule,
     address _stablecoin
   ) internal {
     // Access the FeesModule through the registryModule
-    IFeesModule feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
+    IFeesModule feesModule = IRegistryModule(IProtocolModule(_protocolModule).getRegistryModule()).feesModule();
     uint256 creationFee = feesModule.getDistributorCreationFee();
     bool payInStablecoin = feesModule.isPayInStablecoin();
 
@@ -94,20 +88,21 @@ contract DistributorWalletFactory is Ownable {
    */
   function createDistributorWallet(
     address _stablecoin,
+    address _protocolModule,
     address _owner
   ) external payable onlyOwner returns (address) {
     // Check if the stablecoin is whitelisted
     require(
-      IProtocolModule(protocolModule).isTokenWhitelisted(_stablecoin),
+      IProtocolModule(_protocolModule).isTokenWhitelisted(_stablecoin),
       "Stablecoin is not whitelisted"
     );
-    require(!IProtocolModule(protocolModule).paused(), "Protocol is paused");
+    require(!IProtocolModule(_protocolModule).paused(), "Protocol is paused");
 
-    _handleCreationFee(_stablecoin);
+    _handleCreationFee(_protocolModule, _stablecoin);
 
     DistributorWallet newWallet = new DistributorWallet(
       _stablecoin,
-      protocolModule,
+      _protocolModule,
       _owner
     );
     address walletAddress = address(newWallet);
@@ -155,8 +150,13 @@ contract DistributorWalletFactory is Ownable {
 
   function withdrawAccumulatedFees(
     address token,
-    address recipient
-  ) external onlyOwner {
+    address recipient,
+    address _protocolModule
+  ) external {
+    require(
+      msg.sender == address(IProtocolModule(_protocolModule).owner()),
+      "Only protocol owner can withdraw fees"
+    );
 
     uint256 amount = accumulatedFees[token];
     require(amount > 0, "No fees to withdraw");

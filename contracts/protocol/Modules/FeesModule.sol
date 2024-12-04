@@ -107,6 +107,13 @@ contract FeesModule is Ownable, ReentrancyGuard {
         return updateMetadataFee;
     }
 
+    function getDistributorCreationFee() external view returns (uint256) {
+        return distributorCreationFee;
+    }
+
+    function getPayInStablecoin() external view returns (bool) {
+        return payInStablecoin; 
+    }
     receive() external payable {}
     fallback() external payable {}
 }

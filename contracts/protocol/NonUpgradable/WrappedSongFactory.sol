@@ -16,7 +16,6 @@ contract WrappedSongFactory is Ownable {
     using SafeERC20 for IERC20;
 
     IProtocolModule public immutable protocolModule;
-    IMetadataModule public immutable metadataModule;
     
     address public immutable wrappedSongTemplate;
     address public immutable wsTokenTemplate;
@@ -47,7 +46,6 @@ contract WrappedSongFactory is Ownable {
         wrappedSongTemplate = _wrappedSongTemplate;
         wsTokenTemplate = _wsTokenTemplate;
         protocolModule = IProtocolModule(_protocolModule);
-        metadataModule = IMetadataModule(protocolModule.getMetadataModule());
     }
 
     function _handleCreationFee() internal {
@@ -60,7 +58,7 @@ contract WrappedSongFactory is Ownable {
             if (payInStablecoin) {
                 // Get the current stablecoin from protocol
                 uint256 currentStablecoinIndex = feesModule.getCurrentStablecoinIndex();
-                address stablecoin = protocolModule.erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                address stablecoin = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 
                 // Transfer stablecoin fee from user to this contract
@@ -91,14 +89,15 @@ contract WrappedSongFactory is Ownable {
     function createWrappedSong(
         address _stablecoin,
         IMetadataModule.Metadata memory songMetadata,
-        uint256 sharesAmount
+        uint256 sharesAmount,
+        address wsOwner
     ) public payable returns (address) {
         require(!protocolModule.paused(), "Protocol is paused");
         require(isValidMetadata(songMetadata), "Invalid metadata");
         require(sharesAmount > 0, "Shares amount must be greater than zero");
         require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
         require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
-
+        
         // Handle creation fee
         _handleCreationFee();
 
@@ -108,7 +107,7 @@ contract WrappedSongFactory is Ownable {
         // Initialize WrappedSongSmartAccount
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).initialize(
             _stablecoin,
-            tx.origin,
+            wsOwner,
             address(protocolModule)
         );
 
@@ -118,7 +117,7 @@ contract WrappedSongFactory is Ownable {
         // Initialize WSTokenManagement
         IWSTokenManagement(wsTokenManagementAddress).initialize(
             newWrappedSongSmartAccount,
-            msg.sender,
+            wsOwner,
             address(protocolModule)
         );
 
@@ -141,7 +140,7 @@ contract WrappedSongFactory is Ownable {
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).createSongShares(sharesAmount);
 
         // Create metadata
-        IMetadataModule.Metadata memory createdMetadata = metadataModule.createMetadata(
+        IMetadataModule.Metadata memory createdMetadata = IRegistryModule(protocolModule.getRegistryModule()).metadataModule().createMetadata(
             newWrappedSongSmartAccount,
             songMetadata
         );

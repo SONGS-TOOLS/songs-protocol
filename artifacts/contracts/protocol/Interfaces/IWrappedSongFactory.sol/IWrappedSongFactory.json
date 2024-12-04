@@ -51,6 +51,11 @@
           "internalType": "uint256",
           "name": "sharesAmount",
           "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "wsOwner",
+          "type": "address"
         }
       ],
       "name": "createWrappedSong",

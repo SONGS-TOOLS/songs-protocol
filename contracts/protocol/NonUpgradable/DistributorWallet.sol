@@ -217,12 +217,13 @@ contract DistributorWallet is Ownable {
      * @param wrappedSong The address of the wrapped song
      */
     function confirmWrappedSongRelease(address wrappedSong) external onlyOwner {
+        IReleaseModule releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
         require(
-            protocolModule.getPendingDistributorRequests(wrappedSong) == address(this),
+            releaseModule.getPendingDistributorRequests(wrappedSong) == address(this),
             'Not the pending distributor'
         );
 
-        protocolModule.confirmWrappedSongRelease(wrappedSong);
+        releaseModule.confirmWrappedSongRelease(wrappedSong);
         managedWrappedSongs.push(wrappedSong);
 
         uint256 newWSIndex = managedWrappedSongs.length - 1;
@@ -232,12 +233,14 @@ contract DistributorWallet is Ownable {
     }
 
     function acceptWrappedSongForReview(address wrappedSong) external onlyOwner {
-        protocolModule.acceptWrappedSongForReview(wrappedSong);
+        IReleaseModule releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
+        releaseModule.acceptWrappedSongForReview(wrappedSong);
         emit WrappedSongAcceptedForReview(wrappedSong);
     }
 
     function rejectWrappedSongRelease(address wrappedSong) external onlyOwner {
-        protocolModule.rejectWrappedSongRelease(wrappedSong);
+        IReleaseModule releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
+        releaseModule.rejectWrappedSongRelease(wrappedSong);
         emit WrappedSongReleaseRejected(wrappedSong);
     }
 
@@ -423,7 +426,8 @@ contract DistributorWallet is Ownable {
 
         // Call ProtocolModule's setWrappedSongAuthenticity function directly
         // The protocol module will handle the pause check and revert with EnforcedPause if needed
-        protocolModule.setWrappedSongAuthenticity(wrappedSong, isAuthentic);
+        IIdentityModule identityModule = IRegistryModule(protocolModule.getRegistryModule()).identityModule();
+        identityModule.setWrappedSongAuthenticity(wrappedSong, isAuthentic);
     }
 
     /**

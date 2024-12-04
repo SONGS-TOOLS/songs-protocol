@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../modules/ReleaseModule.sol"; // Import ReleaseModule
+import "../Modules/ReleaseModule.sol"; // Import ReleaseModule
 
 contract IdentityModule is Ownable {
     // Identity Registries
@@ -20,7 +20,7 @@ contract IdentityModule is Ownable {
     event IdentityRegistryUpdated(address indexed wrappedSong, string registryType, string value);
     event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
-    constructor(ReleaseModule _releaseModule) {
+    constructor(ReleaseModule _releaseModule) Ownable(msg.sender) {
         releaseModule = _releaseModule;
     }
 
@@ -87,6 +87,8 @@ contract IdentityModule is Ownable {
         emit WrappedSongAuthenticitySet(wrappedSong, _isAuthentic);
     }
 
+    // View functions
+
     /**
      * @dev Checks the authenticity status of a wrapped song.
      * @param wrappedSong The address of the wrapped song.
@@ -95,4 +97,21 @@ contract IdentityModule is Ownable {
     function isAuthentic(address wrappedSong) external view returns (bool) {
         return wrappedSongAuthenticity[wrappedSong];
     }
+
+    function getIsrcCode(address wrappedSong) external view returns (string memory) {
+        return isrcRegistry[wrappedSong];
+    }
+
+    function getUpcCode(address wrappedSong) external view returns (string memory) {
+        return upcRegistry[wrappedSong];
+    }
+
+    function getIswcCode(address wrappedSong) external view returns (string memory) {
+        return iswcRegistry[wrappedSong];
+    }
+
+    function getIsccCode(address wrappedSong) external view returns (string memory) {
+        return isccRegistry[wrappedSong];
+    }
+
 }

@@ -10,6 +10,8 @@ interface IFeesModule {
     function getWithdrawalFeePercentage() external view returns (uint256);
     function getWrappedSongCreationFee() external view returns (uint256);
     function getUpdateMetadataFee() external view returns (uint256);
+    function getDistributorCreationFee() external view returns (uint256);
+
     // Setters
     function setWrappedSongCreationFee(uint256 _fee) external;
     function setReleaseFee(uint256 _fee) external;
@@ -18,6 +20,7 @@ interface IFeesModule {
     function setPayInStablecoin(bool _payInStablecoin) external;
     function setStartSaleFee(uint256 newFee) external;
     function setWithdrawalFeePercentage(uint256 _feePercentage) external;
+
 
     // Other functions
     function withdrawAccumulatedFees(address token, address recipient) external;

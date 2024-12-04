@@ -45,7 +45,7 @@ async function main() {
 
   /******************************************************************************
    *                                                                             *
-   *                           PROTOCOL MODULE CONTRACTS                           *
+   *                           PROTOCOL REGISTRY CONTRACT                           *
    *                                                                             *
    ******************************************************************************/
 
@@ -56,6 +56,7 @@ async function main() {
   console.log('FeesModule deployed to:', await feesModule.getAddress());
   await saveAbi('FeesModule', await feesModule.getAddress());
 
+ 
   console.log('Deploying ReleaseModule...');
   const ReleaseModule = await ethers.getContractFactory('ReleaseModule');
   const releaseModule = await ReleaseModule.deploy();
@@ -69,7 +70,14 @@ async function main() {
   await identityModule.waitForDeployment();
   console.log('IdentityModule deployed to:', await identityModule.getAddress());
   await saveAbi('IdentityModule', await identityModule.getAddress());
-  
+
+  console.log('Deploying RegistryModule...');
+  const RegistryModule = await ethers.getContractFactory('RegistryModule');
+  const registryModule = await RegistryModule.deploy();
+  await registryModule.waitForDeployment();
+  console.log('RegistryModule deployed to:', await registryModule.getAddress());
+  await saveAbi('RegistryModule', await registryModule.getAddress());
+
 
   /******************************************************************************
    *                                                                             *
@@ -113,7 +121,7 @@ async function main() {
 
   console.log('Deploying MetadataModule...');
   const MetadataModule = await ethers.getContractFactory('MetadataModule');
-  const metadataModule = await MetadataModule.deploy();
+  const metadataModule = await MetadataModule.deploy(deployer.address);
   await metadataModule.waitForDeployment();
   console.log('MetadataModule deployed to:', await metadataModule.getAddress());
   await saveAbi('MetadataModule', await metadataModule.getAddress());
@@ -179,7 +187,6 @@ async function main() {
   // Deploy WrappedSongSmartAccount template with minimal constructor args
   const WrappedSongSmartAccount = await ethers.getContractFactory('WrappedSongSmartAccount');
   const wrappedSongTemplate = await WrappedSongSmartAccount.deploy(
-    await protocolModule.getAddress() // Only protocolModule is immutable
   );
   await wrappedSongTemplate.waitForDeployment();
   console.log('WrappedSongSmartAccount template deployed to:', await wrappedSongTemplate.getAddress());
@@ -201,31 +208,13 @@ async function main() {
   console.log('Deploying WrappedSongFactory...');
   const WrappedSongFactory = await ethers.getContractFactory('WrappedSongFactory');
   const wrappedSongFactory = await WrappedSongFactory.deploy(
-    await protocolModule.getAddress(),
     await wrappedSongTemplate.getAddress(),
-    await wsTokenTemplate.getAddress()
+    await wsTokenTemplate.getAddress(),
+    await protocolModule.getAddress()
   );
   await wrappedSongFactory.waitForDeployment();
   console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
   await saveAbi('WrappedSongFactory', await wrappedSongFactory.getAddress());
-
-  /******************************************************************************
-   *                                                                             *
-   *                           PROTOCOL REGISTRY CONTRACT                           *
-   *                                                                             *
-   ******************************************************************************/
-
-  console.log('Deploying RegistryModule...');
-  const RegistryModule = await ethers.getContractFactory('RegistryModule');
-  const registryModule = await RegistryModule.deploy(
-    await protocolModule.getAddress(),
-    await feesModule.getAddress(),
-    await releaseModule.getAddress(),
-    await identityModule.getAddress()
-  );
-  await registryModule.waitForDeployment();
-  console.log('RegistryModule deployed to:', await registryModule.getAddress());
-  await saveAbi('RegistryModule', await registryModule.getAddress());
 
   /******************************************************************************
    *                                                                             *
@@ -238,19 +227,54 @@ async function main() {
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
   
   const tokenAddress = await getTokenAddress();
-  console.log('Whitelisting token at address:', tokenAddress);
+  console.log('Whitelisting token address:', tokenAddress);
   await protocolModule.connect(deployer).whitelistToken(tokenAddress);
   
+  console.log('Setting up ProtocolModule configuration...');
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
+  console.log('MetadataModule set in ProtocolModule');
+  
   await protocolModule.setMetadataRenderer(await metadataRenderer.getAddress());
+  console.log('MetadataRenderer set in ProtocolModule');
+  
   await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
-  await protocolModule.setReleaseFee(0);
-  await protocolModule.setWrappedSongCreationFee(0);
-  await protocolModule.setStartSaleFee(0);
-  await protocolModule.setWithdrawalFeePercentage(0);
-  await protocolModule.setReleaseFee(ethers.parseEther("0"));
-  await protocolModule.setDistributorCreationFee(ethers.parseEther("0"));
-  await protocolModule.setUpdateMetadataFee(ethers.parseEther("0"));
+  console.log('WrappedSongFactory set in ProtocolModule');
+  
+  await protocolModule.setRegistryModule(await registryModule.getAddress());
+  console.log('RegistryModule set in ProtocolModule');
+  
+  await metadataModule.initialize(await protocolModule.getAddress());
+  console.log('MetadataModule initialized');
+
+  console.log('Initializing RegistryModule...');
+  await registryModule.initialize(
+    await feesModule.getAddress(),
+    await releaseModule.getAddress(),
+    await identityModule.getAddress(),
+    await metadataModule.getAddress()
+  );
+  console.log('RegistryModule initialized');
+
+  console.log('Initializing ReleaseModule...');
+  await releaseModule.initialize(
+    await feesModule.getAddress(),
+    await erc20Whitelist.getAddress(),
+    await distributorWalletFactory.getAddress(),
+    await metadataModule.getAddress()
+  );
+  console.log('ReleaseModule initialized');
+
+  console.log('Initializing SongSharesMarketPlace...');
+  await songSharesMarketPlace.initialize();
+  console.log('SongSharesMarketPlace initialized');
+
+  await feesModule.setReleaseFee(0);
+  await feesModule.setWrappedSongCreationFee(0);
+  await feesModule.setStartSaleFee(0);
+  await feesModule.setWithdrawalFeePercentage(0);
+  await feesModule.setReleaseFee(ethers.parseEther("0"));
+  await feesModule.setDistributorCreationFee(ethers.parseEther("0"));
+  await feesModule.setUpdateMetadataFee(ethers.parseEther("0"));
   
   await protocolModule.setBaseURI("ipfs://");
 

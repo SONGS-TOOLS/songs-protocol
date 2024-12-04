@@ -3,17 +3,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_protocolModule",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_wrappedSongTemplate",
         "type": "address"
       },
       {
         "internalType": "address",
         "name": "_wsTokenTemplate",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_protocolModule",
         "type": "address"
       }
     ],
@@ -50,6 +50,28 @@
   {
     "inputs": [],
     "name": "FailedInnerCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
     "type": "error"
   },
   {
@@ -111,6 +133,25 @@
       }
     ],
     "name": "FeesWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
     "type": "event"
   },
   {
@@ -255,6 +296,11 @@
         "internalType": "uint256",
         "name": "sharesAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "wsOwner",
+        "type": "address"
       }
     ],
     "name": "createWrappedSong",
@@ -270,10 +316,10 @@
   },
   {
     "inputs": [],
-    "name": "metadataModule",
+    "name": "owner",
     "outputs": [
       {
-        "internalType": "contract IMetadataModule",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -292,6 +338,39 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registryModule",
+    "outputs": [
+      {
+        "internalType": "contract IRegistryModule",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

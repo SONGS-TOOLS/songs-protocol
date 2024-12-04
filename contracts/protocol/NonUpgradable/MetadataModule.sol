@@ -17,7 +17,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     IProtocolModule public protocolModule;
     IReleaseModule releaseModule;
     IFeesModule feesModule;
-
+    IERC20Whitelist erc20whitelist;
     bool private isProtocolSet;
 
     mapping(address => Metadata) private wrappedSongMetadata;
@@ -36,9 +36,22 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     /**
      * @dev Initializes the contract.
      */
-    constructor() Ownable(msg.sender) {
-        releaseModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).releaseModule();
-        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
+    constructor(address _initialOwner) Ownable(_initialOwner) {}
+
+    /**
+     * @dev Initializes the contract with required module references.
+     * @param _protocolModule The address of the protocol module
+     */
+    function initialize(address _protocolModule) external {
+        require(!isProtocolSet, "Already initialized");
+        require(_protocolModule != address(0), "Invalid protocol module");
+        
+        protocolModule = IProtocolModule(_protocolModule);
+        releaseModule = IRegistryModule(protocolModule.getRegistryModule()).releaseModule();
+        feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
+        erc20whitelist = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist();
+        
+        isProtocolSet = true;
     }
 
     /**
@@ -209,7 +222,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
             if (payInStablecoin) {
                 // Get the current stablecoin from protocol
                 uint256 currentStablecoinIndex = feesModule.getCurrentStablecoinIndex();
-                address stablecoin = protocolModule.erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                address stablecoin = erc20whitelist.getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 
                 // Transfer stablecoin fee from user to this contract

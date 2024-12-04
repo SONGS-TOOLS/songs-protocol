@@ -1,17 +1,16 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Interfaces/IFeesModule.sol";
 import "../Interfaces/IERC20Whitelist.sol";
 import "../Interfaces/IDistributorWalletFactory.sol";
 import "../Interfaces/IMetadataModule.sol";
 
-contract ReleaseModule is Ownable {
+contract ReleaseModule is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     IFeesModule public feesModule;
     IERC20Whitelist public erc20whitelist;
@@ -42,19 +41,32 @@ contract ReleaseModule is Ownable {
     event DistributorAcceptedReview(address indexed wrappedSong, address indexed distributor);
     event ReviewPeriodExpired(address indexed wrappedSong, address indexed distributor);
     event ReleasesEnabledChanged(bool enabled);
+    event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
 
     constructor(
-        IFeesModule _feesModule,
-        IERC20Whitelist _erc20whitelist,
-        IDistributorWalletFactory _distributorWalletFactory,
-        IMetadataModule _metadataModule
-    ) {
-        feesModule = _feesModule;
-        erc20whitelist = _erc20whitelist;
-        distributorWalletFactory = _distributorWalletFactory;
-        metadataModule = _metadataModule;
+    ) Ownable(msg.sender) {
     }
 
+    function initialize(
+        address _feesModule,
+        address _erc20whitelist,
+        address _distributorWalletFactory,
+        address _metadataModule
+    ) external onlyOwner {
+        require(
+            address(feesModule) == address(0) &&
+            address(erc20whitelist) == address(0) &&
+            address(distributorWalletFactory) == address(0) &&
+            address(metadataModule) == address(0),
+            "Already initialized"
+        );
+
+        feesModule = IFeesModule(_feesModule);
+        erc20whitelist = IERC20Whitelist(_erc20whitelist);
+        distributorWalletFactory = IDistributorWalletFactory(_distributorWalletFactory);
+        metadataModule = IMetadataModule(_metadataModule);
+
+    }
 
     function requestWrappedSongReleaseWithMetadata(
         address wrappedSong,

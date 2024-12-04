@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import "./IMetadataModule.sol";
-import "./IERC20Whitelist.sol";
 import "./ILegalContractMetadata.sol";
 import "./IMetadataRenderer.sol";
 
@@ -12,7 +11,6 @@ interface IProtocolModule {
     function whitelistingManager() external view returns (address);
     function paused() external view returns (bool);
     function metadataModule() external view returns (IMetadataModule);
-    function erc20whitelist() external view returns (IERC20Whitelist);
     function legalContractMetadata() external view returns (ILegalContractMetadata);
     function owner() external view returns (address);
     function metadataRenderer() external view returns (IMetadataRenderer);
@@ -25,7 +23,6 @@ interface IProtocolModule {
     function setDistributorWalletFactory(address _newFactory) external;
     function setWhitelistingManager(address _whitelistingManager) external;
     function setMetadataModule(address _metadataModule) external;
-    function setERC20Whitelist(address _erc20whitelist) external;
     function setLegalContractMetadata(address _legalContractMetadata) external;
     function setMetadataRenderer(address _renderer) external;
 
@@ -64,7 +61,7 @@ interface IProtocolModule {
         uint256 tokenId,
         address wrappedSong
     ) external view returns (string memory);
-    
+
     function getRegistryModule() external view returns (address);
     function setRegistryModule(address _registryModule) external;
 
