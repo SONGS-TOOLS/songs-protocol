@@ -114,6 +114,7 @@ contract FeesModule is Ownable, ReentrancyGuard {
     function getPayInStablecoin() external view returns (bool) {
         return payInStablecoin; 
     }
+    
     receive() external payable {}
     fallback() external payable {}
 }

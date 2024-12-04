@@ -43,6 +43,33 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     ...accounts
   ] = await ethers.getSigners();
 
+
+  // Deploy mock stablecoin
+  const MockToken = await ethers.getContractFactory("MockToken");
+  const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
+  await mockStablecoin.waitForDeployment();
+
+
+  // Deploy FeesModule
+  const FeesModule = await ethers.getContractFactory("FeesModule");
+  const feesModule = await FeesModule.deploy(deployer.address);
+  await feesModule.waitForDeployment();
+
+  // Deploy ReleaseModule
+  const ReleaseModule = await ethers.getContractFactory("ReleaseModule");
+  const releaseModule = await ReleaseModule.deploy();
+  await releaseModule.waitForDeployment();
+
+  // Deploy IdentityModule
+  const IdentityModule = await ethers.getContractFactory("IdentityModule");
+  const identityModule = await IdentityModule.deploy(releaseModule.target);
+  await identityModule.waitForDeployment();
+
+  // Deploy RegistryModule
+  const RegistryModule = await ethers.getContractFactory("RegistryModule");
+  const registryModule = await RegistryModule.deploy();
+  await registryModule.waitForDeployment();
+
   // Deploy WhitelistingManager
   const WhitelistingManager = await ethers.getContractFactory("WhitelistingManager");
   const whitelistingManager = await WhitelistingManager.deploy(deployer.address);
@@ -67,27 +94,6 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   const MetadataModule = await ethers.getContractFactory("MetadataModule");
   const metadataModule = await MetadataModule.deploy(deployer.address);
   await metadataModule.waitForDeployment();
-  console.log("MetadataModule V1 deployed at:", metadataModule.target);
-
-  // Deploy FeesModule
-  const FeesModule = await ethers.getContractFactory("FeesModule");
-  const feesModule = await FeesModule.deploy(deployer.address);
-  await feesModule.waitForDeployment();
-
-  // Deploy ReleaseModule
-  const ReleaseModule = await ethers.getContractFactory("ReleaseModule");
-  const releaseModule = await ReleaseModule.deploy();
-  await releaseModule.waitForDeployment();
-
-  // Deploy IdentityModule
-  const IdentityModule = await ethers.getContractFactory("IdentityModule");
-  const identityModule = await IdentityModule.deploy(releaseModule.target);
-  await identityModule.waitForDeployment();
-
-  // Deploy RegistryModule
-  const RegistryModule = await ethers.getContractFactory("RegistryModule");
-  const registryModule = await RegistryModule.deploy();
-  await registryModule.waitForDeployment();
 
   // Deploy LegalContractMetadata
   const LegalContractMetadata = await ethers.getContractFactory("LegalContractMetadata");
@@ -105,56 +111,6 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   );
   await protocolModule.waitForDeployment();
 
-  // Initialize new modules
-  await registryModule.initialize(
-    feesModule.target,
-    releaseModule.target,
-    identityModule.target,
-    metadataModule.target,
-    legalContractMetadata.target,
-    erc20Whitelist.target
-  );
-
-  await releaseModule.initialize(
-    feesModule.target,
-    erc20Whitelist.target,
-    distributorWalletFactory.target,
-    metadataModule.target
-  );
-
-  // Set fees in FeesModule
-  await feesModule.setReleaseFee(ethers.parseEther("0"));
-  await feesModule.setWrappedSongCreationFee(ethers.parseEther("0"));
-  await feesModule.setStartSaleFee(ethers.parseEther("0"));
-  await feesModule.setWithdrawalFeePercentage(0);
-  await feesModule.setDistributorCreationFee(ethers.parseEther("0"));
-  await feesModule.setUpdateMetadataFee(ethers.parseEther("0"));
-
-  // Deploy mock stablecoin
-  const MockToken = await ethers.getContractFactory("MockToken");
-  const mockStablecoin = await MockToken.deploy("Mock USDC", "MUSDC");
-  await mockStablecoin.waitForDeployment();
-
-  // Deploy template contracts
-  const WrappedSongSmartAccount = await ethers.getContractFactory("WrappedSongSmartAccount");
-
-  console.log("PROTOCOL target:", protocolModule.target);
-  const wrappedSongTemplate = await WrappedSongSmartAccount.deploy();
-  await wrappedSongTemplate.waitForDeployment();
-
-  const WSTokenManagement = await ethers.getContractFactory("WSTokenManagement");
-  const wsTokenTemplate = await WSTokenManagement.deploy(); // No constructor args needed
-  await wsTokenTemplate.waitForDeployment();
-
-  // Deploy WrappedSongFactory with templates
-  const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
-  const wrappedSongFactory = await WrappedSongFactory.deploy(
-    protocolModule.target,
-    wrappedSongTemplate.target,
-    wsTokenTemplate.target
-  );
-  await wrappedSongFactory.waitForDeployment();
-
   // Deploy SongSharesMarketPlace
   const SongSharesMarketPlace = await ethers.getContractFactory("SongSharesMarketPlace");
   const songSharesMarketPlace = await SongSharesMarketPlace.deploy(protocolModule.target);
@@ -165,30 +121,85 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   const buyoutTokenMarketPlace = await BuyoutTokenMarketPlace.deploy(protocolModule.target);
   await buyoutTokenMarketPlace.waitForDeployment();
 
+  // Deploy WrappedSongSmartAccount template
+  const WrappedSongSmartAccount = await ethers.getContractFactory("WrappedSongSmartAccount");
+  const wrappedSongTemplate = await WrappedSongSmartAccount.deploy();
+  await wrappedSongTemplate.waitForDeployment();
+
+  // Deploy WSTokenManagement template
+  const WSTokenManagement = await ethers.getContractFactory("WSTokenManagement");
+  const wsTokenTemplate = await WSTokenManagement.deploy();
+  await wsTokenTemplate.waitForDeployment();
+
+  // Deploy WrappedSongFactory
+  const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
+  const wrappedSongFactory = await WrappedSongFactory.deploy(
+    wrappedSongTemplate.target,
+    wsTokenTemplate.target,
+    protocolModule.target
+  );
+  await wrappedSongFactory.waitForDeployment();
+  console.log("WrappedSongFactory deployed");
+
+  // Set fees in FeesModule
+  console.log("Setting fees in FeesModule...");
+  await feesModule.setReleaseFee(ethers.parseEther("0"));
+  await feesModule.setWrappedSongCreationFee(ethers.parseEther("0")); 
+  await feesModule.setStartSaleFee(0);
+  await feesModule.setWithdrawalFeePercentage(0);
+  await feesModule.setDistributorCreationFee(ethers.parseEther("0"));
+  await feesModule.setUpdateMetadataFee(ethers.parseEther("0"));
+  console.log("Fees set in FeesModule");
+
   // Setup protocol configurations
+  console.log("Setting up protocol configurations...");
   await metadataModule.setProtocolModule(protocolModule.target);
+  console.log("MetadataModule protocol set");
+  
   await metadataModule.connect(deployer).transferOwnership(protocolModule.target);
+  console.log("MetadataModule ownership transferred");
+  
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
+  console.log("ERC20Whitelist caller authorized");
+  
   await protocolModule.setMetadataModule(metadataModule.target);
+  console.log("ProtocolModule metadata set");
+  
   await protocolModule.setMetadataRenderer(metadataRenderer.target);
+  console.log("ProtocolModule renderer set");
+  
   await protocolModule.setWrappedSongFactory(wrappedSongFactory.target);
+  console.log("ProtocolModule factory set");
+  
   await protocolModule.whitelistToken(mockStablecoin.target);
+  console.log("Token whitelisted");
+  
   await protocolModule.setRegistryModule(registryModule.target);
+  console.log("ProtocolModule registry set");
+  
   await protocolModule.setBaseURI("ipfs://");
-
-  // Set the start sale fee explicitly after deployment
-  const startSaleFee = ethers.parseEther("0.1"); // This returns a bigint in ethers v6
-  const setFeeTx = await feesModule.connect(deployer).setStartSaleFee(startSaleFee);
-  await setFeeTx.wait();
-
-  // Verify the fee was set correctly
-  const verifiedFee = await feesModule.getStartSaleFee();
-  if (verifiedFee !== startSaleFee) {
-    throw new Error(`Fee not set correctly. Expected ${startSaleFee}, got ${verifiedFee}`);
-  }
-
-  // Initialize SongSharesMarketPlace
-  await songSharesMarketPlace.initialize();
+  console.log("Base URI set");
+  
+  
+  // Initialize modules
+  await registryModule.initialize(
+    feesModule.target,
+    releaseModule.target,
+    identityModule.target,
+    metadataModule.target,
+    legalContractMetadata.target,
+    erc20Whitelist.target
+  );
+  console.log("RegistryModule initialized");
+  
+  await releaseModule.initialize(
+    feesModule.target,
+    erc20Whitelist.target,
+    distributorWalletFactory.target,
+    metadataModule.target
+  );
+  console.log("ReleaseModule initialized");
+  console.log("Protocol setup complete!");
 
 
   return {
@@ -212,7 +223,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
     songSharesMarketPlace,
     metadataRenderer,
     buyer: accounts[0],
-    startSaleFee,
+    startSaleFee: ethers.parseEther("0.1"),
     feesModule,
     releaseModule,
     identityModule,

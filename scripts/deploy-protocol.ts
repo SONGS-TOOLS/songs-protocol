@@ -244,6 +244,7 @@ async function main() {
   console.log('RegistryModule set in ProtocolModule');
   
   console.log('Initializing RegistryModule...');
+
   await registryModule.initialize(
     await feesModule.getAddress(),
     await releaseModule.getAddress(),
@@ -252,9 +253,11 @@ async function main() {
     await legalContractMetadata.getAddress(),
     await erc20Whitelist.getAddress()
   );
+
   console.log('RegistryModule initialized');
 
   console.log('Initializing ReleaseModule...');
+
   await releaseModule.initialize(
     await feesModule.getAddress(),
     await erc20Whitelist.getAddress(),
@@ -262,10 +265,6 @@ async function main() {
     await metadataModule.getAddress()
   );
   console.log('ReleaseModule initialized');
-
-  console.log('Initializing SongSharesMarketPlace...');
-  await songSharesMarketPlace.initialize();
-  console.log('SongSharesMarketPlace initialized');
 
   await feesModule.setReleaseFee(0);
   await feesModule.setWrappedSongCreationFee(0);

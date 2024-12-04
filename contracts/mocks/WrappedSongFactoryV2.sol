@@ -12,14 +12,13 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./../protocol/Interfaces/IRegistryModule.sol";
 import "./../protocol/Interfaces/IERC20Whitelist.sol";
+
 contract WrappedSongFactoryV2 {
     using Clones for address;
     using SafeERC20 for IERC20;
 
     IProtocolModule public immutable protocolModule;
     IMetadataModule public immutable metadataModule;
-    IFeesModule public immutable feesModule;
-    IERC20Whitelist public immutable erc20whitelist;
     
     address public immutable wrappedSongTemplate;
     address public immutable wsTokenTemplate;
@@ -63,11 +62,10 @@ contract WrappedSongFactoryV2 {
         metadataModule = IMetadataModule(protocolModule.getMetadataModule());
         wrappedSongTemplate = _wrappedSongTemplate;
         wsTokenTemplate = _wsTokenTemplate;
-        feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
-        erc20whitelist = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist();
     }
 
     function _handleCreationFee() internal {
+        IFeesModule feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
         uint256 creationFee = feesModule.getWrappedSongCreationFee();
         bool payInStablecoin = feesModule.isPayInStablecoin();
         
@@ -75,7 +73,7 @@ contract WrappedSongFactoryV2 {
             if (payInStablecoin) {
                 // Get the current stablecoin from protocol
                 uint256 currentStablecoinIndex = feesModule.getCurrentStablecoinIndex();
-                address stablecoin = erc20whitelist.getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                address stablecoin = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 
                 // Transfer stablecoin fee from user to this contract

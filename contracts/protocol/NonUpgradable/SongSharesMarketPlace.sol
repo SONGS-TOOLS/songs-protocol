@@ -73,10 +73,6 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         protocolModule = IProtocolModule(_protocolModule);
     }
 
-    function initialize() external onlyOwner {
-        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
-    }
-
     modifier onlyWrappedSongOwner(address wrappedSong) {
         require(
             IWrappedSongSmartAccount(wrappedSong).owner() == msg.sender,
@@ -101,6 +97,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         uint256 maxShares,
         address _stableCoin
     ) external payable whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
+        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
         require(msg.value >= feesModule.getStartSaleFee(), "Insufficient start sale fee");
 
         require(wrappedSong != address(0), "Invalid wrapped song address");
@@ -241,6 +238,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address payable recipient = payable(msg.sender);
         
         // Calculate protocol fee
+        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
         uint256 feePercentage = feesModule.getWithdrawalFeePercentage();
         uint256 protocolFee = (amount * feePercentage) / 10000;
         uint256 userAmount = amount - protocolFee;

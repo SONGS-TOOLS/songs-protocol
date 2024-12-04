@@ -14,10 +14,11 @@ describe("WrappedSong Security", function () {
             wrappedSongFactory,
             protocolModule,
             metadataModule,
+            feesModule
         } = fixture;
         
         // Create wrapped song
-        const creationFee = await protocolModule.wrappedSongCreationFee();
+        const creationFee = await feesModule.wrappedSongCreationFee();
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
@@ -28,7 +29,8 @@ describe("WrappedSong Security", function () {
                 animationUrl: "ipfs://animation",
                 attributesIpfsHash: "ipfs://attributes"
             },
-            10000, // Total shares
+            10000,
+            artist.address,
             { value: creationFee }
         );
 

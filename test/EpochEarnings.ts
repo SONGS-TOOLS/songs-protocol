@@ -10,16 +10,19 @@ describe("Epoch-based Earnings Distribution", function () {
         const fixture = await loadFixture(deployProtocolFixture);
         const {
             artist,
+            collector,
             distributor,
             deployer,
             mockStablecoin,
             wrappedSongFactory,
             protocolModule,
+            feesModule,
+            releaseModule,
             distributorWalletFactory
         } = fixture;
         
         // Create wrapped song
-        const creationFee = await protocolModule.wrappedSongCreationFee();
+        const creationFee = await feesModule.wrappedSongCreationFee();
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
@@ -30,14 +33,15 @@ describe("Epoch-based Earnings Distribution", function () {
                 animationUrl: "ipfs://animation",
                 attributesIpfsHash: "ipfs://attributes"
             },
-            10000, // Total shares
+            10000,
+            artist.address,
             { value: creationFee }
         );
 
         // Get wrapped song instance
         const artistWrappedSongs = await protocolModule.getOwnerWrappedSongs(artist.address);
         const wrappedSong = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[0]);
-        const distributorCreationFee = await protocolModule.distributorCreationFee();
+        const distributorCreationFee = await feesModule.distributorCreationFee();
 
         // Create and setup distributor wallet
         await distributorWalletFactory.createDistributorWallet(
@@ -50,8 +54,8 @@ describe("Epoch-based Earnings Distribution", function () {
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
         // Setup release
-        const releaseFee = await protocolModule.releaseFee();
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target, { value: releaseFee });
+        const releaseFee = await feesModule.releaseFee();
+        await releaseModule.connect(artist).requestWrappedSongRelease(wrappedSong.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong.target);
 
         return {
@@ -199,25 +203,27 @@ describe("Epoch-based Earnings Distribution", function () {
             mockStablecoin,
             wrappedSongFactory,
             protocolModule,
-            distributorWalletFactory
+            feesModule,
+            distributorWalletFactory,
+            releaseModule
         } = fixture;
 
         // Create two wrapped songs
-        const creationFee = await protocolModule.wrappedSongCreationFee();
+        const creationFee = await feesModule.getWrappedSongCreationFee();
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
-                name: "Test Song 1",
-                description: "Test Description 1",
-                image: "ipfs://image1",
-                externalUrl: "https://example1.com",
-                animationUrl: "ipfs://animation1",
-                attributesIpfsHash: "ipfs://attributes1"
+                name: "Test Song",
+                description: "Test Description",
+                image: "ipfs://image",
+                externalUrl: "https://example.com",
+                animationUrl: "ipfs://animation",
+                attributesIpfsHash: "ipfs://attributes"
             },
-            10000, // Total shares
+            10000,
+            artist.address,
             { value: creationFee }
         );
-
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
@@ -228,7 +234,8 @@ describe("Epoch-based Earnings Distribution", function () {
                 animationUrl: "ipfs://animation2",
                 attributesIpfsHash: "ipfs://attributes2"
             },
-            10000, // Total shares
+            10000,
+            artist.address,
             { value: creationFee }
         );
 
@@ -238,7 +245,7 @@ describe("Epoch-based Earnings Distribution", function () {
         const wrappedSong2 = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[1]);
 
         // Create and setup distributor wallet
-        const distributorCreationFee = await protocolModule.distributorCreationFee();
+        const distributorCreationFee = await feesModule.distributorCreationFee();
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             protocolModule.target,
@@ -249,9 +256,9 @@ describe("Epoch-based Earnings Distribution", function () {
         const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
         // Setup release for both wrapped songs
-        const releaseFee = await protocolModule.releaseFee();   
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong1.target, distributorWallet.target, { value: releaseFee });
-        await protocolModule.connect(artist).requestWrappedSongRelease(wrappedSong2.target, distributorWallet.target, { value: releaseFee });
+        const releaseFee = await feesModule.getReleaseFee();   
+        await releaseModule.connect(artist).requestWrappedSongRelease(wrappedSong1.target, distributorWallet.target, { value: releaseFee });
+        await releaseModule.connect(artist).requestWrappedSongRelease(wrappedSong2.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong1.target);
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(wrappedSong2.target);
 
@@ -358,12 +365,15 @@ describe("Epoch-based Earnings Distribution", function () {
             deployer,
             mockStablecoin,
             wrappedSongFactory,
+            feesModule,
+            releaseModule,
             protocolModule,
-            distributorWalletFactory
+            distributorWalletFactory,
+
         } = fixture;
 
         // Create WS1 and setup distributor
-        const creationFee = await protocolModule.wrappedSongCreationFee();
+        const creationFee = await feesModule.getWrappedSongCreationFee();
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
@@ -375,11 +385,12 @@ describe("Epoch-based Earnings Distribution", function () {
                 attributesIpfsHash: "ipfs://attributes1"
             },
             10000,
+            artist.address,
             { value: creationFee }
         );
 
         // Setup distributor
-        const distributorCreationFee = await protocolModule.distributorCreationFee();
+        const distributorCreationFee = await feesModule.getDistributorCreationFee();
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             protocolModule.target,
@@ -392,8 +403,8 @@ describe("Epoch-based Earnings Distribution", function () {
         // Get WS1 instance and setup
         const artistWrappedSongs = await protocolModule.getOwnerWrappedSongs(artist.address);
         const ws1 = await ethers.getContractAt("WrappedSongSmartAccount", artistWrappedSongs[0]);
-        const releaseFee = await protocolModule.releaseFee();
-        await protocolModule.connect(artist).requestWrappedSongRelease(ws1.target, distributorWallet.target, { value: releaseFee });
+        const releaseFee = await feesModule.getReleaseFee();
+        await releaseModule.connect(artist).requestWrappedSongRelease(ws1.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(ws1.target);
 
         // Create Epoch 1 with only WS1
@@ -421,6 +432,7 @@ describe("Epoch-based Earnings Distribution", function () {
                 attributesIpfsHash: "ipfs://attributes2"
             },
             10000,
+            artist.address,
             { value: creationFee }
         );
 
@@ -435,6 +447,7 @@ describe("Epoch-based Earnings Distribution", function () {
                 attributesIpfsHash: "ipfs://attributes3"
             },
             10000,
+            artist.address,
             { value: creationFee }
         );
 
@@ -443,8 +456,8 @@ describe("Epoch-based Earnings Distribution", function () {
         const ws2 = await ethers.getContractAt("WrappedSongSmartAccount", allWrappedSongs[1]);
         const ws3 = await ethers.getContractAt("WrappedSongSmartAccount", allWrappedSongs[2]);
 
-        await protocolModule.connect(artist).requestWrappedSongRelease(ws2.target, distributorWallet.target, { value: releaseFee });
-        await protocolModule.connect(artist).requestWrappedSongRelease(ws3.target, distributorWallet.target, { value: releaseFee });
+        await releaseModule.connect(artist).requestWrappedSongRelease(ws2.target, distributorWallet.target, { value: releaseFee });
+        await releaseModule.connect(artist).requestWrappedSongRelease(ws3.target, distributorWallet.target, { value: releaseFee });
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(ws2.target);
         await distributorWallet.connect(distributor).confirmWrappedSongRelease(ws3.target);
 

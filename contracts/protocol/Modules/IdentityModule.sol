@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../Modules/ReleaseModule.sol"; // Import ReleaseModule
 
+
 contract IdentityModule is Ownable {
     // Identity Registries
     mapping(address => string) public isrcRegistry;
@@ -82,7 +83,7 @@ contract IdentityModule is Ownable {
      * @param wrappedSong The address of the wrapped song.
      * @param _isAuthentic The authenticity status to be set.
      */
-    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external onlyOwner {
+    function setWrappedSongAuthenticity(address wrappedSong, bool _isAuthentic) external onlyDistributor(wrappedSong) {
         wrappedSongAuthenticity[wrappedSong] = _isAuthentic;
         emit WrappedSongAuthenticitySet(wrappedSong, _isAuthentic);
     }
