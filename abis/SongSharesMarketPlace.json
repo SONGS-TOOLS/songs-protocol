@@ -365,6 +365,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "feesModule",
+    "outputs": [
+      {
+        "internalType": "contract IFeesModule",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",

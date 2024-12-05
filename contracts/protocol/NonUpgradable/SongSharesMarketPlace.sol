@@ -9,7 +9,8 @@ import '@openzeppelin/contracts/utils/Pausable.sol';
 import './../Interfaces/IWSTokenManagement.sol';
 import './../Interfaces/IProtocolModule.sol';
 import './../Interfaces/IWrappedSongSmartAccount.sol';
-
+import './../Interfaces/IFeesModule.sol';
+import './../Interfaces/IRegistryModule.sol';
 contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
@@ -17,7 +18,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
     uint256 private constant PRICE_CEILING = 1e40;  // Prevent overflow in price calculations
 
     IProtocolModule public immutable protocolModule;
-    
+    IFeesModule public feesModule;
     struct Sale {
         bool active;
         address seller;
@@ -96,7 +97,8 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         uint256 maxShares,
         address _stableCoin
     ) external payable whenNotPaused onlyWrappedSongOwner(wrappedSong) onlyVerifiedWSToken(wrappedSong) {
-        require(msg.value >= protocolModule.getStartSaleFee(), "Insufficient start sale fee");
+        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
+        require(msg.value >= feesModule.getStartSaleFee(), "Insufficient start sale fee");
 
         require(wrappedSong != address(0), "Invalid wrapped song address");
         require(amount > 0, "Amount must be greater than 0");
@@ -236,7 +238,8 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         address payable recipient = payable(msg.sender);
         
         // Calculate protocol fee
-        uint256 feePercentage = protocolModule.getWithdrawalFeePercentage();
+        feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
+        uint256 feePercentage = feesModule.getWithdrawalFeePercentage();
         uint256 protocolFee = (amount * feePercentage) / 10000;
         uint256 userAmount = amount - protocolFee;
         
@@ -251,7 +254,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
             IERC20(stableCoin).safeTransfer(recipient, userAmount);
             // Transfer protocol fee
             if (protocolFee > 0) {
-                IERC20(stableCoin).safeTransfer(address(protocolModule), protocolFee);
+                IERC20(stableCoin).safeTransfer(protocolModule.getStablecoinFeeReceiver(), protocolFee);
             }
         } else {
             require(address(this).balance >= amount, "Insufficient ETH balance");
@@ -267,7 +270,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         
         emit FundsWithdrawn(wrappedSong, recipient, userAmount);
         if (protocolFee > 0) {
-            emit FundsWithdrawn(wrappedSong, address(protocolModule), protocolFee);
+            emit FundsWithdrawn(wrappedSong, protocolModule.getStablecoinFeeReceiver(), protocolFee);
         }
     }
 

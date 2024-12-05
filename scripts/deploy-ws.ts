@@ -40,6 +40,10 @@ async function main() {
     'MetadataModule',
     contractAddresses.MetadataModule
   );
+  const ReleaseModule = await ethers.getContractAt(
+    'ReleaseModule',
+    contractAddresses.ReleaseModule
+  );
 
   let distributorWalletAddresses =
     await DistributorWalletFactory.getDistributorWallets(deployer.address);
@@ -129,8 +133,16 @@ async function main() {
       const createWrappedSongTx =
         await WrappedSongFactory.createWrappedSong(
           USDC_ADDRESS,
-          songMetadatas[i],
-          sharesAmount
+          {
+            name: songMetadatas[i].name,
+            description: songMetadatas[i].description,
+            image: songMetadatas[i].image,
+            externalUrl: songMetadatas[i].externalUrl,
+            animationUrl: songMetadatas[i].animationUrl,
+            attributesIpfsHash: songMetadatas[i].attributesIpfsHash
+          },
+          sharesAmount,
+          deployer.address
         );
       console.log(`Transaction hash:`, createWrappedSongTx.hash);
 
@@ -180,7 +192,7 @@ async function main() {
   for (let i = 0; i < 2; i++) {
     const wrappedSongAddress = ownerWrappedSongs[i];
     try {
-      const requestReleaseTx = await ProtocolModule.requestWrappedSongRelease(
+      const requestReleaseTx = await ReleaseModule.requestWrappedSongRelease(
         wrappedSongAddress,
         distributorWalletAddress
       );

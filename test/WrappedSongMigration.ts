@@ -14,10 +14,11 @@ describe("WrappedSong Migration", function () {
             wrappedSongFactory,
             protocolModule,
             metadataModule,
+            feesModule
         } = v1Fixture;
         
         // Create wrapped song in V1
-        const creationFee = await protocolModule.wrappedSongCreationFee();
+        const creationFee = await feesModule.wrappedSongCreationFee();
         await wrappedSongFactory.connect(artist).createWrappedSong(
             mockStablecoin.target,
             {
@@ -29,6 +30,7 @@ describe("WrappedSong Migration", function () {
                 attributesIpfsHash: "ipfs://attributes"
             },
             10000, // Total shares
+            artist.address,
             { value: creationFee }
         );
 

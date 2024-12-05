@@ -14,17 +14,18 @@ async function verifyContract(address: string, constructorArguments: any[] = [],
     if (error.message.includes('Already Verified')) {
       console.log(`Contract at ${address} already verified!`);
     } else {
-      console.error(`Error verifying cont∫ract at ${address}:`, error);
+      console.error(`Error verifying contract at ${address}:`, error);
     }
   }
 }
 
 async function main() {
+  const network = process.env.NETWORK || 'base'; // Default to baseSepolia
   const [deployer] = await ethers.getSigners();
-  console.log('Verifying contracts deployed by:', deployer.address);
+  console.log(`Verifying contracts on ${network} network deployed by:`, deployer.address);
 
   // Read deployment addresses
-  const deploymentPath = path.join(__dirname, '../abis/protocolContractAddresses-base.json');
+  const deploymentPath = path.join(__dirname, `../abis/protocolContractAddresses-${network}.json`);
   
   if (!fs.existsSync(deploymentPath)) {
     throw new Error(`Deployment info file not found at ${deploymentPath}`);
@@ -35,6 +36,34 @@ async function main() {
   console.log('Starting contract verification...');
 
   // Core Protocol Contracts
+  console.log('Verifying FeesModule...');
+  await verifyContract(
+    contracts.FeesModule,
+    [deployer.address],
+    'contracts/protocol/Modules/FeesModule.sol:FeesModule'
+  );
+
+  console.log('Verifying ReleaseModule...');
+  await verifyContract(
+    contracts.ReleaseModule,
+    [],
+    'contracts/protocol/Modules/ReleaseModule.sol:ReleaseModule'
+  );
+
+  console.log('Verifying IdentityModule...');
+  await verifyContract(
+    contracts.IdentityModule,
+    [contracts.ReleaseModule],
+    'contracts/protocol/Modules/IdentityModule.sol:IdentityModule'
+  );
+
+  console.log('Verifying RegistryModule...');
+  await verifyContract(
+    contracts.RegistryModule,
+    [],
+    'contracts/protocol/Modules/RegistryModule.sol:RegistryModule'
+  );
+
   console.log('Verifying WhitelistingManager...');
   await verifyContract(
     contracts.WhitelistingManager,
@@ -66,7 +95,7 @@ async function main() {
   console.log('Verifying MetadataModule...');
   await verifyContract(
     contracts.MetadataModule,
-    [],
+    [deployer.address],
     'contracts/protocol/NonUpgradable/MetadataModule.sol:MetadataModule'
   );
 
@@ -90,10 +119,24 @@ async function main() {
     'contracts/protocol/NonUpgradable/ProtocolModule.sol:ProtocolModule'
   );
 
+  console.log('Verifying SongSharesMarketPlace...');
+  await verifyContract(
+    contracts.SongSharesMarketPlace,
+    [contracts.ProtocolModule],
+    'contracts/protocol/NonUpgradable/SongSharesMarketPlace.sol:SongSharesMarketPlace'
+  );
+
+  console.log('Verifying BuyoutTokenMarketPlace...');
+  await verifyContract(
+    contracts.BuyoutTokenMarketPlace,
+    [contracts.ProtocolModule],
+    'contracts/protocol/NonUpgradable/BuyoutTokenMarketPlace.sol:BuyoutTokenMarketPlace'
+  );
+
   console.log('Verifying WrappedSongSmartAccount...');
   await verifyContract(
     contracts.WrappedSongSmartAccount,
-    [contracts.ProtocolModule],
+    [],
     'contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol:WrappedSongSmartAccount'
   );
 
@@ -108,18 +151,11 @@ async function main() {
   await verifyContract(
     contracts.WrappedSongFactory,
     [
-      contracts.ProtocolModule,
       contracts.WrappedSongSmartAccount,
-      contracts.WSTokenManagement
+      contracts.WSTokenManagement,
+      contracts.ProtocolModule
     ],
     'contracts/protocol/NonUpgradable/WrappedSongFactory.sol:WrappedSongFactory'
-  );
-
-  console.log('Verifying SongSharesMarketPlace...');
-  await verifyContract(
-    contracts.SongSharesMarketPlace,
-    [contracts.ProtocolModule],
-    'contracts/protocol/NonUpgradable/SongSharesMarketPlace.sol:SongSharesMarketPlace'
   );
 
   console.log('Contract verification completed!');

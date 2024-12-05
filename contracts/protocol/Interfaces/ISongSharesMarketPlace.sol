@@ -26,6 +26,7 @@ interface ISongSharesMarketPlace {
         address recipient
     ) external payable;
 
+    function initialize(address _protocolModule) external;
     function endSale(address wsTokenManagement) external;
 
     function withdrawFunds(address wsTokenManagement) external;

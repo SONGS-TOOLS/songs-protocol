@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IProtocolModule.sol";
-
+import "./../Interfaces/IRegistryModule.sol";
 contract MetadataRenderer {
     /**
      * @dev Composes the token URI from the metadata and token ID.
@@ -59,11 +59,11 @@ contract MetadataRenderer {
         }
 
         // Get registry codes and authenticity status from protocol module
-        string memory isrcCode = protocolModule.isrcRegistry(wrappedSongAddress);
-        string memory upcCode = protocolModule.upcRegistry(wrappedSongAddress);
-        string memory iswcCode = protocolModule.iswcRegistry(wrappedSongAddress);
-        string memory isccCode = protocolModule.isccRegistry(wrappedSongAddress);
-        bool isAuthentic = protocolModule.isAuthentic(wrappedSongAddress);
+        string memory isrcCode = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).identityModule().getIsrcCode(wrappedSongAddress);
+        string memory upcCode = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).identityModule().getUpcCode(wrappedSongAddress);
+        string memory iswcCode = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).identityModule().getIswcCode(wrappedSongAddress);
+        string memory isccCode = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).identityModule().getIsccCode(wrappedSongAddress);
+        bool isAuthentic = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).identityModule().isAuthentic(wrappedSongAddress);
 
         string memory registryCodes = _composeRegistryCodes(isrcCode, upcCode, iswcCode, isccCode);
         string memory authenticity = _composeAuthenticity(isAuthentic);

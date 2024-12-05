@@ -10,6 +10,58 @@ import {
   BigInt,
 } from "@graphprotocol/graph-ts";
 
+export class CreationFeeCollected extends ethereum.Event {
+  get params(): CreationFeeCollected__Params {
+    return new CreationFeeCollected__Params(this);
+  }
+}
+
+export class CreationFeeCollected__Params {
+  _event: CreationFeeCollected;
+
+  constructor(event: CreationFeeCollected) {
+    this._event = event;
+  }
+
+  get wrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get token(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class FeesWithdrawn extends ethereum.Event {
+  get params(): FeesWithdrawn__Params {
+    return new FeesWithdrawn__Params(this);
+  }
+}
+
+export class FeesWithdrawn__Params {
+  _event: FeesWithdrawn;
+
+  constructor(event: FeesWithdrawn) {
+    this._event = event;
+  }
+
+  get token(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get recipient(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class WrappedSongCreated extends ethereum.Event {
   get params(): WrappedSongCreated__Params {
     return new WrappedSongCreated__Params(this);
@@ -79,6 +131,29 @@ export class WrappedSongCreatedMetadataStruct extends ethereum.Tuple {
 export class WrappedSongFactory extends ethereum.SmartContract {
   static bind(address: Address): WrappedSongFactory {
     return new WrappedSongFactory("WrappedSongFactory", address);
+  }
+
+  accumulatedFees(param0: Address): BigInt {
+    let result = super.call(
+      "accumulatedFees",
+      "accumulatedFees(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_accumulatedFees(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "accumulatedFees",
+      "accumulatedFees(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   metadataModule(): Address {
@@ -271,5 +346,39 @@ export class CreateWrappedSongCallSongMetadataStruct extends ethereum.Tuple {
 
   get attributesIpfsHash(): string {
     return this[5].toString();
+  }
+}
+
+export class WithdrawAccumulatedFeesCall extends ethereum.Call {
+  get inputs(): WithdrawAccumulatedFeesCall__Inputs {
+    return new WithdrawAccumulatedFeesCall__Inputs(this);
+  }
+
+  get outputs(): WithdrawAccumulatedFeesCall__Outputs {
+    return new WithdrawAccumulatedFeesCall__Outputs(this);
+  }
+}
+
+export class WithdrawAccumulatedFeesCall__Inputs {
+  _call: WithdrawAccumulatedFeesCall;
+
+  constructor(call: WithdrawAccumulatedFeesCall) {
+    this._call = call;
+  }
+
+  get token(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get recipient(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class WithdrawAccumulatedFeesCall__Outputs {
+  _call: WithdrawAccumulatedFeesCall;
+
+  constructor(call: WithdrawAccumulatedFeesCall) {
+    this._call = call;
   }
 }

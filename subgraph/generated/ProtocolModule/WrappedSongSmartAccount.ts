@@ -1186,7 +1186,7 @@ export class InitializeCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get value2(): Address {
+  get _protocolModuleAddress(): Address {
     return this._call.inputValues[2].value.toAddress();
   }
 }
@@ -1216,7 +1216,7 @@ export class MigrateWrappedSongCall__Inputs {
     this._call = call;
   }
 
-  get metadataAddress(): Address {
+  get newMetadataAddress(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 

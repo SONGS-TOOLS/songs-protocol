@@ -22,11 +22,12 @@ describe("Token URI Metadata Tests", function () {
     await protocol.protocolModule.setBaseURI("ipfs://");
 
     // Create wrapped song as artist
-    const creationFee = await protocol.protocolModule.wrappedSongCreationFee();
+    const creationFee = await protocol.feesModule.wrappedSongCreationFee();
     await protocol.wrappedSongFactory.connect(protocol.artist).createWrappedSong(
       protocol.mockStablecoin.target,
       metadata,
       10000,
+      protocol.artist.address,
       { value: creationFee }
     );
 
@@ -120,10 +121,10 @@ describe("Token URI Metadata Tests", function () {
     });
 
     it("Should update authenticity status correctly through distributor", async function () {
-      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
+      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin, feesModule, releaseModule } = await loadFixture(deployFixture);
       
       // Create distributor wallet
-      const distributorCreationFee = await protocolModule.distributorCreationFee();
+      const distributorCreationFee = await feesModule.distributorCreationFee();
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
@@ -135,8 +136,8 @@ describe("Token URI Metadata Tests", function () {
       const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
       // Request release
-      const releaseFee = await protocolModule.releaseFee();
-      await protocolModule.connect(artist).requestWrappedSongRelease(
+      const releaseFee = await feesModule.releaseFee();
+      await releaseModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
         distributorWallet.target,
         { value: releaseFee }
@@ -160,10 +161,10 @@ describe("Token URI Metadata Tests", function () {
     });
 
     it("Should not allow setting authenticity when protocol is paused", async function () {
-      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
+      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin, feesModule, releaseModule } = await loadFixture(deployFixture);
       
       // Create distributor wallet
-      const distributorCreationFee = await protocolModule.distributorCreationFee();
+      const distributorCreationFee = await feesModule.distributorCreationFee();
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
@@ -175,8 +176,8 @@ describe("Token URI Metadata Tests", function () {
       const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
       // Request and confirm release
-      const releaseFee = await protocolModule.releaseFee();
-      await protocolModule.connect(artist).requestWrappedSongRelease(
+      const releaseFee = await feesModule.releaseFee();
+      await releaseModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
         distributorWallet.target,
         { value: releaseFee }
@@ -186,15 +187,15 @@ describe("Token URI Metadata Tests", function () {
 
       // Try to set authenticity while paused
       await expect(
-        protocolModule.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
-      ).to.be.revertedWithCustomError(protocolModule, "EnforcedPause");
+        distributorWallet.connect(distributor).setWrappedSongAuthenticity(wrappedSong.target, true)
+      ).to.be.revertedWith("Protocol Paused");
     });
 
     it("Should allow setting authenticity after unpausing", async function () {
-      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin } = await loadFixture(deployFixture);
+      const { deployer, artist, distributor, protocolModule, wrappedSong, distributorWalletFactory, mockStablecoin, feesModule, releaseModule } = await loadFixture(deployFixture);
       
       // Create distributor wallet
-      const distributorCreationFee = await protocolModule.distributorCreationFee();
+      const distributorCreationFee = await feesModule.distributorCreationFee();
       await distributorWalletFactory.connect(deployer).createDistributorWallet(
         mockStablecoin.target,
         protocolModule.target,
@@ -206,8 +207,8 @@ describe("Token URI Metadata Tests", function () {
       const distributorWallet = await ethers.getContractAt("DistributorWallet", distributorWallets[0]);
 
       // Request and confirm release
-      const releaseFee = await protocolModule.releaseFee();
-      await protocolModule.connect(artist).requestWrappedSongRelease(
+      const releaseFee = await feesModule.releaseFee();
+      await releaseModule.connect(artist).requestWrappedSongRelease(
         wrappedSong.target,
         distributorWallet.target,
         { value: releaseFee }

@@ -1186,7 +1186,7 @@ export class InitializeCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get value2(): Address {
+  get _protocolModuleAddress(): Address {
     return this._call.inputValues[2].value.toAddress();
   }
 }

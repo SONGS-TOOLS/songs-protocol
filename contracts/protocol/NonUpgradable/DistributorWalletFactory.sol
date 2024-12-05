@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./DistributorWallet.sol";
 import "./../Interfaces/IProtocolModule.sol";
+import "./../Interfaces/IRegistryModule.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract DistributorWalletFactory is Ownable {
@@ -43,16 +44,17 @@ contract DistributorWalletFactory is Ownable {
     address _protocolModule,
     address _stablecoin
   ) internal {
-    uint256 creationFee = IProtocolModule(_protocolModule)
-      .distributorCreationFee();
-    bool payInStablecoin = IProtocolModule(_protocolModule).payInStablecoin();
+    // Access the FeesModule through the registryModule
+    IFeesModule feesModule = IRegistryModule(IProtocolModule(_protocolModule).getRegistryModule()).feesModule();
+    uint256 creationFee = feesModule.getDistributorCreationFee();
+    bool payInStablecoin = feesModule.isPayInStablecoin();
 
     if (creationFee > 0) {
       if (payInStablecoin) {
         // Transfer stablecoin fee from user to this contract
         IERC20(_stablecoin).safeTransferFrom(
           msg.sender,
-          address(this),
+          IProtocolModule(_protocolModule).getStablecoinFeeReceiver(),
           creationFee
         );
 
@@ -67,7 +69,7 @@ contract DistributorWalletFactory is Ownable {
         // Add to accumulated fees for ETH (address(0))
         accumulatedFees[address(0)] += msg.value;
 
-        // Refund excess ETH if any
+        // Refund excess ETH if anyza
         if (msg.value > creationFee) {
           (bool refundSuccess, ) = msg.sender.call{
             value: msg.value - creationFee
@@ -170,4 +172,8 @@ contract DistributorWalletFactory is Ownable {
 
     emit FeesWithdrawn(token, recipient, amount);
   }
+
+  receive() external payable {}
+
+  fallback() external payable {}
 }

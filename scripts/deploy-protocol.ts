@@ -5,7 +5,6 @@ import path from 'path';
 const abisDirectory = path.join(__dirname, '..', '..', 'songs-app', 'src', 'contracts');
 const localAbisDirectory = path.join(__dirname, '..', 'abis');
 const networkName = network.name;
-
 const addressesFile = path.join(abisDirectory, `protocolContractAddresses-${networkName}.json`);
 const addressesFile2 = path.join(localAbisDirectory, `protocolContractAddresses-${networkName}.json`);
 
@@ -26,7 +25,7 @@ async function getTokenAddress() {
     return mockTokenAddress;
   }
   
-  const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+  const usdcAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
   contractAddresses['USDC'] = usdcAddress;
   return usdcAddress;
 }
@@ -42,6 +41,43 @@ async function main() {
   if (!fs.existsSync(localAbisDirectory)) {
     fs.mkdirSync(localAbisDirectory, { recursive: true });
   }
+
+
+  /******************************************************************************
+   *                                                                             *
+   *                           PROTOCOL REGISTRY CONTRACT                           *
+   *                                                                             *
+   ******************************************************************************/
+
+  console.log('Deploying FeesModule...');
+  const FeesModule = await ethers.getContractFactory('FeesModule');
+  const feesModule = await FeesModule.deploy(deployer.address);
+  await feesModule.waitForDeployment();
+  console.log('FeesModule deployed to:', await feesModule.getAddress());
+  await saveAbi('FeesModule', await feesModule.getAddress());
+
+ 
+  console.log('Deploying ReleaseModule...');
+  const ReleaseModule = await ethers.getContractFactory('ReleaseModule');
+  const releaseModule = await ReleaseModule.deploy();
+  await releaseModule.waitForDeployment();
+  console.log('ReleaseModule deployed to:', await releaseModule.getAddress());
+  await saveAbi('ReleaseModule', await releaseModule.getAddress());
+
+  console.log('Deploying IdentityModule...');
+  const IdentityModule = await ethers.getContractFactory('IdentityModule');
+  const identityModule = await IdentityModule.deploy(await releaseModule.getAddress());
+  await identityModule.waitForDeployment();
+  console.log('IdentityModule deployed to:', await identityModule.getAddress());
+  await saveAbi('IdentityModule', await identityModule.getAddress());
+
+  console.log('Deploying RegistryModule...');
+  const RegistryModule = await ethers.getContractFactory('RegistryModule');
+  const registryModule = await RegistryModule.deploy();
+  await registryModule.waitForDeployment();
+  console.log('RegistryModule deployed to:', await registryModule.getAddress());
+  await saveAbi('RegistryModule', await registryModule.getAddress());
+
 
   /******************************************************************************
    *                                                                             *
@@ -85,7 +121,7 @@ async function main() {
 
   console.log('Deploying MetadataModule...');
   const MetadataModule = await ethers.getContractFactory('MetadataModule');
-  const metadataModule = await MetadataModule.deploy();
+  const metadataModule = await MetadataModule.deploy(deployer.address);
   await metadataModule.waitForDeployment();
   console.log('MetadataModule deployed to:', await metadataModule.getAddress());
   await saveAbi('MetadataModule', await metadataModule.getAddress());
@@ -151,7 +187,6 @@ async function main() {
   // Deploy WrappedSongSmartAccount template with minimal constructor args
   const WrappedSongSmartAccount = await ethers.getContractFactory('WrappedSongSmartAccount');
   const wrappedSongTemplate = await WrappedSongSmartAccount.deploy(
-    await protocolModule.getAddress() // Only protocolModule is immutable
   );
   await wrappedSongTemplate.waitForDeployment();
   console.log('WrappedSongSmartAccount template deployed to:', await wrappedSongTemplate.getAddress());
@@ -173,9 +208,9 @@ async function main() {
   console.log('Deploying WrappedSongFactory...');
   const WrappedSongFactory = await ethers.getContractFactory('WrappedSongFactory');
   const wrappedSongFactory = await WrappedSongFactory.deploy(
-    await protocolModule.getAddress(),
     await wrappedSongTemplate.getAddress(),
-    await wsTokenTemplate.getAddress()
+    await wsTokenTemplate.getAddress(),
+    await protocolModule.getAddress()
   );
   await wrappedSongFactory.waitForDeployment();
   console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
@@ -192,19 +227,52 @@ async function main() {
   await erc20Whitelist.connect(deployer).setAuthorizedCaller(protocolModule.target);
   
   const tokenAddress = await getTokenAddress();
-  console.log('Whitelisting token at address:', tokenAddress);
+  console.log('Whitelisting token address:', tokenAddress);
   await protocolModule.connect(deployer).whitelistToken(tokenAddress);
   
+  console.log('Setting up ProtocolModule configuration...');
   await protocolModule.setMetadataModule(await metadataModule.getAddress());
+  console.log('MetadataModule set in ProtocolModule');
+  
   await protocolModule.setMetadataRenderer(await metadataRenderer.getAddress());
+  console.log('MetadataRenderer set in ProtocolModule');
+  
   await protocolModule.setWrappedSongFactory(await wrappedSongFactory.getAddress());
-  await protocolModule.setReleaseFee(0);
-  await protocolModule.setWrappedSongCreationFee(0);
-  await protocolModule.setStartSaleFee(0);
-  await protocolModule.setWithdrawalFeePercentage(0);
-  await protocolModule.setReleaseFee(ethers.parseEther("0"));
-  await protocolModule.setDistributorCreationFee(ethers.parseEther("0"));
-  await protocolModule.setUpdateMetadataFee(ethers.parseEther("0"));
+  console.log('WrappedSongFactory set in ProtocolModule');
+  
+  await protocolModule.setRegistryModule(await registryModule.getAddress());
+  console.log('RegistryModule set in ProtocolModule');
+  
+  console.log('Initializing RegistryModule...');
+
+  await registryModule.initialize(
+    await feesModule.getAddress(),
+    await releaseModule.getAddress(),
+    await identityModule.getAddress(),
+    await metadataModule.getAddress(),
+    await legalContractMetadata.getAddress(),
+    await erc20Whitelist.getAddress()
+  );
+
+  console.log('RegistryModule initialized');
+
+  console.log('Initializing ReleaseModule...');
+
+  await releaseModule.initialize(
+    await feesModule.getAddress(),
+    await erc20Whitelist.getAddress(),
+    await distributorWalletFactory.getAddress(),
+    await metadataModule.getAddress()
+  );
+  console.log('ReleaseModule initialized');
+
+  await feesModule.setReleaseFee(0);
+  await feesModule.setWrappedSongCreationFee(0);
+  await feesModule.setStartSaleFee(0);
+  await feesModule.setWithdrawalFeePercentage(0);
+  await feesModule.setReleaseFee(ethers.parseEther("0"));
+  await feesModule.setDistributorCreationFee(ethers.parseEther("0"));
+  await feesModule.setUpdateMetadataFee(ethers.parseEther("0"));
   
   await protocolModule.setBaseURI("ipfs://");
 
@@ -231,7 +299,7 @@ async function main() {
     legalContractMetadataBlock,
     metadataRendererBlock
   );
-
+  
   const deploymentInfo = {
     network: network.name,
     startBlock,
@@ -278,7 +346,7 @@ async function main() {
     JSON.stringify(deploymentInfo, null, 2)
   );
 
-  // Save contract addresses
+
   fs.writeFileSync(addressesFile, JSON.stringify(contractAddresses, null, 2));
   fs.writeFileSync(addressesFile2, JSON.stringify(contractAddresses, null, 2));
 }

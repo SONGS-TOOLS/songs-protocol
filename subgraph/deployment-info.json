@@ -1,40 +1,40 @@
 {
-  "network": "baseSepolia",
-  "startBlock": 18465909,
+  "network": "base",
+  "startBlock": 23312766,
   "contracts": {
     "protocolModule": {
-      "address": "0x0D9Bd0100596Ad6e9b4DAe78dE4d45267249f52B",
-      "startBlock": 18465919
+      "address": "0xF05Fe01CF909905bd1371b18417C4a00358d0E60",
+      "startBlock": 23312779
     },
     "wrappedSongFactory": {
-      "address": "0x602574b52Db96F45d4F4410A6Ec1b0dc0A7217eF",
-      "startBlock": 18465937
+      "address": "0x19041088a3BcDAD078bDd7f1Eaa48Ba10f4c3702",
+      "startBlock": 23312805
     },
     "wrappedSongTemplate": {
-      "address": "0x642D5bA5ec5d46EAcfF52b86592B386CcCb9716C"
+      "address": "0x7c2fD5Ebc41e35905a8E0908C77d55C15EFD5C4D"
     },
     "wsTokenTemplate": {
-      "address": "0x04134E45114A3412842dBD887F058D04aCeEdA7E"
+      "address": "0x491b9a80178b38eE7d82db5f9F3B07510AfF63De"
     },
     "metadataModule": {
-      "address": "0x3018ae2c04a884a9d10f518b8C5786819cdb68c5",
-      "startBlock": 18465912
+      "address": "0x2855156270bAdA31D8da43726014045Dfaf376f1",
+      "startBlock": 23312771
     },
     "legalContractMetadata": {
-      "address": "0x67856B2795e5Ca2a103345107E224b4916B76fe1",
-      "startBlock": 18465916
+      "address": "0x6A00B7010Ca661068726f25fd1936AA6dEEBC1Da",
+      "startBlock": 23312775
     },
     "metadataRenderer": {
-      "address": "0x5268Ae2eb3aBB97DAF4E05ddf8eA02B0073d3AF2",
-      "startBlock": 18465909
+      "address": "0x582c1Eb96f5375A09dE373bb99623B2709ec2515",
+      "startBlock": 23312766
     },
     "songSharesMarketPlace": {
-      "address": "0x79eB81Ed485e3f10946d4dA420D5123e4805c41f",
-      "startBlock": 18465922
+      "address": "0x749Fc5964E760bA940D0663d52298b4E96083297",
+      "startBlock": 23312785
     },
     "buyoutTokenMarketPlace": {
-      "address": "0x68Cd0596B7609c4F0420B3ca9b9324f3B7be989a",
-      "startBlock": 18465926
+      "address": "0x071fb88036260B8D78b66A373B74866994362812",
+      "startBlock": 23312790
     }
   }
 }

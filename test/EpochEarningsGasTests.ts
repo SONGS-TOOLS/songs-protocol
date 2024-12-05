@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
 import { ethers } from "hardhat";
 import { deployProtocolFixture } from './fixtures/protocolFixture';
-import { expect } from 'chai';
 
 describe("Epoch Distribution Gas Tests", function () {
     // Move constants to a configuration object for better maintainability
@@ -30,11 +30,13 @@ describe("Epoch Distribution Gas Tests", function () {
         const {
             distributor,
             mockStablecoin,
-            distributorWalletFactory
+            distributorWalletFactory,
+            feesModule,
+            releaseModule
         } = fixture;
 
         // Create distributor wallet
-        const distributorCreationFee = await fixture.protocolModule.distributorCreationFee();
+        const distributorCreationFee = await feesModule.getDistributorCreationFee();
         await distributorWalletFactory.createDistributorWallet(
             mockStablecoin.target,
             fixture.protocolModule.target,
@@ -58,7 +60,9 @@ describe("Epoch Distribution Gas Tests", function () {
             distributor,
             deployer,
             mockStablecoin,
-            distributorWallet
+            distributorWallet,
+            feesModule,
+            releaseModule
         } = await setupDistributor();
 
         const chunkSizes = [100, 500, 1000];

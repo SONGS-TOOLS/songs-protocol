@@ -7,8 +7,8 @@ describe("WrappedSongFactory", function () {
 
     describe("createWrappedSong", function () {
         it("should create a wrapped song with new metadata module", async function () {
-            const { artist, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const { artist, wrappedSongFactory, mockStablecoin, protocolModule,feesModule } = await loadFixture(deployContractFixture);
+            const creationFee = await feesModule.getWrappedSongCreationFee();
             const sharesAmount = 1;
             const metadata = {
                 name: "Test Song",
@@ -19,7 +19,12 @@ describe("WrappedSongFactory", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await expect(wrappedSongFactory.connect(artist).createWrappedSong(mockStablecoin.target, metadata, sharesAmount, { value: creationFee }))
+            await expect(wrappedSongFactory.connect(artist).createWrappedSong(  
+                mockStablecoin.target, 
+                metadata, 
+                sharesAmount,
+                artist.address,
+                 { value: creationFee }))
                 .to.emit(wrappedSongFactory, "WrappedSongCreated");
 
             const userWrappedSongs = await protocolModule.getOwnerWrappedSongs(artist.address);
@@ -27,7 +32,9 @@ describe("WrappedSongFactory", function () {
         });
 
         it("should fail to create a wrapped song with metadata with insufficient fee", async function () {
-            const { artist, wrappedSongFactory, mockStablecoin } = await loadFixture(deployContractFixture);
+            const { artist, wrappedSongFactory, mockStablecoin, feesModule } = await loadFixture(deployContractFixture);
+            await feesModule.setWrappedSongCreationFee(ethers.parseEther("1"));
+
             const metadata = {
                 name: "Test Song",
                 description: "Test Description",
@@ -37,13 +44,14 @@ describe("WrappedSongFactory", function () {
                 attributesIpfsHash: "ipfs://attributes"
             };
 
-            await expect(wrappedSongFactory.connect(artist).createWrappedSong(mockStablecoin.target, metadata, 1000, { value: 0 }))
+            await expect(wrappedSongFactory.connect(artist).createWrappedSong(
+                mockStablecoin.target, metadata, 1000, artist.address, { value: 0 }))
                 .to.be.revertedWith("Incorrect ETH fee amount");
         });
 
         it("should create a wrapped song with metadata and 10000 song shares", async function () {
-            const { artist, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const { artist, wrappedSongFactory, mockStablecoin, protocolModule, feesModule } = await loadFixture(deployContractFixture);
+            const creationFee = await feesModule.wrappedSongCreationFee();
             const sharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -58,6 +66,7 @@ describe("WrappedSongFactory", function () {
                 mockStablecoin.target,
                 metadata,
                 sharesAmount,
+                artist.address,
                 { value: creationFee }
             )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
@@ -75,8 +84,8 @@ describe("WrappedSongFactory", function () {
         });
 
         it("should create 5 wrapped songs with different owners", async function () {
-            const { artist, deployer, distributor, collector, protocolAdmin, wrappedSongFactory, mockStablecoin, protocolModule, distributorWalletFactory } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const { artist, deployer, distributor, collector, protocolAdmin, wrappedSongFactory, mockStablecoin, protocolModule, distributorWalletFactory, feesModule } = await loadFixture(deployContractFixture);
+            const creationFee = await feesModule.wrappedSongCreationFee();
             const sharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -93,6 +102,7 @@ describe("WrappedSongFactory", function () {
                     mockStablecoin.target,
                     metadata,
                     sharesAmount,
+                    user.address,
                     { value: creationFee }
                 )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
@@ -113,8 +123,8 @@ describe("WrappedSongFactory", function () {
 
 
         it("should request the release of 5 wrapped songs", async function () {
-            const { artist, deployer, distributor, collector, protocolAdmin, wrappedSongFactory, mockStablecoin, protocolModule, distributorWalletFactory } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const { artist, deployer, distributor, collector, protocolAdmin, releaseModule, wrappedSongFactory, mockStablecoin, protocolModule, distributorWalletFactory, feesModule } = await loadFixture(deployContractFixture);
+            const creationFee = await feesModule.wrappedSongCreationFee();
             const sharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -126,7 +136,7 @@ describe("WrappedSongFactory", function () {
             };
             const users = [artist, deployer, distributor, collector, protocolAdmin];
 
-            const distributorCreationFee = await protocolModule.distributorCreationFee();
+            const distributorCreationFee = await feesModule.distributorCreationFee();
             await expect(distributorWalletFactory.connect(deployer).createDistributorWallet(
                 mockStablecoin.target,
                 protocolModule.target,
@@ -142,6 +152,7 @@ describe("WrappedSongFactory", function () {
                     mockStablecoin.target,
                     metadata,
                     sharesAmount,
+                    user.address,
                     { value: creationFee }
                 )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
@@ -150,8 +161,8 @@ describe("WrappedSongFactory", function () {
 
                 const wrappedSongAddress = userWrappedSongs[0];
 
-                const releaseFee = await protocolModule.releaseFee();
-                await expect(protocolModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0], { value: releaseFee })).to.emit(protocolModule, "WrappedSongReleaseRequested");
+                const releaseFee = await feesModule.releaseFee();
+                await expect(releaseModule.connect(user).requestWrappedSongRelease(wrappedSongAddress, wallets[0], { value: releaseFee })).to.emit(releaseModule, "WrappedSongReleaseRequested");
             }
         });
     });

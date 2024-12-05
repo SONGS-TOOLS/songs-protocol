@@ -1,12 +1,6 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_protocolModuleAddress",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -489,7 +483,7 @@
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "_protocolModuleAddress",
         "type": "address"
       }
     ],
@@ -662,6 +656,19 @@
     "name": "receiveERC20",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "releaseModule",
+    "outputs": [
+      {
+        "internalType": "contract IReleaseModule",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

@@ -8,13 +8,14 @@ import "./../Interfaces/IWSTokenManagement.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./../Interfaces/IRegistryModule.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract WrappedSongFactory {
+contract WrappedSongFactory is Ownable {
     using Clones for address;
     using SafeERC20 for IERC20;
 
     IProtocolModule public immutable protocolModule;
-    IMetadataModule public immutable metadataModule;
     
     address public immutable wrappedSongTemplate;
     address public immutable wsTokenTemplate;
@@ -34,34 +35,34 @@ contract WrappedSongFactory {
 
     event CreationFeeCollected(address indexed wrappedSong, address indexed token, uint256 amount);
 
+    // Add a reference to the ModuleRegistry
+    IRegistryModule public registryModule;
+
     constructor(
-        address _protocolModule,
         address _wrappedSongTemplate,
-        address _wsTokenTemplate
-    ) {
-        require(_protocolModule != address(0), "Invalid protocol module");
-        require(_wrappedSongTemplate != address(0), "Invalid wrapped song template");
-        require(_wsTokenTemplate != address(0), "Invalid WSToken template");
-        
-        protocolModule = IProtocolModule(_protocolModule);
-        metadataModule = IMetadataModule(protocolModule.getMetadataModule());
+        address _wsTokenTemplate,
+        address _protocolModule    
+    ) Ownable(msg.sender) {
         wrappedSongTemplate = _wrappedSongTemplate;
         wsTokenTemplate = _wsTokenTemplate;
+        protocolModule = IProtocolModule(_protocolModule);
     }
 
     function _handleCreationFee() internal {
-        uint256 creationFee = protocolModule.wrappedSongCreationFee();
-        bool payInStablecoin = protocolModule.payInStablecoin();
+        // Access the FeesModule through the registryModule
+        IFeesModule feesModule = IRegistryModule(protocolModule.getRegistryModule()).feesModule();
+        uint256 creationFee = feesModule.getWrappedSongCreationFee();
+        bool payInStablecoin = feesModule.isPayInStablecoin();
         
         if (creationFee > 0) {
             if (payInStablecoin) {
                 // Get the current stablecoin from protocol
-                uint256 currentStablecoinIndex = protocolModule.currentStablecoinIndex();
-                address stablecoin = protocolModule.erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
+                uint256 currentStablecoinIndex = feesModule.getCurrentStablecoinIndex();
+                address stablecoin = IRegistryModule(protocolModule.getRegistryModule()).erc20whitelist().getWhitelistedTokenAtIndex(currentStablecoinIndex);
                 require(stablecoin != address(0), "No whitelisted stablecoin available");
 
                 // Transfer stablecoin fee from user to this contract
-                IERC20(stablecoin).safeTransferFrom(msg.sender, address(this), creationFee);
+                IERC20(stablecoin).safeTransferFrom(msg.sender, IProtocolModule(protocolModule).getStablecoinFeeReceiver(), creationFee);
                 
                 // Add to accumulated fees
                 accumulatedFees[stablecoin] += creationFee;
@@ -88,14 +89,15 @@ contract WrappedSongFactory {
     function createWrappedSong(
         address _stablecoin,
         IMetadataModule.Metadata memory songMetadata,
-        uint256 sharesAmount
+        uint256 sharesAmount,
+        address wsOwner
     ) public payable returns (address) {
         require(!protocolModule.paused(), "Protocol is paused");
         require(isValidMetadata(songMetadata), "Invalid metadata");
         require(sharesAmount > 0, "Shares amount must be greater than zero");
         require(protocolModule.isValidToCreateWrappedSong(msg.sender), "Not valid to create Wrapped Song");
         require(protocolModule.isTokenWhitelisted(_stablecoin), "Stablecoin is not whitelisted");
-
+        
         // Handle creation fee
         _handleCreationFee();
 
@@ -105,7 +107,7 @@ contract WrappedSongFactory {
         // Initialize WrappedSongSmartAccount
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).initialize(
             _stablecoin,
-            tx.origin,
+            wsOwner,
             address(protocolModule)
         );
 
@@ -115,7 +117,7 @@ contract WrappedSongFactory {
         // Initialize WSTokenManagement
         IWSTokenManagement(wsTokenManagementAddress).initialize(
             newWrappedSongSmartAccount,
-            msg.sender,
+            wsOwner,
             address(protocolModule)
         );
 
@@ -128,7 +130,7 @@ contract WrappedSongFactory {
         );
         
         protocolModule.setOwnerWrappedSong(
-            msg.sender,
+            wsOwner,
             newWrappedSongSmartAccount
         );
 
@@ -138,14 +140,14 @@ contract WrappedSongFactory {
         IWrappedSongSmartAccount(newWrappedSongSmartAccount).createSongShares(sharesAmount);
 
         // Create metadata
-        IMetadataModule.Metadata memory createdMetadata = metadataModule.createMetadata(
+        IMetadataModule.Metadata memory createdMetadata = IRegistryModule(protocolModule.getRegistryModule()).metadataModule().createMetadata(
             newWrappedSongSmartAccount,
             songMetadata
         );
 
 
         emit WrappedSongCreated(
-            msg.sender,
+            wsOwner,
             newWrappedSongSmartAccount,
             _stablecoin,
             wsTokenManagementAddress,

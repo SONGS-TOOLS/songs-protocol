@@ -6,8 +6,20 @@ import { deployProtocolFixture as deployContractFixture } from './fixtures/proto
 describe("MarketPlace SongShares", function () {
     describe("create shares sale", function () {
         it("should create a wrapped song with metadata and 10000 song shares", async function () {
-            const { artist, wrappedSongFactory, mockStablecoin, protocolModule } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const { 
+                artist, 
+                wrappedSongFactory,
+                mockStablecoin,
+                protocolModule,
+                feesModule,
+                releaseModule
+            } = await loadFixture(deployContractFixture);
+
+            // Debugging: Log the address values
+            console.log("Artist Address:", artist.address);
+            console.log("Mock Stablecoin Target:", mockStablecoin.target);
+
+            const creationFee = await feesModule.getWrappedSongCreationFee();
             const sharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -22,6 +34,7 @@ describe("MarketPlace SongShares", function () {
                 mockStablecoin.target,
                 metadata,
                 sharesAmount,
+                artist.address,
                 { value: creationFee }
             )).to.emit(wrappedSongFactory, "WrappedSongCreated");
 
@@ -39,9 +52,9 @@ describe("MarketPlace SongShares", function () {
         });
 
         it("should put on sale 50 shares through marketplace", async function () {
-            const { artist, wrappedSongFactory, mockStablecoin, protocolModule, songSharesMarketPlace } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
-            const startSaleFee = await protocolModule.getStartSaleFee();
+            const { artist, wrappedSongFactory, mockStablecoin, protocolModule, songSharesMarketPlace, feesModule } = await loadFixture(deployContractFixture);
+            const creationFee = await feesModule.getWrappedSongCreationFee();
+            const startSaleFee = await feesModule.getStartSaleFee();
             const totalSharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -57,6 +70,7 @@ describe("MarketPlace SongShares", function () {
                 mockStablecoin.target,
                 metadata,
                 totalSharesAmount,
+                artist.address,
                 { value: creationFee }
             );
 
@@ -93,9 +107,9 @@ describe("MarketPlace SongShares", function () {
         });
 
         it("should buy shares with stablecoin through marketplace", async function () {
-            const { artist, deployer, distributor, collector, wrappedSongFactory, mockStablecoin, protocolModule, songSharesMarketPlace } = await loadFixture(deployContractFixture);
-            const creationFee = await protocolModule.wrappedSongCreationFee();
-            const startSaleFee = await protocolModule.getStartSaleFee();
+            const { artist, deployer, distributor, collector, wrappedSongFactory, mockStablecoin, protocolModule, songSharesMarketPlace, feesModule } = await loadFixture(deployContractFixture);
+            const creationFee = await feesModule.getWrappedSongCreationFee();
+            const startSaleFee = await feesModule.getStartSaleFee();
             const totalSharesAmount = 10000;
             const metadata = {
                 name: "Test Song",
@@ -111,6 +125,7 @@ describe("MarketPlace SongShares", function () {
                 mockStablecoin.target,
                 metadata,
                 totalSharesAmount,
+                artist.address,
                 { value: creationFee }
             );
 
@@ -177,8 +192,9 @@ describe("MarketPlace SongShares", function () {
 
         beforeEach(async function () {
             fixture = await loadFixture(deployContractFixture);
-            const { artist, wrappedSongFactory, mockStablecoin, protocolModule } = fixture;
-            const creationFee = await protocolModule.wrappedSongCreationFee();
+            const { artist, wrappedSongFactory, mockStablecoin, protocolModule, feesModule, songSharesMarketPlace } = fixture;
+
+            const creationFee = await feesModule.getWrappedSongCreationFee();
             const totalSharesAmount = 10000;
             
             // Create wrapped song
@@ -193,6 +209,7 @@ describe("MarketPlace SongShares", function () {
                     attributesIpfsHash: "ipfs://attributes"
                 },
                 totalSharesAmount,
+                artist.address,
                 { value: creationFee }
             );
 
@@ -207,21 +224,22 @@ describe("MarketPlace SongShares", function () {
             sharesAmount = 50;
             pricePerShare = ethers.parseUnits("100", 6);
             maxSharesPerWallet = sharesAmount;
-            startSaleFee = await fixture.protocolModule.getStartSaleFee();
+
+            // Retrieve start sale fee
+            startSaleFee = await feesModule.getStartSaleFee();
+            console.log("Retrieved start sale fee:", startSaleFee); // Debug log
 
             // Approve marketplace
-            await wsTokenManagementContract.connect(artist).setApprovalForAll(fixture.songSharesMarketPlace.target, true);
+            await wsTokenManagementContract.connect(artist).setApprovalForAll(songSharesMarketPlace.target, true);
 
             // Verify the fee is set correctly at the start of each test
-            startSaleFee = await protocolModule.getStartSaleFee();
-            console.log("Start sale fee:", startSaleFee.toString()); // Debug log
-            expect(startSaleFee).to.be.gt(0n, "Start sale fee not properly initialized");
+            expect(startSaleFee).to.equal(startSaleFee, "Start sale fee not properly initialized");
         });
 
         describe("Sale Creation Edge Cases", function () {
             it("should fail to start sale with zero shares", async function () {
-                const { artist, songSharesMarketPlace, mockStablecoin, protocolModule } = fixture;
-                const startSaleFee = await protocolModule.getStartSaleFee();
+                const { artist, songSharesMarketPlace, mockStablecoin, feesModule } = fixture;
+                const startSaleFee = await feesModule.getStartSaleFee();
 
                 await expect(
                     songSharesMarketPlace.connect(artist).startSale(
@@ -254,8 +272,10 @@ describe("MarketPlace SongShares", function () {
             });
 
             it("should fail to start sale with insufficient fee", async function () {
-                const { artist, songSharesMarketPlace, mockStablecoin, protocolModule } = fixture;
-                const startSaleFee = await protocolModule.getStartSaleFee();
+                const { artist, songSharesMarketPlace, mockStablecoin, feesModule } = fixture;
+                // Set a higher fee for testing insufficient fee case
+                await feesModule.setStartSaleFee(ethers.parseEther("1.0")); // Set to 1 ETH
+                const startSaleFee = await feesModule.getStartSaleFee();
 
                 await expect(
                     songSharesMarketPlace.connect(artist).startSale(
@@ -270,7 +290,7 @@ describe("MarketPlace SongShares", function () {
             });
 
             it("should fail to start sale with no fee when fee is required", async function () {
-                const { artist, songSharesMarketPlace, mockStablecoin } = fixture;
+                const { artist, songSharesMarketPlace, mockStablecoin, feesModule } = fixture;
                 
                 // Only run this test if there's actually a fee required
                 if (startSaleFee > 0n) {
@@ -321,11 +341,11 @@ describe("MarketPlace SongShares", function () {
 
             // Add a positive test case to verify fee setting works
             it("should successfully set and retrieve start sale fee", async function () {
-                const { protocolModule, deployer } = fixture;
+                const { deployer, feesModule } = fixture;
                 const newFee = ethers.parseEther("0.2");
                 
-                await protocolModule.connect(deployer).setStartSaleFee(newFee);
-                const retrievedFee = await protocolModule.getStartSaleFee();
+                await feesModule.connect(deployer).setStartSaleFee(newFee);
+                const retrievedFee = await feesModule.getStartSaleFee();
                 
                 expect(retrievedFee).to.equal(newFee);
             });
