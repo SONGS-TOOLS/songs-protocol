@@ -29,7 +29,9 @@
     "subgraph:codegen": "yarn subgraph:prepare && cd subgraph && graph codegen",
     "subgraph:build": "cd subgraph && yarn build",
     "subgraph:deploy": "cd subgraph && yarn deploy",
-    "subgraph:prepare": "ts-node scripts/update-subgraph-config.ts"
+    "subgraph:prepare": "ts-node scripts/update-subgraph-config.ts",
+    "verify:baseSepolia": "npx hardhat compile && npx hardhat run scripts/verify-protocol.ts --network baseSepolia",
+    "verify:base": "npx hardhat compile && npx hardhat run scripts/verify-protocol.ts --network base"
   },
   "repository": {
     "type": "git",

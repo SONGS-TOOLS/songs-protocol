@@ -88,6 +88,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getStablecoinFeeReceiver",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -463,6 +476,19 @@
         }
       ],
       "name": "setSmartAccountToWSToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newReceiver",
+          "type": "address"
+        }
+      ],
+      "name": "setStablecoinFeeReceiver",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

@@ -14,6 +14,33 @@ import "./../Interfaces/IMetadataRenderer.sol";
 import "./../Interfaces/IRegistryModule.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+
+// +..................................................................................................+
+// -                                                                                                  -
+// =                                                                                                  =
+// =                                                                                                  =
+// =                                                                                                  =
+// =                                                                                                  =
+// =                                                                                                  =
+// =                      .::..                                                                       =
+// =                   :-:....:--.                                                                    =
+// =                  =:         --       :::      :::     ..   .     .::.     .::.                   =
+// =                 =.           =:     *#-+-   =#=-=#-   *%=  #-   +*--+=   -%===                   =
+// =                 *-.        .:==     :==+-   %-   +#   *+=*:#-  :@. -=*:  .====                   =
+// =                 =::-======--.=:     ==-*#   =#=-=#-   #+ :*@-   +*-=*#.  :+-=%:                  =
+// =                  =.         --       :-:     .:-:     ..   :.    .:-:     .-:.                   =
+// =                   :-:....:--.                                                                    =
+// =                     ..:::.                                                                       =
+// =                                                                                                  =
+// =                                                                                                  =
+// =                                                                                                  =
+// =                                                                                                  =
+// =                                                                                                  =
+// -                                                                                                  -
+// +..................................................................................................+
+
+
 contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
@@ -165,7 +192,7 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
 
 
   /**************************************************************************
-   * Modifiers
+   * Set protocol modules
    *************************************************************************/
 
   /**
@@ -233,6 +260,33 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     wrappedSongFactory = IWrappedSongFactory(_wrappedSongFactory);
   }
 
+  // Update setter function
+  function setLegalContractMetadata(
+    address _legalContractMetadata
+  ) external onlyOwner {
+    require(_legalContractMetadata != address(0), "Invalid address");
+    legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
+    emit LegalContractMetadataUpdated(_legalContractMetadata);
+  }
+
+  // Add new function to set the renderer
+  function setMetadataRenderer(address _renderer) external onlyOwner {
+    require(_renderer != address(0), "Invalid renderer address");
+    metadataRenderer = IMetadataRenderer(_renderer);
+    emit MetadataRendererUpdated(_renderer);
+  }
+
+
+  function setRegistryModule(address _registryModule) external onlyOwner {
+    require(_registryModule != address(0), "Invalid registryModule address");
+    registryModule = IRegistryModule(_registryModule);
+  }
+
+  /**************************************************************************
+   * Set protocol relations
+   *************************************************************************/
+
+
   function setSmartAccountToWSToken(
     address smartAccount,
     address wsToken
@@ -263,30 +317,6 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     protocolWSTokens[wsTokenManagement] = true;
   }
 
-  /**
-   * @dev Sets the base URI for metadata resources
-   * @param _baseURI The new base URI to be used
-   */
-  function setBaseURI(string memory _baseURI) external onlyOwner {
-    baseURI = _baseURI;
-  }
-
-  // Update setter function
-  function setLegalContractMetadata(
-    address _legalContractMetadata
-  ) external onlyOwner {
-    require(_legalContractMetadata != address(0), "Invalid address");
-    legalContractMetadata = ILegalContractMetadata(_legalContractMetadata);
-    emit LegalContractMetadataUpdated(_legalContractMetadata);
-  }
-
-  // Add new function to set the renderer
-  function setMetadataRenderer(address _renderer) external onlyOwner {
-    require(_renderer != address(0), "Invalid renderer address");
-    metadataRenderer = IMetadataRenderer(_renderer);
-    emit MetadataRendererUpdated(_renderer);
-  }
-
   function setOwnerWrappedSong(
     address owner,
     address wrappedSong
@@ -298,6 +328,7 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     ownerWrappedSongs[owner].push(wrappedSong);
     emit OwnerWrappedSongAdded(owner, wrappedSong);
   }
+
 
   /**************************************************************************
    * Data & getters
@@ -383,11 +414,6 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     return address(registryModule);
   }
 
-  function setRegistryModule(address _registryModule) external onlyOwner {
-    require(_registryModule != address(0), "Invalid registryModule address");
-    registryModule = IRegistryModule(_registryModule);
-  }
-
   /**************************************************************************
    * Wrapped Song Owner
    *************************************************************************/
@@ -411,6 +437,14 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         baseURI,
         IProtocolModule(address(this))
       );
+  }
+
+    /**
+   * @dev Sets the base URI for metadata resources
+   * @param _baseURI The new base URI to be used
+   */
+  function setBaseURI(string memory _baseURI) external onlyOwner {
+    baseURI = _baseURI;
   }
   
 

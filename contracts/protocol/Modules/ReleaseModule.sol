@@ -166,20 +166,17 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
     }
 
     function updateWrappedSongDistributor(
-    address wrappedSong,
-    address newDistributor
-) external {
-    address currentDistributor = wrappedSongToDistributor[wrappedSong];
-    require(currentDistributor != address(0), "Wrapped song not released yet");
-    require(msg.sender == currentDistributor, "Only current distributor can update distributor");
-    require(newDistributor != address(0), "Invalid new distributor address");
-    require(newDistributor.code.length > 0, "New distributor must be a contract");
-
-    wrappedSongToDistributor[wrappedSong] = newDistributor;
-
-        emit WrappedSongDistributorUpdated(wrappedSong, currentDistributor, newDistributor);
+        address wrappedSong,
+        address newDistributor
+    ) external {
+        address currentDistributor = wrappedSongToDistributor[wrappedSong];
+        require(currentDistributor != address(0), "Wrapped song not released yet");
+        require(msg.sender == currentDistributor, "Only current distributor can update distributor");
+        require(newDistributor != address(0), "Invalid new distributor address");
+        require(newDistributor.code.length > 0, "New distributor must be a contract");
+        wrappedSongToDistributor[wrappedSong] = newDistributor;
     }
-    
+
 
     function isReleased(address wrappedSong) external view returns (bool) {
         return wrappedSongToDistributor[wrappedSong] != address(0);

@@ -138,7 +138,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "creator",
         "type": "address"
       },
       {
@@ -349,6 +349,19 @@
       }
     ],
     "name": "getPendingDistributorRequests",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStablecoinFeeReceiver",
     "outputs": [
       {
         "internalType": "address",
@@ -674,11 +687,55 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "newReceiver",
+        "type": "address"
+      }
+    ],
+    "name": "setStablecoinFeeReceiver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stablecoinFeeReceiver",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "newOwner",
         "type": "address"
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "newDistributor",
+        "type": "address"
+      }
+    ],
+    "name": "updateWrappedSongDistributor",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
