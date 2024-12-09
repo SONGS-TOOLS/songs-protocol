@@ -275,6 +275,7 @@ async function main() {
   await feesModule.setUpdateMetadataFee(ethers.parseEther("0"));
   
   await protocolModule.setBaseURI("ipfs://");
+  await protocolModule.setStablecoinFeeReceiver(deployer.address);
 
   console.log('ProtocolModule initialized');
 

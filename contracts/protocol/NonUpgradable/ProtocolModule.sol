@@ -46,7 +46,8 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
 
   mapping(address => address[]) public ownerWrappedSongs;
   mapping(address => address) public smartAccountToWSToken;
-
+  address public stablecoinFeeReceiver;
+  
   IWrappedSongFactory public wrappedSongFactory;
   IDistributorWalletFactory public distributorWalletFactory;
   IWhitelistingManager public whitelistingManager;
@@ -329,6 +330,9 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     emit OwnerWrappedSongAdded(owner, wrappedSong);
   }
 
+  function setStablecoinFeeReceiver(address _stablecoinFeeReceiver) external onlyOwner {
+    stablecoinFeeReceiver = _stablecoinFeeReceiver;
+  }
 
   /**************************************************************************
    * Data & getters
@@ -412,6 +416,10 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
    */
   function getRegistryModule() external view returns (address) {
     return address(registryModule);
+  }
+
+  function getStablecoinFeeReceiver() external view returns (address) {
+    return address(stablecoinFeeReceiver);
   }
 
   /**************************************************************************
