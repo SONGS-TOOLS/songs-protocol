@@ -383,6 +383,19 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_erc20whitelist",
+          "type": "address"
+        }
+      ],
+      "name": "setERC20Whitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "_legalContractMetadata",
           "type": "address"
         }
@@ -515,19 +528,6 @@
         }
       ],
       "name": "setWhitelistingManager",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_wrappedSongFactory",
-          "type": "address"
-        }
-      ],
-      "name": "setWrappedSongFactory",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

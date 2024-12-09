@@ -1,40 +1,40 @@
 {
-  "network": "base",
-  "startBlock": 23312766,
+  "network": "localhost",
+  "startBlock": 18,
   "contracts": {
     "protocolModule": {
-      "address": "0xF05Fe01CF909905bd1371b18417C4a00358d0E60",
-      "startBlock": 23312779
+      "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+      "startBlock": 21
     },
     "wrappedSongFactory": {
-      "address": "0x19041088a3BcDAD078bDd7f1Eaa48Ba10f4c3702",
-      "startBlock": 23312805
+      "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      "startBlock": 26
     },
     "wrappedSongTemplate": {
-      "address": "0x7c2fD5Ebc41e35905a8E0908C77d55C15EFD5C4D"
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
     },
     "wsTokenTemplate": {
-      "address": "0x491b9a80178b38eE7d82db5f9F3B07510AfF63De"
+      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508"
     },
     "metadataModule": {
-      "address": "0x2855156270bAdA31D8da43726014045Dfaf376f1",
-      "startBlock": 23312771
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+      "startBlock": 19
     },
     "legalContractMetadata": {
-      "address": "0x6A00B7010Ca661068726f25fd1936AA6dEEBC1Da",
-      "startBlock": 23312775
+      "address": "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      "startBlock": 20
     },
     "metadataRenderer": {
-      "address": "0x582c1Eb96f5375A09dE373bb99623B2709ec2515",
-      "startBlock": 23312766
+      "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+      "startBlock": 18
     },
     "songSharesMarketPlace": {
-      "address": "0x749Fc5964E760bA940D0663d52298b4E96083297",
-      "startBlock": 23312785
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "startBlock": 22
     },
     "buyoutTokenMarketPlace": {
-      "address": "0x071fb88036260B8D78b66A373B74866994362812",
-      "startBlock": 23312790
+      "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "startBlock": 23
     }
   }
 }
