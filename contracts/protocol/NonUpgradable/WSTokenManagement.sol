@@ -15,7 +15,7 @@ contract WSTokenManagement is
     Ownable, 
     ReentrancyGuard, 
     Initializable,
-    IWSTokenManagement 
+    IWSTokenManagement
 {
     uint256 private _currentTokenId;
     address private _minter;
@@ -33,6 +33,9 @@ contract WSTokenManagement is
     address public override metadataModule;
     address public override protocolModule;
     address public override legalContractMetadata;
+
+    string public name;
+    string public symbol;
 
     event WSTokensCreated(address indexed smartAccount, address indexed minter);
     event SongSharesCreated(uint256 indexed sharesAmount, address indexed minter);
@@ -69,6 +72,10 @@ contract WSTokenManagement is
         metadataModule = IProtocolModule(_protocolModuleAddress).getMetadataModule();
         legalContractMetadata = IProtocolModule(_protocolModuleAddress).getLegalContractMetadata();
 
+        IMetadataModule.Metadata memory metadata = IMetadataModule(metadataModule).getWrappedSongMetadata(_smartAccount);
+        name = metadata.name;
+        symbol = metadata.name;
+
         _mint(_smartAccount, _SONG_CONCEPT_ID, 1, '');
         _tokenCreated[_SONG_CONCEPT_ID] = true;
         emit WSTokensCreated(_smartAccount, _minterAddress);
@@ -86,6 +93,10 @@ contract WSTokenManagement is
         }
         
         return IMetadataModule(metadataModule).getTokenURI(owner(), tokenId);
+    }
+
+    function contractURI() public view returns (string memory) {
+        return IMetadataModule(metadataModule).getContractURI(owner());
     }
 
     function createSongShares(uint256 sharesAmount) external override onlyOwner {
@@ -111,18 +122,18 @@ contract WSTokenManagement is
     }
 
     function createLegalContract(
-        string memory contractURI
+        string memory legalContractURI
     ) external override onlyOwner returns (uint256 tokenId) {
-        require(bytes(contractURI).length > 0, "Invalid URI");
+        require(bytes(legalContractURI).length > 0, "Invalid URI");
 
         tokenId = currentLegalContractId++;
         require(!_tokenCreated[tokenId], "Token ID already created");
 
         _mint(owner(), tokenId, 1, '');
-        ILegalContractMetadata(legalContractMetadata).setLegalContractURI(address(this), tokenId, contractURI);
+        ILegalContractMetadata(legalContractMetadata).setLegalContractURI(owner(), tokenId, legalContractURI);
         _tokenCreated[tokenId] = true;
         
-        emit LegalContractCreated(tokenId, owner(), contractURI);
+        emit LegalContractCreated(tokenId, owner(), legalContractURI);
         return tokenId;
     }
 
@@ -227,5 +238,10 @@ contract WSTokenManagement is
                 }
             }
         }
+    }
+
+    function updateSymbol(string memory newSymbol) external onlyOwner {
+        require(bytes(newSymbol).length > 0, "Symbol cannot be empty");
+        symbol = newSymbol;
     }
 }

@@ -12,4 +12,11 @@ interface IMetadataRenderer {
         string memory baseURI,
         IProtocolModule protocolModule
     ) external view returns (string memory);
+
+    function composeContractURI(
+        IMetadataModule.Metadata memory metadata,
+        address wrappedSongAddress,
+        string memory baseURI,
+        IProtocolModule protocolModule
+    ) external pure returns (string memory);
 } 

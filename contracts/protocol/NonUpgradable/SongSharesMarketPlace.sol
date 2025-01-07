@@ -240,7 +240,7 @@ contract SongSharesMarketPlace is Ownable, ReentrancyGuard, Pausable {
         // Calculate protocol fee
         feesModule = IRegistryModule(IProtocolModule(protocolModule).getRegistryModule()).feesModule();
         uint256 feePercentage = feesModule.getWithdrawalFeePercentage();
-        uint256 protocolFee = (amount * feePercentage) / 10000;
+        uint256 protocolFee = (amount * feePercentage) / 10000; //TODO: change to Amount of tokens
         uint256 userAmount = amount - protocolFee;
         
         accumulatedFunds[wrappedSong] = 0;

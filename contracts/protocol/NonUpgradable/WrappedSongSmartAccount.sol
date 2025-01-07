@@ -154,6 +154,11 @@ contract WrappedSongSmartAccount is
         );
         return wsTokenManagement.createLegalContract(contractURI);
     }
+    
+    function setSymbol(string memory newSymbol) external onlyOwner {
+        require(bytes(newSymbol).length > 0, "Symbol cannot be empty");
+        wsTokenManagement.updateSymbol(newSymbol);
+    }
 
 
     /******************************************************************************

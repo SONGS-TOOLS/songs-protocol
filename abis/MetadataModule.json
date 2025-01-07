@@ -432,6 +432,25 @@
         "type": "address"
       }
     ],
+    "name": "getContractURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
+    ],
     "name": "getPendingMetadataUpdate",
     "outputs": [
       {

@@ -426,7 +426,13 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
    * Wrapped Song Owner
    *************************************************************************/
 
-  // Add function to render token URI
+  /**
+   * @dev Renders the token URI for a wrapped song.
+   * @param metadata The metadata of the wrapped song.
+   * @param tokenId The ID of the token.
+   * @param wrappedSong The address of the wrapped song.
+   * @return The token URI as a string.
+   */
   function renderTokenURI(
     IMetadataModule.Metadata memory metadata,
     uint256 tokenId,
@@ -445,6 +451,24 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         baseURI,
         IProtocolModule(address(this))
       );
+  }
+
+  /**
+   * @dev Renders the contract URI for a wrapped song.
+   * @param metadata The metadata of the wrapped song.
+   * @param wrappedSong The address of the wrapped song.
+   * @return The contract URI as a string.
+   */
+  function renderContractURI(
+    IMetadataModule.Metadata memory metadata,
+    address wrappedSong
+  ) external view returns (string memory) {
+    return metadataRenderer.composeContractURI(
+        metadata,
+        wrappedSong,
+        baseURI,
+        IProtocolModule(address(this))
+    );
   }
 
     /**

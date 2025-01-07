@@ -46,6 +46,9 @@ interface IWrappedSongSmartAccount {
     function ethEarningsEpochs(uint256 index) external view returns (IWrappedSongTypes.EarningsEpoch memory);
     function stablecoinEarningsEpochs(uint256 index) external view returns (IWrappedSongTypes.EarningsEpoch memory);
     
+    // Symbol functions
+    function setSymbol(string memory newSymbol) external;
+    
     // Query functions
     function hasMoreEpochsToClaim(
         address account,

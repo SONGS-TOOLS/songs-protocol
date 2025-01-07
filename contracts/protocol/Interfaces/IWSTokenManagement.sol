@@ -34,8 +34,9 @@ interface IWSTokenManagement is IERC1155 {
     function createSongShares(uint256 sharesAmount) external;
     function createBuyoutToken(uint256 amount, address recipient) external;
     function createLegalContract(string memory contractURI) external returns (uint256);
-    
+    function updateSymbol(string memory newSymbol) external;
     // Migration and ownership
     function migrateWrappedSong(address newMetadataAddress, address newWrappedSongAddress) external;
     function transferOwnership(address newOwner) external;
+
 }

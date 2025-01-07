@@ -72,6 +72,11 @@ interface IProtocolModule {
         address wrappedSong
     ) external view returns (string memory);
 
+    function renderContractURI(
+        IMetadataModule.Metadata memory metadata,
+        address wrappedSong
+    ) external view returns (string memory);
+
     /**************************************************************************
      * Globals
      *************************************************************************/

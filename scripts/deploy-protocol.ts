@@ -25,9 +25,33 @@ async function getTokenAddress() {
     return mockTokenAddress;
   }
   
-  const usdcAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
-  contractAddresses['USDC'] = usdcAddress;
-  return usdcAddress;
+  if (network.name === 'base') {
+    const usdcAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base mainnet USDC
+    
+    // Verify the token contract exists
+    const code = await ethers.provider.getCode(usdcAddress);
+    if (code === '0x') {
+      throw new Error('USDC token contract not found at specified address');
+    }
+    
+    contractAddresses['USDC'] = usdcAddress;
+    return usdcAddress;
+  }
+
+  if (network.name === 'baseSepolia') {
+    const usdcAddress = '0x5deac602762362fe5f135fa5904351916053cf70'; // Base Sepolia USDC
+    
+    // Verify the token contract exists
+    const code = await ethers.provider.getCode(usdcAddress);
+    if (code === '0x') {
+      throw new Error('USDC token contract not found at specified address');
+    }
+    
+    contractAddresses['USDC'] = usdcAddress;
+    return usdcAddress;
+  }
+  
+  throw new Error(`No token address configured for network: ${network.name}`);
 }
 
 async function main() {

@@ -60,11 +60,12 @@ describe("Token URI Metadata Tests", function () {
 
   describe("Token URI Metadata", function () {
     it("Should return correct metadata format for Token ID 0 (Wrapped Song)", async function () {
-      const { wrappedSong, metadata } = await loadFixture(deployFixture);
+      const { wrappedSong, metadata, protocolModule } = await loadFixture(deployFixture);
       const wsTokensManagement = await ethers.getContractAt(
         "WSTokenManagement",
         await wrappedSong.getWSTokenManagementAddress()
       );
+      const baseURI = await protocolModule.getBaseURI();
       const tokenUri = await wsTokensManagement.uri(0);
       const decodedMetadata = decodeBase64Json(tokenUri);
 
@@ -81,10 +82,10 @@ describe("Token URI Metadata Tests", function () {
 
       expect(decodedMetadata.name).to.equal(`◒ ${metadata.name}`);
       expect(decodedMetadata.description).to.equal(metadata.description);
-      expect(decodedMetadata.image).to.include(`ipfs://${metadata.image}`);
+      expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
       expect(decodedMetadata.external_url).to.equal(metadata.externalUrl);
-      expect(decodedMetadata.animation_url).to.include(`ipfs://${metadata.animationUrl}`);
-      expect(decodedMetadata.attributes).to.include(`ipfs://${metadata.attributesIpfsHash}`);
+      expect(decodedMetadata.animation_url).to.include(`${baseURI}${metadata.animationUrl}`);
+      expect(decodedMetadata.attributes).to.include(`${baseURI}${metadata.attributesIpfsHash}`);
       
       // Check registry codes structure
       expect(decodedMetadata.registryCodes).to.have.all.keys([
@@ -109,7 +110,7 @@ describe("Token URI Metadata Tests", function () {
       const decodedMetadata = decodeBase64Json(tokenUri);
 
       expect(decodedMetadata.name).to.equal(`§ ${metadata.name}`);
-      expect(decodedMetadata.description).to.include("These are the SongShares representing your share");
+      expect(decodedMetadata.description).to.include("These SongShares represent");
       expect(decodedMetadata.image).to.include(`ipfs://${metadata.image}`);
       expect(decodedMetadata.authenticity).to.have.property('isAuthentic');
       expect(decodedMetadata.registryCodes).to.have.all.keys([
@@ -232,6 +233,35 @@ describe("Token URI Metadata Tests", function () {
       const tokenUri = await wsTokensManagement.uri(0);
       const decodedMetadata = decodeBase64Json(tokenUri);
       expect(decodedMetadata.authenticity.isAuthentic).to.be.true;
+    });
+
+    it("Should return correct contract URI metadata format", async function () {
+      const { wrappedSong, metadata, protocolModule } = await loadFixture(deployFixture);
+      const wsTokensManagement = await ethers.getContractAt(
+        "WSTokenManagement",
+        await wrappedSong.getWSTokenManagementAddress()
+      );
+      
+      // Get the baseURI from the protocol module
+      const baseURI = await protocolModule.getBaseURI();
+      
+      const contractUri = await wsTokensManagement.contractURI();
+      const decodedMetadata = decodeBase64Json(contractUri);
+
+      // Check that the contract metadata has all required fields
+      expect(decodedMetadata).to.have.all.keys([
+        "name",
+        "description",
+        "image",
+        "external_link"
+      ]);
+
+      // Verify the values match the original metadata
+      expect(decodedMetadata.name).to.equal(metadata.name);
+      expect(decodedMetadata.description).to.equal(metadata.description);
+      // Use the baseURI from the protocol module
+      expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
+      expect(decodedMetadata.external_link).to.equal(metadata.externalUrl);
     });
   });
 }); 

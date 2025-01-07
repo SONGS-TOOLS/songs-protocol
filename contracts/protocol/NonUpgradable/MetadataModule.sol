@@ -269,5 +269,15 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
         return wrappedSongMetadata[wrappedSong];
     }
 
+    /**
+     * @dev Returns the contract-level metadata URI for a wrapped song.
+     * @param wrappedSong The address of the wrapped song.
+     * @return The contract URI as a string.
+     */
+    function getContractURI(address wrappedSong) external view returns (string memory) {
+        Metadata memory metadata = wrappedSongMetadata[wrappedSong];
+        return protocolModule.renderContractURI(metadata, wrappedSong);
+    }
+
     receive() external payable {}
 }
