@@ -101,17 +101,18 @@ describe("Token URI Metadata Tests", function () {
     });
 
     it("Should return correct metadata format for Token ID 1 (Song Shares)", async function () {
-      const { wrappedSong, metadata } = await loadFixture(deployFixture);
+      const { wrappedSong, metadata, protocolModule } = await loadFixture(deployFixture);
       const wsTokensManagement = await ethers.getContractAt(
         "WSTokenManagement",
         await wrappedSong.getWSTokenManagementAddress()
       );
+      const baseURI = await protocolModule.getBaseURI();
       const tokenUri = await wsTokensManagement.uri(1);
       const decodedMetadata = decodeBase64Json(tokenUri);
 
       expect(decodedMetadata.name).to.equal(`§ ${metadata.name}`);
-      expect(decodedMetadata.description).to.include("These SongShares represent");
-      expect(decodedMetadata.image).to.include(`ipfs://${metadata.image}`);
+      expect(decodedMetadata.description).to.include("These are the SongShares");
+      expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
       expect(decodedMetadata.authenticity).to.have.property('isAuthentic');
       expect(decodedMetadata.registryCodes).to.have.all.keys([
         "ISRC",
@@ -236,6 +237,7 @@ describe("Token URI Metadata Tests", function () {
     });
 
     it("Should return correct contract URI metadata format", async function () {
+
       const { wrappedSong, metadata, protocolModule } = await loadFixture(deployFixture);
       const wsTokensManagement = await ethers.getContractAt(
         "WSTokenManagement",
@@ -257,11 +259,12 @@ describe("Token URI Metadata Tests", function () {
       ]);
 
       // Verify the values match the original metadata
-      expect(decodedMetadata.name).to.equal(metadata.name);
+      expect(decodedMetadata.name).to.equal(`SONGS: ${metadata.name}`);
       expect(decodedMetadata.description).to.equal(metadata.description);
       // Use the baseURI from the protocol module
       expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
       expect(decodedMetadata.external_link).to.equal(metadata.externalUrl);
+
     });
   });
 }); 

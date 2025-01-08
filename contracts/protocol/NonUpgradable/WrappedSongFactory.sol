@@ -15,10 +15,9 @@ contract WrappedSongFactory is Ownable {
     using Clones for address;
     using SafeERC20 for IERC20;
 
-    IProtocolModule public immutable protocolModule;
-    
-    address public immutable wrappedSongTemplate;
-    address public immutable wsTokenTemplate;
+    IProtocolModule public protocolModule;
+    address public wrappedSongTemplate;
+    address public wsTokenTemplate;
 
     mapping(address => uint256) public accumulatedFees;
 
@@ -38,14 +37,46 @@ contract WrappedSongFactory is Ownable {
     // Add a reference to the ModuleRegistry
     IRegistryModule public registryModule;
 
-    constructor(
-        address _wrappedSongTemplate,
-        address _wsTokenTemplate,
-        address _protocolModule    
-    ) Ownable(msg.sender) {
-        wrappedSongTemplate = _wrappedSongTemplate;
-        wsTokenTemplate = _wsTokenTemplate;
-        protocolModule = IProtocolModule(_protocolModule);
+    // Add events for updates
+    event WrappedSongTemplateUpdated(address indexed oldTemplate, address indexed newTemplate);
+    event WSTokenTemplateUpdated(address indexed oldTemplate, address indexed newTemplate);
+    event ProtocolModuleUpdated(address indexed oldModule, address indexed newModule);
+
+    constructor() Ownable(msg.sender) {}
+
+    // Add setter functions
+    function setWrappedSongTemplate(address _newTemplate) external onlyOwner {
+        _setWrappedSongTemplate(_newTemplate);
+    }
+
+    function setWSTokenTemplate(address _newTemplate) external onlyOwner {
+        _setWSTokenTemplate(_newTemplate);
+    }
+
+    function setProtocolModule(address _newModule) external onlyOwner {
+        _setProtocolModule(_newModule);
+    }
+
+    // Internal setter functions with validation
+    function _setWrappedSongTemplate(address _newTemplate) internal {
+        require(_newTemplate != address(0), "Invalid wrapped song template");
+        address oldTemplate = wrappedSongTemplate;
+        wrappedSongTemplate = _newTemplate;
+        emit WrappedSongTemplateUpdated(oldTemplate, _newTemplate);
+    }
+
+    function _setWSTokenTemplate(address _newTemplate) internal {
+        require(_newTemplate != address(0), "Invalid WS token template");
+        address oldTemplate = wsTokenTemplate;
+        wsTokenTemplate = _newTemplate;
+        emit WSTokenTemplateUpdated(oldTemplate, _newTemplate);
+    }
+
+    function _setProtocolModule(address _newModule) internal {
+        require(_newModule != address(0), "Invalid protocol module");
+        address oldModule = address(protocolModule);
+        protocolModule = IProtocolModule(_newModule);
+        emit ProtocolModuleUpdated(oldModule, _newModule);
     }
 
     function _handleCreationFee() internal {

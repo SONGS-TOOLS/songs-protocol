@@ -1,22 +1,6 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wrappedSongTemplate",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_wsTokenTemplate",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_protocolModule",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -160,6 +144,44 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "oldModule",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newModule",
+        "type": "address"
+      }
+    ],
+    "name": "ProtocolModuleUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldTemplate",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newTemplate",
+        "type": "address"
+      }
+    ],
+    "name": "WSTokenTemplateUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "owner",
         "type": "address"
       },
@@ -227,6 +249,25 @@
       }
     ],
     "name": "WrappedSongCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldTemplate",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newTemplate",
+        "type": "address"
+      }
+    ],
+    "name": "WrappedSongTemplateUpdated",
     "type": "event"
   },
   {
@@ -356,6 +397,45 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newModule",
+        "type": "address"
+      }
+    ],
+    "name": "setProtocolModule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newTemplate",
+        "type": "address"
+      }
+    ],
+    "name": "setWSTokenTemplate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newTemplate",
+        "type": "address"
+      }
+    ],
+    "name": "setWrappedSongTemplate",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

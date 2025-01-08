@@ -21,7 +21,10 @@ contract IdentityModule is Ownable {
     event IdentityRegistryUpdated(address indexed wrappedSong, string registryType, string value);
     event WrappedSongAuthenticitySet(address indexed wrappedSong, bool isAuthentic);
 
-    constructor(ReleaseModule _releaseModule) Ownable(msg.sender) {
+    constructor() Ownable(msg.sender) {}
+
+    function initialize(ReleaseModule _releaseModule) external onlyOwner {
+        require(address(releaseModule) == address(0), "Already initialized");
         releaseModule = _releaseModule;
     }
 

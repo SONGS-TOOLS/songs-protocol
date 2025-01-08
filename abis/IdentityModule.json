@@ -1,12 +1,6 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "contract ReleaseModule",
-        "name": "_releaseModule",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -241,6 +235,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ReleaseModule",
+        "name": "_releaseModule",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

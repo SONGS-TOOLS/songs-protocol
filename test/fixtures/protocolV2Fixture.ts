@@ -51,7 +51,7 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
 
   // Deploy FeesModule
   const FeesModule = await ethers.getContractFactory("FeesModule");
-  const feesModule = await FeesModule.deploy(deployer.address);
+  const feesModule = await FeesModule.deploy();
   await feesModule.waitForDeployment();
 
   // Deploy ReleaseModule
@@ -61,8 +61,9 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
 
   // Deploy IdentityModule
   const IdentityModule = await ethers.getContractFactory("IdentityModule");
-  const identityModule = await IdentityModule.deploy(releaseModule.target);
+  const identityModule = await IdentityModule.deploy();
   await identityModule.waitForDeployment();
+  await identityModule.initialize(await releaseModule.getAddress());
 
   // Deploy RegistryModule
   const RegistryModule = await ethers.getContractFactory("RegistryModule");

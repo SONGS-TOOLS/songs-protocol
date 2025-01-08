@@ -312,11 +312,6 @@
           "internalType": "struct IMetadataModule.Metadata",
           "name": "metadata",
           "type": "tuple"
-        },
-        {
-          "internalType": "address",
-          "name": "wrappedSong",
-          "type": "address"
         }
       ],
       "name": "renderContractURI",

@@ -15,8 +15,6 @@ interface IMetadataRenderer {
 
     function composeContractURI(
         IMetadataModule.Metadata memory metadata,
-        address wrappedSongAddress,
-        string memory baseURI,
-        IProtocolModule protocolModule
+        string memory baseURI
     ) external pure returns (string memory);
 } 

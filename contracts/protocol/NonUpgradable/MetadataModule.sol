@@ -11,6 +11,7 @@ import "./../Interfaces/IWSTokenManagement.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IDistributorWallet.sol";
 import "./../Interfaces/IRegistryModule.sol";
+
 contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -161,7 +162,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param tokenId The ID of the token.
      * @return The token URI as a string.
      */
-    function getTokenURI(address wrappedSong, uint256 tokenId) external view override returns (string memory) {
+    function getTokenURI(address wrappedSong, uint256 tokenId) external view returns (string memory) {
         Metadata memory metadata = wrappedSongMetadata[wrappedSong];
         require(tokenId < 3, "Invalid token ID for metadata module"); // Only handle tokens 0-2
         
@@ -173,7 +174,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param wrappedSong The address of the wrapped song.
      * @return The pending metadata update.
      */
-    function getPendingMetadataUpdate(address wrappedSong) external view override returns (Metadata memory) {
+    function getPendingMetadataUpdate(address wrappedSong) external view returns (Metadata memory) {
         return pendingMetadataUpdates[wrappedSong];
     }
 
@@ -182,7 +183,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @param wrappedSong The address of the wrapped song.
      * @return True if the metadata update is confirmed, false otherwise.
      */
-    function isMetadataUpdateConfirmed(address wrappedSong) external view override returns (bool) {
+    function isMetadataUpdateConfirmed(address wrappedSong) external view returns (bool) {
         return metadataUpdateConfirmed[wrappedSong];
     }
 
@@ -275,8 +276,9 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @return The contract URI as a string.
      */
     function getContractURI(address wrappedSong) external view returns (string memory) {
+        require(wrappedSong != address(0), "Wrapped song address cannot be zero");
         Metadata memory metadata = wrappedSongMetadata[wrappedSong];
-        return protocolModule.renderContractURI(metadata, wrappedSong);
+        return protocolModule.renderContractURI(metadata);
     }
 
     receive() external payable {}

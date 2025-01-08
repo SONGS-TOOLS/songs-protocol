@@ -75,12 +75,11 @@ async function main() {
 
   console.log('Deploying FeesModule...');
   const FeesModule = await ethers.getContractFactory('FeesModule');
-  const feesModule = await FeesModule.deploy(deployer.address);
+  const feesModule = await FeesModule.deploy();
   await feesModule.waitForDeployment();
   console.log('FeesModule deployed to:', await feesModule.getAddress());
   await saveAbi('FeesModule', await feesModule.getAddress());
 
- 
   console.log('Deploying ReleaseModule...');
   const ReleaseModule = await ethers.getContractFactory('ReleaseModule');
   const releaseModule = await ReleaseModule.deploy();
@@ -90,10 +89,12 @@ async function main() {
 
   console.log('Deploying IdentityModule...');
   const IdentityModule = await ethers.getContractFactory('IdentityModule');
-  const identityModule = await IdentityModule.deploy(await releaseModule.getAddress());
+  const identityModule = await IdentityModule.deploy();
   await identityModule.waitForDeployment();
   console.log('IdentityModule deployed to:', await identityModule.getAddress());
   await saveAbi('IdentityModule', await identityModule.getAddress());
+  
+  await identityModule.initialize(await releaseModule.getAddress());
 
   console.log('Deploying RegistryModule...');
   const RegistryModule = await ethers.getContractFactory('RegistryModule');
@@ -231,14 +232,14 @@ async function main() {
 
   console.log('Deploying WrappedSongFactory...');
   const WrappedSongFactory = await ethers.getContractFactory('WrappedSongFactory');
-  const wrappedSongFactory = await WrappedSongFactory.deploy(
-    await wrappedSongTemplate.getAddress(),
-    await wsTokenTemplate.getAddress(),
-    await protocolModule.getAddress()
-  );
+  const wrappedSongFactory = await WrappedSongFactory.deploy();
   await wrappedSongFactory.waitForDeployment();
   console.log('WrappedSongFactory deployed to:', await wrappedSongFactory.getAddress());
   await saveAbi('WrappedSongFactory', await wrappedSongFactory.getAddress());
+
+  await wrappedSongFactory.setWrappedSongTemplate(await wrappedSongTemplate.getAddress());
+  await wrappedSongFactory.setWSTokenTemplate(await wsTokenTemplate.getAddress());
+  await wrappedSongFactory.setProtocolModule(await protocolModule.getAddress());
 
   /******************************************************************************
    *                                                                             *

@@ -15,7 +15,6 @@ import "./../Interfaces/IRegistryModule.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-
 // +..................................................................................................+
 // -                                                                                                  -
 // =                                                                                                  =
@@ -456,18 +455,14 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
   /**
    * @dev Renders the contract URI for a wrapped song.
    * @param metadata The metadata of the wrapped song.
-   * @param wrappedSong The address of the wrapped song.
    * @return The contract URI as a string.
    */
   function renderContractURI(
-    IMetadataModule.Metadata memory metadata,
-    address wrappedSong
+    IMetadataModule.Metadata memory metadata
   ) external view returns (string memory) {
     return metadataRenderer.composeContractURI(
         metadata,
-        wrappedSong,
-        baseURI,
-        IProtocolModule(address(this))
+        baseURI
     );
   }
 

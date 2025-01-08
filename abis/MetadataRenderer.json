@@ -39,19 +39,9 @@
         "type": "tuple"
       },
       {
-        "internalType": "address",
-        "name": "wrappedSongAddress",
-        "type": "address"
-      },
-      {
         "internalType": "string",
         "name": "baseURI",
         "type": "string"
-      },
-      {
-        "internalType": "contract IProtocolModule",
-        "name": "protocolModule",
-        "type": "address"
       }
     ],
     "name": "composeContractURI",
@@ -62,7 +52,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {

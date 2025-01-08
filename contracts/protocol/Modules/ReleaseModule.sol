@@ -45,9 +45,7 @@ contract ReleaseModule is Ownable, ReentrancyGuard {
     event ReleasesEnabledChanged(bool enabled);
     event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
 
-    constructor(
-    ) Ownable(msg.sender) {
-    }
+    constructor() Ownable(msg.sender) {}
 
     function initialize(
         address _feesModule,

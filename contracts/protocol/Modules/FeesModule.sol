@@ -32,8 +32,7 @@ contract FeesModule is Ownable, ReentrancyGuard {
     event WithdrawalFeePercentageUpdated(uint256 newPercentage);
     event FeesWithdrawn(address indexed token, address indexed recipient, uint256 amount);
 
-    constructor(address _owner) Ownable(_owner) {
-    }
+    constructor() Ownable(msg.sender) {}
 
       function setCurrentStablecoinIndex(uint256 _index) external onlyOwner {
         currentStablecoinIndex = _index;

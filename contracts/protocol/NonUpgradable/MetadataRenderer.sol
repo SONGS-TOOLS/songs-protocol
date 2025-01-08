@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IRegistryModule.sol";
+
 contract MetadataRenderer {
     /**
      * @dev Composes the token URI from the metadata and token ID.
@@ -150,10 +151,8 @@ contract MetadataRenderer {
      */
     function composeContractURI(
         IMetadataModule.Metadata memory metadata,
-        address wrappedSongAddress,
-        string memory baseURI,
-        IProtocolModule protocolModule
-    ) external view returns (string memory) {
+        string memory baseURI
+    ) external pure returns (string memory) {
         require(bytes(baseURI).length > 0, "Base URI not set");
         
         string memory finalImageData = string(abi.encodePacked(baseURI, metadata.image));
@@ -161,7 +160,7 @@ contract MetadataRenderer {
         string memory json = Base64.encode(
             bytes(string(abi.encodePacked(
                 '{',
-                '"name": "', metadata.name, '",',
+                '"name": "SONGS: ', metadata.name, '",',
                 '"description": "', metadata.description, '",',
                 '"image": "', finalImageData, '",',
                 '"external_link": "', metadata.externalUrl, '"',

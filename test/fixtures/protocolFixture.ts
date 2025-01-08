@@ -52,7 +52,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
 
   // Deploy FeesModule
   const FeesModule = await ethers.getContractFactory("FeesModule");
-  const feesModule = await FeesModule.deploy(deployer.address);
+  const feesModule = await FeesModule.deploy();
   await feesModule.waitForDeployment();
 
   // Deploy ReleaseModule
@@ -62,8 +62,10 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
 
   // Deploy IdentityModule
   const IdentityModule = await ethers.getContractFactory("IdentityModule");
-  const identityModule = await IdentityModule.deploy(releaseModule.target);
+  const identityModule = await IdentityModule.deploy();
   await identityModule.waitForDeployment();
+
+  await identityModule.initialize(await releaseModule.getAddress());
 
   // Deploy RegistryModule
   const RegistryModule = await ethers.getContractFactory("RegistryModule");
@@ -133,13 +135,13 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
 
   // Deploy WrappedSongFactory
   const WrappedSongFactory = await ethers.getContractFactory("WrappedSongFactory");
-  const wrappedSongFactory = await WrappedSongFactory.deploy(
-    wrappedSongTemplate.target,
-    wsTokenTemplate.target,
-    protocolModule.target
-  );
+  const wrappedSongFactory = await WrappedSongFactory.deploy();
   await wrappedSongFactory.waitForDeployment();
   console.log("WrappedSongFactory deployed");
+
+  await wrappedSongFactory.setWrappedSongTemplate(await wrappedSongTemplate.getAddress());
+  await wrappedSongFactory.setWSTokenTemplate(await wsTokenTemplate.getAddress());
+  await wrappedSongFactory.setProtocolModule(await protocolModule.getAddress());
 
   // Set fees in FeesModule
   console.log("Setting fees in FeesModule...");
@@ -177,7 +179,7 @@ export async function deployProtocolFixture(): Promise<ProtocolFixture> {
   await protocolModule.setRegistryModule(registryModule.target);
   console.log("ProtocolModule registry set");
   
-  await protocolModule.setBaseURI("ipfs://");
+  await protocolModule.setBaseURI("https://ipfs.io/ipfs//");
   console.log("Base URI set");
   
   
