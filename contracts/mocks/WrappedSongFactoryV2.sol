@@ -287,7 +287,7 @@ contract WrappedSongFactoryV2 {
         );
 
         return newWrappedSongSmartAccount;
-    }   
+    }
 
     receive() external payable {}
 }

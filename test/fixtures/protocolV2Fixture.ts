@@ -131,7 +131,7 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   const wsTokenTemplate = await WSTokenManagement.deploy();
   await wsTokenTemplate.waitForDeployment();
 
-  // Deploy WrappedSongFactory
+  // // Deploy WrappedSongFactory
   const WrappedSongFactoryV2 = await ethers.getContractFactory("WrappedSongFactoryV2");
   const wrappedSongFactoryV2 = await WrappedSongFactoryV2.deploy(
     protocolModule.target,
@@ -141,6 +141,16 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   await wrappedSongFactoryV2.waitForDeployment();
   console.log("WrappedSongFactory deployed");
 
+  // Deploy WrappedSongFactory
+  // const WrappedSongFactoryV2 = await ethers.getContractFactory("WrappedSongFactory");
+  // const wrappedSongFactoryV2 = await WrappedSongFactoryV2.deploy();
+  // await wrappedSongFactoryV2.waitForDeployment();
+  // console.log("WrappedSongFactory deployed");
+
+  // await wrappedSongFactoryV2.setWrappedSongTemplate(await wrappedSongTemplate.getAddress());
+  // await wrappedSongFactoryV2.setWSTokenTemplate(await wsTokenTemplate.getAddress());
+  // await wrappedSongFactoryV2.setProtocolModule(await protocolModule.getAddress());
+  
   // Set fees in FeesModule
   console.log("Setting fees in FeesModule...");
   await feesModule.setReleaseFee(ethers.parseEther("0"));

@@ -17,4 +17,6 @@ interface IWrappedSongFactory {
         uint256 sharesAmount,
         address wsOwner
     ) external payable returns (address);
+
+    function migrateWrappedSong(address oldWrappedSong, address newWrappedSong) external;
 } 

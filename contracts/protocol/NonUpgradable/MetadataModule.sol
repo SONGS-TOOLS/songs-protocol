@@ -11,7 +11,7 @@ import "./../Interfaces/IWSTokenManagement.sol";
 import "./../Interfaces/IMetadataModule.sol";
 import "./../Interfaces/IDistributorWallet.sol";
 import "./../Interfaces/IRegistryModule.sol";
-
+import "hardhat/console.sol";
 contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -70,6 +70,8 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
      * @return The new metadata.
      */
     function createMetadata(address wrappedSong, Metadata memory newMetadata) external returns (Metadata memory) {
+        console.log("Creating metadata for wrapped song:", wrappedSong);
+        console.log("New metadata:", newMetadata.name);
         address wsToken = protocolModule.smartAccountToWSToken(wrappedSong);
         require(wsToken != address(0), "Address not a protocol WS");
         require(bytes(wrappedSongMetadata[wrappedSong].name).length == 0, "Metadata already exists");

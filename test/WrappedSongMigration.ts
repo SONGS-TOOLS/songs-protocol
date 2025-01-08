@@ -67,6 +67,9 @@ describe("WrappedSong Migration", function () {
             const { wrappedSongFactoryV2, protocolModule: v2ProtocolModule, metadataModule: v2metadataModule } = v2Protocol;
 
             await v1ProtocolModule.connect(v1Protocol.deployer).setAuthorizedContract(wrappedSongFactoryV2.target, true);
+            console.log("authorized contract set");
+            console.log("WrappedSongFactoryV2 Address:", wrappedSongFactoryV2.target);
+
             // Check authorization status after setting
             const isAuthorized = await v1ProtocolModule.isAuthorizedContract(wrappedSongFactoryV2.target);
             expect(isAuthorized).to.be.true;
