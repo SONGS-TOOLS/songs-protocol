@@ -39,7 +39,7 @@ async function getTokenAddress() {
   }
 
   if (network.name === 'baseSepolia') {
-    const usdcAddress = '0x5deac602762362fe5f135fa5904351916053cf70'; // Base Sepolia USDC
+    const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e'; // Base Sepolia USDC
     
     // Verify the token contract exists
     const code = await ethers.provider.getCode(usdcAddress);
@@ -300,6 +300,7 @@ async function main() {
   await feesModule.setUpdateMetadataFee(ethers.parseEther("0"));
   
   await protocolModule.setBaseURI("ipfs://");
+  await protocolModule.setExternalUrlBase("https://songs-tools.com/");
   await protocolModule.setStablecoinFeeReceiver(deployer.address);
 
   console.log('ProtocolModule initialized');

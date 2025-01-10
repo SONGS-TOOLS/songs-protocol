@@ -6,7 +6,6 @@ interface IMetadataModule {
         string name;
         string description;
         string image;
-        string externalUrl;
         string animationUrl;
         string attributesIpfsHash;
     }

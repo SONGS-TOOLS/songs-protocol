@@ -6,7 +6,6 @@ const network = process.argv[3] || 'localhost';
 interface Scripts {
   [key: string]: string;
 }
-
 const scripts: Scripts = {
   'deploy-songs': `npx hardhat run scripts/deploy-ws.ts --network ${network}`,
   'deploy-protocol': `npx hardhat run scripts/deploy-protocol.ts --network ${network}${network === 'baseSepolia' ? ' && ts-node scripts/update-subgraph-config.ts' : ''}`,
@@ -16,6 +15,8 @@ const scripts: Scripts = {
   'deploy-ws-2': `npx hardhat run scripts/deploy-ws-2.ts --network ${network}`,
   'deploy-all': `npm run deploy:protocol ${network} && npm run deploy:songs ${network}`,
   'deploy-one': `npm run deploy:protocol ${network} && npx hardhat run scripts/deploy-ws-one.ts --network ${network}`,
+  'deploy-distributor': `npx hardhat run scripts/deploy-distributor.ts --network ${network}`,
+  'deploy-protocol-distributor': `npm run deploy:protocol ${network} && npx hardhat run scripts/deploy-distributor.ts --network ${network}`,
 };
 
 if (!scripts[scriptName]) {

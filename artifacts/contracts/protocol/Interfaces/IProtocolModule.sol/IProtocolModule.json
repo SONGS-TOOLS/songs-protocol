@@ -31,6 +31,19 @@
     },
     {
       "inputs": [],
+      "name": "getExternalUrlBase",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "getLegalContractMetadata",
       "outputs": [
         {
@@ -295,11 +308,6 @@
             },
             {
               "internalType": "string",
-              "name": "externalUrl",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
               "name": "animationUrl",
               "type": "string"
             },
@@ -312,6 +320,11 @@
           "internalType": "struct IMetadataModule.Metadata",
           "name": "metadata",
           "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
         }
       ],
       "name": "renderContractURI",
@@ -342,11 +355,6 @@
             {
               "internalType": "string",
               "name": "image",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "externalUrl",
               "type": "string"
             },
             {
@@ -439,6 +447,19 @@
         }
       ],
       "name": "setERC20Whitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_externalUrlBase",
+          "type": "string"
+        }
+      ],
+      "name": "setExternalUrlBase",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

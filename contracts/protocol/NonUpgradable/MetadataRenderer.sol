@@ -7,12 +7,16 @@ import "./../Interfaces/IProtocolModule.sol";
 import "./../Interfaces/IRegistryModule.sol";
 
 contract MetadataRenderer {
+
+
+    
     /**
      * @dev Composes the token URI from the metadata and token ID.
      * @param metadata The metadata of the wrapped song.
      * @param tokenId The ID of the token.
      * @param wrappedSongAddress The address of the wrapped song.
      * @param baseURI The base URI for the protocol.
+     * @param externalUrlBase The external URL base for the protocol.
      * @param protocolModule The protocol module interface to fetch registry codes.
      * @return The composed token URI as a string.
      */
@@ -21,6 +25,7 @@ contract MetadataRenderer {
         uint256 tokenId, 
         address wrappedSongAddress,
         string memory baseURI,
+        string memory externalUrlBase,
         IProtocolModule protocolModule
     ) external view returns (string memory) {
         require(bytes(baseURI).length > 0, "Base URI not set");
@@ -74,7 +79,7 @@ contract MetadataRenderer {
                 '{"name": "', tokenType, ' ', metadata.name, '",',
                 '"description": "', description, '",',
                 '"image": "', finalImageData, '",',
-                '"external_url": "', metadata.externalUrl, '",',
+                '"external_url": "', string(abi.encodePacked(externalUrlBase, "wrapped-songs/", addressToString(wrappedSongAddress))), '",',
                 '"animation_url": "', string(abi.encodePacked(baseURI, metadata.animationUrl)), '",',
                 '"attributes": "', string(abi.encodePacked(baseURI, metadata.attributesIpfsHash)), '",',
                 registryCodes, ',',
@@ -151,7 +156,9 @@ contract MetadataRenderer {
      */
     function composeContractURI(
         IMetadataModule.Metadata memory metadata,
-        string memory baseURI
+        string memory baseURI,
+        string memory externalUrlBase,
+        address wrappedSongAddress
     ) external pure returns (string memory) {
         require(bytes(baseURI).length > 0, "Base URI not set");
         
@@ -163,7 +170,7 @@ contract MetadataRenderer {
                 '"name": "SONGS: ', metadata.name, '",',
                 '"description": "', metadata.description, '",',
                 '"image": "', finalImageData, '",',
-                '"external_link": "', metadata.externalUrl, '"',
+                '"external_link": "', string(abi.encodePacked(externalUrlBase, "wrapped-songs/", addressToString(wrappedSongAddress))), '"',
                 '}'
             )))
         );

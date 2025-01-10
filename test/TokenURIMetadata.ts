@@ -13,13 +13,13 @@ describe("Token URI Metadata Tests", function () {
       name: 'Tamago',
       description: 'Test song description',
       image: 'QmcpB2wEwLDKsu7jKBb1EDqgQCCBeL29VAx6M9bFepyGyj',
-      externalUrl: 'https://app.songs-tools.com/wrapped-songs/Tamago',
       animationUrl: 'QmeJHC7HHv7aLYwyD7h2Ax36NGVn7dLHm7iwV5w2WR72XR',
-      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim',
+      attributesIpfsHash: 'QmVArHJSVf1Eqn695Ki1BT86byqYM7fDwsM5yx3s6Y3eim'
     };
 
-    // Set base URI in protocol
+    // Set base URI and external URL base in protocol
     await protocol.protocolModule.setBaseURI("ipfs://");
+    await protocol.protocolModule.setExternalUrlBase("https://songs-tools.com/");
 
     // Create wrapped song as artist
     const creationFee = await protocol.feesModule.wrappedSongCreationFee();
@@ -66,6 +66,7 @@ describe("Token URI Metadata Tests", function () {
         await wrappedSong.getWSTokenManagementAddress()
       );
       const baseURI = await protocolModule.getBaseURI();
+      const externalUrlBase = await protocolModule.getExternalUrlBase();
       const tokenUri = await wsTokensManagement.uri(0);
       const decodedMetadata = decodeBase64Json(tokenUri);
 
@@ -83,7 +84,8 @@ describe("Token URI Metadata Tests", function () {
       expect(decodedMetadata.name).to.equal(`◒ ${metadata.name}`);
       expect(decodedMetadata.description).to.equal(metadata.description);
       expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
-      expect(decodedMetadata.external_url).to.equal(metadata.externalUrl);
+      expect(String(decodedMetadata.external_url).toLowerCase())
+        .to.equal(`${externalUrlBase}wrapped-songs/${String(wrappedSong.target).toLowerCase()}`);
       expect(decodedMetadata.animation_url).to.include(`${baseURI}${metadata.animationUrl}`);
       expect(decodedMetadata.attributes).to.include(`${baseURI}${metadata.attributesIpfsHash}`);
       
@@ -107,11 +109,14 @@ describe("Token URI Metadata Tests", function () {
         await wrappedSong.getWSTokenManagementAddress()
       );
       const baseURI = await protocolModule.getBaseURI();
+      const externalUrlBase = await protocolModule.getExternalUrlBase();
       const tokenUri = await wsTokensManagement.uri(1);
       const decodedMetadata = decodeBase64Json(tokenUri);
 
       expect(decodedMetadata.name).to.equal(`§ ${metadata.name}`);
       expect(decodedMetadata.description).to.include("These are the SongShares");
+      expect(String(decodedMetadata.external_url).toLowerCase())
+        .to.equal(`${externalUrlBase}wrapped-songs/${String(wrappedSong.target).toLowerCase()}`);
       expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
       expect(decodedMetadata.authenticity).to.have.property('isAuthentic');
       expect(decodedMetadata.registryCodes).to.have.all.keys([
@@ -237,16 +242,13 @@ describe("Token URI Metadata Tests", function () {
     });
 
     it("Should return correct contract URI metadata format", async function () {
-
       const { wrappedSong, metadata, protocolModule } = await loadFixture(deployFixture);
       const wsTokensManagement = await ethers.getContractAt(
         "WSTokenManagement",
         await wrappedSong.getWSTokenManagementAddress()
       );
-      
-      // Get the baseURI from the protocol module
+      const externalUrlBase = await protocolModule.getExternalUrlBase();
       const baseURI = await protocolModule.getBaseURI();
-      
       const contractUri = await wsTokensManagement.contractURI();
       const decodedMetadata = decodeBase64Json(contractUri);
 
@@ -263,8 +265,8 @@ describe("Token URI Metadata Tests", function () {
       expect(decodedMetadata.description).to.equal(metadata.description);
       // Use the baseURI from the protocol module
       expect(decodedMetadata.image).to.equal(`${baseURI}${metadata.image}`);
-      expect(decodedMetadata.external_link).to.equal(metadata.externalUrl);
-
+      expect(String(decodedMetadata.external_link).toLowerCase())
+        .to.equal(`${externalUrlBase}wrapped-songs/${String(wrappedSong.target).toLowerCase()}`);
     });
   });
 }); 

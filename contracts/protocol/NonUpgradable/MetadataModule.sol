@@ -280,7 +280,7 @@ contract MetadataModule is Ownable, IMetadataModule, ReentrancyGuard {
     function getContractURI(address wrappedSong) external view returns (string memory) {
         require(wrappedSong != address(0), "Wrapped song address cannot be zero");
         Metadata memory metadata = wrappedSongMetadata[wrappedSong];
-        return protocolModule.renderContractURI(metadata);
+        return protocolModule.renderContractURI(metadata, wrappedSong);
     }
 
     receive() external payable {}

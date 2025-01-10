@@ -61,6 +61,9 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
   // Add new state variable
   IMetadataRenderer public metadataRenderer;
 
+  // Add new state variable near other URI-related variables
+  string public externalUrlBase;
+
   modifier onlyOwnerOrAuthorized() {
     require(
       msg.sender == owner() || msg.sender == address(erc20whitelist),
@@ -129,6 +132,8 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     address indexed wrappedSong
   );
 
+  // Add new event
+  event ExternalUrlBaseUpdated(string newExternalUrlBase);
 
   /**
    * @dev Initializes the contract with the given parameters.
@@ -396,6 +401,14 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
     return baseURI;
   }
 
+  /**
+   * @dev Gets the current external URL base
+   * @return The current external URL base
+   */
+  function getExternalUrlBase() external view returns (string memory) {
+    return externalUrlBase;
+  }
+
   // Update getter function
   function getLegalContractMetadata() external view returns (address) {
     return address(legalContractMetadata);
@@ -448,6 +461,7 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
         tokenId,
         wrappedSong,
         baseURI,
+        externalUrlBase,
         IProtocolModule(address(this))
       );
   }
@@ -458,13 +472,20 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
    * @return The contract URI as a string.
    */
   function renderContractURI(
-    IMetadataModule.Metadata memory metadata
+    IMetadataModule.Metadata memory metadata,
+    address wrappedSong
   ) external view returns (string memory) {
     return metadataRenderer.composeContractURI(
         metadata,
-        baseURI
+        baseURI,
+        externalUrlBase,
+        wrappedSong
     );
   }
+
+    /**************************************************************************
+   * Globals
+   *************************************************************************/
 
     /**
    * @dev Sets the base URI for metadata resources
@@ -473,11 +494,12 @@ contract ProtocolModule is Ownable, Pausable, ReentrancyGuard {
   function setBaseURI(string memory _baseURI) external onlyOwner {
     baseURI = _baseURI;
   }
-  
 
-  /**************************************************************************
-   * Globals
-   *************************************************************************/
+    // Add new setter function
+  function setExternalUrlBase(string memory _externalUrlBase) external onlyOwner {
+    externalUrlBase = _externalUrlBase;
+    emit ExternalUrlBaseUpdated(_externalUrlBase);
+  }
 
   receive() external payable {}
 }

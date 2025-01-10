@@ -29,11 +29,6 @@
             },
             {
               "internalType": "string",
-              "name": "externalUrl",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
               "name": "animationUrl",
               "type": "string"
             },

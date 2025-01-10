@@ -24,11 +24,6 @@
             },
             {
               "internalType": "string",
-              "name": "externalUrl",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
               "name": "animationUrl",
               "type": "string"
             },
@@ -46,6 +41,16 @@
           "internalType": "string",
           "name": "baseURI",
           "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "externalUrlBase",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "wrappedSong",
+          "type": "address"
         }
       ],
       "name": "composeContractURI",
@@ -80,11 +85,6 @@
             },
             {
               "internalType": "string",
-              "name": "externalUrl",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
               "name": "animationUrl",
               "type": "string"
             },
@@ -111,6 +111,11 @@
         {
           "internalType": "string",
           "name": "baseURI",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "externalUrlBase",
           "type": "string"
         },
         {

@@ -21,7 +21,6 @@ interface IProtocolModule {
     function smartAccountToWSToken(address smartAccount) external view returns (address);
     function maxSaleDuration() external view returns (uint256);
     function isWSTokenFromProtocol(address wsTokenManagement) external view returns (bool);
-    function getBaseURI() external view returns (string memory);
     function getStablecoinFeeReceiver() external view returns (address);
     function getLegalContractMetadata() external view returns (address);
     function getMetadataModule() external view returns (address);
@@ -29,6 +28,12 @@ interface IProtocolModule {
     function isValidToCreateWrappedSong(address creator) external view returns (bool);
     function isTokenWhitelisted(address token) external view returns (bool);
     function isAuthorizedContract(address contractAddress) external view returns (bool);
+
+    /**************************************************************************
+     * Getters
+     *************************************************************************/
+    function getExternalUrlBase() external view returns (string memory);
+    function getBaseURI() external view returns (string memory);
 
     /**************************************************************************
      * Pause
@@ -73,11 +78,13 @@ interface IProtocolModule {
     ) external view returns (string memory);
 
     function renderContractURI(
-        IMetadataModule.Metadata memory metadata
+        IMetadataModule.Metadata memory metadata,
+        address wrappedSong
     ) external view returns (string memory);
 
     /**************************************************************************
      * Globals
      *************************************************************************/
     function setBaseURI(string memory _baseURI) external;
+    function setExternalUrlBase(string memory _externalUrlBase) external;
 }

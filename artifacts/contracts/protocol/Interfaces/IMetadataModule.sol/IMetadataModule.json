@@ -42,11 +42,6 @@
             },
             {
               "internalType": "string",
-              "name": "externalUrl",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
               "name": "animationUrl",
               "type": "string"
             },
@@ -78,11 +73,6 @@
             {
               "internalType": "string",
               "name": "image",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "externalUrl",
               "type": "string"
             },
             {
@@ -148,11 +138,6 @@
             {
               "internalType": "string",
               "name": "image",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "externalUrl",
               "type": "string"
             },
             {
@@ -223,11 +208,6 @@
             {
               "internalType": "string",
               "name": "image",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "externalUrl",
               "type": "string"
             },
             {
@@ -320,11 +300,6 @@
             },
             {
               "internalType": "string",
-              "name": "externalUrl",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
               "name": "animationUrl",
               "type": "string"
             },
@@ -366,11 +341,6 @@
             {
               "internalType": "string",
               "name": "image",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "externalUrl",
               "type": "string"
             },
             {

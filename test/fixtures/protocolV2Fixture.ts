@@ -189,6 +189,9 @@ export async function deployProtocolV2Fixture(): Promise<ProtocolV2Fixture> {
   
   await protocolModule.setBaseURI("ipfs://");
   console.log("Base URI set");
+
+  await protocolModule.setExternalUrlBase("https://songs-tools.com/");
+  console.log("External URL base set"); 
   
 
   return {
