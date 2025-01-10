@@ -1,0 +1,179 @@
+[
+  {
+    "address": "0x1d1f40390e89bc611fc90e46d11210161b910d86",
+    "owner": "0xf80ae8040ca3bfb55dc7087b9a3c66dc70551414",
+    "songMetadata": {
+      "name": "100X100",
+      "description": "",
+      "image": "QmbUJ7mcpokvCY2CSqSAnKRH9XVco82v6qjwc9QRhnBxEd",
+      "animationUrl": "QmXW9BufFgqQ8W2WvaN71CDzVYMeTFqevE1oRZuBL9CegV",
+      "attributesIpfsHash": "QmZNgcKT5WJ9qhaMbZz2HGXFHmRTSXvBNBdkfnfxTfhMax"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0xf80ae8040ca3bfb55dc7087b9a3c66dc70551414",
+        "shares": "10000"
+      }
+    ]
+  },
+  {
+    "address": "0x37eba5a337903670e6bbcf47b44ea7c2258a5676",
+    "owner": "0xf5e42ecc6d1ffcdb3a2cc2928d02f54ded1e20bd",
+    "songMetadata": {
+      "name": "Circle",
+      "description": "Circle is rework of a track produced during covid times\n\nDeep progressive techno",
+      "image": "QmWQALL8wZRYAQAyDjusV8nCLJF3RTUe4sttwZKrJgMzoW",
+      "animationUrl": "QmWi7Av3KyZFYxdo1kqCEfW7SsZsWbWVeo8pzinUucntvh",
+      "attributesIpfsHash": "QmRJDYTcoroN4S5VozDEDJXYepmuPuRTH8GyLD1DrXMhiz"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0xf5e42ecc6d1ffcdb3a2cc2928d02f54ded1e20bd",
+        "shares": "10000"
+      }
+    ]
+  },
+  {
+    "address": "0x428f631daa09a2fe33d6be2e60a84e8dd5d9563f",
+    "owner": "0x5449cec18da594adc2d313abf1f161d3afe5f80d",
+    "songMetadata": {
+      "name": "Aquamarina",
+      "description": "",
+      "image": "Qmbs1fX7dVSjkp4eQdqzupktUYfNDrj8CKwgb5HmK8Xr2G",
+      "animationUrl": "QmY8spZCQApW81qwG1VZ6fT4fg5Qhn8tvsPdjSZhULD7Q6",
+      "attributesIpfsHash": "QmPjTCdGbbPVCbSNRwU26FcrGkVPaakmwi3jV7XfZiN9xU"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0x5449cec18da594adc2d313abf1f161d3afe5f80d",
+        "shares": "10000"
+      }
+    ]
+  },
+  {
+    "address": "0x4a989a4e7d0d4ceb1279cc588f0402d777560d59",
+    "owner": "0xefc4fcb21b4b0ae1b5400b582444787097f2daa1",
+    "songMetadata": {
+      "name": "23",
+      "description": "",
+      "image": "QmPCbR4XtNsfUg6DtLaGi4pAWnwwKnECYiczUDyrNmnPtL",
+      "animationUrl": "QmTq7xgLHTp3Avc4w8s5K8PV3CKtWSaf9a1ur6wqfHwTdL",
+      "attributesIpfsHash": "QmWwJVuP3GAxWxkmvtoTMhWcbr6acyiURvXxCukT5wdGfu"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0xefc4fcb21b4b0ae1b5400b582444787097f2daa1",
+        "shares": "10000"
+      }
+    ]
+  },
+  {
+    "address": "0x74f3a89fe6387dd113176406d146e79941997a84",
+    "owner": "0xefc4fcb21b4b0ae1b5400b582444787097f2daa1",
+    "songMetadata": {
+      "name": "27",
+      "description": "",
+      "image": "QmPCbR4XtNsfUg6DtLaGi4pAWnwwKnECYiczUDyrNmnPtL",
+      "animationUrl": "QmW7kAg66ZqnqKLLX5PHzaq3Vvqvfv7za3SpaU7Y1zPWSM",
+      "attributesIpfsHash": "QmaNS85VesvyqBxoYcJL6NboSkekCiZcc5RYh3Nexe6kqf"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0xefc4fcb21b4b0ae1b5400b582444787097f2daa1",
+        "shares": "10000"
+      }
+    ]
+  },
+  {
+    "address": "0x7d8306e90fd45e14c53fd7117b3853f272f985c0",
+    "owner": "0x86fd03063b14bbe3514394d08a43f3609792185f",
+    "songMetadata": {
+      "name": "Siberian Gal",
+      "description": "\"Siberian Gal\" is a heartfelt guitar instrumental inspired by a script penned by a friend, based on a true story of love and death. This piece weaves a tapestry of raw emotions—melancholy, anger, hope, and rage—capturing the profound highs and lows of human connection and the fragility of life. Through dynamic melodies and intense phrasing, it tells a story without words, inviting the listener to journey through the chaos and beauty of love’s deepest trials.",
+      "image": "QmZazbDh9DKNd3itWThCbht56MKC3z2waVJ8e3GW3ddALq",
+      "animationUrl": "QmSB41REzUoL9J4pUeiuqt4zk4yyeytAWRHaCmbPYDYTt7",
+      "attributesIpfsHash": "QmUbjTSN5fyWY7oJLAgkmFkoQQAwzJPujNnPKspgg7RVcZ"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0x86fd03063b14bbe3514394d08a43f3609792185f",
+        "shares": "10000"
+      }
+    ]
+  },
+  {
+    "address": "0x8212293b2a0ec54474b0b13d9c01a87f66e22fb6",
+    "owner": "0xCcc1b93a7533662273c334517305EDb66c540526",
+    "songMetadata": {
+      "name": "pink sky",
+      "description": "Pink sky softly glows,\nwhispers of the dawn’s embrace,\ndreams linger, awake.",
+      "image": "QmXZqxBi9EaKVcFLpE6f2G75Qitug8ySto26ZXPF3NZ3os",
+      "animationUrl": "QmZpuZqsV157uQggKcoZpjNzLkjMSTEsHVTE9KeTbEzac3",
+      "attributesIpfsHash": "QmWU3Do5VLpfrSLPCt7QaUCjQfvbq45GCLPV8PkFUFSQCo"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0x4e8ad3c90f026e4d034b81ba0e1a929e77d80b36",
+        "shares": "1"
+      },
+      {
+        "shareholderAddress": "0x7e9b3f5a1e3e148064f1a8474e7e0684859687b6",
+        "shares": "100"
+      },
+      {
+        "shareholderAddress": "0xb0f57b6eb882420fe2e6e4fe46d38275e206eb26",
+        "shares": "7000"
+      },
+      {
+        "shareholderAddress": "0xF5E42ecC6d1FfCDb3a2Cc2928d02F54DED1E20BD",
+        "shares": "2899"
+      }
+    ]
+  },
+  {
+    "address": "0x966e1537aec694f7e5034f77b8831c16a5172fea",
+    "owner": "0xCcc1b93a7533662273c334517305EDb66c540526",
+    "songMetadata": {
+      "name": "elevate",
+      "description": "Elevate’s tune calls,\nlifting souls to realms unknown,\nnew worlds wait beyond.",
+      "image": "Qmc4JLHz3gkp7udbxmCmfKwwFcPvesWzAnHap4Ua92vkiY",
+      "animationUrl": "QmcdEeE8gJhWtZswmRY6uU67t8PiwG2qrtcz1jGKd4gvr3",
+      "attributesIpfsHash": "Qmbntrhza7rUG5SqcB4odTMyduKmRjjWVauFqJiJR8o63K"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0x7e9b3f5a1e3e148064f1a8474e7e0684859687b6",
+        "shares": "100"
+      },
+      {
+        "shareholderAddress": "0xb0f57b6eb882420fe2e6e4fe46d38275e206eb26",
+        "shares": "7000"
+      },
+      {
+        "shareholderAddress": "0xccc1b93a7533662273c334517305edb66c540526",
+        "shares": "2900"
+      }
+    ]
+  },
+  {
+    "address": "0xea45a104fec1979ba4122ad56a63bbfc94368ccc",
+    "owner": "0xcb5afd9fcbf3096d4d8689cb461cb21b789eb807",
+    "songMetadata": {
+      "name": "$BEGINS",
+      "description": "so it begins lofi",
+      "image": "QmYPC8CqhjwzjCvEUzJku2LLTppp5VCytuT22WuKUucduj",
+      "animationUrl": "QmdcBZA4rpncYEw12AnyMRPkdtLKraoB2CshTm7edWK7NP",
+      "attributesIpfsHash": "QmXZ156WXt8ppykMjETHdVTqF92XonSUzacrrQdvZ6V7AR"
+    },
+    "shareholders": [
+      {
+        "shareholderAddress": "0xcb5afd9fcbf3096d4d8689cb461cb21b789eb807",
+        "shares": "9000"
+      },
+      {
+        "shareholderAddress": "0xccc1b93a7533662273c334517305edb66c540526",
+        "shares": "1000"
+      }
+    ]
+  }
+]

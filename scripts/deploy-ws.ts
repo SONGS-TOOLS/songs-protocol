@@ -137,7 +137,6 @@ async function main() {
             name: songMetadatas[i].name,
             description: songMetadatas[i].description,
             image: songMetadatas[i].image,
-            externalUrl: songMetadatas[i].externalUrl,
             animationUrl: songMetadatas[i].animationUrl,
             attributesIpfsHash: songMetadatas[i].attributesIpfsHash
           },

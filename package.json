@@ -22,6 +22,7 @@
     "deploy": "ts-node scripts/run-with-network.ts deploy",
     "deploy:ws-2": "ts-node scripts/run-with-network.ts deploy-ws-2",
     "deploy:all": "ts-node scripts/run-with-network.ts deploy-all",
+    "deploy:base": "ts-node scripts/run-with-network.ts deploy-base",
     "deploy:protocol:distributor": "ts-node scripts/run-with-network.ts deploy-protocol-distributor",
     "compile": "npx hardhat compile",
     "size": "yarn run hardhat size-contracts",
