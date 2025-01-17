@@ -1450,10 +1450,10 @@
     web3 "^4.1.1"
     webworkify-webpack "^2.1.5"
 
-"@remix-project/remixd@^0.6.33":
-  version "0.6.35"
-  resolved "https://registry.yarnpkg.com/@remix-project/remixd/-/remixd-0.6.35.tgz#75bdb731c35141e5aeea358bc60a12d45b96f421"
-  integrity sha512-mOHyBNIgUyF3s6IFSKrZKriovW8Sq2NwPI98uyn/UXcNZifxUAVEJwN2UUy/o0vPws5h7TtcL0bx4HmvOpSCtg==
+"@remix-project/remixd@^0.6.42":
+  version "0.6.42"
+  resolved "https://registry.yarnpkg.com/@remix-project/remixd/-/remixd-0.6.42.tgz#f810439416c4ad662ab730a59391a9e045d08182"
+  integrity sha512-8H9L8W/MXUDB78sUm05RkBzR+eV5M6cZzatpx/i0zpZc+Z4y91VDNzKa/v8xkjCHKttQB6qXaSIDpeH4/DuLxA==
   dependencies:
     "@remix-project/remix-solidity" "^0.5.36"
     "@remixproject/plugin" "0.3.33"
