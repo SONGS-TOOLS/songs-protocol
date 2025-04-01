@@ -62,6 +62,72 @@ export class FeesWithdrawn__Params {
   }
 }
 
+export class OwnershipTransferred extends ethereum.Event {
+  get params(): OwnershipTransferred__Params {
+    return new OwnershipTransferred__Params(this);
+  }
+}
+
+export class OwnershipTransferred__Params {
+  _event: OwnershipTransferred;
+
+  constructor(event: OwnershipTransferred) {
+    this._event = event;
+  }
+
+  get previousOwner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newOwner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class ProtocolModuleUpdated extends ethereum.Event {
+  get params(): ProtocolModuleUpdated__Params {
+    return new ProtocolModuleUpdated__Params(this);
+  }
+}
+
+export class ProtocolModuleUpdated__Params {
+  _event: ProtocolModuleUpdated;
+
+  constructor(event: ProtocolModuleUpdated) {
+    this._event = event;
+  }
+
+  get oldModule(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newModule(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class WSTokenTemplateUpdated extends ethereum.Event {
+  get params(): WSTokenTemplateUpdated__Params {
+    return new WSTokenTemplateUpdated__Params(this);
+  }
+}
+
+export class WSTokenTemplateUpdated__Params {
+  _event: WSTokenTemplateUpdated;
+
+  constructor(event: WSTokenTemplateUpdated) {
+    this._event = event;
+  }
+
+  get oldTemplate(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newTemplate(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
 export class WrappedSongCreated extends ethereum.Event {
   get params(): WrappedSongCreated__Params {
     return new WrappedSongCreated__Params(this);
@@ -115,16 +181,68 @@ export class WrappedSongCreatedMetadataStruct extends ethereum.Tuple {
     return this[2].toString();
   }
 
-  get externalUrl(): string {
+  get animationUrl(): string {
     return this[3].toString();
   }
 
-  get animationUrl(): string {
+  get attributesIpfsHash(): string {
     return this[4].toString();
   }
+}
 
-  get attributesIpfsHash(): string {
-    return this[5].toString();
+export class WrappedSongMigrated extends ethereum.Event {
+  get params(): WrappedSongMigrated__Params {
+    return new WrappedSongMigrated__Params(this);
+  }
+}
+
+export class WrappedSongMigrated__Params {
+  _event: WrappedSongMigrated;
+
+  constructor(event: WrappedSongMigrated) {
+    this._event = event;
+  }
+
+  get oldWrappedSong(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newWrappedSong(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get owner(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get stablecoin(): Address {
+    return this._event.parameters[3].value.toAddress();
+  }
+
+  get wsTokenManagement(): Address {
+    return this._event.parameters[4].value.toAddress();
+  }
+}
+
+export class WrappedSongTemplateUpdated extends ethereum.Event {
+  get params(): WrappedSongTemplateUpdated__Params {
+    return new WrappedSongTemplateUpdated__Params(this);
+  }
+}
+
+export class WrappedSongTemplateUpdated__Params {
+  _event: WrappedSongTemplateUpdated;
+
+  constructor(event: WrappedSongTemplateUpdated) {
+    this._event = event;
+  }
+
+  get oldTemplate(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newTemplate(): Address {
+    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -156,18 +274,14 @@ export class WrappedSongFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  metadataModule(): Address {
-    let result = super.call("metadataModule", "metadataModule():(address)", []);
+  owner(): Address {
+    let result = super.call("owner", "owner():(address)", []);
 
     return result[0].toAddress();
   }
 
-  try_metadataModule(): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "metadataModule",
-      "metadataModule():(address)",
-      [],
-    );
+  try_owner(): ethereum.CallResult<Address> {
+    let result = super.tryCall("owner", "owner():(address)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -185,6 +299,25 @@ export class WrappedSongFactory extends ethereum.SmartContract {
     let result = super.tryCall(
       "protocolModule",
       "protocolModule():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  registryModule(): Address {
+    let result = super.call("registryModule", "registryModule():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_registryModule(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "registryModule",
+      "registryModule():(address)",
       [],
     );
     if (result.reverted) {
@@ -257,18 +390,6 @@ export class ConstructorCall__Inputs {
   constructor(call: ConstructorCall) {
     this._call = call;
   }
-
-  get _protocolModule(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _wrappedSongTemplate(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get _wsTokenTemplate(): Address {
-    return this._call.inputValues[2].value.toAddress();
-  }
 }
 
 export class ConstructorCall__Outputs {
@@ -309,6 +430,10 @@ export class CreateWrappedSongCall__Inputs {
   get sharesAmount(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
+
+  get wsOwner(): Address {
+    return this._call.inputValues[3].value.toAddress();
+  }
 }
 
 export class CreateWrappedSongCall__Outputs {
@@ -336,16 +461,196 @@ export class CreateWrappedSongCallSongMetadataStruct extends ethereum.Tuple {
     return this[2].toString();
   }
 
-  get externalUrl(): string {
+  get animationUrl(): string {
     return this[3].toString();
   }
 
-  get animationUrl(): string {
+  get attributesIpfsHash(): string {
     return this[4].toString();
   }
+}
 
-  get attributesIpfsHash(): string {
-    return this[5].toString();
+export class MigrateWrappedSongCall extends ethereum.Call {
+  get inputs(): MigrateWrappedSongCall__Inputs {
+    return new MigrateWrappedSongCall__Inputs(this);
+  }
+
+  get outputs(): MigrateWrappedSongCall__Outputs {
+    return new MigrateWrappedSongCall__Outputs(this);
+  }
+}
+
+export class MigrateWrappedSongCall__Inputs {
+  _call: MigrateWrappedSongCall;
+
+  constructor(call: MigrateWrappedSongCall) {
+    this._call = call;
+  }
+
+  get oldWrappedSong_(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get oldMetadataModule_(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+}
+
+export class MigrateWrappedSongCall__Outputs {
+  _call: MigrateWrappedSongCall;
+
+  constructor(call: MigrateWrappedSongCall) {
+    this._call = call;
+  }
+
+  get value0(): Address {
+    return this._call.outputValues[0].value.toAddress();
+  }
+}
+
+export class RenounceOwnershipCall extends ethereum.Call {
+  get inputs(): RenounceOwnershipCall__Inputs {
+    return new RenounceOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): RenounceOwnershipCall__Outputs {
+    return new RenounceOwnershipCall__Outputs(this);
+  }
+}
+
+export class RenounceOwnershipCall__Inputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class RenounceOwnershipCall__Outputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class SetProtocolModuleCall extends ethereum.Call {
+  get inputs(): SetProtocolModuleCall__Inputs {
+    return new SetProtocolModuleCall__Inputs(this);
+  }
+
+  get outputs(): SetProtocolModuleCall__Outputs {
+    return new SetProtocolModuleCall__Outputs(this);
+  }
+}
+
+export class SetProtocolModuleCall__Inputs {
+  _call: SetProtocolModuleCall;
+
+  constructor(call: SetProtocolModuleCall) {
+    this._call = call;
+  }
+
+  get _newModule(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetProtocolModuleCall__Outputs {
+  _call: SetProtocolModuleCall;
+
+  constructor(call: SetProtocolModuleCall) {
+    this._call = call;
+  }
+}
+
+export class SetWSTokenTemplateCall extends ethereum.Call {
+  get inputs(): SetWSTokenTemplateCall__Inputs {
+    return new SetWSTokenTemplateCall__Inputs(this);
+  }
+
+  get outputs(): SetWSTokenTemplateCall__Outputs {
+    return new SetWSTokenTemplateCall__Outputs(this);
+  }
+}
+
+export class SetWSTokenTemplateCall__Inputs {
+  _call: SetWSTokenTemplateCall;
+
+  constructor(call: SetWSTokenTemplateCall) {
+    this._call = call;
+  }
+
+  get _newTemplate(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetWSTokenTemplateCall__Outputs {
+  _call: SetWSTokenTemplateCall;
+
+  constructor(call: SetWSTokenTemplateCall) {
+    this._call = call;
+  }
+}
+
+export class SetWrappedSongTemplateCall extends ethereum.Call {
+  get inputs(): SetWrappedSongTemplateCall__Inputs {
+    return new SetWrappedSongTemplateCall__Inputs(this);
+  }
+
+  get outputs(): SetWrappedSongTemplateCall__Outputs {
+    return new SetWrappedSongTemplateCall__Outputs(this);
+  }
+}
+
+export class SetWrappedSongTemplateCall__Inputs {
+  _call: SetWrappedSongTemplateCall;
+
+  constructor(call: SetWrappedSongTemplateCall) {
+    this._call = call;
+  }
+
+  get _newTemplate(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetWrappedSongTemplateCall__Outputs {
+  _call: SetWrappedSongTemplateCall;
+
+  constructor(call: SetWrappedSongTemplateCall) {
+    this._call = call;
+  }
+}
+
+export class TransferOwnershipCall extends ethereum.Call {
+  get inputs(): TransferOwnershipCall__Inputs {
+    return new TransferOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): TransferOwnershipCall__Outputs {
+    return new TransferOwnershipCall__Outputs(this);
+  }
+}
+
+export class TransferOwnershipCall__Inputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+
+  get newOwner(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class TransferOwnershipCall__Outputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
+    this._call = call;
   }
 }
 

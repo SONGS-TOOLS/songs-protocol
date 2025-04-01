@@ -25,7 +25,6 @@ export function createMetadata<T, U>(parent: T, songMetadataParam: U): void {
     const name = songMetadataParam.name;
     const description = songMetadataParam.description;
     const image = songMetadataParam.image;
-    const externalUrl = songMetadataParam.externalUrl;
     const animationUrl = songMetadataParam.animationUrl;
     const attributesIpfsHash = songMetadataParam.attributesIpfsHash;
     const songMetadataId = parent.id.toHexString() + "-songmetadata";
@@ -36,7 +35,6 @@ export function createMetadata<T, U>(parent: T, songMetadataParam: U): void {
     songMetadata.name = name;
     songMetadata.description = description;
     songMetadata.image = image;
-    songMetadata.externalUrl = externalUrl;
     songMetadata.animationUrl = animationUrl;
     songMetadata.attributesIpfsHash = attributesIpfsHash;
     songMetadata.attributes = attributesIpfsHash;

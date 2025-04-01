@@ -52,17 +52,17 @@ export class ProtocolConfig extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get reviewPeriodDays(): i32 {
-    let value = this.get("reviewPeriodDays");
+  get maxSaleDuration(): BigInt {
+    let value = this.get("maxSaleDuration");
     if (!value || value.kind == ValueKind.NULL) {
-      return 0;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toI32();
+      return value.toBigInt();
     }
   }
 
-  set reviewPeriodDays(value: i32) {
-    this.set("reviewPeriodDays", Value.fromI32(value));
+  set maxSaleDuration(value: BigInt) {
+    this.set("maxSaleDuration", Value.fromBigInt(value));
   }
 }
 
@@ -373,6 +373,36 @@ export class WrappedSong extends Entity {
       this.set("wsIndex", Value.fromBigInt(<BigInt>value));
     }
   }
+
+  get accumulatedFunds(): BigInt {
+    let value = this.get("accumulatedFunds");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set accumulatedFunds(value: BigInt) {
+    this.set("accumulatedFunds", Value.fromBigInt(value));
+  }
+
+  get isrc(): string | null {
+    let value = this.get("isrc");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set isrc(value: string | null) {
+    if (!value) {
+      this.unset("isrc");
+    } else {
+      this.set("isrc", Value.fromString(<string>value));
+    }
+  }
 }
 
 export class Attributes extends Entity {
@@ -484,19 +514,6 @@ export class SongMetadata extends Entity {
 
   set image(value: string) {
     this.set("image", Value.fromString(value));
-  }
-
-  get externalUrl(): string {
-    let value = this.get("externalUrl");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set externalUrl(value: string) {
-    this.set("externalUrl", Value.fromString(value));
   }
 
   get name(): string {
@@ -1187,6 +1204,84 @@ export class WSTokenManagement extends Entity {
       "shareHolders",
     );
   }
+
+  get soldout(): boolean {
+    let value = this.get("soldout");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set soldout(value: boolean) {
+    this.set("soldout", Value.fromBoolean(value));
+  }
+
+  get isFree(): boolean {
+    let value = this.get("isFree");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isFree(value: boolean) {
+    this.set("isFree", Value.fromBoolean(value));
+  }
+
+  get previousSaleAmount(): BigInt {
+    let value = this.get("previousSaleAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set previousSaleAmount(value: BigInt) {
+    this.set("previousSaleAmount", Value.fromBigInt(value));
+  }
+
+  get totalSold(): BigInt {
+    let value = this.get("totalSold");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalSold(value: BigInt) {
+    this.set("totalSold", Value.fromBigInt(value));
+  }
+
+  get totalSoldFree(): BigInt {
+    let value = this.get("totalSoldFree");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalSoldFree(value: BigInt) {
+    this.set("totalSoldFree", Value.fromBigInt(value));
+  }
+
+  get totalSoldPaid(): BigInt {
+    let value = this.get("totalSoldPaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalSoldPaid(value: BigInt) {
+    this.set("totalSoldPaid", Value.fromBigInt(value));
+  }
 }
 
 export class Sale extends Entity {
@@ -1482,6 +1577,19 @@ export class ShareHolder extends Entity {
     );
   }
 
+  get wsTokenManagement(): Bytes {
+    let value = this.get("wsTokenManagement");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wsTokenManagement(value: Bytes) {
+    this.set("wsTokenManagement", Value.fromBytes(value));
+  }
+
   get shares(): BigInt {
     let value = this.get("shares");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1545,19 +1653,6 @@ export class ShareHolder extends Entity {
 
   set redeemedEarnings(value: BigInt) {
     this.set("redeemedEarnings", Value.fromBigInt(value));
-  }
-
-  get wsTokenManagement(): Bytes {
-    let value = this.get("wsTokenManagement");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set wsTokenManagement(value: Bytes) {
-    this.set("wsTokenManagement", Value.fromBytes(value));
   }
 }
 
@@ -1657,6 +1752,19 @@ export class WrappedSongShareHolder extends Entity {
 
   set lastEpochClaimed(value: BigInt) {
     this.set("lastEpochClaimed", Value.fromBigInt(value));
+  }
+
+  get sharesBought(): BigInt {
+    let value = this.get("sharesBought");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sharesBought(value: BigInt) {
+    this.set("sharesBought", Value.fromBigInt(value));
   }
 }
 

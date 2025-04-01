@@ -1,0 +1,248 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ProtocolModule
+    network: "base-sepolia"
+    source:
+      address: "0x2a671e056E89D6DC94C1122278270F6d19847Ee4"
+      abi: ProtocolModule
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/protocol-module.ts
+      entities:
+        - ProtocolConfig
+      abis:
+        - name: ProtocolModule
+          file: ../artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
+      eventHandlers:
+        - event: MaxSaleDurationUpdated(uint256)
+          handler: handleMaxSaleDurationUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+  - kind: ethereum
+    name: IdentityModule
+    network: "base-sepolia"
+    source:
+      address: "0xBFE2a1Bd2A867Af1C5e154C9B42dFC251db8b8c4"
+      abi: IdentityModule
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/identity-module.ts
+      entities:
+        - WrappedSong
+      abis:
+        - name: IdentityModule
+          file: ../artifacts/contracts/protocol/Modules/IdentityModule.sol/IdentityModule.json
+      eventHandlers:
+        - event: IdentityRegistryUpdated(indexed address,string,string)
+          handler: handleIdentityRegistryUpdated
+  - kind: ethereum
+    name: ReleaseModule
+    network: "base-sepolia"
+    source:
+      address: "0x04eFeb881f78f2B85fFe190BfFc69096758D9be8"
+      abi: ReleaseModule
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/release-module.ts
+      entities:
+        - WrappedSong
+      abis:
+        - name: ReleaseModule
+          file: ../artifacts/contracts/protocol/Modules/ReleaseModule.sol/ReleaseModule.json
+      eventHandlers:
+        - event: WrappedSongReleaseRequested(indexed address,indexed address,indexed address)
+          handler: handleWrappedSongReleaseRequested
+        - event: WrappedSongReleased(indexed address,indexed address)
+          handler: handleWrappedSongReleased
+        - event: WrappedSongReleaseRejected(indexed address,indexed address)
+          handler: handleWrappedSongReleaseRejected
+  - kind: ethereum
+    name: WrappedSongFactory
+    network: "base-sepolia"
+    source:
+      address: "0x34Bcf8d22030F088b6B44Ef671D58cF0640232c2"
+      abi: WrappedSongFactory
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - WrappedSong
+        - WSTokenManagement
+      abis:
+        - name: WrappedSongFactory
+          file: ../artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
+      eventHandlers:
+        - event: WrappedSongCreated(indexed address,indexed address,address,address,uint256,(string,string,string,string,string))
+          handler: handleWrappedSongCreated
+        # - event: WrappedSongMigrated(indexed address,indexed address,indexed address,address,address)
+        #   handler: handleWrappedSongMigrated
+      file: ./src/wrapped-song-factory.ts
+  - kind: ethereum
+    name: distributorWalletFactory
+    network: "base-sepolia"
+    source:
+      address: "0x59F30EF4F8e3C7b196d5Bf79FF6B64C43d02D039"
+      abi: DistributorWalletFactory
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Distributor
+      abis:
+        - name: DistributorWalletFactory
+          file: ../artifacts/contracts/protocol/NonUpgradable/DistributorWalletFactory.sol/DistributorWalletFactory.json
+      eventHandlers:
+        - event: DistributorWalletCreated(indexed address,address,address)
+          handler: handleDistributorWalletCreated
+      file: ./src/distributor-wallet-factory.ts
+  - kind: ethereum
+    name: metadataModule
+    network: "base-sepolia"
+    source:
+      address: "0x03a336F9cd7f1a4D804E3D68076BBd016158342c"
+      abi: MetadataModule
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/metadata-module.ts
+      entities:
+        - WrappedSong
+        - MetadataUpdateRequest
+        - SharesMetadata
+        - SongMetadata
+      abis:
+        - name: MetadataModule
+          file: ../artifacts/contracts/protocol/NonUpgradable/MetadataModule.sol/MetadataModule.json
+      eventHandlers:
+        - event: MetadataUpdateRequested(indexed address,(string,string,string,string,string))
+          handler: handleMetadataUpdateRequested
+        - event: MetadataUpdated(indexed address,(string,string,string,string,string))
+          handler: handleMetadataUpdated
+        - event: MetadataUpdateRejected(indexed address)
+          handler: handleMetadataUpdateRejected
+  - kind: ethereum
+    name: SongSharesMarketPlace
+    network: "base-sepolia"
+    source:
+      address: "0x9Fc221D5240ea5422a75c32d2026Bb12CA47d05a"
+      abi: SongSharesMarketPlace
+      startBlock: 20497355
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/market-place.ts
+      entities:
+        - WrappedSong
+        - Sale
+        - SaleOffer
+        - WSTokenManagement
+      abis:
+        - name: SongSharesMarketPlace
+          file: ../artifacts/contracts/protocol/NonUpgradable/SongSharesMarketPlace.sol/SongSharesMarketPlace.json
+      eventHandlers:
+        - event: SharesSaleStarted(indexed address,indexed address,uint256,uint256,uint256,address)
+          handler: handleSharesSaleStarted
+        - event: SharesSold(indexed address,indexed address,indexed address,uint256,uint256,address)
+          handler: handleSharesSold
+        - event: SharesSaleEnded(indexed address)
+          handler: handleSharesSaleEnded
+        - event: FundsWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFundsWithdrawn
+templates:
+  - name: DistributorWallet
+    kind: ethereum/contract
+    network: "base-sepolia"
+    source:
+      abi: DistributorWallet
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/distributor-wallet.ts
+      entities:
+        - Distributor
+        - DistributorEpoch
+      abis:
+        - name: DistributorWallet
+          file: ../artifacts/contracts/protocol/NonUpgradable/DistributorWallet.sol/DistributorWallet.json
+      eventHandlers:
+        - event: NewRevenueEpoch(indexed address,indexed uint256,uint256,uint256)
+          handler: handleNewRevenueEpoch
+        - event: EpochRedeemed(indexed address,indexed address,indexed uint256,uint256)
+          handler: handleEpochRedeemed
+  - name: WrappedSongSmartAccount
+    kind: ethereum/contract
+    network: "base-sepolia"
+    source:
+      abi: WrappedSongSmartAccount
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/wrapped-song-smart-account.ts
+      entities:
+        - WrappedSong
+      abis:
+        - name: WrappedSongSmartAccount
+          file: ../abis/WrappedSongSmartAccount.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+  - name: Attributes
+    kind: file/ipfs
+    network: "base-sepolia"
+    mapping:
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/ipfs-mappings.ts
+      handler: handleAttributes
+      entities:
+        - Attributes
+      abis:
+        - name: WrappedSongSmartAccount
+          file: ../abis/WrappedSongSmartAccount.json
+  - name: WSTokenManagement
+    kind: ethereum/contract
+    network: "base-sepolia"
+    source:
+      abi: WSTokenManagement
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/ws-token-management.ts
+      entities:
+        - WrappedSong
+        - SaleOffer
+        - Sale
+        - WSTokenManagement
+      abis:
+        - name: WSTokenManagement
+          file: ../abis/WSTokenManagement.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+# features:
+#   - grafting
+# graft:
+#   base: QmPGwh5AzvGkDGoS9JCfSKMXozG14DRFjtsHrLnhsNVciq
+#   block: 20497355

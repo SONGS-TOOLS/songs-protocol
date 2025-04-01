@@ -1,3 +1,19 @@
+import { BigInt, store} from "@graphprotocol/graph-ts";
+import { OwnershipTransferred as OwnershipTransferredEvent } from "../generated/templates/WrappedSongSmartAccount/WrappedSongSmartAccount";
+import { ShareHolder, WrappedSong, WrappedSongShareHolder } from "../generated/schema";
+export function handleOwnershipTransferred(event: OwnershipTransferredEvent): void {
+    const wrappedSongAddress = event.address;
+    const from = event.params.previousOwner;
+    const to = event.params.newOwner;
+
+    const wrappedSong = WrappedSong.load(wrappedSongAddress);
+    if (wrappedSong) {
+        wrappedSong.creator = to;
+        wrappedSong.save();
+    }
+}
+
+
 // export function handleTransfer(event: TransferEvent): void {
 //   let wrappedSongAddress = event.address.toHexString();
 //   let wrappedSong = WrappedSong.load(wrappedSongAddress);

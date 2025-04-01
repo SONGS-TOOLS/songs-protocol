@@ -3,7 +3,9 @@ import {
   // FundWithdrawal,
   Sale,
   SaleOffer,
+  ShareHolder,
   WrappedSong,
+  WrappedSongShareHolder,
   WSTokenManagement,
 } from "../generated/schema";
 import {
@@ -29,6 +31,7 @@ export function handleSharesSaleStarted(event: SharesSaleStarted): void {
     return;
   }
 
+
   const currentSaleOfferId = wsTokenManagement.saleOffer;
 
   let saleOffer: SaleOffer | null;
@@ -38,7 +41,7 @@ export function handleSharesSaleStarted(event: SharesSaleStarted): void {
       return;
     }
   } else {
-    let saleOfferId = event.block.hash;
+    let saleOfferId = event.transaction.hash;
     saleOffer = new SaleOffer(saleOfferId);
     saleOffer.createdAt = event.block.timestamp;
   }
@@ -52,11 +55,15 @@ export function handleSharesSaleStarted(event: SharesSaleStarted): void {
 
   saleOffer.save();
   wsTokenManagement.saleOffer = saleOffer.id;
+  wsTokenManagement.soldout = false;
+  wsTokenManagement.isFree = event.params.price.equals(BigInt.fromI32(0)) ? true : false;
+  wsTokenManagement.previousSaleAmount = event.params.amount;
   wsTokenManagement.save();
 }
 
 export function handleSharesSold(event: SharesSold): void {
   let wrappedSongId = event.params.wrappedSong;
+  const buyer = event.params.recipient;
   if (!wrappedSongId) {
     return;
   }
@@ -72,41 +79,80 @@ export function handleSharesSold(event: SharesSold): void {
   }
 
   if (wrappedSong) {
-    let saleId = event.block.hash;
+    let saleId = event.transaction.hash;
     let sale = new Sale(saleId);
-    sale.buyer = event.params.buyer;
+    sale.buyer = event.params.recipient;
     sale.amount = event.params.amount;
     sale.wsTokenManagement = wsTokenManagement.id;
 
-    // Why not? Why do we need to have pricePerShare in a sale?
-    sale.pricePerShare = BigInt.fromI32(0); // We don't have access to the price in this event
+    sale.pricePerShare = event.params.totalCost.div(event.params.amount);
     sale.timestamp = event.block.timestamp;
-    const saleOfferId = wsTokenManagement.saleOffer;
-    if (saleOfferId) {
-      const saleOffer = SaleOffer.load(saleOfferId);
-      if (saleOffer) {
-        sale.currency = saleOffer.currency;
-      }
-    }
+    sale.currency = event.params.paymentToken;
 
     sale.save();
 
-    let activeSaleOfferId = wsTokenManagement.saleOffer;
-    if (!activeSaleOfferId) {
-      return;
+    wrappedSong.accumulatedFunds = wrappedSong.accumulatedFunds.plus(
+      event.params.totalCost
+    );
+    wrappedSong.save();
+
+
+
+    wsTokenManagement.previousSaleAmount = wsTokenManagement.previousSaleAmount.minus(event.params.amount);
+    if (wsTokenManagement.previousSaleAmount.equals(BigInt.fromI32(0))) {
+      wsTokenManagement.soldout = true;
     }
-    let activeSaleOffer = SaleOffer.load(activeSaleOfferId);
-    if (!activeSaleOffer) {
-      return;
-    }
-    activeSaleOffer.amount = activeSaleOffer.amount.minus(event.params.amount);
-    if (activeSaleOffer.amount.equals(BigInt.fromI32(0))) {
-      wsTokenManagement.saleActive = false;
-      wsTokenManagement.saleOffer = null;
-      store.remove("SaleOffer", activeSaleOfferId.toHexString());
+
+    if(event.params.totalCost.equals(BigInt.fromI32(0))) {
+      wsTokenManagement.totalSoldFree = wsTokenManagement.totalSoldFree.plus(event.params.amount);
     } else {
-      activeSaleOffer.save();
+      wsTokenManagement.totalSoldPaid = wsTokenManagement.totalSoldPaid.plus(event.params.amount);
     }
+    wsTokenManagement.totalSold = wsTokenManagement.totalSold.plus(event.params.amount);
+
+    const wrappedSongShareHolderToId = wrappedSong.id.concat(buyer);
+    let wrappedSongShareHolderTo = WrappedSongShareHolder.load(
+      wrappedSongShareHolderToId
+    );
+    if (wrappedSongShareHolderTo == null) {
+      wrappedSongShareHolderTo = new WrappedSongShareHolder(
+        wrappedSongShareHolderToId
+      );
+      wrappedSongShareHolderTo.wrappedSong = wrappedSong.id;
+      let shareHolderTo = ShareHolder.load(buyer);
+      if (shareHolderTo == null) {
+        shareHolderTo = new ShareHolder(buyer);
+        shareHolderTo.shares = event.params.amount;
+        shareHolderTo.lastUpdated = event.block.timestamp;
+        shareHolderTo.totalEarnings = BigInt.fromI32(0);
+        shareHolderTo.unclaimedEarnings = BigInt.fromI32(0);
+        shareHolderTo.redeemedEarnings = BigInt.fromI32(0);
+      }
+      shareHolderTo.wsTokenManagement = wsTokenManagement.id;
+      shareHolderTo.save();
+
+      wrappedSongShareHolderTo.shareHolder = buyer;
+      wrappedSongShareHolderTo.shares = BigInt.fromI32(0);
+      wrappedSongShareHolderTo.sharesBought = BigInt.fromI32(0);
+      wrappedSongShareHolderTo.lastEpochClaimed = BigInt.fromI32(0);
+    }
+    wrappedSongShareHolderTo.sharesBought =
+      wrappedSongShareHolderTo.sharesBought.plus(event.params.amount);
+    wrappedSongShareHolderTo.save();
+    let activeSaleOfferId = wsTokenManagement.saleOffer;
+    if (activeSaleOfferId) {
+      let activeSaleOffer = SaleOffer.load(activeSaleOfferId);
+      if (activeSaleOffer) {
+        activeSaleOffer.amount = activeSaleOffer.amount.minus(event.params.amount);
+        if (activeSaleOffer.amount.equals(BigInt.fromI32(0))) {
+          wsTokenManagement.saleActive = false;
+          store.remove("SaleOffer", activeSaleOfferId.toHexString());
+        } else {
+          activeSaleOffer.save();
+        }
+      }
+    }
+
     wsTokenManagement.save();
   }
 }
@@ -149,6 +195,10 @@ export function handleFundsWithdrawn(event: FundsWithdrawn): void {
   const wsTokenManagementAddress = wrappedSong.wsTokenManagement;
 
   if (wrappedSong) {
+    wrappedSong.accumulatedFunds = wrappedSong.accumulatedFunds.minus(
+      event.params.amount
+    );
+    wrappedSong.save();
     // let withdrawalId =
     //   wsTokenManagementAddress + '-' + event.transaction.hash.toHexString();
     // let withdrawal = new FundWithdrawal(withdrawalId);

@@ -357,6 +357,32 @@ export class ConstructorCall__Outputs {
   }
 }
 
+export class DefaultCall extends ethereum.Call {
+  get inputs(): DefaultCall__Inputs {
+    return new DefaultCall__Inputs(this);
+  }
+
+  get outputs(): DefaultCall__Outputs {
+    return new DefaultCall__Outputs(this);
+  }
+}
+
+export class DefaultCall__Inputs {
+  _call: DefaultCall;
+
+  constructor(call: DefaultCall) {
+    this._call = call;
+  }
+}
+
+export class DefaultCall__Outputs {
+  _call: DefaultCall;
+
+  constructor(call: DefaultCall) {
+    this._call = call;
+  }
+}
+
 export class CreateDistributorWalletCall extends ethereum.Call {
   get inputs(): CreateDistributorWalletCall__Inputs {
     return new CreateDistributorWalletCall__Inputs(this);

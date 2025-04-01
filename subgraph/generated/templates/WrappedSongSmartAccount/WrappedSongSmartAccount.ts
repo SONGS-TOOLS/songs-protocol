@@ -755,6 +755,25 @@ export class WrappedSongSmartAccount extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  releaseModule(): Address {
+    let result = super.call("releaseModule", "releaseModule():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_releaseModule(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "releaseModule",
+      "releaseModule():(address)",
+      [],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   songSharesId(): BigInt {
     let result = super.call("songSharesId", "songSharesId():(uint256)", []);
 
@@ -936,10 +955,6 @@ export class ConstructorCall__Inputs {
 
   constructor(call: ConstructorCall) {
     this._call = call;
-  }
-
-  get _protocolModuleAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
   }
 }
 
@@ -1289,6 +1304,36 @@ export class RenounceOwnershipCall__Outputs {
   _call: RenounceOwnershipCall;
 
   constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class SetSymbolCall extends ethereum.Call {
+  get inputs(): SetSymbolCall__Inputs {
+    return new SetSymbolCall__Inputs(this);
+  }
+
+  get outputs(): SetSymbolCall__Outputs {
+    return new SetSymbolCall__Outputs(this);
+  }
+}
+
+export class SetSymbolCall__Inputs {
+  _call: SetSymbolCall;
+
+  constructor(call: SetSymbolCall) {
+    this._call = call;
+  }
+
+  get newSymbol(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+}
+
+export class SetSymbolCall__Outputs {
+  _call: SetSymbolCall;
+
+  constructor(call: SetSymbolCall) {
     this._call = call;
   }
 }

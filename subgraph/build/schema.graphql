@@ -1,6 +1,6 @@
 type ProtocolConfig @entity {
   id: ID!
-  reviewPeriodDays: Int!
+  maxSaleDuration: BigInt!
 }
 
 type WrappedSong @entity {
@@ -12,8 +12,8 @@ type WrappedSong @entity {
   createdAt: BigInt!
   songMetadata: SongMetadata
   sharesMetadata: SharesMetadata
-  distributor: Distributor
-  releaseDistributor: Distributor
+  distributor: Distributor #not in use
+  releaseDistributor: Distributor #not in use
   pendingMetadataUpdate: MetadataUpdateRequest
   releasedAt: BigInt
   releaseRequest: ReleaseRequest
@@ -23,6 +23,8 @@ type WrappedSong @entity {
   wsTokenManagement: WSTokenManagement!
   isAuthentic: Boolean!
   wsIndex: BigInt
+  accumulatedFunds: BigInt!
+  isrc: String
 }
 
 type Attributes @entity {
@@ -33,7 +35,6 @@ type Attributes @entity {
 type SongMetadata @entity {
   id: ID!
   image: String!
-  externalUrl: String!
   name: String!
   description: String!
   attributesIpfsHash: String!
@@ -92,6 +93,12 @@ type WSTokenManagement @entity {
   saleOffer: SaleOffer
   sales: [Sale!]! @derivedFrom(field: "wsTokenManagement")
   shareHolders: [ShareHolder!]! @derivedFrom(field: "wsTokenManagement")
+  soldout: Boolean
+  isFree: Boolean
+  previousSaleAmount: BigInt!
+  totalSold: BigInt!
+  totalSoldFree: BigInt!
+  totalSoldPaid: BigInt!
 }
 
 type Sale @entity {
@@ -117,13 +124,12 @@ type SaleOffer @entity {
 type ShareHolder @entity {
   id: Bytes! # Composite key: wrappedSongAddress-holderAddress
   wrappedSongs: [WrappedSongShareHolder!]! @derivedFrom(field: "shareHolder")
-  # holder: Bytes!
+  wsTokenManagement: WSTokenManagement!
   shares: BigInt!
   lastUpdated: BigInt!
   totalEarnings: BigInt!
   unclaimedEarnings: BigInt!
   redeemedEarnings: BigInt!
-  wsTokenManagement: WSTokenManagement!
 }
 
 # type Checkpoint @entity {
@@ -139,5 +145,6 @@ type WrappedSongShareHolder @entity {
   shareHolder: ShareHolder!
   shares: BigInt!
   lastEpochClaimed: BigInt!
+  sharesBought: BigInt!
   # checkpoints: [Checkpoint!]! @derivedFrom(field: "wrappedSongShareHolder")
 }

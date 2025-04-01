@@ -447,21 +447,38 @@ export class WSTokenManagement extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
-  createLegalContract(contractURI: string): BigInt {
+  contractURI(): string {
+    let result = super.call("contractURI", "contractURI():(string)", []);
+
+    return result[0].toString();
+  }
+
+  try_contractURI(): ethereum.CallResult<string> {
+    let result = super.tryCall("contractURI", "contractURI():(string)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  createLegalContract(legalContractURI: string): BigInt {
     let result = super.call(
       "createLegalContract",
       "createLegalContract(string):(uint256)",
-      [ethereum.Value.fromString(contractURI)],
+      [ethereum.Value.fromString(legalContractURI)],
     );
 
     return result[0].toBigInt();
   }
 
-  try_createLegalContract(contractURI: string): ethereum.CallResult<BigInt> {
+  try_createLegalContract(
+    legalContractURI: string,
+  ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "createLegalContract",
       "createLegalContract(string):(uint256)",
-      [ethereum.Value.fromString(contractURI)],
+      [ethereum.Value.fromString(legalContractURI)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -586,6 +603,21 @@ export class WSTokenManagement extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  name(): string {
+    let result = super.call("name", "name():(string)", []);
+
+    return result[0].toString();
+  }
+
+  try_name(): ethereum.CallResult<string> {
+    let result = super.tryCall("name", "name():(string)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
   owner(): Address {
     let result = super.call("owner", "owner():(address)", []);
 
@@ -641,6 +673,21 @@ export class WSTokenManagement extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  symbol(): string {
+    let result = super.call("symbol", "symbol():(string)", []);
+
+    return result[0].toString();
+  }
+
+  try_symbol(): ethereum.CallResult<string> {
+    let result = super.tryCall("symbol", "symbol():(string)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   totalShares(): BigInt {
@@ -791,7 +838,7 @@ export class CreateLegalContractCall__Inputs {
     this._call = call;
   }
 
-  get contractURI(): string {
+  get legalContractURI(): string {
     return this._call.inputValues[0].value.toString();
   }
 }
@@ -1088,6 +1135,36 @@ export class TransferOwnershipCall__Outputs {
   _call: TransferOwnershipCall;
 
   constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class UpdateSymbolCall extends ethereum.Call {
+  get inputs(): UpdateSymbolCall__Inputs {
+    return new UpdateSymbolCall__Inputs(this);
+  }
+
+  get outputs(): UpdateSymbolCall__Outputs {
+    return new UpdateSymbolCall__Outputs(this);
+  }
+}
+
+export class UpdateSymbolCall__Inputs {
+  _call: UpdateSymbolCall;
+
+  constructor(call: UpdateSymbolCall) {
+    this._call = call;
+  }
+
+  get newSymbol(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+}
+
+export class UpdateSymbolCall__Outputs {
+  _call: UpdateSymbolCall;
+
+  constructor(call: UpdateSymbolCall) {
     this._call = call;
   }
 }

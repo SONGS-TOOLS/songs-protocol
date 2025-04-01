@@ -5,7 +5,6 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "node ../scripts/deploy-subgraph.js",
-    "deploy-dev": "node ../scripts/deploy-subgraph.js --dev",
     "codegen-local": "graph codegen ./subgraph-local.yaml",
     "build-local": "graph build ./subgraph-local.yaml",
     "create-local": "graph create --node http://localhost:8020/ songs-protocol",

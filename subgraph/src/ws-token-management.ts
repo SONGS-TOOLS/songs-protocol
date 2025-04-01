@@ -21,13 +21,6 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   const to = event.params.to;
   const amount = event.params.value;
   const tokenId = event.params.id;
-  log.info("DEBUGGGG handleTransferSingle", []);
-  log.info("Event params value: {}, from: {}, to: {}, tokenId: {}", [
-    event.params.value.toString(),
-    event.params.from.toHexString(),
-    event.params.to.toHexString(),
-    event.params.id.toHexString(),
-  ]);
   if (tokenId.toHexString() != "0x1") {
     return;
   }
@@ -80,6 +73,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
       wrappedSongShareHolderFrom.shareHolder = to;
       wrappedSongShareHolderFrom.shares = BigInt.fromI32(0);
       wrappedSongShareHolderFrom.lastEpochClaimed = BigInt.fromI32(0);
+      wrappedSongShareHolderFrom.sharesBought = BigInt.fromI32(0);
     }
 
     wrappedSongShareHolderFrom.shares =
@@ -132,6 +126,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     wrappedSongShareHolderTo.wrappedSong = wrappedSong.id;
     wrappedSongShareHolderTo.shareHolder = to;
     wrappedSongShareHolderTo.shares = BigInt.fromI32(0);
+    wrappedSongShareHolderTo.sharesBought = BigInt.fromI32(0);
     wrappedSongShareHolderTo.lastEpochClaimed = BigInt.fromI32(0);
   }
   wrappedSongShareHolderTo.shares =

@@ -206,6 +206,8 @@ templates:
       eventHandlers:
         - event: NewRevenueEpoch(indexed address,indexed uint256,uint256,uint256)
           handler: handleNewRevenueEpoch
+        - event: EpochRedeemed(indexed address,indexed address,indexed uint256,uint256)
+          handler: handleEpochRedeemed
   - name: WrappedSongSmartAccount
     kind: ethereum/contract
     network: "localhost"
