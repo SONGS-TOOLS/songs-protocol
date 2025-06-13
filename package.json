@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.68.0",
-    "@graphprotocol/graph-ts": "^0.32.0",
+    "@graphprotocol/graph-ts": "^0.37.0",
     "@openzeppelin/contracts": "^5.0.2",
     "@remix-project/remixd": "^0.6.33",
     "dotenv": "^16.4.5"
