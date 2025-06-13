@@ -1,0 +1,1751 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_distributorWalletFactory",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_whitelistingManager",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_erc20whitelist",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_metadataModule",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_legalContractMetadata",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "EnforcedPause",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ExpectedPause",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "OwnableInvalidOwner",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "OwnableUnauthorizedAccount",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ReentrancyGuardReentrantCall",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newFee",
+						"type": "uint256"
+					}
+				],
+				"name": "DistributorCreationFeeUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newFactory",
+						"type": "address"
+					}
+				],
+				"name": "DistributorWalletFactoryUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newWhitelist",
+						"type": "address"
+					}
+				],
+				"name": "ERC20WhitelistUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "newExternalUrlBase",
+						"type": "string"
+					}
+				],
+				"name": "ExternalUrlBaseUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "registryType",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "value",
+						"type": "string"
+					}
+				],
+				"name": "IdentityRegistryUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newContract",
+						"type": "address"
+					}
+				],
+				"name": "LegalContractMetadataUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newDuration",
+						"type": "uint256"
+					}
+				],
+				"name": "MaxSaleDurationUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newModule",
+						"type": "address"
+					}
+				],
+				"name": "MetadataModuleUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newRenderer",
+						"type": "address"
+					}
+				],
+				"name": "MetadataRendererUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "newMetadata",
+						"type": "string"
+					}
+				],
+				"name": "MetadataUpdateRequested",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "newMetadata",
+						"type": "string"
+					}
+				],
+				"name": "MetadataUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					}
+				],
+				"name": "OwnerWrappedSongAdded",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "Paused",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "isPaused",
+						"type": "bool"
+					}
+				],
+				"name": "Paused",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "newPayInStablecoin",
+						"type": "bool"
+					}
+				],
+				"name": "PayInStablecoinUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newFee",
+						"type": "uint256"
+					}
+				],
+				"name": "ReleaseFeeUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "enabled",
+						"type": "bool"
+					}
+				],
+				"name": "ReleasesEnabledChanged",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newDays",
+						"type": "uint256"
+					}
+				],
+				"name": "ReviewPeriodDaysUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "smartAccount",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "wsToken",
+						"type": "address"
+					}
+				],
+				"name": "SmartAccountToWSTokenMapped",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newCreationFee",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newReleaseFee",
+						"type": "uint256"
+					}
+				],
+				"name": "StableFeesUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "Unpaused",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newFee",
+						"type": "uint256"
+					}
+				],
+				"name": "UpdateMetadataFeeUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newManager",
+						"type": "address"
+					}
+				],
+				"name": "WhitelistingManagerUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newPercentage",
+						"type": "uint256"
+					}
+				],
+				"name": "WithdrawalFeePercentageUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "isAuthentic",
+						"type": "bool"
+					}
+				],
+				"name": "WrappedSongAuthenticitySet",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newFee",
+						"type": "uint256"
+					}
+				],
+				"name": "WrappedSongCreationFeeUpdated",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "authorizedContracts",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "baseURI",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "distributorWalletFactory",
+				"outputs": [
+					{
+						"internalType": "contract IDistributorWalletFactory",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "erc20whitelist",
+				"outputs": [
+					{
+						"internalType": "contract IERC20Whitelist",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "externalUrlBase",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getBaseURI",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getExternalUrlBase",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getLegalContractMetadata",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMetadataModule",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "getOwnerWrappedSongs",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getRegistryModule",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getStablecoinFeeReceiver",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_contractAddress",
+						"type": "address"
+					}
+				],
+				"name": "isAuthorizedContract",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					}
+				],
+				"name": "isTokenWhitelisted",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "creator",
+						"type": "address"
+					}
+				],
+				"name": "isValidToCreateWrappedSong",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "wsTokenManagement",
+						"type": "address"
+					}
+				],
+				"name": "isWSTokenFromProtocol",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "legalContractMetadata",
+				"outputs": [
+					{
+						"internalType": "contract ILegalContractMetadata",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "maxSaleDuration",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "metadataModule",
+				"outputs": [
+					{
+						"internalType": "contract IMetadataModule",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "metadataRenderer",
+				"outputs": [
+					{
+						"internalType": "contract IMetadataRenderer",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "ownerWrappedSongs",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "pause",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "paused",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "registryModule",
+				"outputs": [
+					{
+						"internalType": "contract IRegistryModule",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					}
+				],
+				"name": "removeTokenFromWhitelist",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "description",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "image",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "animationUrl",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "attributesIpfsHash",
+								"type": "string"
+							}
+						],
+						"internalType": "struct IMetadataModule.Metadata",
+						"name": "metadata",
+						"type": "tuple"
+					},
+					{
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					}
+				],
+				"name": "renderContractURI",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "description",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "image",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "animationUrl",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "attributesIpfsHash",
+								"type": "string"
+							}
+						],
+						"internalType": "struct IMetadataModule.Metadata",
+						"name": "metadata",
+						"type": "tuple"
+					},
+					{
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					}
+				],
+				"name": "renderTokenURI",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_contractAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "_isAuthorized",
+						"type": "bool"
+					}
+				],
+				"name": "setAuthorizedContract",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_baseURI",
+						"type": "string"
+					}
+				],
+				"name": "setBaseURI",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_newFactory",
+						"type": "address"
+					}
+				],
+				"name": "setDistributorWalletFactory",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_erc20whitelist",
+						"type": "address"
+					}
+				],
+				"name": "setERC20Whitelist",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_externalUrlBase",
+						"type": "string"
+					}
+				],
+				"name": "setExternalUrlBase",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_legalContractMetadata",
+						"type": "address"
+					}
+				],
+				"name": "setLegalContractMetadata",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_duration",
+						"type": "uint256"
+					}
+				],
+				"name": "setMaxSaleDuration",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_metadataModule",
+						"type": "address"
+					}
+				],
+				"name": "setMetadataModule",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_renderer",
+						"type": "address"
+					}
+				],
+				"name": "setMetadataRenderer",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "wrappedSong",
+						"type": "address"
+					}
+				],
+				"name": "setOwnerWrappedSong",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_registryModule",
+						"type": "address"
+					}
+				],
+				"name": "setRegistryModule",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "smartAccount",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "wsToken",
+						"type": "address"
+					}
+				],
+				"name": "setSmartAccountToWSToken",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_stablecoinFeeReceiver",
+						"type": "address"
+					}
+				],
+				"name": "setStablecoinFeeReceiver",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "wsTokenManagement",
+						"type": "address"
+					}
+				],
+				"name": "setWSTokenFromProtocol",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_whitelistingManager",
+						"type": "address"
+					}
+				],
+				"name": "setWhitelistingManager",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_wrappedSongFactory",
+						"type": "address"
+					}
+				],
+				"name": "setWrappedSongFactory",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "smartAccountToWSToken",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "stablecoinFeeReceiver",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "unpause",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					}
+				],
+				"name": "whitelistToken",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "whitelistingManager",
+				"outputs": [
+					{
+						"internalType": "contract IWhitelistingManager",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "wrappedSongFactory",
+				"outputs": [
+					{
+						"internalType": "contract IWrappedSongFactory",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "wrappedSongFactoryAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"errors": {
+				"EnforcedPause()": [
+					{
+						"details": "The operation failed because the contract is paused."
+					}
+				],
+				"ExpectedPause()": [
+					{
+						"details": "The operation failed because the contract is not paused."
+					}
+				],
+				"OwnableInvalidOwner(address)": [
+					{
+						"details": "The owner is not a valid owner account. (eg. `address(0)`)"
+					}
+				],
+				"OwnableUnauthorizedAccount(address)": [
+					{
+						"details": "The caller account is not authorized to perform an operation."
+					}
+				],
+				"ReentrancyGuardReentrantCall()": [
+					{
+						"details": "Unauthorized reentrant call."
+					}
+				]
+			},
+			"events": {
+				"Paused(address)": {
+					"details": "Emitted when the pause is triggered by `account`."
+				},
+				"Unpaused(address)": {
+					"details": "Emitted when the pause is lifted by `account`."
+				}
+			},
+			"kind": "dev",
+			"methods": {
+				"constructor": {
+					"details": "Initializes the contract with the given parameters.",
+					"params": {
+						"_distributorWalletFactory": "The address of the DistributorWalletFactory contract.",
+						"_erc20whitelist": "The address of the ERC20Whitelist contract.",
+						"_legalContractMetadata": "The address of the LegalContractMetadata contract.",
+						"_metadataModule": "The address of the MetadataModule contract.",
+						"_whitelistingManager": "The address of the WhitelistingManager contract."
+					}
+				},
+				"getBaseURI()": {
+					"details": "Gets the current base URI",
+					"returns": {
+						"_0": "The current base URI"
+					}
+				},
+				"getExternalUrlBase()": {
+					"details": "Gets the current external URL base",
+					"returns": {
+						"_0": "The current external URL base"
+					}
+				},
+				"getMetadataModule()": {
+					"details": "Gets the address of the MetadataModule contract",
+					"returns": {
+						"_0": "The address of the MetadataModule contract"
+					}
+				},
+				"getRegistryModule()": {
+					"details": "Gets the address of the MetadataModule contract",
+					"returns": {
+						"_0": "The address of the MetadataModule contract"
+					}
+				},
+				"isAuthorizedContract(address)": {
+					"details": "Checks if a contract is authorized.",
+					"params": {
+						"_contractAddress": "The address of the contract to check."
+					},
+					"returns": {
+						"_0": "True if the contract is authorized, false otherwise."
+					}
+				},
+				"isTokenWhitelisted(address)": {
+					"details": "Checks if a token is whitelisted.",
+					"params": {
+						"token": "The address of the token to check."
+					},
+					"returns": {
+						"_0": "True if the token is whitelisted, false otherwise."
+					}
+				},
+				"isValidToCreateWrappedSong(address)": {
+					"details": "Checks if the creator is valid to create a wrapped song based on the NFT requirement.",
+					"params": {
+						"creator": "The address of the creator."
+					},
+					"returns": {
+						"_0": "True if the creator is valid to create a wrapped song, false otherwise."
+					}
+				},
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"paused()": {
+					"details": "Returns true if the contract is paused, and false otherwise."
+				},
+				"removeTokenFromWhitelist(address)": {
+					"details": "removes a token from the whitelist.",
+					"params": {
+						"token": "The address of the token to remove from the whitelist."
+					}
+				},
+				"renderContractURI((string,string,string,string,string),address)": {
+					"details": "Renders the contract URI for a wrapped song.",
+					"params": {
+						"metadata": "The metadata of the wrapped song."
+					},
+					"returns": {
+						"_0": "The contract URI as a string."
+					}
+				},
+				"renderTokenURI((string,string,string,string,string),uint256,address)": {
+					"details": "Renders the token URI for a wrapped song.",
+					"params": {
+						"metadata": "The metadata of the wrapped song.",
+						"tokenId": "The ID of the token.",
+						"wrappedSong": "The address of the wrapped song."
+					},
+					"returns": {
+						"_0": "The token URI as a string."
+					}
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+				},
+				"setAuthorizedContract(address,bool)": {
+					"details": "Sets the authorization status of a contract.",
+					"params": {
+						"_contractAddress": "The address of the contract to set the authorization status.",
+						"_isAuthorized": "The authorization status to be set."
+					}
+				},
+				"setBaseURI(string)": {
+					"details": "Sets the base URI for metadata resources",
+					"params": {
+						"_baseURI": "The new base URI to be used"
+					}
+				},
+				"setDistributorWalletFactory(address)": {
+					"details": "Updates the address of the DistributorWalletFactory contract. Only the owner can update the address.",
+					"params": {
+						"_newFactory": "The address of the new DistributorWalletFactory contract."
+					}
+				},
+				"setERC20Whitelist(address)": {
+					"details": "Sets the address of the ERC20Whitelist contract. Only the owner can set the address.",
+					"params": {
+						"_erc20whitelist": "The address of the new ERC20Whitelist contract."
+					}
+				},
+				"setMaxSaleDuration(uint256)": {
+					"details": "Updates the maximum duration allowed for sales.",
+					"params": {
+						"_duration": "The new maximum duration in seconds"
+					}
+				},
+				"setMetadataModule(address)": {
+					"details": "Sets the address of the MetadataModule contract. Only the owner can set the address.",
+					"params": {
+						"_metadataModule": "The address of the new MetadataModule contract."
+					}
+				},
+				"setWhitelistingManager(address)": {
+					"details": "Sets the address of the WhitelistingManager contract. Only the owner can set the address.",
+					"params": {
+						"_whitelistingManager": "The address of the new WhitelistingManager contract."
+					}
+				},
+				"setWrappedSongFactory(address)": {
+					"details": "Sets the address of the WrappedSongFactory contract. Only the owner can set the address.",
+					"params": {
+						"_wrappedSongFactory": "The address of the new WrappedSongFactory contract."
+					}
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				},
+				"whitelistToken(address)": {
+					"details": "whitelists a token.",
+					"params": {
+						"token": "The address of the token to whitelist."
+					}
+				},
+				"wrappedSongFactoryAddress()": {
+					"details": "Returns the address of the WrappedSongFactory contract.",
+					"returns": {
+						"_0": "The address of the WrappedSongFactory contract."
+					}
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/protocol/NonUpgradable/ProtocolModule.sol": "ProtocolModule"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/access/Ownable.sol": {
+			"keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8ed324d3920bb545059d66ab97d43e43ee85fd3bd52e03e401f020afb0b120f6",
+				"dweb:/ipfs/QmfEckWLmZkDDcoWrkEvMWhms66xwTLff9DDhegYpvHo1a"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC1155/IERC1155.sol": {
+			"keccak256": "0x6caffc9cfdc623eca9f87a686071708af5d5c17454d65022843fdddbc53c0cce",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ecf8c7ed1f8ff443c181f64496ae380ee02e61dcd2ed120e1e997837a926f182",
+				"dweb:/ipfs/QmWASYTrZPF2MrcpC3EBmxx6RgtZ5Fr4jwrsmB7ZF7qhDC"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0ea104e577e63faea3b69c415637e99e755dcbf64c5833d7140c35a714d6d90c",
+				"dweb:/ipfs/Qmau6x4Ns9XdyynRCNNp3RhLqijJjFm7z5fyZazfYFGYdq"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol": {
+			"keccak256": "0x6008dabfe393240d73d7dd7688033f72740d570aa422254d29a7dce8568f3aff",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f5196ec75139918c6c7bb4251b36395e668f1fa6d206beba7e7520e74913940d",
+				"dweb:/ipfs/QmSyqjksXxmm2mCG6qRd1yuwLykypkSVBbnBnGqJRcuJMi"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
+			"keccak256": "0x37bb49513c49c87c4642a891b13b63571bc87013dde806617aa1efb54605f386",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b3036b3a83b7c48f96641f2a9002b9f2dcb6a5958dd670894ada21ae8229b3d0",
+				"dweb:/ipfs/QmUNfSBdoVtjhETaUJCYcaC7pTMgbhht926tJ2uXJbiVd3"
+			]
+		},
+		"@openzeppelin/contracts/utils/Address.sol": {
+			"keccak256": "0xaf28a975a78550e45f65e559a3ad6a5ad43b9b8a37366999abd1b7084eb70721",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b7bd24e224f67f65bfadf85dc2929fa965456bb2415478bd0125471b5ce35245",
+				"dweb:/ipfs/QmRaydGr8BTHs1kvaZfsNU69pKzUAGFrvABn1KiRSbE51y"
+			]
+		},
+		"@openzeppelin/contracts/utils/Context.sol": {
+			"keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12",
+				"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF"
+			]
+		},
+		"@openzeppelin/contracts/utils/Pausable.sol": {
+			"keccak256": "0xb2e5f50762c27fb4b123e3619c3c02bdcba5e515309382e5bfb6f7d6486510bd",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1a4b83328c98d518a2699c2cbe9e9b055e78aa57fa8639f1b88deb8b3750b5dc",
+				"dweb:/ipfs/QmXdcYj5v7zQxXFPULShHkR5p4Wa2zYuupbHnFdV3cHYtc"
+			]
+		},
+		"@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+			"keccak256": "0xf980daa263b661ab8ddee7d4fd833c7da7e7995e2c359ff1f17e67e4112f2236",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://7448ab095d6940130bcf76ba47a2eab14148c83119523b93dd89f6d84edd6c02",
+				"dweb:/ipfs/QmawrZ4voKQjH3oomXT3Kuheb3Mnmo2VvVpxg8Ne5UJUrd"
+			]
+		},
+		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+			"keccak256": "0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://87b3541437c8c443ccd36795e56a338ed12855eec17f8da624511b8d1a7e14df",
+				"dweb:/ipfs/QmeJQCtZrQjtJLr6u7ZHWeH3pBnjtLWzvRrKViAi7UZqxL"
+			]
+		},
+		"contracts/protocol/Interfaces/IDistributorWalletFactory.sol": {
+			"keccak256": "0xd9691428b46e8cac7f17a251ef319758e07cb8da7cfadbdcae272f37e3772bd9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0f555bcc8e1e09aa065e862e2d703f3f4499dbafd9b78b384619e5402cea9ad9",
+				"dweb:/ipfs/QmdUioFKAd2LUL3oL1EDou7LW9Z7NPBkkoLA3MismEgwNs"
+			]
+		},
+		"contracts/protocol/Interfaces/IERC20Whitelist.sol": {
+			"keccak256": "0xb79b5f96b133ede0d4ccbb31dd5eaf2859a368558eb7451b1115647e08c6e093",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9c16265dc5784f8642429024abb6768ee904d247c03797794070027170c3aa95",
+				"dweb:/ipfs/QmaY7Y7Jy58fukzTZ5mUdxk8opocJKSKYGfSgTmyHMabBa"
+			]
+		},
+		"contracts/protocol/Interfaces/IFeesModule.sol": {
+			"keccak256": "0x768ad222e7b1f40942a6af67b8c9897f317bed2297fa900acef4564ec67e8c67",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://a63b8486e2ac4b67abefc5474b82d29a5bea642a5ea0de760fea9086033036df",
+				"dweb:/ipfs/QmQFyvrQi3S8BxT6T9ZqynxJ9HhU7zC649uuYvTHtfQfSb"
+			]
+		},
+		"contracts/protocol/Interfaces/IIdentityModule.sol": {
+			"keccak256": "0x5c2b8e2e9657c5889bb4a135168f6777226e382830ab58da7a59f5f1484195b5",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5c6463b1fae860d4212f7a2ffc2704ea7f51c152f62baea1a4633c962445737b",
+				"dweb:/ipfs/QmWTBFtC2NqfWHpBrJThWtiinRW2a7E649K2iDHzEN3jYC"
+			]
+		},
+		"contracts/protocol/Interfaces/ILegalContractMetadata.sol": {
+			"keccak256": "0xfb99b2a519295d48c46b526baaa143b8b51b3fae6a4df9b91495e1787a48b6b9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e5d2b110cd7001a4e13113db7bf91b48119aba7bb2f136ba3da59316063ea7d1",
+				"dweb:/ipfs/QmUN97mNDkMgizqLXzHM9SW88zLsLtPcAaTeCzkfXYitga"
+			]
+		},
+		"contracts/protocol/Interfaces/IMetadataModule.sol": {
+			"keccak256": "0x6c2f4227f66bef01c3bc4693a06446531e8dc8666110f24163e47c868b40bab0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c50d03e746c805061a76f8af2cac4cd2300f5e9ba8b8d9e954cd0e5f6671c439",
+				"dweb:/ipfs/QmPBP7YFgEH268qot6so8G6rmxCKeJDsaBw6ZimkXm6tTK"
+			]
+		},
+		"contracts/protocol/Interfaces/IMetadataRenderer.sol": {
+			"keccak256": "0xc1b137007ab7ac6e65a29667786be924893afd294e85f9cb5ffe1cb5e9f12486",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f11f5e569b2414c421bf598802968a5c24b9729aa4e7cb5a532ff61777a18db3",
+				"dweb:/ipfs/QmVJUcAKgj6P2avZNksEoa4TMfy8bWuvwd6EhAd2DKBENp"
+			]
+		},
+		"contracts/protocol/Interfaces/IProtocolModule.sol": {
+			"keccak256": "0x78d07feb73b0fc1b3ec571b65bd108c3a00b268bd2a001b137f83f4f3a70d9eb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://caec1c650075a267bb53858abe5fee68741b5c9fbb9f858dd6024fc6861e8e88",
+				"dweb:/ipfs/QmNN5M9DqLAjYAF7PTerj6VapM9ceyv5GwJR4SpFyGeu2J"
+			]
+		},
+		"contracts/protocol/Interfaces/IRegistryModule.sol": {
+			"keccak256": "0x00ae79e8ee631d4b069b3292853157fca55e72d6d98872d0e54a4160626bcce6",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e73d1436ebaabd0502dc52b15f2dccd5b0c9b32005ae87d80f5954544677e5a9",
+				"dweb:/ipfs/QmQMmLUpZ7Qo8jRN2HTUgnW9u1phH4H7RWxscUumcDWv7g"
+			]
+		},
+		"contracts/protocol/Interfaces/IReleaseModule.sol": {
+			"keccak256": "0x59a916adfa087528465f6df5bf387760f9bb991fcf3a4c42ed07e5fa686fd31a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://00f76acc4b60171f7a0d13c4196599a876357308abb71d7fd31c71a941c1a27e",
+				"dweb:/ipfs/QmcuNrgYJFSeVsaYCeu2zJ51UcHCBwow9wEyPrCH3Y7BFX"
+			]
+		},
+		"contracts/protocol/Interfaces/IWSTokenManagement.sol": {
+			"keccak256": "0x412a3af43dc93f35752f2e7d381c20d795c242ee8b0dbac3b3714bf6a14ef77b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://548d1fa2502f053feee0db2a7becc2d1dc755f986f85ed4500fcbea03d71dc47",
+				"dweb:/ipfs/QmeQNSUdViQA57zN2ZskYAWPTJtQBZZiPN5SZXZiCjNz7e"
+			]
+		},
+		"contracts/protocol/Interfaces/IWhitelistingManager.sol": {
+			"keccak256": "0xf3b33479a4f38741696fb4e39dd79dee85ab281492dacb789993905eb3e05e17",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c48556f0eaefcd9f95308dd4f7a29704307c22a10d772e21cd3819491e002d3e",
+				"dweb:/ipfs/QmTHi9WbGxe4s9epLH8tMhV4GemBiXAEKZw49iNwsBr5qM"
+			]
+		},
+		"contracts/protocol/Interfaces/IWrappedSongFactory.sol": {
+			"keccak256": "0xaaf629af4b7fd104e9c1366b5e204645f84e33016637560c498116c65e5a9e83",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d6b4ba96dc80418a857357717e52f8f130bfb30b31c8c22fe840f57f837991e8",
+				"dweb:/ipfs/QmdnpTFZY6jTTASo2DKd211UQEYE83h3kB12zpTPnhTszT"
+			]
+		},
+		"contracts/protocol/Interfaces/IWrappedSongSmartAccount.sol": {
+			"keccak256": "0x3dff0c4562b143e12d240ed2516ef11448d04c278426c5e03d8973e197075ce1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4d76fa67e018d82737f7f3ab864bc6971b685a86c144a9ef6ab21bce0ccf4d2d",
+				"dweb:/ipfs/QmaZbnd7u3HWFWSfsqfSUVV9pNZb7qFDtyxQdVgmZ71GKv"
+			]
+		},
+		"contracts/protocol/Interfaces/IWrappedSongTypes.sol": {
+			"keccak256": "0xbba652b54c1746d3c031622936fc7eb4182903eea6ef8fb76375941933054408",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fd4a35bb6014b404fdf460d15284e23324076ff1dcc2d71588e4ffe2e5d81bda",
+				"dweb:/ipfs/QmeYaXH8PDZzy86nMbqbfHz4u1GrXU7dHphkBibGXGCtPT"
+			]
+		},
+		"contracts/protocol/NonUpgradable/ProtocolModule.sol": {
+			"keccak256": "0xb24a137188d4ab277207e7a3f8a9e93aa53336a901891859546a182ad81c237a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://74da8c5f718f3c14165ee30070a24b7f6c06801176c6710f5ad71ae16c6c25fd",
+				"dweb:/ipfs/QmTkNvoMNrjUuvK9xrv8Lmno2wLG8GP8M58Dx5TN8qsdSz"
+			]
+		}
+	},
+	"version": 1
+}

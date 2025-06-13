@@ -1,0 +1,1173 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "InvalidInitialization",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotInitializing",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "OwnableInvalidOwner",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "OwnableUnauthorizedAccount",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "ReentrancyGuardReentrantCall",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newWrappedSongAddress",
+						"type": "address"
+					}
+				],
+				"name": "ContractMigrated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "epochId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "earningsPerShare",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "isETH",
+						"type": "bool"
+					}
+				],
+				"name": "EarningsEpochProcessed",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "fromEpoch",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "toEpoch",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					}
+				],
+				"name": "EpochEarningsClaimed",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint64",
+						"name": "version",
+						"type": "uint64"
+					}
+				],
+				"name": "Initialized",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "maxEpochs",
+						"type": "uint256"
+					}
+				],
+				"name": "claimETHEarnings",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "maxEpochs",
+						"type": "uint256"
+					}
+				],
+				"name": "claimStablecoinEarnings",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "recipient",
+						"type": "address"
+					}
+				],
+				"name": "createBuyoutToken",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "createETHDistributionEpoch",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "contractURI",
+						"type": "string"
+					}
+				],
+				"name": "createLegalContract",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "sharesAmount",
+						"type": "uint256"
+					}
+				],
+				"name": "createSongShares",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "createStablecoinDistributionEpoch",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "ethBalance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "index",
+						"type": "uint256"
+					}
+				],
+				"name": "ethEarningsEpochs",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "epochId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "earningsPerShare",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "sender",
+								"type": "address"
+							}
+						],
+						"internalType": "struct IWrappedSongTypes.EarningsEpoch",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "getPendingETHEarnings",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getPendingStablecoinDistribution",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "getPendingStablecoinEarnings",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "getUnclaimedETHEpochs",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "epochIds",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "amounts",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "timestamps",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "sources",
+						"type": "string[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "getUnclaimedStablecoinEpochs",
+				"outputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "epochIds",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "amounts",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "timestamps",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "sources",
+						"type": "string[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getWSTokenManagementAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					}
+				],
+				"name": "hasMoreEpochsToClaim",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "hasMore",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "nextEpoch",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalEpochs",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_stablecoinAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_protocolModuleAddress",
+						"type": "address"
+					}
+				],
+				"name": "initialize",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "metadataModule",
+				"outputs": [
+					{
+						"internalType": "contract IMetadataModule",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newMetadataAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "newWrappedSongAddress",
+						"type": "address"
+					}
+				],
+				"name": "migrateWrappedSong",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "migrated",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "operator",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "ids",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "values",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "bytes",
+						"name": "data",
+						"type": "bytes"
+					}
+				],
+				"name": "onERC1155BatchReceived",
+				"outputs": [
+					{
+						"internalType": "bytes4",
+						"name": "",
+						"type": "bytes4"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "operator",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "value",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bytes",
+						"name": "data",
+						"type": "bytes"
+					}
+				],
+				"name": "onERC1155Received",
+				"outputs": [
+					{
+						"internalType": "bytes4",
+						"name": "",
+						"type": "bytes4"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "protocolModule",
+				"outputs": [
+					{
+						"internalType": "contract IProtocolModule",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "receiveERC20",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "releaseModule",
+				"outputs": [
+					{
+						"internalType": "contract IReleaseModule",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "newSymbol",
+						"type": "string"
+					}
+				],
+				"name": "setSymbol",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_wsTokenManagement",
+						"type": "address"
+					}
+				],
+				"name": "setWSTokenManagement",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "songSharesId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "stablecoin",
+				"outputs": [
+					{
+						"internalType": "contract IERC20",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "index",
+						"type": "uint256"
+					}
+				],
+				"name": "stablecoinEarningsEpochs",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "epochId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "earningsPerShare",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "sender",
+								"type": "address"
+							}
+						],
+						"internalType": "struct IWrappedSongTypes.EarningsEpoch",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes4",
+						"name": "interfaceId",
+						"type": "bytes4"
+					}
+				],
+				"name": "supportsInterface",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "userEpochBalances",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "lastClaimedEpoch",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "lastClaimedETHEpoch",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct IWrappedSongTypes.EpochBalance",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "wrappedSongTokenId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "wsTokenManagement",
+				"outputs": [
+					{
+						"internalType": "contract IWSTokenManagement",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"errors": {
+				"InvalidInitialization()": [
+					{
+						"details": "The contract is already initialized."
+					}
+				],
+				"NotInitializing()": [
+					{
+						"details": "The contract is not initializing."
+					}
+				],
+				"OwnableInvalidOwner(address)": [
+					{
+						"details": "The owner is not a valid owner account. (eg. `address(0)`)"
+					}
+				],
+				"OwnableUnauthorizedAccount(address)": [
+					{
+						"details": "The caller account is not authorized to perform an operation."
+					}
+				],
+				"ReentrancyGuardReentrantCall()": [
+					{
+						"details": "Unauthorized reentrant call."
+					}
+				]
+			},
+			"events": {
+				"Initialized(uint64)": {
+					"details": "Triggered when the contract has been initialized or reinitialized."
+				}
+			},
+			"kind": "dev",
+			"methods": {
+				"onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)": {
+					"details": "Handles the receipt of a multiple ERC1155 token types. This function is called at the end of a `safeBatchTransferFrom` after the balances have been updated. NOTE: To accept the transfer(s), this must return `bytes4(keccak256(\"onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)\"))` (i.e. 0xbc197c81, or its own function selector).",
+					"params": {
+						"data": "Additional data with no specified format",
+						"from": "The address which previously owned the token",
+						"ids": "An array containing ids of each token being transferred (order and length must match values array)",
+						"operator": "The address which initiated the batch transfer (i.e. msg.sender)",
+						"values": "An array containing amounts of each token being transferred (order and length must match ids array)"
+					},
+					"returns": {
+						"_0": "`bytes4(keccak256(\"onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)\"))` if transfer is allowed"
+					}
+				},
+				"onERC1155Received(address,address,uint256,uint256,bytes)": {
+					"details": "Handles the receipt of a single ERC1155 token type. This function is called at the end of a `safeTransferFrom` after the balance has been updated. NOTE: To accept the transfer, this must return `bytes4(keccak256(\"onERC1155Received(address,address,uint256,uint256,bytes)\"))` (i.e. 0xf23a6e61, or its own function selector).",
+					"params": {
+						"data": "Additional data with no specified format",
+						"from": "The address which previously owned the token",
+						"id": "The ID of the token being transferred",
+						"operator": "The address which initiated the transfer (i.e. msg.sender)",
+						"value": "The amount of tokens being transferred"
+					},
+					"returns": {
+						"_0": "`bytes4(keccak256(\"onERC1155Received(address,address,uint256,uint256,bytes)\"))` if transfer is allowed"
+					}
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol": "WrappedSongSmartAccount"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/access/Ownable.sol": {
+			"keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8ed324d3920bb545059d66ab97d43e43ee85fd3bd52e03e401f020afb0b120f6",
+				"dweb:/ipfs/QmfEckWLmZkDDcoWrkEvMWhms66xwTLff9DDhegYpvHo1a"
+			]
+		},
+		"@openzeppelin/contracts/proxy/utils/Initializable.sol": {
+			"keccak256": "0x631188737069917d2f909d29ce62c4d48611d326686ba6683e26b72a23bfac0b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://7a61054ae84cd6c4d04c0c4450ba1d6de41e27e0a2c4f1bcdf58f796b401c609",
+				"dweb:/ipfs/QmUvtdp7X1mRVyC3CsHrtPbgoqWaXHp3S1ZR24tpAQYJWM"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC1155/IERC1155.sol": {
+			"keccak256": "0x6caffc9cfdc623eca9f87a686071708af5d5c17454d65022843fdddbc53c0cce",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ecf8c7ed1f8ff443c181f64496ae380ee02e61dcd2ed120e1e997837a926f182",
+				"dweb:/ipfs/QmWASYTrZPF2MrcpC3EBmxx6RgtZ5Fr4jwrsmB7ZF7qhDC"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol": {
+			"keccak256": "0xb69597a63b202e28401128bed6a6d259e8730191274471af7303eafb247881a3",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://25addbda49a578b3318130585601344c5149a5549d749adf88e9685349a46b23",
+				"dweb:/ipfs/Qme2DuD8gpsve1ZvaSMQpBwMdpU7yAtekDwr7gUp8dX4zX"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0ea104e577e63faea3b69c415637e99e755dcbf64c5833d7140c35a714d6d90c",
+				"dweb:/ipfs/Qmau6x4Ns9XdyynRCNNp3RhLqijJjFm7z5fyZazfYFGYdq"
+			]
+		},
+		"@openzeppelin/contracts/utils/Context.sol": {
+			"keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12",
+				"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF"
+			]
+		},
+		"@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+			"keccak256": "0xf980daa263b661ab8ddee7d4fd833c7da7e7995e2c359ff1f17e67e4112f2236",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://7448ab095d6940130bcf76ba47a2eab14148c83119523b93dd89f6d84edd6c02",
+				"dweb:/ipfs/QmawrZ4voKQjH3oomXT3Kuheb3Mnmo2VvVpxg8Ne5UJUrd"
+			]
+		},
+		"@openzeppelin/contracts/utils/introspection/ERC165.sol": {
+			"keccak256": "0x9e8778b14317ba9e256c30a76fd6c32b960af621987f56069e1e819c77c6a133",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1777404f1dcd0fac188e55a288724ec3c67b45288e49cc64723e95e702b49ab8",
+				"dweb:/ipfs/QmZFdC626GButBApwDUvvTnUzdinevC3B24d7yyh57XkiA"
+			]
+		},
+		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+			"keccak256": "0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://87b3541437c8c443ccd36795e56a338ed12855eec17f8da624511b8d1a7e14df",
+				"dweb:/ipfs/QmeJQCtZrQjtJLr6u7ZHWeH3pBnjtLWzvRrKViAi7UZqxL"
+			]
+		},
+		"@openzeppelin/contracts/utils/math/Math.sol": {
+			"keccak256": "0x005ec64c6313f0555d59e278f9a7a5ab2db5bdc72a027f255a37c327af1ec02d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4ece9f0b9c8daca08c76b6b5405a6446b6f73b3a15fab7ff56e296cbd4a2c875",
+				"dweb:/ipfs/QmQyRpyPRL5SQuAgj6SHmbir3foX65FJjbVTTQrA2EFg6L"
+			]
+		},
+		"contracts/protocol/Interfaces/IDistributorWallet.sol": {
+			"keccak256": "0xc9b75cd31b677e2684bbde8824c0385f0062f63167d182eb54cb27fe29c87dfb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e2b1d432d10014f0d037d45dc52f5f5db205ed819d77705152b71bfadefaaded",
+				"dweb:/ipfs/QmWcntid5Z6CHn5kpUF6PsCr8dEzaWcsmTMDfvE6Scodvb"
+			]
+		},
+		"contracts/protocol/Interfaces/IDistributorWalletFactory.sol": {
+			"keccak256": "0xd9691428b46e8cac7f17a251ef319758e07cb8da7cfadbdcae272f37e3772bd9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0f555bcc8e1e09aa065e862e2d703f3f4499dbafd9b78b384619e5402cea9ad9",
+				"dweb:/ipfs/QmdUioFKAd2LUL3oL1EDou7LW9Z7NPBkkoLA3MismEgwNs"
+			]
+		},
+		"contracts/protocol/Interfaces/IERC20Whitelist.sol": {
+			"keccak256": "0xb79b5f96b133ede0d4ccbb31dd5eaf2859a368558eb7451b1115647e08c6e093",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9c16265dc5784f8642429024abb6768ee904d247c03797794070027170c3aa95",
+				"dweb:/ipfs/QmaY7Y7Jy58fukzTZ5mUdxk8opocJKSKYGfSgTmyHMabBa"
+			]
+		},
+		"contracts/protocol/Interfaces/IFeesModule.sol": {
+			"keccak256": "0x768ad222e7b1f40942a6af67b8c9897f317bed2297fa900acef4564ec67e8c67",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://a63b8486e2ac4b67abefc5474b82d29a5bea642a5ea0de760fea9086033036df",
+				"dweb:/ipfs/QmQFyvrQi3S8BxT6T9ZqynxJ9HhU7zC649uuYvTHtfQfSb"
+			]
+		},
+		"contracts/protocol/Interfaces/IIdentityModule.sol": {
+			"keccak256": "0x5c2b8e2e9657c5889bb4a135168f6777226e382830ab58da7a59f5f1484195b5",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5c6463b1fae860d4212f7a2ffc2704ea7f51c152f62baea1a4633c962445737b",
+				"dweb:/ipfs/QmWTBFtC2NqfWHpBrJThWtiinRW2a7E649K2iDHzEN3jYC"
+			]
+		},
+		"contracts/protocol/Interfaces/ILegalContractMetadata.sol": {
+			"keccak256": "0xfb99b2a519295d48c46b526baaa143b8b51b3fae6a4df9b91495e1787a48b6b9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e5d2b110cd7001a4e13113db7bf91b48119aba7bb2f136ba3da59316063ea7d1",
+				"dweb:/ipfs/QmUN97mNDkMgizqLXzHM9SW88zLsLtPcAaTeCzkfXYitga"
+			]
+		},
+		"contracts/protocol/Interfaces/IMetadataModule.sol": {
+			"keccak256": "0x6c2f4227f66bef01c3bc4693a06446531e8dc8666110f24163e47c868b40bab0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c50d03e746c805061a76f8af2cac4cd2300f5e9ba8b8d9e954cd0e5f6671c439",
+				"dweb:/ipfs/QmPBP7YFgEH268qot6so8G6rmxCKeJDsaBw6ZimkXm6tTK"
+			]
+		},
+		"contracts/protocol/Interfaces/IMetadataRenderer.sol": {
+			"keccak256": "0xc1b137007ab7ac6e65a29667786be924893afd294e85f9cb5ffe1cb5e9f12486",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f11f5e569b2414c421bf598802968a5c24b9729aa4e7cb5a532ff61777a18db3",
+				"dweb:/ipfs/QmVJUcAKgj6P2avZNksEoa4TMfy8bWuvwd6EhAd2DKBENp"
+			]
+		},
+		"contracts/protocol/Interfaces/IProtocolModule.sol": {
+			"keccak256": "0x78d07feb73b0fc1b3ec571b65bd108c3a00b268bd2a001b137f83f4f3a70d9eb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://caec1c650075a267bb53858abe5fee68741b5c9fbb9f858dd6024fc6861e8e88",
+				"dweb:/ipfs/QmNN5M9DqLAjYAF7PTerj6VapM9ceyv5GwJR4SpFyGeu2J"
+			]
+		},
+		"contracts/protocol/Interfaces/IRegistryModule.sol": {
+			"keccak256": "0x00ae79e8ee631d4b069b3292853157fca55e72d6d98872d0e54a4160626bcce6",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e73d1436ebaabd0502dc52b15f2dccd5b0c9b32005ae87d80f5954544677e5a9",
+				"dweb:/ipfs/QmQMmLUpZ7Qo8jRN2HTUgnW9u1phH4H7RWxscUumcDWv7g"
+			]
+		},
+		"contracts/protocol/Interfaces/IReleaseModule.sol": {
+			"keccak256": "0x59a916adfa087528465f6df5bf387760f9bb991fcf3a4c42ed07e5fa686fd31a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://00f76acc4b60171f7a0d13c4196599a876357308abb71d7fd31c71a941c1a27e",
+				"dweb:/ipfs/QmcuNrgYJFSeVsaYCeu2zJ51UcHCBwow9wEyPrCH3Y7BFX"
+			]
+		},
+		"contracts/protocol/Interfaces/IWSTokenManagement.sol": {
+			"keccak256": "0x412a3af43dc93f35752f2e7d381c20d795c242ee8b0dbac3b3714bf6a14ef77b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://548d1fa2502f053feee0db2a7becc2d1dc755f986f85ed4500fcbea03d71dc47",
+				"dweb:/ipfs/QmeQNSUdViQA57zN2ZskYAWPTJtQBZZiPN5SZXZiCjNz7e"
+			]
+		},
+		"contracts/protocol/Interfaces/IWrappedSongSmartAccount.sol": {
+			"keccak256": "0x3dff0c4562b143e12d240ed2516ef11448d04c278426c5e03d8973e197075ce1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4d76fa67e018d82737f7f3ab864bc6971b685a86c144a9ef6ab21bce0ccf4d2d",
+				"dweb:/ipfs/QmaZbnd7u3HWFWSfsqfSUVV9pNZb7qFDtyxQdVgmZ71GKv"
+			]
+		},
+		"contracts/protocol/Interfaces/IWrappedSongTypes.sol": {
+			"keccak256": "0xbba652b54c1746d3c031622936fc7eb4182903eea6ef8fb76375941933054408",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fd4a35bb6014b404fdf460d15284e23324076ff1dcc2d71588e4ffe2e5d81bda",
+				"dweb:/ipfs/QmeYaXH8PDZzy86nMbqbfHz4u1GrXU7dHphkBibGXGCtPT"
+			]
+		},
+		"contracts/protocol/NonUpgradable/WrappedSongSmartAccount.sol": {
+			"keccak256": "0xeff093b36272b3e399d7d388660a06219c45df493bd01073af5bbd0e5f885ba1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6eae76951de4cf74826c210a2b202fc7b187b5863a2431203d81f4dbde7fb409",
+				"dweb:/ipfs/QmZqmgmWKBfFr4EpAVcy8Fearkx2vBK2k9eyp24aMbZxpx"
+			]
+		}
+	},
+	"version": 1
+}
