@@ -20,11 +20,13 @@ type WrappedSong @entity {
   totalShares: BigInt! # We'll keep this and remove sharesAmount
   creatorShares: BigInt!
   shareholders: [WrappedSongShareHolder!]! @derivedFrom(field: "wrappedSong")
+  buyers: [WrappedSongBuyer!]! @derivedFrom(field: "wrappedSong")
   wsTokenManagement: WSTokenManagement!
   isAuthentic: Boolean!
   wsIndex: BigInt
   accumulatedFunds: BigInt!
   isrc: String
+  createdAtEpoch: BigInt
 }
 
 type Attributes @entity {
@@ -70,7 +72,7 @@ type Distributor @entity {
   stablecoinAddress: Bytes!
 }
 
-type DistributorEpoch @entity {
+type DistributorEpoch @entity(immutable: true) {
   id: String!
   epochId: BigInt!
   totalAmount: BigInt!
@@ -99,9 +101,11 @@ type WSTokenManagement @entity {
   totalSold: BigInt!
   totalSoldFree: BigInt!
   totalSoldPaid: BigInt!
+  lastSaleAt: BigInt
+
 }
 
-type Sale @entity {
+type Sale @entity(immutable: true) {
   id: Bytes!
   buyer: Bytes!
   amount: BigInt!
@@ -124,8 +128,11 @@ type SaleOffer @entity {
 type ShareHolder @entity {
   id: Bytes! # Composite key: wrappedSongAddress-holderAddress
   wrappedSongs: [WrappedSongShareHolder!]! @derivedFrom(field: "shareHolder")
+  wrappedSongsBought: [WrappedSongBuyer!]! @derivedFrom(field: "shareHolder")
   wsTokenManagement: WSTokenManagement!
   shares: BigInt!
+  sharesBought: BigInt!
+  sharesSold: BigInt!
   lastUpdated: BigInt!
   totalEarnings: BigInt!
   unclaimedEarnings: BigInt!
@@ -146,5 +153,11 @@ type WrappedSongShareHolder @entity {
   shares: BigInt!
   lastEpochClaimed: BigInt!
   sharesBought: BigInt!
-  # checkpoints: [Checkpoint!]! @derivedFrom(field: "wrappedSongShareHolder")
+}
+
+type WrappedSongBuyer @entity {
+  id: Bytes!
+  wrappedSong: WrappedSong!
+  shareHolder: ShareHolder!
+  sharesBought: BigInt!
 }

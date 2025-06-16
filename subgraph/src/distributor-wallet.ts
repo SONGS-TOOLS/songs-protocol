@@ -1,16 +1,29 @@
 import {
   EpochRedeemed,
   NewRevenueEpoch,
+  OwnershipTransferred,
+  CreateDistributionEpochChunkCall
 } from "../generated/templates/DistributorWallet/DistributorWallet";
 import {
   Distributor,
   DistributorEpoch,
+  WrappedSong,
   WrappedSongShareHolder,
 } from "../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 
+export function handleOwnershipTransferred(event: OwnershipTransferred): void {
+  
+  const newOwner = event.params.newOwner;
+  const distributor = Distributor.load(event.address);
+  if (!distributor) {
+    return;
+  }
+  distributor.owner = newOwner;
+  distributor.save();
+}
 export function handleNewRevenueEpoch(event: NewRevenueEpoch): void {
-  const distributorId = event.params.distributor;
+  const distributorId = event.address;
   const epochId = event.params.epochId;
   const totalAmount = event.params.totalAmount;
   const timestamp = event.block.timestamp;

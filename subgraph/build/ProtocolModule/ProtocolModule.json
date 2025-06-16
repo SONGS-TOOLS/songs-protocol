@@ -10,10 +10,35 @@
         "internalType": "address",
         "name": "_whitelistingManager",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_erc20whitelist",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_metadataModule",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_legalContractMetadata",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "EnforcedPause",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExpectedPause",
+    "type": "error"
   },
   {
     "inputs": [
@@ -38,6 +63,63 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "DistributorCreationFeeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newFactory",
+        "type": "address"
+      }
+    ],
+    "name": "DistributorWalletFactoryUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newWhitelist",
+        "type": "address"
+      }
+    ],
+    "name": "ERC20WhitelistUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newExternalUrlBase",
+        "type": "string"
+      }
+    ],
+    "name": "ExternalUrlBaseUpdated",
+    "type": "event"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -47,13 +129,71 @@
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
+        "internalType": "string",
+        "name": "registryType",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "value",
+        "type": "string"
+      }
+    ],
+    "name": "IdentityRegistryUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newContract",
+        "type": "address"
+      }
+    ],
+    "name": "LegalContractMetadataUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "newDuration",
         "type": "uint256"
       }
     ],
-    "name": "MetadataUpdateConfirmed",
+    "name": "MaxSaleDurationUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newModule",
+        "type": "address"
+      }
+    ],
+    "name": "MetadataModuleUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newRenderer",
+        "type": "address"
+      }
+    ],
+    "name": "MetadataRendererUpdated",
     "type": "event"
   },
   {
@@ -112,6 +252,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
+    ],
+    "name": "OwnerWrappedSongAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOwner",
         "type": "address"
       },
@@ -123,6 +282,19 @@
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
     "type": "event"
   },
   {
@@ -142,222 +314,206 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
+        "indexed": false,
+        "internalType": "bool",
+        "name": "newPayInStablecoin",
+        "type": "bool"
       }
     ],
-    "name": "WrappedSongReleaseConfirmed",
+    "name": "PayInStablecoinUpdated",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
-      }
-    ],
-    "name": "WrappedSongReleaseRejected",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
-      }
-    ],
-    "name": "WrappedSongReleaseRequested",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
-      }
-    ],
-    "name": "WrappedSongReleased",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      }
-    ],
-    "name": "WrappedSongRequested",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "iscc",
-        "type": "string"
-      }
-    ],
-    "name": "addISCC",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "isrc",
-        "type": "string"
-      }
-    ],
-    "name": "addISRC",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "iswc",
-        "type": "string"
-      }
-    ],
-    "name": "addISWC",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "upc",
-        "type": "string"
-      }
-    ],
-    "name": "addUPC",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "newFee",
         "type": "uint256"
       }
     ],
-    "name": "clearPendingMetadataUpdate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "ReleaseFeeUpdated",
+    "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "ReleasesEnabledChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newDays",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReviewPeriodDaysUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "smartAccount",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "wsToken",
+        "type": "address"
+      }
+    ],
+    "name": "SmartAccountToWSTokenMapped",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newCreationFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newReleaseFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "StableFeesUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateMetadataFeeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newManager",
+        "type": "address"
+      }
+    ],
+    "name": "WhitelistingManagerUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newPercentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "WithdrawalFeePercentageUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "wrappedSong",
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isAuthentic",
+        "type": "bool"
+      }
+    ],
+    "name": "WrappedSongAuthenticitySet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "newFee",
         "type": "uint256"
       }
     ],
-    "name": "confirmUpdateMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "WrappedSongCreationFeeUpdated",
+    "type": "event"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "confirmWrappedSongRelease",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "authorizedContracts",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "baseURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -374,17 +530,11 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      }
-    ],
-    "name": "getPendingDistributorRequests",
+    "inputs": [],
+    "name": "erc20whitelist",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract IERC20Whitelist",
         "name": "",
         "type": "address"
       }
@@ -393,19 +543,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getPendingMetadataUpdate",
+    "inputs": [],
+    "name": "externalUrlBase",
     "outputs": [
       {
         "internalType": "string",
@@ -417,14 +556,47 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "getBaseURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getExternalUrlBase",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLegalContractMetadata",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "getWrappedSongDistributor",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getMetadataModule",
     "outputs": [
       {
         "internalType": "address",
@@ -439,11 +611,56 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "owner",
         "type": "address"
       }
     ],
-    "name": "isAuthentic",
+    "name": "getOwnerWrappedSongs",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRegistryModule",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStablecoinFeeReceiver",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_contractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "isAuthorizedContract",
     "outputs": [
       {
         "internalType": "bool",
@@ -458,35 +675,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "isMetadataUpdateConfirmed",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
+        "name": "token",
         "type": "address"
       }
     ],
-    "name": "isReleased",
+    "name": "isTokenWhitelisted",
     "outputs": [
       {
         "internalType": "bool",
@@ -520,78 +713,68 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "wsTokenManagement",
         "type": "address"
       }
     ],
-    "name": "isccRegistry",
+    "name": "isWSTokenFromProtocol",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bool",
         "name": "",
-        "type": "string"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "isrcRegistry",
+    "inputs": [],
+    "name": "legalContractMetadata",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "contract ILegalContractMetadata",
         "name": "",
-        "type": "string"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "iswcRegistry",
+    "inputs": [],
+    "name": "maxSaleDuration",
     "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
-    "name": "metadataUpdateConfirmed",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "metadataModule",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "contract IMetadataModule",
         "name": "",
-        "type": "bool"
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "metadataRenderer",
+    "outputs": [
+      {
+        "internalType": "contract IMetadataRenderer",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -611,6 +794,37 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "ownerWrappedSongs",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "paused",
     "outputs": [
@@ -624,17 +838,11 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "pendingDistributorRequests",
+    "inputs": [],
+    "name": "registryModule",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract IRegistryModule",
         "name": "",
         "type": "address"
       }
@@ -646,16 +854,56 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "token",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
-    "name": "pendingMetadataUpdates",
+    "name": "removeTokenFromWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "metadata",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
+    ],
+    "name": "renderContractURI",
     "outputs": [
       {
         "internalType": "string",
@@ -669,58 +917,57 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "image",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "animationUrl",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "attributesIpfsHash",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMetadataModule.Metadata",
+        "name": "metadata",
+        "type": "tuple"
       },
       {
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
-      }
-    ],
-    "name": "rejectUpdateMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
         "name": "wrappedSong",
         "type": "address"
       }
     ],
-    "name": "rejectWrappedSongRelease",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "releaseFee",
+    "name": "renderTokenURI",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "",
-        "type": "uint256"
+        "type": "string"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      }
-    ],
-    "name": "removeWrappedSongReleaseRequest",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -734,52 +981,81 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "_contractAddress",
         "type": "address"
       },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "newMetadata",
-        "type": "string"
-      }
-    ],
-    "name": "requestUpdateMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "wrappedSong",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "distributor",
-        "type": "address"
-      }
-    ],
-    "name": "requestWrappedSongRelease",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "bool",
-        "name": "_paused",
+        "name": "_isAuthorized",
         "type": "bool"
       }
     ],
-    "name": "setPaused",
+    "name": "setAuthorizedContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_baseURI",
+        "type": "string"
+      }
+    ],
+    "name": "setBaseURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newFactory",
+        "type": "address"
+      }
+    ],
+    "name": "setDistributorWalletFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_erc20whitelist",
+        "type": "address"
+      }
+    ],
+    "name": "setERC20Whitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_externalUrlBase",
+        "type": "string"
+      }
+    ],
+    "name": "setExternalUrlBase",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_legalContractMetadata",
+        "type": "address"
+      }
+    ],
+    "name": "setLegalContractMetadata",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -788,11 +1064,112 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_fee",
+        "name": "_duration",
         "type": "uint256"
       }
     ],
-    "name": "setReleaseFee",
+    "name": "setMaxSaleDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_metadataModule",
+        "type": "address"
+      }
+    ],
+    "name": "setMetadataModule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_renderer",
+        "type": "address"
+      }
+    ],
+    "name": "setMetadataRenderer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "wrappedSong",
+        "type": "address"
+      }
+    ],
+    "name": "setOwnerWrappedSong",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_registryModule",
+        "type": "address"
+      }
+    ],
+    "name": "setRegistryModule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "smartAccount",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "wsToken",
+        "type": "address"
+      }
+    ],
+    "name": "setSmartAccountToWSToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_stablecoinFeeReceiver",
+        "type": "address"
+      }
+    ],
+    "name": "setStablecoinFeeReceiver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "wsTokenManagement",
+        "type": "address"
+      }
+    ],
+    "name": "setWSTokenFromProtocol",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -814,16 +1191,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "wrappedSong",
+        "name": "_wrappedSongFactory",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "isAuthentic",
-        "type": "bool"
       }
     ],
-    "name": "setWrappedSongAuthenticity",
+    "name": "setWrappedSongFactory",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -831,14 +1203,33 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_fee",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
-    "name": "setWrappedSongCreationFee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "smartAccountToWSToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stablecoinFeeReceiver",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -855,33 +1246,21 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "upcRegistry",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_newFactory",
+        "name": "token",
         "type": "address"
       }
     ],
-    "name": "updateDistributorWalletFactory",
+    "name": "whitelistToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -900,19 +1279,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "wrappedSongAuthenticity",
+    "inputs": [],
+    "name": "wrappedSongFactory",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "contract IWrappedSongFactory",
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -920,34 +1293,19 @@
   },
   {
     "inputs": [],
-    "name": "wrappedSongCreationFee",
+    "name": "wrappedSongFactoryAddress",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "wrappedSongToDistributor",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

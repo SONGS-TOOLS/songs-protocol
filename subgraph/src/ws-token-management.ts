@@ -50,6 +50,8 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
     if (shareHolderFrom == null) {
       shareHolderFrom = new ShareHolder(from);
       shareHolderFrom.shares = BigInt.fromI32(0);
+      shareHolderFrom.sharesBought = BigInt.fromI32(0);
+      shareHolderFrom.sharesSold = BigInt.fromI32(0);
       shareHolderFrom.lastUpdated = event.block.timestamp;
       shareHolderFrom.totalEarnings = BigInt.fromI32(0);
       shareHolderFrom.unclaimedEarnings = BigInt.fromI32(0);
@@ -100,15 +102,16 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   let shareHolderTo = ShareHolder.load(to);
   if (shareHolderTo == null) {
     shareHolderTo = new ShareHolder(to);
-    shareHolderTo.shares = amount;
+    shareHolderTo.sharesBought = BigInt.fromI32(0);
+    shareHolderTo.sharesSold = BigInt.fromI32(0);
+    shareHolderTo.shares = BigInt.fromI32(0);
     shareHolderTo.lastUpdated = event.block.timestamp;
     shareHolderTo.totalEarnings = BigInt.fromI32(0);
     shareHolderTo.unclaimedEarnings = BigInt.fromI32(0);
     shareHolderTo.redeemedEarnings = BigInt.fromI32(0);
-  } else {
-    // TODO: This is adding all songshares independently of the wrapped song. Does it make sense?
-    shareHolderTo.shares = shareHolderTo.shares.plus(amount);
   }
+  shareHolderTo.shares = shareHolderTo.shares.plus(amount);
+  
 
   // shareHolder is actually going to be related to many wsTokenManagenent,
   // so we don't need this relationship since we have WrappedSongShareHolder Entity.
@@ -131,15 +134,6 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   }
   wrappedSongShareHolderTo.shares =
     wrappedSongShareHolderTo.shares.plus(amount);
-
-  // const checkpointToId = wrappedSong.id
-  //   .concat(to)
-  //   .concat(Bytes.fromHexString(event.block.timestamp.toHex()));
-  // const checkpointTo = new Checkpoint(checkpointToId);
-  // checkpointTo.timestamp = event.block.timestamp;
-  // checkpointTo.value = wrappedSongShareHolderTo.shares;
-  // checkpointTo.wrappedSongShareHolder = wrappedSongShareHolderTo.id;
-  // checkpointTo.save();
 
   wrappedSongShareHolderTo.save();
 }

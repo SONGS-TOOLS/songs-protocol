@@ -1,4 +1,4 @@
-specVersion: 0.0.5
+specVersion: 1.2.0
 schema:
   file: schema.graphql
 dataSources:
@@ -11,14 +11,14 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ProtocolModule/ProtocolModule.wasm
       entities:
         - ProtocolConfig
       abis:
         - name: ProtocolModule
-          file: artifacts/contracts/protocol/NonUpgradable/ProtocolModule.sol/ProtocolModule.json
+          file: ProtocolModule/ProtocolModule.json
       eventHandlers:
         - event: MaxSaleDurationUpdated(uint256)
           handler: handleMaxSaleDurationUpdated
@@ -33,14 +33,14 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: IdentityModule/IdentityModule.wasm
       entities:
         - WrappedSong
       abis:
         - name: IdentityModule
-          file: artifacts/contracts/protocol/Modules/IdentityModule.sol/IdentityModule.json
+          file: IdentityModule/IdentityModule.json
       eventHandlers:
         - event: IdentityRegistryUpdated(indexed address,string,string)
           handler: handleIdentityRegistryUpdated
@@ -53,14 +53,14 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: ReleaseModule/ReleaseModule.wasm
       entities:
         - WrappedSong
       abis:
         - name: ReleaseModule
-          file: artifacts/contracts/protocol/Modules/ReleaseModule.sol/ReleaseModule.json
+          file: ReleaseModule/ReleaseModule.json
       eventHandlers:
         - event: WrappedSongReleaseRequested(indexed address,indexed address,indexed address)
           handler: handleWrappedSongReleaseRequested
@@ -77,14 +77,14 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
         - WrappedSong
         - WSTokenManagement
       abis:
         - name: WrappedSongFactory
-          file: artifacts/contracts/protocol/NonUpgradable/WrappedSongFactory.sol/WrappedSongFactory.json
+          file: WrappedSongFactory/WrappedSongFactory.json
       eventHandlers:
         - event: WrappedSongCreated(indexed address,indexed
             address,address,address,uint256,(string,string,string,string,string))
@@ -99,13 +99,13 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
         - Distributor
       abis:
         - name: DistributorWalletFactory
-          file: artifacts/contracts/protocol/NonUpgradable/DistributorWalletFactory.sol/DistributorWalletFactory.json
+          file: distributorWalletFactory/DistributorWalletFactory.json
       eventHandlers:
         - event: DistributorWalletCreated(indexed address,address,address)
           handler: handleDistributorWalletCreated
@@ -119,7 +119,7 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: metadataModule/metadataModule.wasm
       entities:
@@ -129,7 +129,7 @@ dataSources:
         - SongMetadata
       abis:
         - name: MetadataModule
-          file: artifacts/contracts/protocol/NonUpgradable/MetadataModule.sol/MetadataModule.json
+          file: metadataModule/MetadataModule.json
       eventHandlers:
         - event: MetadataUpdateRequested(indexed address,(string,string,string,string,string))
           handler: handleMetadataUpdateRequested
@@ -146,7 +146,7 @@ dataSources:
       startBlock: 24866028
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: SongSharesMarketPlace/SongSharesMarketPlace.wasm
       entities:
@@ -156,7 +156,7 @@ dataSources:
         - WSTokenManagement
       abis:
         - name: SongSharesMarketPlace
-          file: artifacts/contracts/protocol/NonUpgradable/SongSharesMarketPlace.sol/SongSharesMarketPlace.json
+          file: SongSharesMarketPlace/SongSharesMarketPlace.json
       eventHandlers:
         - event: SharesSaleStarted(indexed address,indexed address,uint256,uint256,uint256,address)
           handler: handleSharesSaleStarted
@@ -174,7 +174,7 @@ templates:
       abi: DistributorWallet
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: templates/DistributorWallet/DistributorWallet.wasm
       entities:
@@ -182,7 +182,7 @@ templates:
         - DistributorEpoch
       abis:
         - name: DistributorWallet
-          file: artifacts/contracts/protocol/NonUpgradable/DistributorWallet.sol/DistributorWallet.json
+          file: DistributorWallet/DistributorWallet.json
       eventHandlers:
         - event: NewRevenueEpoch(indexed address,indexed uint256,uint256,uint256)
           handler: handleNewRevenueEpoch
@@ -195,14 +195,14 @@ templates:
       abi: WrappedSongSmartAccount
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: templates/WrappedSongSmartAccount/WrappedSongSmartAccount.wasm
       entities:
         - WrappedSong
       abis:
         - name: WrappedSongSmartAccount
-          file: abis/WrappedSongSmartAccount.json
+          file: WrappedSongSmartAccount/WrappedSongSmartAccount.json
       eventHandlers:
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
@@ -210,7 +210,7 @@ templates:
     kind: file/ipfs
     network: base
     mapping:
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: templates/Attributes/Attributes.wasm
       handler: handleAttributes
@@ -218,7 +218,7 @@ templates:
         - Attributes
       abis:
         - name: WrappedSongSmartAccount
-          file: abis/WrappedSongSmartAccount.json
+          file: Attributes/WrappedSongSmartAccount.json
   - name: WSTokenManagement
     kind: ethereum/contract
     network: base
@@ -226,7 +226,7 @@ templates:
       abi: WSTokenManagement
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.9
       language: wasm/assemblyscript
       file: templates/WSTokenManagement/WSTokenManagement.wasm
       entities:
@@ -236,7 +236,7 @@ templates:
         - WSTokenManagement
       abis:
         - name: WSTokenManagement
-          file: abis/WSTokenManagement.json
+          file: WSTokenManagement/WSTokenManagement.json
       eventHandlers:
         - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleTransferSingle

@@ -331,6 +331,14 @@ export class WrappedSong extends Entity {
     );
   }
 
+  get buyers(): WrappedSongBuyerLoader {
+    return new WrappedSongBuyerLoader(
+      "WrappedSong",
+      this.get("id")!.toBytes().toHexString(),
+      "buyers",
+    );
+  }
+
   get wsTokenManagement(): Bytes {
     let value = this.get("wsTokenManagement");
     if (!value || value.kind == ValueKind.NULL) {
@@ -401,6 +409,23 @@ export class WrappedSong extends Entity {
       this.unset("isrc");
     } else {
       this.set("isrc", Value.fromString(<string>value));
+    }
+  }
+
+  get createdAtEpoch(): BigInt | null {
+    let value = this.get("createdAtEpoch");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set createdAtEpoch(value: BigInt | null) {
+    if (!value) {
+      this.unset("createdAtEpoch");
+    } else {
+      this.set("createdAtEpoch", Value.fromBigInt(<BigInt>value));
     }
   }
 }
@@ -1282,6 +1307,23 @@ export class WSTokenManagement extends Entity {
   set totalSoldPaid(value: BigInt) {
     this.set("totalSoldPaid", Value.fromBigInt(value));
   }
+
+  get lastSaleAt(): BigInt | null {
+    let value = this.get("lastSaleAt");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastSaleAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("lastSaleAt");
+    } else {
+      this.set("lastSaleAt", Value.fromBigInt(<BigInt>value));
+    }
+  }
 }
 
 export class Sale extends Entity {
@@ -1577,6 +1619,14 @@ export class ShareHolder extends Entity {
     );
   }
 
+  get wrappedSongsBought(): WrappedSongBuyerLoader {
+    return new WrappedSongBuyerLoader(
+      "ShareHolder",
+      this.get("id")!.toBytes().toHexString(),
+      "wrappedSongsBought",
+    );
+  }
+
   get wsTokenManagement(): Bytes {
     let value = this.get("wsTokenManagement");
     if (!value || value.kind == ValueKind.NULL) {
@@ -1601,6 +1651,32 @@ export class ShareHolder extends Entity {
 
   set shares(value: BigInt) {
     this.set("shares", Value.fromBigInt(value));
+  }
+
+  get sharesBought(): BigInt {
+    let value = this.get("sharesBought");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sharesBought(value: BigInt) {
+    this.set("sharesBought", Value.fromBigInt(value));
+  }
+
+  get sharesSold(): BigInt {
+    let value = this.get("sharesSold");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sharesSold(value: BigInt) {
+    this.set("sharesSold", Value.fromBigInt(value));
   }
 
   get lastUpdated(): BigInt {
@@ -1768,6 +1844,89 @@ export class WrappedSongShareHolder extends Entity {
   }
 }
 
+export class WrappedSongBuyer extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save WrappedSongBuyer entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type WrappedSongBuyer must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("WrappedSongBuyer", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): WrappedSongBuyer | null {
+    return changetype<WrappedSongBuyer | null>(
+      store.get_in_block("WrappedSongBuyer", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): WrappedSongBuyer | null {
+    return changetype<WrappedSongBuyer | null>(
+      store.get("WrappedSongBuyer", id.toHexString()),
+    );
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get wrappedSong(): Bytes {
+    let value = this.get("wrappedSong");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set wrappedSong(value: Bytes) {
+    this.set("wrappedSong", Value.fromBytes(value));
+  }
+
+  get shareHolder(): Bytes {
+    let value = this.get("shareHolder");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set shareHolder(value: Bytes) {
+    this.set("shareHolder", Value.fromBytes(value));
+  }
+
+  get sharesBought(): BigInt {
+    let value = this.get("sharesBought");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set sharesBought(value: BigInt) {
+    this.set("sharesBought", Value.fromBigInt(value));
+  }
+}
+
 export class WrappedSongShareHolderLoader extends Entity {
   _entity: string;
   _field: string;
@@ -1783,6 +1942,24 @@ export class WrappedSongShareHolderLoader extends Entity {
   load(): WrappedSongShareHolder[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<WrappedSongShareHolder[]>(value);
+  }
+}
+
+export class WrappedSongBuyerLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): WrappedSongBuyer[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<WrappedSongBuyer[]>(value);
   }
 }
 

@@ -13,7 +13,6 @@ import {
   SongMetadata,
   WrappedSong,
 } from "../generated/schema";
-import { Attributes as AttributesTemplate } from "../generated/templates";
 import { Bytes, log, store } from "@graphprotocol/graph-ts";
 import { createMetadata } from "./helper-functions";
 

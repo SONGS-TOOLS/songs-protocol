@@ -53,32 +53,66 @@ if(action === 'deploy' || action === 'all'){
 }
 
 try {
-
-  const subgraphManifest = environment === 'prod' ? path.resolve(__dirname, '..', 'subgraph', 'subgraph.yaml') : path.resolve(__dirname, '..', 'subgraph', 'subgraph-dev.yaml');
+  const subgraphManifest = environment === 'prod' ? path.resolve(__dirname, '..', 'subgraph', 'subgraph-prod.yaml') : path.resolve(__dirname, '..', 'subgraph', 'subgraph-dev.yaml');
   const subgraphName = studioSlug;
+  const subgraphYamlPath = path.resolve(__dirname, '..', 'subgraph', 'subgraph.yaml');
+  const subgraphPath = path.resolve(__dirname, '..', 'subgraph');
+
+  // Copy the manifest file to subgraph.yaml
+  fs.copyFileSync(subgraphManifest, subgraphYamlPath);
+  console.log(`Copied ${subgraphManifest} to subgraph.yaml`);
 
   if(action === 'codegen' || action === 'all'){
     execSync(
-      `graph codegen ${subgraphManifest}`,
+      `graph codegen`,
     { stdio: 'inherit', cwd: path.resolve(__dirname, '..', 'subgraph') }
     );
   }
 
   if(action === 'build' || action === 'all'){
     execSync(
-    `graph build ${subgraphManifest}`,
+    `graph build`,
     { stdio: 'inherit', cwd: path.resolve(__dirname, '..', 'subgraph') }
     );
   }
 
   if(action === 'deploy' || action === 'all'){
     execSync(
-    `graph deploy ${subgraphName} ${subgraphManifest}  --studio --version-label ${newVersion} --deploy-key ${deployKey}`,
-    { stdio: 'inherit', cwd: path.resolve(__dirname, '..', 'subgraph') }
+      `goldsky subgraph deploy ${subgraphName}/${newVersion} --path ${subgraphPath}`,
+      { stdio: 'inherit', cwd: path.resolve(__dirname, '..', 'subgraph') }
     );
   }
 
 } catch (error) {
+  
   console.error('Error deploying subgraph:', error);
+  
+  // Rollback version if it was incremented
+  if (newVersion) {
+    const versionFilePath = path.resolve(__dirname, '..', 'subgraph', 'version.json');
+    if (fs.existsSync(versionFilePath)) {
+      const parsed = JSON.parse(fs.readFileSync(versionFilePath, 'utf8'));
+      let currentVersion;
+      
+      if (environment === 'prod') {
+        const [major, minor, patch] = parsed.version.split('.').map(Number);
+        currentVersion = {
+          version: `${major}.${minor - 1}.0`,
+          versionDev: parsed.versionDev
+        };
+      } else {
+        const [major, minor, patch] = parsed.versionDev.split('.').map(Number);
+        currentVersion = {
+          version: parsed.version,
+          versionDev: `${major}.${minor - 1}.0`
+        };
+      }
+      
+      // Save the rolled back version
+      fs.writeFileSync(versionFilePath, JSON.stringify(currentVersion, null, 2));
+      console.log('Version rolled back due to deployment error');
+    }
+  }
+  
   process.exit(1);
 }

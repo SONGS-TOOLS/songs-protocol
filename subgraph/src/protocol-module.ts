@@ -3,7 +3,7 @@ import {
   MaxSaleDurationUpdated as MaxSaleDurationUpdatedEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
 } from "../generated/ProtocolModule/ProtocolModule";
-import { Distributor, ProtocolConfig, ReleaseRequest, WrappedSong } from "../generated/schema";
+import { ProtocolConfig, } from "../generated/schema";
 
 export function getOrCreateProtocol(): ProtocolConfig {
   let protocol = ProtocolConfig.load("1") // or "SINGLETON"

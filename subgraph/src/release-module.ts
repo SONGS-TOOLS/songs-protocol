@@ -55,6 +55,7 @@ export function handleWrappedSongReleased(
   wrappedSong.releaseRequest = null;
   wrappedSong.releaseDistributor = distributorId;
   wrappedSong.wsIndex = distributor.currentWSIndex;
+  wrappedSong.createdAtEpoch = distributor.currentEpochId;
   distributor.currentWSIndex = distributor.currentWSIndex.plus(
     BigInt.fromI32(1)
   );

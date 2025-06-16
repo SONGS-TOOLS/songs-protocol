@@ -7,6 +7,7 @@ import {
   WrappedSong,
   WrappedSongShareHolder,
   WSTokenManagement,
+  WrappedSongBuyer,
 } from "../generated/schema";
 import {
   SharesSaleStarted,
@@ -64,10 +65,12 @@ export function handleSharesSaleStarted(event: SharesSaleStarted): void {
 export function handleSharesSold(event: SharesSold): void {
   let wrappedSongId = event.params.wrappedSong;
   const buyer = event.params.recipient;
+
   if (!wrappedSongId) {
     return;
   }
   const wrappedSong = WrappedSong.load(wrappedSongId);
+  
   if (!wrappedSong) {
     return;
   }
@@ -79,6 +82,8 @@ export function handleSharesSold(event: SharesSold): void {
   }
 
   if (wrappedSong) {
+    const seller = wrappedSong.creator;
+
     let saleId = event.transaction.hash;
     let sale = new Sale(saleId);
     sale.buyer = event.params.recipient;
@@ -109,28 +114,44 @@ export function handleSharesSold(event: SharesSold): void {
       wsTokenManagement.totalSoldPaid = wsTokenManagement.totalSoldPaid.plus(event.params.amount);
     }
     wsTokenManagement.totalSold = wsTokenManagement.totalSold.plus(event.params.amount);
+    wsTokenManagement.lastSaleAt = event.block.timestamp;
+
+    
+
+    let shareHolderFrom = ShareHolder.load(seller);
+
+    if (shareHolderFrom != null) {
+      shareHolderFrom.sharesSold = shareHolderFrom.sharesSold.plus(event.params.amount);
+      shareHolderFrom.save();
+    }
+
+    let shareHolderTo = ShareHolder.load(buyer);
+    if (shareHolderTo == null) {
+      shareHolderTo = new ShareHolder(buyer);
+      shareHolderTo.shares = BigInt.fromI32(0);
+      shareHolderTo.sharesBought = BigInt.fromI32(0);
+      shareHolderTo.lastUpdated = event.block.timestamp;
+      shareHolderTo.totalEarnings = BigInt.fromI32(0);
+      shareHolderTo.unclaimedEarnings = BigInt.fromI32(0);
+      shareHolderTo.redeemedEarnings = BigInt.fromI32(0);
+    }
+
+    shareHolderTo.sharesBought = shareHolderTo.sharesBought.plus(event.params.amount);
+
+    shareHolderTo.wsTokenManagement = wsTokenManagement.id;
+    shareHolderTo.save();
+
 
     const wrappedSongShareHolderToId = wrappedSong.id.concat(buyer);
     let wrappedSongShareHolderTo = WrappedSongShareHolder.load(
       wrappedSongShareHolderToId
     );
+
     if (wrappedSongShareHolderTo == null) {
       wrappedSongShareHolderTo = new WrappedSongShareHolder(
         wrappedSongShareHolderToId
       );
       wrappedSongShareHolderTo.wrappedSong = wrappedSong.id;
-      let shareHolderTo = ShareHolder.load(buyer);
-      if (shareHolderTo == null) {
-        shareHolderTo = new ShareHolder(buyer);
-        shareHolderTo.shares = event.params.amount;
-        shareHolderTo.lastUpdated = event.block.timestamp;
-        shareHolderTo.totalEarnings = BigInt.fromI32(0);
-        shareHolderTo.unclaimedEarnings = BigInt.fromI32(0);
-        shareHolderTo.redeemedEarnings = BigInt.fromI32(0);
-      }
-      shareHolderTo.wsTokenManagement = wsTokenManagement.id;
-      shareHolderTo.save();
-
       wrappedSongShareHolderTo.shareHolder = buyer;
       wrappedSongShareHolderTo.shares = BigInt.fromI32(0);
       wrappedSongShareHolderTo.sharesBought = BigInt.fromI32(0);
@@ -139,6 +160,25 @@ export function handleSharesSold(event: SharesSold): void {
     wrappedSongShareHolderTo.sharesBought =
       wrappedSongShareHolderTo.sharesBought.plus(event.params.amount);
     wrappedSongShareHolderTo.save();
+
+
+    const wrappedSongBuyerId = wrappedSong.id.concat(buyer);
+    let wrappedSongBuyer = WrappedSongBuyer.load(
+      wrappedSongBuyerId
+    );
+
+    if (wrappedSongBuyer == null) {
+      wrappedSongBuyer = new WrappedSongBuyer(
+        wrappedSongBuyerId
+      );
+      wrappedSongBuyer.wrappedSong = wrappedSong.id;
+      wrappedSongBuyer.shareHolder = buyer;
+      wrappedSongBuyer.sharesBought = BigInt.fromI32(0);
+    }
+    wrappedSongBuyer.sharesBought =
+      wrappedSongBuyer.sharesBought.plus(event.params.amount);
+    wrappedSongBuyer.save();
+
     let activeSaleOfferId = wsTokenManagement.saleOffer;
     if (activeSaleOfferId) {
       let activeSaleOffer = SaleOffer.load(activeSaleOfferId);
