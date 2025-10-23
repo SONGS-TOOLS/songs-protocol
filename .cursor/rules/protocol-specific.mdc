@@ -1,0 +1,52 @@
+---
+description: SONGS Protocol specific development guidelines
+---
+
+# SONGS Protocol Specific Guidelines
+
+## Core Protocol Components
+
+### WrappedSong Contract
+- Main NFT representing songs in the protocol
+- Handles song metadata and ownership
+- Implements ERC721 with custom functionality
+- Manages song lifecycle (creation, release, distribution)
+
+### WSTokenManagement Contract
+- ERC1155 token management for song shares
+- Handles multiple token types (shares, buyout tokens, legal contracts)
+- Manages token creation and distribution
+- Implements checkpoint system for historical balances
+
+### MarketPlace Contracts
+- SongSharesMarketPlace for trading song shares
+- BuyoutTokenMarketPlace for buyout token trading
+- Implements trading functionality with proper access controls
+
+### DistributorWallet
+- Handles revenue distribution to shareholders
+- Implements automated distribution logic
+- Manages distributor permissions and fees
+
+## Development Patterns
+
+### Interface Updates
+- Always update interfaces in `contracts/protocol/Interfaces/` when modifying contracts
+- Maintain backward compatibility when possible
+- Document breaking changes in interfaces
+
+### Event Standards
+- Emit events for all state changes
+- Include relevant data for subgraph indexing
+- Use consistent event naming conventions
+
+### Access Control
+- Use role-based access control for complex permissions
+- Implement proper ownership patterns
+- Use OpenZeppelin's access control contracts
+
+## Subgraph Integration
+- Keep schema.graphql synchronized with contract events
+- Implement efficient event handlers
+- Use proper data types for protocol entities
+- Handle protocol-specific edge cases

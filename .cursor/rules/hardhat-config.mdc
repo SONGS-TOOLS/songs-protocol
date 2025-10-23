@@ -1,0 +1,36 @@
+---
+globs: hardhat.config.ts,*.config.ts
+description: Hardhat configuration and deployment standards
+---
+
+# Hardhat Configuration Standards
+
+## Network Configuration
+- Use environment variables for RPC URLs and private keys
+- Configure multiple networks (local, testnet, mainnet)
+- Use appropriate gas settings for each network
+- Enable gas reporting for optimization
+
+## Compiler Settings
+- Use latest stable Solidity version (^0.8.20)
+- Enable optimizer with appropriate runs setting
+- Use viaIR for complex contracts
+- Configure multiple compiler versions for compatibility
+
+## Deployment Scripts
+- Use TypeScript for all deployment scripts
+- Implement proper error handling
+- Include contract verification
+- Use deterministic addresses when needed
+- Document deployment addresses
+
+## Testing Configuration
+- Use Hardhat's built-in testing framework
+- Configure gas reporting
+- Use contract sizer for optimization
+- Enable parallel test execution
+
+## Security
+- Never commit private keys to version control
+- Use environment variables for sensitive data
+- Implement proper access controls in deployment scripts

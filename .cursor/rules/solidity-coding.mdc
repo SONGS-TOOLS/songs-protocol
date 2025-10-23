@@ -1,0 +1,36 @@
+---
+globs: *.sol
+description: Solidity coding standards and best practices
+---
+
+# Solidity Coding Standards
+
+## Code Style
+- Use explicit visibility modifiers (public, external, internal, private)
+- Follow OpenZeppelin patterns and use their contracts when applicable
+- Use NatSpec comments for all public functions and state variables
+- Prefer `require()` over `assert()` for input validation
+- Use `emit` keyword for events
+
+## Security Best Practices
+- Implement reentrancy guards for external calls
+- Use `Ownable` or role-based access control
+- Validate all inputs with clear error messages
+- Avoid `tx.origin` for authorization
+- Use `SafeMath` for arithmetic operations (if < 0.8.0)
+
+## Gas Optimization
+- Use `uint256` for loop counters
+- Pack structs efficiently
+- Use `calldata` for read-only parameters
+- Consider using libraries for repeated code
+
+## Event Standards
+- Emit events for all state changes
+- Include indexed parameters for filtering
+- Use descriptive event names
+
+## Interface Updates
+- When updating contracts, always update corresponding interfaces in `contracts/protocol/Interfaces/`
+- Maintain backward compatibility when possible
+- Document breaking changes

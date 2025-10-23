@@ -1,0 +1,44 @@
+---
+alwaysApply: true
+description: Security standards and best practices
+---
+
+# Security Standards
+
+## Smart Contract Security
+- Implement proper access control mechanisms
+- Use OpenZeppelin's security patterns
+- Implement reentrancy guards for external calls
+- Validate all inputs with clear error messages
+- Avoid using `tx.origin` for authorization
+- Use `SafeMath` for arithmetic operations (if < 0.8.0)
+
+## Access Control
+- Use role-based access control when appropriate
+- Implement proper ownership patterns
+- Use `Ownable` for simple ownership
+- Implement multi-sig for critical operations
+
+## Input Validation
+- Validate all function parameters
+- Check for zero addresses
+- Validate array lengths and bounds
+- Implement proper overflow/underflow protection
+
+## External Calls
+- Use reentrancy guards for external calls
+- Implement proper error handling
+- Use `call` vs `transfer` appropriately
+- Handle failed external calls
+
+## Event Security
+- Emit events for all state changes
+- Include relevant data in events
+- Use indexed parameters for filtering
+- Avoid sensitive data in events
+
+## Testing Security
+- Test for common vulnerabilities
+- Test access control mechanisms
+- Test with malicious inputs
+- Include security-focused test cases

@@ -1,0 +1,40 @@
+---
+alwaysApply: true
+description: Project structure and architecture overview
+---
+
+# SONGS Protocol Project Structure
+
+This is a Hardhat-based smart contract project with a Subgraph for indexing blockchain events.
+
+## Key Directories
+
+- **`contracts/`** - Smart contracts organized by functionality:
+  - `protocol/` - Core protocol contracts
+  - `Alpha/` - Alpha version contracts  
+  - `SongsLicense/` - License-related contracts
+  - `Mock/` - Test mocks and utilities
+
+- **`scripts/`** - Deployment and utility scripts
+- **`test/`** - Comprehensive test suite
+- **`subgraph/`** - The Graph protocol subgraph for indexing
+- **`abis/`** - Contract ABIs and deployment addresses
+- **`artifacts/`** - Compiled contract artifacts
+
+## Core Protocol Components
+
+- **WrappedSong** - Main NFT representing songs
+- **WSTokenManagement** - ERC1155 token management
+- **MarketPlace** - Trading functionality
+- **DistributorWallet** - Revenue distribution
+- **WhitelistingManager** - Access control
+
+## Development Workflow
+
+1. Write contracts in `contracts/protocol/`
+2. Update interfaces in `contracts/protocol/Interfaces/`
+3. Write tests in `test/`
+4. Deploy using scripts in `scripts/`
+5. Update subgraph schema and mappings
+6. Run tests: `yarn test`
+7. Deploy: `yarn deploy:protocol`

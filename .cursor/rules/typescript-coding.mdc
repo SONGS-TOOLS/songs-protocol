@@ -1,0 +1,38 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript coding standards for tests, scripts, and subgraph
+---
+
+# TypeScript Coding Standards
+
+## Code Style
+- Use async/await for asynchronous operations
+- Prefer const assertions and readonly properties
+- Use descriptive variable and function names
+- Include JSDoc comments for complex functions
+- Use TypeScript's strict mode features
+
+## Testing Standards
+- Write comprehensive unit tests for all contract functions
+- Use fixtures for common test setup
+- Test both success and failure cases
+- Include gas usage tests for critical functions
+- Use descriptive test names that explain the scenario
+
+## Script Standards
+- Use environment variables for configuration
+- Implement proper error handling and logging
+- Use TypeScript's type system effectively
+- Include deployment verification steps
+
+## Subgraph Standards
+- Keep schema.graphql synchronized with contract events
+- Use appropriate data types in schema
+- Implement efficient event handlers
+- Use templates for dynamic contracts
+- Handle edge cases in mappings
+
+## Import Organization
+- Group imports: external libraries, internal modules, types
+- Use absolute imports when possible
+- Avoid circular dependencies

@@ -1,0 +1,35 @@
+---
+description: Git workflow and version control standards
+---
+
+# Git Workflow Standards
+
+## Branch Strategy
+- Use feature branches for new development
+- Use descriptive branch names (e.g., `feature/marketplace-v2`, `fix/token-management`)
+- Keep main branch stable and deployable
+- Use pull requests for code review
+
+## Commit Messages
+- Use conventional commit format
+- Include scope when relevant (e.g., `feat(contracts): add marketplace v2`)
+- Use present tense ("add" not "added")
+- Include breaking changes in commit message
+
+## Code Review
+- Review all smart contract changes thoroughly
+- Check for security vulnerabilities
+- Verify test coverage
+- Ensure proper documentation
+
+## Version Control
+- Use semantic versioning for releases
+- Tag releases appropriately
+- Document breaking changes
+- Maintain changelog
+
+## File Organization
+- Keep generated files out of version control
+- Use .gitignore for artifacts and dependencies
+- Organize contracts by functionality
+- Maintain clean directory structure

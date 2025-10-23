@@ -1,0 +1,43 @@
+---
+globs: scripts/**/*.ts
+description: Deployment and script standards
+---
+
+# Deployment Standards
+
+## Script Organization
+- Use TypeScript for all deployment scripts
+- Organize scripts by deployment type
+- Use environment variables for configuration
+- Implement proper error handling
+
+## Deployment Process
+- Verify contracts before deployment
+- Use deterministic addresses when needed
+- Implement proper access controls
+- Include contract verification
+- Document deployment addresses
+
+## Network Management
+- Use appropriate networks for different stages
+- Implement proper gas management
+- Handle network-specific configurations
+- Use proper account management
+
+## Security
+- Never hardcode private keys
+- Use environment variables for sensitive data
+- Implement proper access controls
+- Verify contract ownership
+
+## Documentation
+- Document deployment procedures
+- Include network-specific instructions
+- Document contract addresses
+- Include verification steps
+
+## Error Handling
+- Implement comprehensive error handling
+- Log deployment information
+- Handle network failures gracefully
+- Provide clear error messages

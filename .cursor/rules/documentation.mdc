@@ -1,0 +1,41 @@
+---
+description: Documentation standards and requirements
+---
+
+# Documentation Standards
+
+## Code Documentation
+- Use NatSpec comments for all public functions
+- Include parameter descriptions and return values
+- Document complex logic and business rules
+- Keep comments up-to-date with code changes
+
+## Contract Documentation
+- Document contract purpose and functionality
+- Include usage examples
+- Document deployment requirements
+- Include security considerations
+
+## API Documentation
+- Document all public functions
+- Include parameter types and descriptions
+- Document return values and exceptions
+- Include usage examples
+
+## Deployment Documentation
+- Document deployment procedures
+- Include network-specific instructions
+- Document contract addresses
+- Include verification steps
+
+## README Maintenance
+- Keep README.md up-to-date
+- Include setup instructions
+- Document available scripts
+- Include contribution guidelines
+
+## Architecture Documentation
+- Document system architecture
+- Include component relationships
+- Document data flow
+- Include security considerations

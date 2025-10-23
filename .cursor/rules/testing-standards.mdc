@@ -1,0 +1,44 @@
+---
+globs: test/**/*.ts
+description: Testing standards and best practices
+---
+
+# Testing Standards
+
+## Test Organization
+- Group tests by contract functionality
+- Use descriptive test names that explain the scenario
+- Organize tests in logical test suites
+- Use fixtures for common test setup
+
+## Test Coverage
+- Test all public and external functions
+- Include both success and failure cases
+- Test edge cases and boundary conditions
+- Test access control and permissions
+- Test event emissions
+
+## Gas Testing
+- Include gas usage tests for critical functions
+- Monitor gas consumption changes
+- Optimize for gas efficiency
+- Test with different input sizes
+
+## Security Testing
+- Test for common vulnerabilities
+- Test access control mechanisms
+- Test reentrancy protection
+- Test overflow/underflow scenarios
+- Test with malicious inputs
+
+## Integration Testing
+- Test contract interactions
+- Test deployment scenarios
+- Test upgrade scenarios
+- Test with real network conditions
+
+## Test Data
+- Use realistic test data
+- Test with different user scenarios
+- Use proper test accounts
+- Clean up test state between tests

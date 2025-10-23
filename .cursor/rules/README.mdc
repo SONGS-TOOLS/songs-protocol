@@ -1,0 +1,64 @@
+---
+alwaysApply: true
+description: Cursor rules overview and usage guide
+---
+
+# SONGS Protocol Cursor Rules
+
+This directory contains comprehensive Cursor rules for the SONGS Protocol project, a Hardhat-based smart contract project with Subgraph integration.
+
+## Available Rules
+
+### Core Development Rules
+- **`project-structure.mdc`** - Project architecture and directory structure
+- **`solidity-coding.mdc`** - Solidity coding standards and best practices
+- **`typescript-coding.mdc`** - TypeScript standards for tests, scripts, and subgraph
+- **`security-standards.mdc`** - Security best practices and guidelines
+
+### Configuration Rules
+- **`hardhat-config.mdc`** - Hardhat configuration and deployment standards
+- **`subgraph-development.mdc`** - Subgraph development and indexing standards
+
+### Development Workflow Rules
+- **`testing-standards.mdc`** - Testing standards and best practices
+- **`deployment-standards.mdc`** - Deployment and script standards
+- **`git-workflow.mdc`** - Git workflow and version control standards
+
+### Project-Specific Rules
+- **`protocol-specific.mdc`** - SONGS Protocol specific development guidelines
+- **`documentation.mdc`** - Documentation standards and requirements
+
+## Usage
+
+These rules are automatically applied based on file types and contexts. They provide:
+
+- **Code style guidelines** for Solidity and TypeScript
+- **Security best practices** for smart contract development
+- **Testing standards** for comprehensive test coverage
+- **Deployment procedures** for different networks
+- **Subgraph development** guidelines for blockchain indexing
+- **Documentation requirements** for maintainable code
+
+## Key Features
+
+- **Automatic application** based on file types (`.sol`, `.ts`, etc.)
+- **Project-specific guidance** for SONGS Protocol development
+- **Security-focused** development practices
+- **Comprehensive testing** standards
+- **Multi-network deployment** support
+- **Subgraph integration** guidelines
+
+## Getting Started
+
+1. Rules are automatically applied when working with relevant file types
+2. Follow the guidelines for consistent, secure, and maintainable code
+3. Use the project structure rule to understand the codebase organization
+4. Refer to specific rules when working on particular components
+
+## Contributing
+
+When adding new rules:
+- Use appropriate `globs` patterns for file type targeting
+- Include clear descriptions in frontmatter
+- Follow the existing format and structure
+- Test rules with relevant file types

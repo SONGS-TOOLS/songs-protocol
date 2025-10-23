@@ -1,0 +1,115 @@
+---
+alwaysApply: true
+description: Complete context about SONGS Protocol whitepaper development, current status, and key technical details
+---
+
+# SONGS Protocol Whitepaper Context
+
+## Project Overview
+This rule provides complete context about the SONGS Protocol whitepaper development, current operational status, and key technical details for future AI assistance.
+
+## Current Document Status
+- **File**: [MUSIC-INFRASTRUCTURE-WHITEPAPER.md](mdc:docs/MUSIC-INFRASTRUCTURE-WHITEPAPER.md)
+- **Version**: Working Draft v1.1 - Updated with Live Protocol Data
+- **Status**: SONGS Protocol v1 Live Since February 2025
+- **Live Metrics**: 3,000+ songs, 1,100+ artists, $5,000+ distributed
+
+## SONGS Protocol Current Status (LIVE)
+**Operational since February 2025:**
+- 3,000+ songs uploaded to permanent storage
+- 1,100+ artists verified using the protocol
+- 10,000 SongShares per song created (fractional ownership tokens)
+- $5,000+ in distribution earnings distributed to SongShare owners
+- SongShares (v1) - Recording rights tokens active and trading
+
+## Seven Structural Problems Addressed
+1. **Rights Fragmentation**: ~250 territorial PROs with no unified source of truth
+2. **Payment Opacity**: 9-18 month international payment cycles, 30-50% administrative fees
+3. **Temporal Misalignment**: 70-100 year copyrights vs. 10-year tech lifecycles
+4. **Intermediary Value Extraction**: 30-70% revenue capture through gatekeeping
+5. **Lack of Verifiability**: Trust-based systems vulnerable to fraud and disputes
+6. **Storage Redundancy**: Identical files duplicated across all stakeholders
+7. **Payment-Consumption Disconnection**: Streaming creates monopolistic platforms that control both access and economics
+
+## Key Technical Architecture
+
+### Sovereign Upload System (Current)
+- **SONGS App**: Artists upload songs directly to protocol (sovereign layer)
+- **Initial State**: Songs exist on protocol but are not yet monetizable
+- **Validation Required**: Songs must be validated before distribution
+- **Future Clients**: Multiple applications can access the same protocol
+
+### Validator Network (Distributors)
+- **Current Validators**: Digital distributors (DistroKid, TuneCore, etc.)
+- **Validation Process**: Legal verification, copyright checks, authorship verification
+- **Arweave Upload**: Validators execute permanent storage upload (for fee)
+- **Monetization Ready**: Only validated songs can generate revenue
+- **Economic Model**: Validators capture monetization and distribute payments using protocol
+- **Transparent Fees**: All validator fees visible on-chain for competition
+- **Capitalist Competition**: Validators compete on service quality and fee transparency
+
+### Current Scope Limitations
+- **Only Master Recording Rights**: SongShares (v1) - recording rights tokens
+- **No Publishing Rights**: No tokenization of publishing rights currently active
+- **No PROs**: No integration with collection societies currently active
+- **Future Features**: PRO integration, publishing rights tokenization, dispute resolution
+
+## Research & Development
+
+### Nillion Partnership (Critical)
+**Working with Nillion for decentralized access control to encrypted files on Arweave:**
+- **Challenge**: Arweave stores files publicly by default, but music industry requires controlled access
+- **Solution**: Decentralized encryption/decryption model with private/public key system
+- **Technical Requirements**:
+  - Encrypted upload before Arweave storage
+  - On-chain validation of ownership/identity
+  - Decentralized decryption based on valid credentials
+  - No centralized gatekeepers for access control
+- **Use Cases**: Master recordings, legal documents, metadata, licensing
+- **Benefits**: Permanent storage with controlled access, decentralized security
+
+### Future Features (Not Currently Active)
+- **Dispute Resolution System**: Protocol-level arbitration mechanism
+- **Collection Society Integration**: PROs can sign sovereign uploads
+- **Publishing Rights Tokenization**: Composition tokens for publishing rights
+- **Advanced Licensing**: Sync, mechanical licensing mechanisms
+
+## Economic Impact (Proven Results)
+- **Storage costs**: 99.99% reduction over 70 years ($0.40 vs $4,600 per track)
+- **Payment fees**: 99.98% reduction through disintermediation
+- **Settlement times**: From 9-18 months to minutes for international payments
+- **Artist revenue**: 80-120% increase without changing consumer pricing
+- **Global collection**: Single on-chain registration replaces ~250 territorial contracts
+
+## Architecture Layers
+1. **Permanent Storage (Arweave)**: $0.40 one-time vs $4,600 traditional
+2. **Restricted Access Research**: Nillion partnership for encrypted file access
+3. **Blockchain Registry**: Single source of truth with cryptographic verification
+4. **Gateway Architecture**: Controlled access without centralized gatekeeping
+5. **Validation Layer**: Distributor-based legal verification
+6. **Smart Contracts**: Atomic payment distribution in minutes, not months
+7. **Legal Integration**: Jurisdiction-agnostic licensing
+
+## Key Concepts for Future AI
+- **Sovereign Layer**: Artists maintain control over initial upload
+- **Validation Required**: Legal verification before monetization
+- **Competitive Validators**: Multiple distributor options with transparent fees
+- **Monetization Capture**: Validators capture and distribute payments using protocol
+- **Capitalist Competition**: Service quality and fee transparency drive competition
+- **Current Scope**: Only master recording rights (SongShares) tokenized
+- **Infrastructure Layer**: Creates conditions for other agents to build solutions
+- **Not Monopolistic**: Enables competitive markets above infrastructure layer
+
+## Document Evolution
+- **Initial Focus**: Storage duplication (corrected to comprehensive problem framework)
+- **Added**: Jurisdictional complexity and legal integration layer
+- **Added**: Payment-consumption disconnection problem
+- **Added**: Live protocol data and current operational status
+- **Added**: Nillion partnership and restricted access research
+- **Added**: Sovereign upload system and validator network details
+- **Added**: Current scope limitations and future features
+
+## Critical Understanding
+SONGS Protocol is **NOT** a future proposal but a **LIVE, OPERATIONAL SYSTEM** with proven results. The whitepaper documents both the theoretical framework and the real-world implementation that's already working with 3,000+ songs and 1,100+ artists.
+
+The protocol creates a **foundational infrastructure layer** that enables competitive markets rather than maintaining existing UX, allowing other agents to find the best ways to solve problems rather than being a monopolistic single-platform model.

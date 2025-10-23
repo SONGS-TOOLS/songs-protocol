@@ -1,0 +1,44 @@
+---
+globs: subgraph/**/*.ts,subgraph/**/*.graphql,subgraph.yaml
+description: Subgraph development and indexing standards
+---
+
+# Subgraph Development Standards
+
+## Schema Design
+- Keep schema.graphql synchronized with contract events
+- Use appropriate data types (Bytes, BigInt, String)
+- Define relationships between entities
+- Use derived fields for computed properties
+- Include timestamps for temporal queries
+
+## Event Handlers
+- Implement efficient event handlers in AssemblyScript
+- Handle all contract events comprehensively
+- Use proper error handling in mappings
+- Optimize for gas efficiency
+- Handle edge cases and null values
+
+## Configuration
+- Keep subgraph.yaml synchronized with contract ABIs
+- Use templates for dynamically created contracts
+- Configure proper start blocks
+- Use appropriate network settings
+
+## Testing
+- Test subgraph mappings thoroughly
+- Verify data accuracy
+- Test with different event scenarios
+- Include integration tests
+
+## Deployment
+- Use proper versioning for subgraph deployments
+- Test on testnets before mainnet
+- Monitor indexing performance
+- Handle failed transactions gracefully
+
+## Data Management
+- Use appropriate indexing strategies
+- Implement proper data validation
+- Handle large datasets efficiently
+- Use pagination for large result sets
