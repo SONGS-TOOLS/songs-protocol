@@ -1,4 +1,4 @@
-# SONGS: Next Generation Music Infrastructure: 
+# SONGS: Next Generation Music Infrastructure
 ### A Technical and Economic Analysis
 
 **Working Draft v1.1 - Updated with Live Protocol Data**
