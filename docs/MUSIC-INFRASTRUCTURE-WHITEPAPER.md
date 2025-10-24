@@ -42,12 +42,13 @@ A decentralized architecture combining permanent storage (Arweave), blockchain r
 
 ### Song Lifecycle Example (Live Protocol)
 ```
-1. Artist uploads master to Arweave (permanent storage) - $0.40 one-time ✅ LIVE
-2. Validator signs release after quality verification ✅ LIVE
-3. Blockchain registry records ownership splits with ISRC ✅ LIVE
-4. 10,000 SongShares created per song (fractional ownership) ✅ LIVE
-5. Smart contract distributes payments atomically ✅ LIVE ($5,000+ distributed)
-6. SongShare owners receive transparent, verifiable payments ✅ LIVE
+1. Artist uploads draft song to SONGS Protocol (optional: pay fee for permanent storage) ✅ LIVE
+2. Token fractionalization happens instantly at song creation (10,000 SongShares) ✅ LIVE
+3. Artist requests distribution to a validator (distributor) ✅ LIVE
+4. Distributor evaluates, certifies, and signs song for monetization ✅ LIVE
+5. Distributor takes fee and publishes song to permanent storage (if not done by artist) ✅ LIVE
+6. Royalties distributed automatically via ownership splits ✅ LIVE ($5,000+ distributed)
+7. Token owners can redeem their portion ✅ LIVE
 ```
 
 **Proven Results:**
@@ -121,36 +122,42 @@ The analysis demonstrates that this architecture reduces costs by orders of magn
 
 To illustrate how the proposed architecture works in practice, consider a complete song lifecycle:
 
-**Step 1: Artist Creation**
+**Step 1: Artist Upload & Tokenization**
 - Artist produces master recording (40MB lossless file)
-- Uploads to Arweave with encrypted access ($0.40 one-time cost)
-- Receives permanent transaction ID: `ar://abc123...`
+- Uploads draft song to SONGS Protocol (artist can optionally pay fee for immediate permanent storage)
+- Token fractionalization happens instantly: 10,000 SongShares created representing ownership structure
+- Artist defines initial ownership splits (e.g., 70% artist, 20% producer, 10% label)
 
-**Step 2: Quality Validation**
-- Validator (distributor/label) reviews audio quality and metadata
-- Signs release cryptographically with private key
-- Creates immutable proof of validation
+**Step 2: Distribution Request**
+- Artist requests distribution to a validator (distributor)
+- Validator reviews the song for quality, legal compliance, and metadata accuracy
+- Validator evaluates copyright, authorship, and technical standards
 
-**Step 3: Rights Registration**
-- Artist registers ownership splits on blockchain (e.g., 70% artist, 20% producer, 10% label)
-- Links ISRC identifier to Arweave transaction
-- All ownership data becomes publicly verifiable
+**Step 3: Validation & Certification**
+- Validator certifies and signs the song for monetization
+- Creates immutable proof of validation with cryptographic signature
+- Song becomes eligible for distribution and revenue generation
 
-**Step 4: Global Licensing**
+**Step 4: Permanent Storage & Publishing**
+- Distributor takes validation fee and publishes song to permanent storage (if not already done by artist)
+- Links ISRC identifier to permanent storage transaction
+- All ownership data becomes publicly verifiable on blockchain
+
+**Step 5: Global Licensing & Usage**
 - Streaming platform requests license on-chain (global territory, streaming rights)
 - Smart contract verifies platform identity and payment capacity
 - License activates automatically with transparent terms
 
-**Step 5: Usage and Payment**
+**Step 6: Automated Payment Distribution**
 - Platform reports usage to smart contract in real-time
-- Smart contract distributes payments atomically to all parties
+- Smart contract distributes payments atomically to all token holders based on ownership splits
 - Settlement occurs in minutes, not months
 - All transactions logged immutably
 
-**Step 6: Long-term Access**
-- Master recording remains accessible permanently (70+ years)
-- Ownership transfers update on-chain with complete audit trail
-- No recurring storage costs or infrastructure dependencies
+**Step 7: Token Redemption**
+- SongShare token owners can redeem their portion of earnings
+- Direct economic participation in song success
+- Transparent, verifiable payment distribution
 
 This lifecycle works identically for domestic and international transactions, eliminating the complexity that currently makes global collection prohibitively expensive for independent artists.
 
@@ -180,10 +187,13 @@ This lifecycle works identically for domestic and international transactions, el
 └─────────────────────────────────────────────────────────────────┘
 
 ARTIST WORKFLOW:
-Upload → Validate → Register → License → Distribute → Collect
+Upload Draft → Tokenize → Request Distribution → Validate → Publish → Collect
 
 PLATFORM WORKFLOW:
 Request License → Verify Rights → Access Masters → Report Usage → Pay
+
+TOKEN HOLDER WORKFLOW:
+Own SongShares → Receive Automatic Payments → Redeem Earnings
 
 GLOBAL BENEFITS:
 • Single registration works worldwide
@@ -546,13 +556,15 @@ SONGS Protocol creates a foundational infrastructure layer with a sovereign uplo
 
 **How It Works:**
 
-1. **Sovereign Upload**: Artist uploads via SONGS App → Protocol (not yet monetizable)
-2. **Validator Selection**: Artist chooses validator (distributor) for validation
-3. **Legal Verification**: Validator checks copyright, authorship, legal compliance
-4. **Arweave Upload**: Validator uploads to permanent storage (for fee)
-5. **Monetization Ready**: Song becomes available for distribution and revenue
-6. **Dispute Handling**: Internal arbitration system for legal conflicts
-7. **Collection Integration**: PROs can sign and collect royalties
+1. **Sovereign Upload**: Artist uploads draft song to protocol (optional: pay for immediate permanent storage)
+2. **Instant Tokenization**: 10,000 SongShares created immediately with ownership structure
+3. **Distribution Request**: Artist requests distribution to validator (distributor)
+4. **Validation & Certification**: Validator evaluates, certifies, and signs song for monetization
+5. **Permanent Storage**: Distributor takes fee and publishes to permanent storage (if not done by artist)
+6. **Monetization Ready**: Song becomes available for distribution and revenue
+7. **Token Redemption**: SongShare holders can redeem their portion of earnings
+8. **Dispute Handling**: Internal arbitration system for legal conflicts (future)
+9. **Collection Integration**: PROs can sign and collect royalties (future)
 
 **Result**: Creates a competitive, legally compliant ecosystem where:
 - **Artists** maintain sovereignty over their work
@@ -641,103 +653,7 @@ Infrastructure must create proper economic incentives and competitive markets ra
 
 The architecture consists of four primary layers, each addressing specific problems identified in Section 2:
 
-### 4.1 Permanent Storage Layer: Arweave
-*(Addresses: Storage Redundancy, Temporal Misalignment)*
-
-**Problem Mapping:**
-
-Current infrastructure duplicates identical files across stakeholders (Problem 6) and operates on short technology lifecycles incompatible with 70-100 year copyright terms (Problem 3). Permanent storage addresses both by providing single-instance storage with guaranteed long-term availability.
-
-**Technical Implementation:**
-
-Arweave implements a blockweave structure where miners must prove they store random historical blocks to mine new ones. This creates incentive alignment: old data becomes more valuable to store as the network grows, not less. The mechanism ensures data permanence through economic incentives rather than trust in any single organization.
-
-The network operates an endowment model where one-time upload payments fund storage costs for 200+ years, assuming storage cost deflation continues at historical rates (30-40% annually). As of late 2024, storage costs approximately $0.01 per MB.
-
-**Economic Analysis:**
-
-For a 40MB lossless master:
-- Arweave: $0.40 (one-time)
-- Traditional infrastructure (70 years, 6 stakeholders): $4,638
-- Cost reduction: 99.99%
-
-At industry scale (100,000 tracks):
-- Arweave: $40,000
-- Traditional infrastructure: $464M
-- Absolute savings: $463.96M
-
-**Data Addressing:**
-
-Files stored on Arweave receive permanent transaction IDs (SHA-256 hashes) serving as immutable addresses (`ar://[tx-id]`). These addresses never change and remain accessible as long as the network exists. The protocol supports up to 2KB of queryable metadata tags per transaction, enabling indexed search across all uploads without reading file contents.
-
-**Restricted Access Research & Development:**
-
-**Current Challenge:** Arweave stores files publicly by default, but music industry requires controlled access to master recordings while maintaining permanence.
-
-**SONGS Protocol Solution:** Research and development for decentralized access control to encrypted files on Arweave:
-- **Encrypted Storage**: Master recordings stored encrypted on Arweave
-- **Decentralized Access Control**: Access granted based on on-chain ownership, identity, or validation
-- **Nillion Partnership**: Working with Nillion for decentralized encryption/decryption model
-- **Private/Public Key System**: Cryptographic access control without centralized gatekeepers
-- **Permanent but Private**: Files remain permanently stored but access is restricted
-
-**Technical Architecture:**
-- **Upload**: Files encrypted before Arweave storage
-- **Access Control**: On-chain validation of ownership/identity
-- **Decryption**: Decentralized decryption based on valid credentials
-- **No Centralized Gatekeepers**: Access control through cryptographic proofs
-
-**Benefits:**
-- Eliminates redundant storage across stakeholders
-- Guarantees availability beyond any organization's lifetime
-- Provides verifiable data integrity through content addressing
-- Reduces infrastructure costs by orders of magnitude
-- **New**: Enables controlled access to permanent storage
-- **New**: Decentralized encryption/decryption without centralized gatekeepers
-
-### 4.2 Restricted Access Research: Nillion Partnership
-*(Addresses: Storage Redundancy, Temporal Misalignment, Intermediary Value Extraction)*
-
-**Problem Mapping:**
-
-Current infrastructure requires centralized gatekeepers for access control (Problem 4), while permanent storage needs controlled access to encrypted files (Problem 3, Problem 6). SONGS Protocol is developing decentralized access control to encrypted files on Arweave.
-
-**Research & Development Focus:**
-
-**Nillion Partnership:** SONGS Protocol is working with Nillion to develop a decentralized model for accessing encrypted files on Arweave:
-
-- **Decentralized Encryption/Decryption**: No centralized gatekeepers for file access
-- **Private/Public Key System**: Cryptographic access control based on ownership/identity
-- **On-Chain Validation**: Access granted through blockchain-based ownership proofs
-- **Permanent but Private**: Files stored permanently but access is restricted
-- **No Single Point of Failure**: Decentralized access control without centralized servers
-
-**Technical Requirements:**
-
-- **Encrypted Upload**: Files encrypted before Arweave storage
-- **Access Control**: On-chain validation of ownership, identity, or validation status
-- **Decentralized Decryption**: Access granted through cryptographic proofs
-- **No Centralized Gatekeepers**: Access control through decentralized mechanisms
-- **Permanent Storage**: Files remain accessible for 70+ years
-- **Controlled Access**: Only authorized parties can decrypt files
-
-**Use Cases:**
-
-- **Master Recordings**: Controlled access to high-quality audio files
-- **Legal Documents**: Restricted access to contracts and agreements
-- **Metadata**: Sensitive information accessible only to authorized parties
-- **Licensing**: Access granted based on valid licensing agreements
-
-**Benefits:**
-
-- **Permanent Storage**: Files guaranteed to be available for 70+ years
-- **Controlled Access**: Only authorized parties can access files
-- **Decentralized**: No single point of failure or centralized control
-- **Cryptographic Security**: Access control through mathematical proofs
-- **Cost Effective**: Single storage instance with controlled access
-- **Industry Standard**: Meets music industry requirements for controlled access
-
-### 4.3 Rights Registry: Blockchain Layer
+### 4.1 Rights Registry: Blockchain Layer
 *(Addresses: Rights Fragmentation, Lack of Verifiability, Payment Opacity)*
 
 **Problem Mapping:**
@@ -794,6 +710,102 @@ Any party can reconstruct exact ownership at any historical point. Disputes reso
 - Complete, immutable audit trails for ownership changes
 - Interoperability with existing industry identifiers and workflows
 - Foundation for automated payment distribution
+
+### 4.2 Permanent Storage Layer: Arweave
+*(Addresses: Storage Redundancy, Temporal Misalignment)*
+
+**Problem Mapping:**
+
+Current infrastructure duplicates identical files across stakeholders (Problem 6) and operates on short technology lifecycles incompatible with 70-100 year copyright terms (Problem 3). Permanent storage addresses both by providing single-instance storage with guaranteed long-term availability.
+
+**Technical Implementation:**
+
+Arweave implements a blockweave structure where miners must prove they store random historical blocks to mine new ones. This creates incentive alignment: old data becomes more valuable to store as the network grows, not less. The mechanism ensures data permanence through economic incentives rather than trust in any single organization.
+
+The network operates an endowment model where one-time upload payments fund storage costs for 200+ years, assuming storage cost deflation continues at historical rates (30-40% annually). As of late 2024, storage costs approximately $0.01 per MB.
+
+**Economic Analysis:**
+
+For a 40MB lossless master:
+- Arweave: $0.40 (one-time)
+- Traditional infrastructure (70 years, 6 stakeholders): $4,638
+- Cost reduction: 99.99%
+
+At industry scale (100,000 tracks):
+- Arweave: $40,000
+- Traditional infrastructure: $464M
+- Absolute savings: $463.96M
+
+**Data Addressing:**
+
+Files stored on Arweave receive permanent transaction IDs (SHA-256 hashes) serving as immutable addresses (`ar://[tx-id]`). These addresses never change and remain accessible as long as the network exists. The protocol supports up to 2KB of queryable metadata tags per transaction, enabling indexed search across all uploads without reading file contents.
+
+**Restricted Access Research & Development:**
+
+**Current Challenge:** Arweave stores files publicly by default, but music industry requires controlled access to master recordings while maintaining permanence.
+
+**SONGS Protocol Solution:** Research and development for decentralized access control to encrypted files on Arweave:
+- **Encrypted Storage**: Master recordings stored encrypted on Arweave
+- **Decentralized Access Control**: Access granted based on on-chain ownership, identity, or validation
+- **Nillion Partnership**: Working with Nillion for decentralized encryption/decryption model
+- **Private/Public Key System**: Cryptographic access control without centralized gatekeepers
+- **Permanent but Private**: Files remain permanently stored but access is restricted
+
+**Technical Architecture:**
+- **Upload**: Files encrypted before Arweave storage
+- **Access Control**: On-chain validation of ownership/identity
+- **Decryption**: Decentralized decryption based on valid credentials
+- **No Centralized Gatekeepers**: Access control through cryptographic proofs
+
+**Benefits:**
+- Eliminates redundant storage across stakeholders
+- Guarantees availability beyond any organization's lifetime
+- Provides verifiable data integrity through content addressing
+- Reduces infrastructure costs by orders of magnitude
+- **New**: Enables controlled access to permanent storage
+- **New**: Decentralized encryption/decryption without centralized gatekeepers
+
+### 4.3 Restricted Access Research: Nillion Partnership
+*(Addresses: Storage Redundancy, Temporal Misalignment, Intermediary Value Extraction)*
+
+**Problem Mapping:**
+
+Current infrastructure requires centralized gatekeepers for access control (Problem 4), while permanent storage needs controlled access to encrypted files (Problem 3, Problem 6). SONGS Protocol is developing decentralized access control to encrypted files on Arweave.
+
+**Research & Development Focus:**
+
+**Nillion Partnership:** SONGS Protocol is working with Nillion to develop a decentralized model for accessing encrypted files on Arweave:
+
+- **Decentralized Encryption/Decryption**: No centralized gatekeepers for file access
+- **Private/Public Key System**: Cryptographic access control based on ownership/identity
+- **On-Chain Validation**: Access granted through blockchain-based ownership proofs
+- **Permanent but Private**: Files stored permanently but access is restricted
+- **No Single Point of Failure**: Decentralized access control without centralized servers
+
+**Technical Requirements:**
+
+- **Encrypted Upload**: Files encrypted before Arweave storage
+- **Access Control**: On-chain validation of ownership, identity, or validation status
+- **Decentralized Decryption**: Access granted through cryptographic proofs
+- **No Centralized Gatekeepers**: Access control through decentralized mechanisms
+- **Permanent Storage**: Files remain accessible for 70+ years
+- **Controlled Access**: Only authorized parties can decrypt files
+
+**Use Cases:**
+
+- **Master Recordings**: Controlled access to high-quality audio files
+- **Legal Documents**: Restricted access to contracts and agreements
+- **Metadata**: Sensitive information accessible only to authorized parties
+- **Licensing**: Access granted based on valid licensing agreements
+
+**Benefits:**
+
+- **Permanent Storage**: Files guaranteed to be available for 70+ years
+- **Controlled Access**: Only authorized parties can access files
+- **Decentralized**: No single point of failure or centralized control
+- **Cryptographic Security**: Access control through mathematical proofs
+- **Cost Effective**: Single storage instance with controlled access
+- **Industry Standard**: Meets music industry requirements for controlled access
 
 ### 4.4 Access Control Layer: Gateway Architecture
 *(Addresses: Storage Redundancy, Intermediary Value Extraction)*
@@ -1133,16 +1145,18 @@ The following table shows how each architectural layer addresses the seven ident
 
 The layers work together as a unified system with sovereign upload and validation:
 
-1. **Sovereign Upload**: Artist uploads via SONGS App to protocol (not yet monetizable)
-2. **Validator Selection**: Artist chooses distributor/validator for legal verification
-3. **Legal Verification**: Validator checks copyright, authorship, quality, legal compliance
-4. **Arweave Upload**: Validator executes permanent storage upload (for fee)
-5. **Blockchain Registry**: Records ownership splits, links ISRC to Arweave transaction, stores validator signature
-6. **Monetization Ready**: Song becomes available for distribution and revenue generation
-7. **Gateway Access**: Controlled access to files based on on-chain licenses
-8. **Smart Contracts**: Automatic payment distribution according to registered splits
-9. **Dispute Resolution**: Internal arbitration system for legal conflicts (future)
-10. **Collection Integration**: PROs can sign and collect royalties (future - not currently active)
+1. **Sovereign Upload**: Artist uploads draft song to protocol (optional: pay for immediate permanent storage)
+2. **Instant Tokenization**: 10,000 SongShares created immediately with ownership structure
+3. **Distribution Request**: Artist requests distribution to validator (distributor)
+4. **Validation & Certification**: Validator evaluates, certifies, and signs song for monetization
+5. **Permanent Storage**: Distributor takes fee and publishes to permanent storage (if not done by artist)
+6. **Blockchain Registry**: Records ownership splits, links ISRC to permanent storage, stores validator signature
+7. **Monetization Ready**: Song becomes available for distribution and revenue generation
+8. **Gateway Access**: Controlled access to files based on on-chain licenses
+9. **Smart Contracts**: Automatic payment distribution according to token ownership splits
+10. **Token Redemption**: SongShare holders can redeem their portion of earnings
+11. **Dispute Resolution**: Internal arbitration system for legal conflicts (future)
+12. **Collection Integration**: PROs can sign and collect royalties (future - not currently active)
 
 **Key Features:**
 - **Sovereign Layer**: Artists maintain control over initial upload
@@ -2006,11 +2020,16 @@ Compare to traditional distributor fees (15-30% of revenue) or accounting overhe
 
 ---
 
-**Document Status:** Working Draft v1.1 - Updated with Live Protocol Data  
-**Last Updated:** October 21, 2025  
 **Protocol Status:** SONGS Protocol v1 Live Since February 2025  
 **Live Metrics:** 3,000+ songs, 1,100+ artists, $5,000+ distributed  
-**Authors:** [To be completed]  
-**Contact:** [To be completed]  
+
+---
+
+**Authors:** Sergio Gordo
+**Contact:** gordo@songs-tools.com
 **License:** [To be determined]
 
+---
+
+**Document Status:** Working Draft v1.1 - Updated with Live Protocol Data  
+**Last Updated:** October 21, 2025  
