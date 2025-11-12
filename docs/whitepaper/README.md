@@ -84,11 +84,8 @@ The complete whitepaper is also available as a single file:
 
 ## Regenerating Sections
 
-If you need to regenerate the section files from the main document, use the included script:
-
-```bash
-cd docs/whitepaper
-python3 split_whitepaper.py
-```
-
-This will read from `../MUSIC-INFRASTRUCTURE-WHITEPAPER.md` and create all section files with proper navigation.
+If you need to regenerate the section files from the main document, you can manually split the main document or use a custom script. The sections should maintain:
+- Navigation links between sections
+- Links to the index
+- Links to the full document
+- Proper markdown formatting
