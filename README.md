@@ -20,7 +20,7 @@ SONGS Protocol is a decentralized infrastructure that transforms how music is st
 - **Permanent Storage**: Arweave integration for immutable, permanent storage ($0.40 one-time vs $4,600 traditional over 70 years)
 - **Blockchain Registry**: Single source of truth with cryptographic verification
 - **Smart Contracts**: Atomic payment distribution in minutes, not months
-- **Fractional Ownership**: 10,000 SongShares per song (ERC1155 tokens) enabling fractional ownership
+- **Fractional Ownership**: Both recording (SongShares) and composition (publishing tokens, future feature) rights are divided on-chain into thousands of tradable shares, enabling direct, transparent, and automated participation in master and publishing revenues for all fractional owners.
 - **Automated Distribution**: Transparent, verifiable royalty distribution
 - **Global by Default**: Single on-chain registration replaces ~250 territorial contracts
 
