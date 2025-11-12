@@ -11,45 +11,65 @@ SONGS Protocol is a decentralized infrastructure layer that addresses seven stru
 
 ---
 
-## 🚀 Quick Start
+## 🎯 What is SONGS Protocol?
 
-### Installation
+SONGS Protocol is a decentralized infrastructure that transforms how music is stored, owned, and monetized. By combining permanent storage (Arweave), blockchain registries, and smart contract payment distribution, it creates a jurisdiction-agnostic system that works identically for domestic and international transactions.
 
-```bash
-# Clone the repository
-git clone https://github.com/SONGS-TOOLS/songs-protocol.git
-cd songs-protocol
+### Key Innovations
 
-# Install dependencies
-yarn install
+- **Permanent Storage**: Arweave integration for immutable, permanent storage ($0.40 one-time vs $4,600 traditional over 70 years)
+- **Blockchain Registry**: Single source of truth with cryptographic verification
+- **Smart Contracts**: Atomic payment distribution in minutes, not months
+- **Fractional Ownership**: 10,000 SongShares per song (ERC1155 tokens) enabling fractional ownership
+- **Automated Distribution**: Transparent, verifiable royalty distribution
+- **Global by Default**: Single on-chain registration replaces ~250 territorial contracts
 
-# Compile contracts
-yarn compile
+---
 
-# Run tests
-yarn test
-```
+## 📊 Protocol Status
 
-### Key Scripts
+**SONGS Protocol v1 is operational since February 2025:**
 
-```bash
-# Compile contracts
-yarn compile
+- ✅ **3,000+ songs uploaded** to permanent storage
+- ✅ **1,100+ artists verified** using the protocol
+- ✅ **10,000 SongShares per song** created (fractional ownership tokens)
+- ✅ **$5,000+ in distribution earnings** distributed to SongShare owners
+- ✅ **SongShares (v1)** - Recording rights tokens active and trading
 
-# Run tests
-yarn test
+### Current Phase
 
-# Deploy protocol
-yarn deploy:protocol
+- **Phase 1 (COMPLETED)**: Core protocol deployed, 3,000+ releases, 1,100+ artists
+- **Phase 2 (CURRENT)**: Gateway network expansion, platform integrations
+- **Phase 3 (NEXT)**: Major platform integration, 50,000+ releases, $1M+ distributed
 
-# Deploy wrapped songs
-yarn deploy:songs
+---
 
-# Subgraph operations
-yarn subgraph:codegen
-yarn subgraph:build
-yarn subgraph:deploy
-```
+## 💡 Economic Impact
+
+SONGS Protocol delivers order-of-magnitude improvements:
+
+- **99.99% storage cost reduction** over 70 years ($0.40 vs $4,600 per track)
+- **99.98% payment fee reduction** through disintermediation
+- **Minutes vs months** for international payment settlement (from 9-18 months to minutes)
+- **80-120% artist revenue increase** without changing consumer pricing
+- **Eliminates black box royalties** through cryptographic attribution
+- **Global collection** - Single on-chain registration replaces ~250 territorial contracts
+
+---
+
+## 🔍 The Seven Structural Problems
+
+SONGS Protocol addresses seven interconnected problems in the music industry:
+
+1. **Rights Fragmentation** - ~250 territorial PROs with no unified source of truth
+2. **Payment Opacity** - 9-18 month international payment cycles, 30-50% administrative fees
+3. **Temporal Misalignment** - 70-100 year copyrights vs. 10-year tech lifecycles
+4. **Intermediary Value Extraction** - 30-70% revenue capture through gatekeeping
+5. **Lack of Verifiability** - Trust-based systems vulnerable to fraud and disputes
+6. **Storage Redundancy** - Identical files duplicated across all stakeholders
+7. **Payment-Consumption Disconnection** - Streaming creates monopolistic platforms
+
+[Learn more about the problems and solutions →](./docs/whitepaper/04-CURRENT-STATE-ANALYSIS.md)
 
 ---
 
@@ -74,28 +94,7 @@ The complete technical and economic analysis is available in the [documentation]
 
 ---
 
-## 🎯 Key Features
-
-### Protocol Capabilities
-
-- **Permanent Storage**: Arweave integration for immutable, permanent storage ($0.40 one-time vs $4,600 traditional)
-- **Blockchain Registry**: Single source of truth with cryptographic verification
-- **Smart Contracts**: Atomic payment distribution in minutes, not months
-- **Fractional Ownership**: 10,000 SongShares per song (ERC1155 tokens)
-- **Automated Distribution**: Transparent, verifiable royalty distribution
-- **Global by Default**: Single on-chain registration replaces ~250 territorial contracts
-
-### Economic Impact
-
-- **99.99% storage cost reduction** over 70 years
-- **99.98% payment fee reduction** through disintermediation
-- **Minutes vs months** for international payment settlement
-- **80-120% artist revenue increase** without changing consumer pricing
-- **Eliminates black box royalties** through cryptographic attribution
-
----
-
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
 ### Core Components
 
@@ -115,114 +114,28 @@ The complete technical and economic analysis is available in the [documentation]
 
 ---
 
-## 📊 Protocol Status
+## 🌐 How It Works
 
-**SONGS Protocol v1 is operational since February 2025:**
+### Song Lifecycle
 
-- ✅ **3,000+ songs uploaded** to permanent storage
-- ✅ **1,100+ artists verified** using the protocol
-- ✅ **10,000 SongShares per song** created (fractional ownership tokens)
-- ✅ **$5,000+ in distribution earnings** distributed to SongShare owners
-- ✅ **SongShares (v1)** - Recording rights tokens active and trading
+1. **Artist Upload**: Artist uploads draft song to SONGS Protocol (optional: pay fee for permanent storage)
+2. **Token Fractionalization**: 10,000 SongShares created instantly representing ownership structure
+3. **Distribution Request**: Artist requests distribution to a validator (distributor)
+4. **Validation & Certification**: Distributor evaluates, certifies, and signs song for monetization
+5. **Permanent Storage**: Distributor publishes song to permanent storage (if not done by artist)
+6. **Automated Payments**: Royalties distributed automatically via ownership splits
+7. **Token Redemption**: SongShare holders can redeem their portion of earnings
 
-### Current Phase
-
-- **Phase 1 (COMPLETED)**: Core protocol deployed, 3,000+ releases, 1,100+ artists
-- **Phase 2 (CURRENT)**: Gateway network expansion, platform integrations
-- **Phase 3 (NEXT)**: Major platform integration, 50,000+ releases, $1M+ distributed
-
----
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-├── contracts/          # Smart contracts
-│   ├── protocol/       # Core protocol contracts
-│   ├── Alpha/          # Alpha version contracts
-│   └── SongsLicense/   # License-related contracts
-├── scripts/            # Deployment scripts
-├── test/               # Test suite
-├── subgraph/           # The Graph subgraph
-├── docs/               # Documentation and whitepaper
-└── abis/               # Contract ABIs
-```
-
-### Testing
-
-```bash
-# Run all tests
-yarn test
-
-# Run specific test file
-yarn test test/WrappedSongFactory.ts
-
-# Run with gas reporting
-yarn test --gas
-```
-
-### Deployment
-
-```bash
-# Deploy to local network
-yarn serve
-
-# Deploy protocol (requires network config)
-yarn deploy:protocol
-
-# Deploy wrapped songs
-yarn deploy:songs
-```
+[Learn more about the song lifecycle →](./docs/whitepaper/03-INTRODUCTION.md#15-song-lifecycle-through-the-system)
 
 ---
 
 ## 🔗 Resources
 
-### Documentation
-
-- [Full Documentation](./docs/README.md)
-- [Whitepaper](./docs/whitepaper/INDEX.md)
-- [Smart Contract Events](./docs/smart-contracts-events.md)
-
-### External Links
-
 - **Website**: [https://songs-tools.com](https://songs-tools.com)
-- **Protocol Status**: Live since February 2025
-
----
-
-## 📝 The Seven Structural Problems
-
-SONGS Protocol addresses seven interconnected problems in the music industry:
-
-1. **Rights Fragmentation** - ~250 territorial PROs with no unified source of truth
-2. **Payment Opacity** - 9-18 month international payment cycles, 30-50% administrative fees
-3. **Temporal Misalignment** - 70-100 year copyrights vs. 10-year tech lifecycles
-4. **Intermediary Value Extraction** - 30-70% revenue capture through gatekeeping
-5. **Lack of Verifiability** - Trust-based systems vulnerable to fraud and disputes
-6. **Storage Redundancy** - Identical files duplicated across all stakeholders
-7. **Payment-Consumption Disconnection** - Streaming creates monopolistic platforms
-
-[Learn more about the problems and solutions →](./docs/whitepaper/04-CURRENT-STATE-ANALYSIS.md)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our development guidelines:
-
-1. Review the [documentation](./docs/README.md)
-2. Check existing issues and pull requests
-3. Follow the coding standards in [.cursor/rules](./.cursor/rules)
-4. Write tests for new features
-5. Submit a pull request
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](./LICENSE) file for details
+- **Documentation**: [Full Documentation](./docs/README.md)
+- **Whitepaper**: [Whitepaper Index](./docs/whitepaper/INDEX.md)
+- **Repository**: [GitHub](https://github.com/SONGS-TOOLS/songs-protocol)
 
 ---
 
@@ -230,7 +143,12 @@ MIT License - see [LICENSE](./LICENSE) file for details
 
 - **Email**: gordo@songs-tools.com
 - **Website**: [https://songs-tools.com](https://songs-tools.com)
-- **Repository**: [https://github.com/SONGS-TOOLS/songs-protocol](https://github.com/SONGS-TOOLS/songs-protocol)
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details
 
 ---
 
