@@ -2,11 +2,15 @@
 
 Welcome to the SONGS Protocol documentation. This directory contains comprehensive technical and economic analysis of the protocol, including the complete whitepaper and supporting documentation.
 
+> **⚠️ Work In Progress (WIP)**: The whitepaper is currently under active development. Content may change, and some sections may be incomplete or subject to revision. Feedback and contributions are welcome.
+
 ## 📚 Documentation Structure
 
 ### Whitepaper
 
 The **Permanent Digital Music Infrastructure: A Technical and Economic Analysis** whitepaper is available in two formats:
+
+> **Status**: Work In Progress (WIP) - Working Draft v1.1
 
 #### 📖 Modular Version (Recommended)
 The whitepaper has been split into **18 modular sections** for easier navigation and reference:
@@ -109,10 +113,14 @@ The complete whitepaper is available as a single file:
 
 ## 📖 Document Information
 
+> **⚠️ Work In Progress**: This document is actively being developed and may contain incomplete sections or placeholders. Content is subject to change.
+
+- **Status**: Work In Progress (WIP)
 - **Version**: Working Draft v1.1 - Updated with Live Protocol Data
 - **Last Updated**: October 21, 2025
 - **Authors**: Sergio Gordo
 - **Contact**: gordo@songs-tools.com
+- **Feedback**: Contributions and feedback are welcome
 
 ## 🗺️ Navigation
 
@@ -137,10 +145,11 @@ Each section file includes navigation links to:
 
 ## 📝 Contributing
 
-When updating documentation:
+> **Note**: This whitepaper is a Work In Progress. When updating documentation:
 1. Update the relevant section file in `whitepaper/`
 2. Update the full document `MUSIC-INFRASTRUCTURE-WHITEPAPER.md`
-3. Regenerate sections if needed using the script in `whitepaper/`
+3. Maintain WIP status indicators where appropriate
+4. Clearly mark incomplete sections or placeholders
 
 ## 📞 Contact
 

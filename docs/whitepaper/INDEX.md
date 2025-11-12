@@ -1,6 +1,9 @@
 # Permanent Digital Music Infrastructure: A Technical and Economic Analysis
 
-**Working Draft v1.1 - Updated with Live Protocol Data**
+> **⚠️ Work In Progress (WIP)**: This whitepaper is currently under active development. Content may change, and some sections may be incomplete or subject to revision. Feedback and contributions are welcome.
+
+**Status:** Work In Progress (WIP)  
+**Version:** Working Draft v1.1 - Updated with Live Protocol Data
 
 **Authors:** Sergio Gordo  
 **Contact:** gordo@songs-tools.com  
